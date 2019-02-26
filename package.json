@@ -14,7 +14,7 @@
     "dist"
   ],
   "dependencies": {
-    "anux-common": "^1.0.10",
+    "anux-common": "^1.0.12",
     "react": "^16.6.3",
     "react-dom": "^16.6.3"
   },
