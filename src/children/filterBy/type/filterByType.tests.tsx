@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 import * as React from 'react';
-import './filterByType';
+import { Children } from '../..';
 
 class Component1 extends React.PureComponent {
   public render() {
@@ -32,8 +32,8 @@ it('can filter children by a specific type', () => {
       test
     </>
   );
-  const deepResults = React.Children.filterByType(a.props.children, Component1, true);
+  const deepResults = Children.filterBy.type(a.props.children, Component1, true);
   expect(deepResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.0'}>Blah</Component1>, <Component1 key={'.2'}>test3</Component1>]);
-  const shallowResults = React.Children.filterByType(a.props.children, Component1);
+  const shallowResults = Children.filterBy.type(a.props.children, Component1);
   expect(shallowResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.2'}>test3</Component1>]);
 });
