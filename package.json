@@ -14,11 +14,11 @@
     "dist"
   ],
   "dependencies": {
-    "anux-common": "^1.0.13",
+    "anux-common": "^1.0.14",
     "react": "^16.8.3",
     "react-dom": "^16.8.3"
   },
   "devDependencies": {
-    "anux-package": "^1.0.12"
+    "anux-package": "^1.0.14"
   }
 }
