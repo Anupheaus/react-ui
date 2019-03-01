@@ -1,10 +1,9 @@
-import * as React from 'react';
-import './createStyle';
 import { IMap } from 'anux-common';
+import { createStyle } from './createStyle';
 
 it('can return the requested style correctly', () => {
   const memory = {};
-  const style = React.createStyle(memory, {
+  const style = createStyle(memory, {
     'width': 200,
     'height': 300,
     '--background-color': 'red',
@@ -26,7 +25,7 @@ it('returns the same object if no style property has changed', () => {
       '--background-color': 'red',
     };
     styles.push(style);
-    return React.createStyle(memory, style);
+    return createStyle(memory, style);
   };
   const style1 = generateStyle();
   const style2 = generateStyle();
