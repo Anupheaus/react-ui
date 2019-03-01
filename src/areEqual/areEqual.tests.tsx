@@ -1,7 +1,7 @@
-import * as React from 'react';
-import './areEqual';
+import { PureComponent } from 'react';
+import { areDeepEqual, areShallowEqual } from './areEqual';
 
-class Component1 extends React.PureComponent {
+class Component1 extends PureComponent {
   public render() {
     return this.props.children || null;
   }
@@ -35,10 +35,10 @@ it('can compare JSX elements correctly', () => {
       </div>
     ),
   };
-  expect(React.areDeepEqual(a, b)).to.be.true;
-  expect(React.areDeepEqual(a, c)).to.be.false;
-  expect(React.areShallowEqual(a, b)).to.be.true;
-  expect(React.areShallowEqual(a, c)).to.be.false;
+  expect(areDeepEqual(a, b)).to.be.true;
+  expect(areDeepEqual(a, c)).to.be.false;
+  expect(areShallowEqual(a, b)).to.be.true;
+  expect(areShallowEqual(a, c)).to.be.false;
 });
 
 it('can compare custom React components correctly', () => {
@@ -63,12 +63,12 @@ it('can compare custom React components correctly', () => {
       </Component2>
     ),
   };
-  expect(React.areDeepEqual(a, b)).to.be.true;
+  expect(areDeepEqual(a, b)).to.be.true;
   expect(Reflect.areDeepEqual(a, b)).to.be.true;
-  expect(React.areDeepEqual(a, c)).to.be.false;
-  expect(React.areShallowEqual(a, b)).to.be.true;
+  expect(areDeepEqual(a, c)).to.be.false;
+  expect(areShallowEqual(a, b)).to.be.true;
   expect(Reflect.areShallowEqual(a, b)).to.be.false;
-  expect(React.areShallowEqual(a, c)).to.be.false;
+  expect(areShallowEqual(a, c)).to.be.false;
 });
 
 it('can compare a complex comparison correctly', () => {
@@ -85,8 +85,8 @@ it('can compare a complex comparison correctly', () => {
   const c = {
     a: null,
   };
-  expect(React.areDeepEqual(a, b)).to.be.false;
-  expect(React.areShallowEqual(a, b)).to.be.false;
-  expect(React.areDeepEqual(a, c)).to.be.false;
-  expect(React.areShallowEqual(a, c)).to.be.false;
+  expect(areDeepEqual(a, b)).to.be.false;
+  expect(areShallowEqual(a, b)).to.be.false;
+  expect(areDeepEqual(a, c)).to.be.false;
+  expect(areShallowEqual(a, c)).to.be.false;
 });
