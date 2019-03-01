@@ -8,3 +8,4 @@ export * from './classNames';
 export * from './createStyle';
 export * from './children';
 export * from './useBound';
+export * from './showDiff';
