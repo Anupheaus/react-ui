@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 
 interface IProps {
   saveTest(test: () => void): void;
-  saveSetValue(setValue: (value: number) => void): void;
+  saveSetValue?(setValue: (value: number) => void): void;
 }
 
 const TestComponent: FunctionComponent<IProps> = ({ saveTest, saveSetValue }) => {
@@ -12,7 +12,7 @@ const TestComponent: FunctionComponent<IProps> = ({ saveTest, saveSetValue }) =>
   const test = useBound(() => value);
 
   saveTest(test);
-  saveSetValue(setValue);
+  if (saveSetValue) { saveSetValue(setValue); }
 
   return null;
 };
@@ -38,7 +38,6 @@ it('returns the same function every time', () => {
   expect(callCount).to.eq(2);
 
   component.unmount();
-
 });
 
 it('uses the latest copy of the function every time', () => {
@@ -64,5 +63,21 @@ it('uses the latest copy of the function every time', () => {
   expect(callCount).to.eq(2);
 
   component.unmount();
+});
 
+it('properly discards function when unmounted', () => {
+  let test: () => void;
+
+  const component = mount((
+    <TestComponent saveTest={testValue => { test = testValue; }} />
+  ));
+
+  expect(test).to.be.a('function');
+  expect(test()).to.eq(0);
+
+  component.unmount();
+
+  expect(() => {
+    test();
+  }).to.throw('The component for which this bound function has been created has since been unmounted.');
 });
