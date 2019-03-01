@@ -1,5 +1,4 @@
-import * as React from 'react';
-import './binder';
+import { binder } from './binder';
 
 it('returns the same function every time it is called', () => {
   const target = {};
@@ -8,7 +7,7 @@ it('returns the same function every time it is called', () => {
   const createFunc = () => {
     const binderFunc = () => void 0;
     binderFuncs.push(binderFunc);
-    return React.binder(target, binderFunc);
+    return binder(target, binderFunc);
   };
 
   const getFunc = createFunc();
@@ -21,7 +20,7 @@ it('returns the same function every time it is called', () => {
 it('does not record values of variables within closures', () => {
   const target = {};
   let valueToReturn = 10;
-  const getFunc = React.binder(target, () => valueToReturn);
+  const getFunc = binder(target, () => valueToReturn);
 
   let value = getFunc();
   expect(value).to.eq(10);

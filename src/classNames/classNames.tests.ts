@@ -1,8 +1,7 @@
-import * as React from 'react';
-import './classNames';
+import { classNames } from './classNames';
 
 it('can take an array of class names and return them all correctly as a single string', () => {
-  const value = React.classNames([
+  const value = classNames([
     'test1',
     'test2',
     'test3',
@@ -12,7 +11,7 @@ it('can take an array of class names and return them all correctly as a single s
 });
 
 it('returns undefined if no values are specified or are empty', () => {
-  const value = React.classNames([
+  const value = classNames([
     '',
     undefined,
     null,

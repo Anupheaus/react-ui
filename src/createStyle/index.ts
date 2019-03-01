@@ -1,1 +1,1 @@
-import './createStyle';
+export * from './createStyle';

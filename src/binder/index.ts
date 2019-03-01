@@ -1,1 +1,1 @@
-import './binder';
+export * from './binder';

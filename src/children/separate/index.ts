@@ -1,1 +1,1 @@
-import './separate';
+export * from './separate';
