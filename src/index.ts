@@ -1,5 +1,7 @@
 import 'anux-package';
 import 'anux-common';
+import './typeOf';
+
 export * from './binder';
 export * from './areEqual';
 export * from './classNames';
