@@ -1,4 +1,3 @@
-import 'anux-package';
 import 'anux-common';
 import './typeOf';
 
