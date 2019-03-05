@@ -3,7 +3,7 @@ import './typeOf';
 
 export * from './binder';
 export * from './areEqual';
-export * from './classNames';
+export * from './useClasses';
 export * from './createStyle';
 export * from './children';
 export * from './useBound';

@@ -1,7 +1,7 @@
-import { classNames } from './classNames';
+import { useClasses } from './useClasses';
 
 it('can take an array of class names and return them all correctly as a single string', () => {
-  const value = classNames([
+  const value = useClasses([
     'test1',
     'test2',
     'test3',
@@ -11,7 +11,7 @@ it('can take an array of class names and return them all correctly as a single s
 });
 
 it('returns undefined if no values are specified or are empty', () => {
-  const value = classNames([
+  const value = useClasses([
     '',
     undefined,
     null,
