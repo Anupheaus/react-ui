@@ -10,3 +10,4 @@ export * from './useBound';
 export * from './showDiff';
 export * from './useStyle';
 export * from './useActions';
+export * from './useApi';
