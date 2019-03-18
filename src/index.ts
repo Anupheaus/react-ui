@@ -9,3 +9,4 @@ export * from './children';
 export * from './useBound';
 export * from './showDiff';
 export * from './useStyle';
+export * from './useActions';
