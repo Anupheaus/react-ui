@@ -1,4 +1,4 @@
-import 'anux-common';
+import './global';
 import './typeOf';
 
 export * from './binder';
