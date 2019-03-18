@@ -1,4 +1,4 @@
-import 'anux-common';
+import './global';
 import './typeOf';
 
 export * from './binder';
@@ -9,3 +9,6 @@ export * from './children';
 export * from './useBound';
 export * from './showDiff';
 export * from './useStyle';
+export * from './useActions';
+export * from './useApi';
+export * from './useAsync';
