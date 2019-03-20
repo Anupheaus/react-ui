@@ -568,10 +568,10 @@ anux-common@^1.0.25:
     numeral "^2.0.6"
     uuid "^3.3.2"
 
-anux-package@^1.0.18:
-  version "1.0.18"
-  resolved "https://registry.yarnpkg.com/anux-package/-/anux-package-1.0.18.tgz#362b39b5278b26b07b4c4e9f35715e8e553e46bb"
-  integrity sha512-Iqjd8IblcCC2NnSrWZxEv2y/f6fQVMLMPXrw9EYvDMbyiQ4L4UHST/HnTXdZnJ8WXL2xPpzTJ1sJQoqCDT2Sug==
+anux-package@^1.0.19:
+  version "1.0.19"
+  resolved "https://registry.yarnpkg.com/anux-package/-/anux-package-1.0.19.tgz#2a446168c88d4802e3e5e75f874c3e1c7f746af6"
+  integrity sha512-S6e5D0k9vQVC15GIZHqq7nWonHR0VywrJliTuAuBdDPErkXG78kTaMK9Cn2rcJLwuU+vu9u8EbTAxZ686iQ/wA==
   dependencies:
     "@types/chai" "^4.1.7"
     "@types/chai-fuzzy" "^1.3.30"
