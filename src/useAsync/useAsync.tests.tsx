@@ -88,11 +88,7 @@ describe('useAsync', () => {
 
   it('works even when the return value is not a promise', async () => {
     const test = setupTest({ test: 1 }, false);
-    expect(test.renderCount).to.eq(1);
-
-    await Promise.delay(0); // wait only until the component has been mounted
-
-    expect(test.renderCount).to.eq(2);
+    expect(test.renderCount).to.eq(2); // the useEffect is synchronous so it actually happens before we get the component back
     expect(test.result).to.eql({ test: 1 });
   });
 

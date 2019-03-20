@@ -1,8 +1,8 @@
 import 'anux-common';
-import * as ReactObj from 'react';
-import * as ReactDOMObj from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
-declare global {
-  const React: typeof ReactObj;
-  const ReactDOM: typeof ReactDOMObj;
-}
+// @ts-ignore
+global['React'] = React;
+// @ts-ignore
+global['ReactDOM'] = ReactDOM;

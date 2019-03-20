@@ -17,67 +17,71 @@ const TestComponent: FunctionComponent<IProps> = ({ saveTest, saveSetValue }) =>
   return null;
 };
 
-it('returns the same function every time', () => {
-  let test: () => void;
-  let lastTest: () => void;
-  let setValue: (value: number) => void;
-  let callCount = 0;
+describe('useBound', () => {
 
-  const component = mount((
-    <TestComponent saveTest={testValue => { test = testValue; callCount++; }} saveSetValue={setValueValue => { setValue = setValueValue; }} />
-  ));
+  it('returns the same function every time', () => {
+    let test: () => void;
+    let lastTest: () => void;
+    let setValue: (value: number) => void;
+    let callCount = 0;
 
-  expect(test).to.be.a('function');
-  expect(lastTest).to.be.undefined;
-  expect(setValue).to.be.a('function');
-  expect(callCount).to.eq(1);
+    const component = mount((
+      <TestComponent saveTest={testValue => { test = testValue; callCount++; }} saveSetValue={setValueValue => { setValue = setValueValue; }} />
+    ));
 
-  lastTest = test;
-  setValue(1);
-  expect(test).to.eq(lastTest);
-  expect(callCount).to.eq(2);
+    expect(test).to.be.a('function');
+    expect(lastTest).to.be.undefined;
+    expect(setValue).to.be.a('function');
+    expect(callCount).to.eq(1);
 
-  component.unmount();
-});
+    lastTest = test;
+    setValue(1);
+    expect(test).to.eq(lastTest);
+    expect(callCount).to.eq(2);
 
-it('uses the latest copy of the function every time', () => {
-  let test: () => void;
-  let lastTest: () => void;
-  let setValue: (value: number) => void;
-  let callCount = 0;
+    component.unmount();
+  });
 
-  const component = mount((
-    <TestComponent saveTest={testValue => { test = testValue; callCount++; }} saveSetValue={setValueValue => { setValue = setValueValue; }} />
-  ));
+  it('uses the latest copy of the function every time', () => {
+    let test: () => void;
+    let lastTest: () => void;
+    let setValue: (value: number) => void;
+    let callCount = 0;
 
-  expect(test).to.be.a('function');
-  expect(lastTest).to.be.undefined;
-  expect(setValue).to.be.a('function');
-  expect(test()).to.eq(0);
-  expect(callCount).to.eq(1);
+    const component = mount((
+      <TestComponent saveTest={testValue => { test = testValue; callCount++; }} saveSetValue={setValueValue => { setValue = setValueValue; }} />
+    ));
 
-  lastTest = test;
-  setValue(1);
-  expect(test).to.eq(lastTest);
-  expect(test()).to.eq(1);
-  expect(callCount).to.eq(2);
+    expect(test).to.be.a('function');
+    expect(lastTest).to.be.undefined;
+    expect(setValue).to.be.a('function');
+    expect(test()).to.eq(0);
+    expect(callCount).to.eq(1);
 
-  component.unmount();
-});
+    lastTest = test;
+    setValue(1);
+    expect(test).to.eq(lastTest);
+    expect(test()).to.eq(1);
+    expect(callCount).to.eq(2);
 
-it('properly discards function when unmounted', () => {
-  let test: () => void;
+    component.unmount();
+  });
 
-  const component = mount((
-    <TestComponent saveTest={testValue => { test = testValue; }} />
-  ));
+  it('properly discards function when unmounted', () => {
+    let test: () => void;
 
-  expect(test).to.be.a('function');
-  expect(test()).to.eq(0);
+    const component = mount((
+      <TestComponent saveTest={testValue => { test = testValue; }} />
+    ));
 
-  component.unmount();
+    expect(test).to.be.a('function');
+    expect(test()).to.eq(0);
 
-  expect(() => {
-    test();
-  }).to.throw('The component for which this bound function has been created has since been unmounted.');
+    component.unmount();
+
+    expect(() => {
+      test();
+    }).to.throw('The component for which this bound function has been created has since been unmounted.');
+  });
+
 });

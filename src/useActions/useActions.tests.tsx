@@ -13,39 +13,43 @@ const TestComponent: FunctionComponent<IProps> = ({ children, actions }) => {
   return children(proxiedActions);
 };
 
-it('provides the same action instance even though the function content changes', () => {
-  let renderCount = 0;
-  const actions = {
-    upsert(item: number): number {
-      return item;
-    },
-  };
+describe('useActions', () => {
 
-  let innerActions: typeof actions;
-  const component = mount((
-    <TestComponent actions={actions}>
-      {(a: typeof actions) => {
-        renderCount++;
-        innerActions = a;
-        return null;
-      }}</TestComponent>
-  ));
+  it('provides the same action instance even though the function content changes', () => {
+    let renderCount = 0;
+    const actions = {
+      upsert(item: number): number {
+        return item;
+      },
+    };
 
-  expect(innerActions.upsert(5)).to.eq(5);
-  const prevActions = innerActions;
-  expect(renderCount).to.eq(1);
+    let innerActions: typeof actions;
+    const component = mount((
+      <TestComponent actions={actions}>
+        {(a: typeof actions) => {
+          renderCount++;
+          innerActions = a;
+          return null;
+        }}</TestComponent>
+    ));
 
-  const newActions: typeof actions = {
-    upsert(item: number): number {
-      return item * item;
-    },
-  };
-  component.setProps({ actions: newActions });
+    expect(innerActions.upsert(5)).to.eq(5);
+    const prevActions = innerActions;
+    expect(renderCount).to.eq(1);
 
-  expect(renderCount).to.eq(2);
-  expect(innerActions).to.eql(prevActions); // confirm that shallow equal is true
-  expect(innerActions.upsert).to.eq(prevActions.upsert); // confirm the functions are identical
-  expect(innerActions.upsert(5)).to.eq(25); // confirm original function is being used
+    const newActions: typeof actions = {
+      upsert(item: number): number {
+        return item * item;
+      },
+    };
+    component.setProps({ actions: newActions });
 
-  component.unmount();
+    expect(renderCount).to.eq(2);
+    expect(innerActions).to.eql(prevActions); // confirm that shallow equal is true
+    expect(innerActions.upsert).to.eq(prevActions.upsert); // confirm the functions are identical
+    expect(innerActions.upsert(5)).to.eq(25); // confirm original function is being used
+
+    component.unmount();
+  });
+
 });

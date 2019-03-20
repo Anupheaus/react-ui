@@ -14,26 +14,30 @@ class Component2 extends React.PureComponent {
   }
 }
 
-it('can filter children by a specific type', () => {
-  const a = (
-    <>
-      <Component1>
-        test1
-      </Component1>
-      <Component2>
+describe('children > filterBy > type', () => {
+
+  it('can filter children by a specific type', () => {
+    const a = (
+      <>
         <Component1>
-          Blah
-        </Component1>
-      </Component2>
-      <Component1>
-        test3
+          test1
       </Component1>
-      <div></div>
-      test
+        <Component2>
+          <Component1>
+            Blah
+        </Component1>
+        </Component2>
+        <Component1>
+          test3
+      </Component1>
+        <div></div>
+        test
     </>
-  );
-  const deepResults = Children.filterBy.type(a.props.children, Component1, true);
-  expect(deepResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.0'}>Blah</Component1>, <Component1 key={'.2'}>test3</Component1>]);
-  const shallowResults = Children.filterBy.type(a.props.children, Component1);
-  expect(shallowResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.2'}>test3</Component1>]);
+    );
+    const deepResults = Children.filterBy.type(a.props.children, Component1, true);
+    expect(deepResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.0'}>Blah</Component1>, <Component1 key={'.2'}>test3</Component1>]);
+    const shallowResults = Children.filterBy.type(a.props.children, Component1);
+    expect(shallowResults).to.eql([<Component1 key={'.0'}>test1</Component1>, <Component1 key={'.2'}>test3</Component1>]);
+  });
+
 });
