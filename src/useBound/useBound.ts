@@ -1,5 +1,6 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { IMap } from 'anux-common';
+import { useOnUnmount } from '../useOnUnmount';
 
 type Func = (...args: any[]) => any;
 
@@ -11,7 +12,8 @@ interface IBoundFunc {
 const boundFuncs: IMap<IBoundFunc> = {};
 
 export function useBound<TFunc extends Func>(func: TFunc): TFunc {
-  const [id] = useState(Math.uniqueId());
+  const idRef = useRef(Math.uniqueId());
+  const id = idRef.current;
   let { stub } = boundFuncs[id] = boundFuncs[id] || { stub: undefined, func: undefined };
 
   if (!stub) {
@@ -23,12 +25,7 @@ export function useBound<TFunc extends Func>(func: TFunc): TFunc {
 
   boundFuncs[id] = { stub, func };
 
-  useEffect(() => {
-    boundFuncs[id] = { stub, func };
-    return () => {
-      delete boundFuncs[id];
-    };
-  });
+  useOnUnmount(() => { delete boundFuncs[id]; });
 
-  return useCallback(stub, []) as TFunc;
+  return stub as TFunc;
 }

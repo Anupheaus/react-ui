@@ -1,5 +1,6 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { IMap } from 'anux-common';
+import { useOnUnmount } from '../useOnUnmount';
 
 interface IProxy {
   originalFunc: Function;
@@ -12,9 +13,9 @@ export function useActions<TActions extends {}>(actions: TActions): TActions {
   let allProxyKeys = Reflect.ownKeys(proxies) as string[];
   const proxiedActions = {} as TActions;
 
-  useEffect(() => () => { // on unmount
+  useOnUnmount(() => {
     proxiesRef.current = {}; // no memory leaks
-  }, []);
+  });
 
   Reflect.ownKeys(actions).forEach((key: string) => {
     allProxyKeys = allProxyKeys.remove(key);

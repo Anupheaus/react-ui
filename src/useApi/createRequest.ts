@@ -4,6 +4,7 @@ import { CancelTokenSource } from 'axios';
 import { IUseApiResponse, IUseApiConfig, CancelRequest, ForceRequest } from './models';
 import { makeRequest } from './makeRequest';
 import { useBound } from '../useBound';
+import { useOnUnmount } from '../useOnUnmount';
 
 function resetCancelToken(tokenRef: MutableRefObject<CancellationToken>): void {
   if (tokenRef.current) { tokenRef.current.dispose(); }
@@ -13,7 +14,7 @@ function resetCancelToken(tokenRef: MutableRefObject<CancellationToken>): void {
 export function createRequest<TResponse>(config: IUseApiConfig): IUseApiResponse<TResponse> {
   let { apiConfig, catchDelegate, dependencies, exceptWhenDelegate, thenDelegate } = config;
   const [, forceUpdate] = useReducer(x => 1 - x, 0);
-  const forceRequest = useBound<ForceRequest>(() => { performRequest(); });
+  const forceRequest = useBound<ForceRequest>(() => { performRequest(); }); // needs to be inside a arrow function to prevent return value and it is not yet defined
   const previousDependencies = useRef(dependencies);
   const cancelTokenRef = useRef<CancellationToken>(config.cancelToken || CancellationToken.create());
   const cancelRequest = useBound<CancelRequest>(cancelTokenRef.current.cancel);
@@ -30,13 +31,13 @@ export function createRequest<TResponse>(config: IUseApiConfig): IUseApiResponse
   // perform the actual request
   const performRequest = () => {
     if (exceptWhenDelegate(dependencies, previousDependencies)) { return; }
-    if (sourceRef.current) { sourceRef.current.cancel('Data dependencies for current request have changed.'); sourceRef.current = undefined; }
+    if (sourceRef.current) { sourceRef.current.cancel('Data dependencies for current request have changed or a force requrest has been called.'); sourceRef.current = undefined; }
     if (cancelTokenRef.current.isCancelled) { resetCancelToken(cancelTokenRef); return; }
     makeRequest(apiConfig, cancelTokenRef, sourceRef, onResponse, onError, onCancel);
   };
 
   useEffect(performRequest, dependencies);
 
-  useEffect(() => () => cancelTokenRef.current.cancel('Component requesting data was unmounted.'), []);
+  useOnUnmount(() => cancelTokenRef.current.cancel('Component requesting data was unmounted.'));
   return { data: dataRef.current, error: errorRef.current, cancelRequest, forceRequest };
 }

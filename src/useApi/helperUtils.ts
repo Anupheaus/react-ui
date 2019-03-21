@@ -8,7 +8,7 @@ import { Dispatch, SetStateAction, MutableRefObject } from 'react';
 export function saveToState<TState, TKey extends keyof TState>(setState: Dispatch<SetStateAction<TState>>, propertyName: TKey,
   isUnmounted?: MutableRefObject<boolean>): (value: TState[TKey]) => void {
   return value => {
-    if (isUnmounted.current) { return; }
+    if (isUnmounted && isUnmounted.current) { return; }
     setState(state => ({ ...state, [propertyName]: value }));
   };
 }

@@ -1,6 +1,7 @@
 import { PromiseMaybe } from 'anux-common';
-import { useState, useEffect, useRef, MutableRefObject, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, MutableRefObject, Dispatch, SetStateAction } from 'react';
 import { saveToState } from '../useApi';
+import { useOnUnmount } from '../useOnUnmount';
 
 interface IState<T> {
   isBusy: boolean;
@@ -18,26 +19,24 @@ function handleFinishedLoading<T>(setState: Dispatch<SetStateAction<IState<T>>>,
 }
 
 export function useAsync<T = any>(delegate: () => PromiseMaybe<T>, dependencies: ReadonlyArray<any>): IUseAsync<T> {
-  const isUnmounted = useRef(false);
-
   const [state, setState] = useState<IState<T>>({
     isBusy: true,
     error: undefined,
     result: undefined,
   });
 
+  const isUnmountedRef = useOnUnmount();
+
   useEffect(() => {
     const result = delegate();
     if (result instanceof Promise) {
       result
-        .then(handleFinishedLoading(setState, isUnmounted))
-        .catch(saveToState(setState, 'error', isUnmounted));
+        .then(handleFinishedLoading(setState, isUnmountedRef))
+        .catch(saveToState(setState, 'error', isUnmountedRef));
     } else {
       setState(s => ({ ...s, result }));
     }
   }, dependencies);
-
-  useEffect(() => () => { isUnmounted.current = true; });
 
   return {
     ...state,
