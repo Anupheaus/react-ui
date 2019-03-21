@@ -14,3 +14,4 @@ export * from './useApi';
 export * from './useAsync';
 export * from './useOnUnmount';
 export * from './useOnMount';
+export * from './useForceUpdate';
