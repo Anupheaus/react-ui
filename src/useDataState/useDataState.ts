@@ -1,11 +1,12 @@
-import { IRecord, DeepPartial } from 'anux-common';
+import { IRecord, DeepPartial, is } from 'anux-common';
 import { useMemo, useRef } from 'react';
 import { useForceUpdate } from '../useForceUpdate';
 
 export type DataWithState<TData extends IRecord, TStateKey extends symbol, TState extends {}> = TData & Record<TStateKey, TState>;
 export type RecordOf<TState extends {}> = TState & { id: string; };
 
-export type SetDataStateAction<TData extends IRecord, TState extends {}> = (item: TData, partialState: DeepPartial<TState>) => void;
+export type SetDataStateAction<TData extends IRecord, TState extends {}> = ((item: TData, partialState: DeepPartial<TState>) => void)
+  | ((item: TData, delegate: (state: TState) => TState) => void);
 
 export function useDataState<TData extends IRecord, TStateKey extends symbol, TState extends {}>(items: TData, data: RecordOf<TState>, stateKey: TStateKey,
   delegate: (data: TState, item: TData) => TState): [DataWithState<TData, TStateKey, TState>, SetDataStateAction<TData, TState>, RecordOf<TState>];
@@ -37,8 +38,11 @@ export function useDataState<TData extends IRecord, TStateKey extends symbol, TS
         [stateKey]: delegate(state, item),
       } as DataWithState<TData, typeof stateKey, TState>;
     });
-    const setState: SetDataStateAction<TData, TState> = (item, update) => {
-      dataRef.current = data.upsert({ id: item.id, ...update } as any);
+    const setState: SetDataStateAction<TData, TState> = (item: TData, updateOrDelegate: (DeepPartial<TState>) | ((state: TState) => TState)): void => {
+      const setStateDelegate = is.function<(state: TState) => any>(updateOrDelegate, s => ({ ...s, ...updateOrDelegate }));
+      const state = data.findById(item.id);
+      data = data.upsert(setStateDelegate(state));
+      dataRef.current = data;
       forceUpdate();
     };
     return [itemOrItems instanceof Array ? results : results[0], setState, data] as any;
