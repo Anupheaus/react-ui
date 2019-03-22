@@ -16,3 +16,4 @@ export * from './useOnUnmount';
 export * from './useOnMount';
 export * from './useForceUpdate';
 export * from './useDataState';
+export * from './customTag';
