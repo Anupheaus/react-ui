@@ -1,5 +1,6 @@
 import './global';
 import './typeOf';
+import './extensions';
 
 export * from './binder';
 export * from './areEqual';
