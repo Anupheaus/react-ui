@@ -554,10 +554,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-anux-common@^1.0.25:
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/anux-common/-/anux-common-1.0.25.tgz#4d9c69044cad4896b23e15114ec063d4e3b79b26"
-  integrity sha512-qw7uCdgcTfCk9EA9vrv7VnRhnnKSF/MX4WSivD2IEw9sxN05YObfxe0P35xp0K3BCEGrIhwgB5cXM1KDL2F56g==
+anux-common@^1.0.26:
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/anux-common/-/anux-common-1.0.26.tgz#ef1ebb5ee9ec504e78c4b14f218e4d05b86b4451"
+  integrity sha512-JTqFTAEVoysy5DtzNB+n7LEEyT8RGzK8+9W/BKAFWbHZ4ernuL+YaLvc9nNrCHIw4/5en1kJg44jzr91nwtsOg==
   dependencies:
     "@types/datejs" "^0.0.30"
     "@types/numeral" "^0.0.25"
