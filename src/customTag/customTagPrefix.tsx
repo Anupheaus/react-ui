@@ -8,7 +8,7 @@ interface IProps {
 export const CustomTagPrefix: FunctionComponent<IProps> = ({ prefix, children }) => {
   return (
     <CustomTagContext.Provider value={{ prefix }}>
-      {children || null}
+      {children}
     </CustomTagContext.Provider>
   );
 };

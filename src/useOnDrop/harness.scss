@@ -1,0 +1,64 @@
+dragging-details {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 20px;
+  left: 20px;
+  width: 200px;
+  height: 100px;
+  box-shadow: 0 0 2px 1px #00000015;
+  background-color: #eaeaea;
+  border: solid 1px #cccccc;
+}
+
+dragging-details {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 20px;
+  left: 20px;
+  width: 200px;
+  height: 100px;
+  box-shadow: 0 0 2px 1px #00000015;
+  background-color: #eaeaea;
+  border: solid 1px #cccccc;
+}
+
+draggable-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  transform: translate(300px, 300px);
+  box-shadow: 0 0 2px 1px #00000015;
+  background-color: #eaeaea;
+  border: solid 1px #cccccc;
+  transition: background-color 400ms;
+  cursor: move;
+
+  &.is-dragging {
+    background-color: #c7e0c4;
+    pointer-events: none;
+  }
+}
+
+drop-box {
+  position: absolute;
+  top: 200px;
+  left: 500px;
+  width: 300px;
+  height: 300px;
+  box-shadow: 0 0 2px 1px #00000015;
+  background-color: #eaeaea;
+  border: solid 1px #cccccc;
+  transition: background-color 400ms;
+
+  &.draggable-is-valid {
+    background-color: #c7e0c4;
+  }
+
+  &.draggable-is-invalid {
+    background-color: #e0c4c4;
+  }
+}

@@ -5,7 +5,7 @@ class DocumentExtensions {
   public simulateEvent(eventName: string, eventData: Object): void;
   public simulateEvent(this: Document, eventName: string, eventData: Object): void {
     const eventType = (() => {
-      if (['mousedown', 'mousemove', 'mouseup'].includes(eventName)) { return 'MouseEvent'; }
+      if (['mousedown', 'mousemove', 'mouseup', 'mouseenter', 'mouseleave', 'mouseover', 'mouseout'].includes(eventName)) { return 'MouseEvent'; }
     })();
     const event = new window[eventType](eventName, eventData);
     this.dispatchEvent(event);
