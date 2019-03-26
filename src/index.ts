@@ -20,3 +20,4 @@ export * from './useDataState';
 export * from './customTag';
 export * from './useOnDrag';
 export * from './useOnDrop';
+export * from './useDOMRef';
