@@ -1,4 +1,4 @@
-import { FunctionComponent, ReactElement } from 'react';
+import { FunctionComponent, ReactElement, RefObject } from 'react';
 import { useSingleDOMRef } from './useSingleDOMRef';
 import { mount, ReactWrapper } from 'enzyme';
 import { HTMLTargetDelegate } from './models';
@@ -105,6 +105,24 @@ describe('useSingleDOMRef', () => {
       disconnectedCallCount: 0,
     });
     state.dispose();
+  });
+
+  it('can be used without config', () => {
+    let elementRef: RefObject<HTMLElement>;
+    let targetElement: HTMLTargetDelegate;
+    const Component: FunctionComponent<{ assignTarget: boolean; }> = ({ assignTarget }) => {
+      const [innerElementRef, innerTargetElement] = useSingleDOMRef();
+      elementRef = innerElementRef;
+      targetElement = innerTargetElement;
+      return (<>{assignTarget ? <div ref={targetElement}></div> : null}</>);
+    };
+    const component = mount(<Component assignTarget={false} />);
+    expect(elementRef).to.be.an('object');
+    expect(elementRef).to.have.property('current').and.be.undefined;
+    expect(targetElement).to.be.a('function');
+    component.setProps({ assignTarget: true });
+    expect(elementRef.current.outerHTML).to.eq('<div></div>');
+    component.unmount();
   });
 
 });
