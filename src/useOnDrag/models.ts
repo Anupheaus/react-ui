@@ -1,9 +1,10 @@
 import { ICoordinates } from 'anux-common';
+import { HTMLTargetDelegate } from '../useDOMRef';
 
 export interface IUseOnDragResult {
   isDragging: boolean;
-  dragTarget(element: HTMLElement): HTMLElement;
-  dragClassTarget(element: HTMLElement): HTMLElement;
+  dragTarget: HTMLTargetDelegate;
+  dragClassTarget: HTMLTargetDelegate;
 }
 
 export interface IUseOnDragConfig<TData, TPassthroughData> {

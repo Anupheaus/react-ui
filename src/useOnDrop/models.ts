@@ -1,6 +1,8 @@
+import { HTMLTargetDelegate } from '../useDOMRef';
+
 export interface IUseOnDropResult {
-  dropTarget(element: HTMLElement): HTMLElement;
-  dropClassTarget(element: HTMLElement): HTMLElement;
+  dropTarget: HTMLTargetDelegate;
+  dropClassTarget: HTMLTargetDelegate;
 }
 
 export interface IUseOnDropStateClasses {
