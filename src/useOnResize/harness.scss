@@ -1,0 +1,51 @@
+div#resize-report {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 400px;
+  border: solid 1px #999999;
+  background-color: #ccc;
+  box-shadow: 0 0 2px 1px #99999944;
+  padding: 5px;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+
+  > span {
+    display: flex;
+    flex: auto;
+    flex-direction: row;
+
+    > span {
+      display: flex;
+      flex: none;
+      width: 50%;
+      align-items: center;
+    }
+  }
+}
+
+div#resize-container {
+  display: flex;
+  flex: auto;
+  justify-content: center;
+  align-items: center;
+
+  > div#resize-target {
+    border: solid 1px #999999;
+    background-color: #ccc;
+    box-shadow: 0 0 2px 1px #99999944;
+    width: 30%;
+    height: 30%;
+    overflow: scroll;
+
+    > div.block {
+      display: flex;
+      flex: none;
+      width: 50px;
+      height: 50px;
+      background-color: #555;
+      margin: 2px;
+    }
+  }
+}
