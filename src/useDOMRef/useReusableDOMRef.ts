@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react';
 import { HTMLTargetDelegate } from './models';
+import { is } from 'anux-common';
 
 interface IDOMRef {
   key: string;
@@ -27,12 +28,15 @@ export function useReusableDOMRef<TData = void>(config: IUseReusableDOMConfig<TD
       domRefs.current.push(domRef);
     }
     if (!domRef.callback) {
-      domRef.callback = element => {
-        if (domRef.element && domRef.element !== element) { disconnected(key, data, domRef.element); }
-        domRef.element = element;
-        if (domRef.element) { connected(key, data, domRef.element); }
-        return element;
-      };
+      domRef.callback = ((elementOrDelegate: HTMLElement | ((element: HTMLElement) => HTMLElement)): (HTMLElement | ((element: HTMLElement) => HTMLElement)) => {
+        const processElement = (delegate: (element: HTMLElement) => HTMLElement) => (element: HTMLElement): HTMLElement => {
+          if (domRef.element && domRef.element !== element) { disconnected(key, data, domRef.element); }
+          domRef.element = element;
+          if (domRef.element) { connected(key, data, domRef.element); }
+          return delegate(element);
+        };
+        return is.function(elementOrDelegate) ? processElement(elementOrDelegate) : processElement(element => element)(elementOrDelegate);
+      }) as HTMLTargetDelegate;
     }
     return domRef.callback;
   }, []);

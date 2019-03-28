@@ -114,7 +114,7 @@ describe('useSingleDOMRef', () => {
       const [innerElementRef, innerTargetElement] = useSingleDOMRef();
       elementRef = innerElementRef;
       targetElement = innerTargetElement;
-      return (<>{assignTarget ? <div ref={targetElement}></div> : null}</>);
+      return (<>{assignTarget ? <div ref={innerTargetElement}></div> : null}</>);
     };
     const component = mount(<Component assignTarget={false} />);
     expect(elementRef).to.be.an('object');
@@ -122,6 +122,26 @@ describe('useSingleDOMRef', () => {
     expect(targetElement).to.be.a('function');
     component.setProps({ assignTarget: true });
     expect(elementRef.current.outerHTML).to.eq('<div></div>');
+    component.unmount();
+  });
+
+  it('can nest the delegates', () => {
+    let elementRef1: RefObject<HTMLElement>;
+    let elementRef2: RefObject<HTMLElement>;
+    const Component: FunctionComponent = () => {
+      const [innerElementRef1, targetElement1] = useSingleDOMRef();
+      const [innerElementRef2, targetElement2] = useSingleDOMRef();
+      elementRef1 = innerElementRef1;
+      elementRef2 = innerElementRef2;
+      return (<div ref={targetElement1(targetElement2)}></div>);
+    };
+    const component = mount(<Component />);
+    expect(elementRef1).to.be.an('object');
+    expect(elementRef1).to.have.property('current');
+    expect(elementRef1.current.outerHTML).to.eq('<div></div>');
+    expect(elementRef2).to.be.an('object');
+    expect(elementRef2).to.have.property('current');
+    expect(elementRef2.current.outerHTML).to.eq('<div></div>');
     component.unmount();
   });
 
