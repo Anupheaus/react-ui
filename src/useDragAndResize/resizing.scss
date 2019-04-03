@@ -1,0 +1,110 @@
+drag-and-resize-handles-container {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  bottom: -2px;
+  right: -2px;
+  pointer-events: none;
+  z-index: 1000;
+
+  > drag-and-resize-handle {
+    position: absolute;
+    pointer-events: all;
+
+    &[data-handle-position="1"] {
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 25%;
+      cursor: nw-resize;
+    }
+
+    &[data-handle-position="2"] {
+      top: 0;
+      left: 0;
+      width: 25%;
+      height: 4px;
+      cursor: nw-resize;
+    }
+
+    &[data-handle-position="3"] {
+      top: 0;
+      left: 25%;
+      right: 25%;
+      height: 4px;
+      cursor: ns-resize;
+    }
+
+    &[data-handle-position="4"] {
+      top: 0;
+      right: 0;
+      width: 25%;
+      height: 4px;
+      cursor: ne-resize;
+    }
+
+    &[data-handle-position="5"] {
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 25%;
+      cursor: ne-resize;
+    }
+
+    &[data-handle-position="6"] {
+      top: 25%;
+      right: 0;
+      bottom: 25%;
+      width: 4px;
+      cursor: ew-resize;
+    }
+
+    &[data-handle-position="7"] {
+      bottom: 0;
+      right: 0;
+      width: 4px;
+      height: 25%;
+      cursor: se-resize;
+    }
+
+    &[data-handle-position="8"] {
+      bottom: 0;
+      right: 0;
+      width: 25%;
+      height: 4px;
+      cursor: se-resize;
+    }
+
+    &[data-handle-position="9"] {
+      bottom: 0;
+      left: 25%;
+      right: 25%;
+      height: 4px;
+      cursor: ns-resize;
+    }
+
+    &[data-handle-position="10"] {
+      bottom: 0;
+      left: 0;
+      width: 25%;
+      height: 4px;
+      cursor: sw-resize;
+    }
+
+    &[data-handle-position="11"] {
+      bottom: 0;
+      left: 0;
+      width: 4px;
+      height: 25%;
+      cursor: sw-resize;
+    }
+
+    &[data-handle-position="12"] {
+      top: 25%;
+      left: 0;
+      bottom: 25%;
+      width: 4px;
+      cursor: ew-resize;
+    }
+  }
+}
