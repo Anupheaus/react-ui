@@ -8,14 +8,27 @@ interface IDimensionOptions {
   excludingBorder?: boolean;
 }
 
+function getNumericDimensions(element: HTMLElement) {
+  const style: CSSStyleDeclaration = element ? (windowObj.getComputedStyle ? windowObj.getComputedStyle(element) : element['currentStyle']) : {};
+  const getValue = (value: string): number => parseInt(value, 0) || 0;
+  const { marginTop, marginLeft, marginRight, marginBottom, paddingTop, paddingLeft, paddingRight, paddingBottom, borderTopWidth, borderLeftWidth, borderRightWidth,
+    borderBottomWidth } = style;
+  return {
+    marginTop: getValue(marginTop), marginLeft: getValue(marginLeft), marginRight: getValue(marginRight), marginBottom: getValue(marginBottom), paddingTop: getValue(paddingTop),
+    paddingLeft: getValue(paddingLeft), paddingRight: getValue(paddingRight), paddingBottom: getValue(paddingBottom), borderTopWidth: getValue(borderTopWidth),
+    borderLeftWidth: getValue(borderLeftWidth), borderRightWidth: getValue(borderRightWidth), borderBottomWidth: getValue(borderBottomWidth),
+  };
+}
+
 class HTMLElementExtensions {
 
   public screenCoordinates(): ICoordinates;
   public screenCoordinates(this: HTMLElement): ICoordinates {
     const rect = this.getBoundingClientRect();
+    const { marginTop, marginLeft, borderLeftWidth, borderTopWidth } = getNumericDimensions(this.parentElement);
     return {
-      x: rect.left,
-      y: rect.top,
+      x: (rect.left - marginLeft - borderLeftWidth),
+      y: (rect.top - marginTop - borderTopWidth),
     };
   }
 
@@ -38,10 +51,10 @@ class HTMLElementExtensions {
 
   public centreCoordinates(): ICoordinates;
   public centreCoordinates(this: HTMLElement): ICoordinates {
-    const rect = this.getBoundingClientRect();
+    const dimensions = this.dimensions({ excludingMargin: true });
     return {
-      x: rect.left + (rect.width / 2),
-      y: rect.top + (rect.height / 2),
+      x: dimensions.left + (dimensions.width / 2),
+      y: dimensions.top + (dimensions.height / 2),
     };
   }
 
@@ -68,32 +81,32 @@ class HTMLElementExtensions {
     };
 
     let { width, height } = this.getBoundingClientRect();
-    let top = 0;
-    let left = 0;
-    let style: CSSStyleDeclaration = null;
-
-    if (options.excludingBorder || options.excludingMargin || options.excludingPadding) {
-      style = windowObj.getComputedStyle ? windowObj.getComputedStyle(this) : this['currentStyle'];
-    }
+    const { marginTop, marginLeft, marginRight, marginBottom, paddingTop, paddingLeft, paddingRight, paddingBottom, borderTopWidth,
+      borderLeftWidth, borderRightWidth, borderBottomWidth } = getNumericDimensions(this);
+    let top = -marginTop;
+    let left = -marginLeft;
+    width += marginLeft + marginRight;
+    height += marginTop + marginBottom;
 
     if (options.excludingMargin) {
-      top += parseInt(style.marginTop, 0) || 0;
-      left += parseInt(style.marginLeft, 0) || 0;
-      width -= (parseInt(style.marginLeft, 0) || 0) + (parseInt(style.marginRight, 0) || 0);
-      height -= (parseInt(style.marginTop, 0) || 0) + (parseInt(style.marginBottom, 0) || 0);
+      top += marginTop;
+      left += marginLeft;
+      width -= (marginLeft + marginRight);
+      height -= (marginTop + marginBottom);
     }
     if (options.excludingPadding) {
-      top += parseInt(style.paddingTop, 0) || 0;
-      left += parseInt(style.paddingLeft, 0) || 0;
-      width -= (parseInt(style.paddingLeft, 0) || 0) + (parseInt(style.paddingRight, 0) || 0);
-      height -= (parseInt(style.paddingTop, 0) || 0) + (parseInt(style.paddingBottom, 0) || 0);
+      top += paddingTop;
+      left += paddingLeft;
+      width -= (paddingLeft + paddingRight);
+      height -= (paddingBottom + paddingTop);
     }
     if (options.excludingBorder) {
-      top += parseInt(style.borderTopWidth, 0) || 0;
-      left += parseInt(style.borderLeftWidth, 0) || 0;
-      width -= (parseInt(style.borderLeftWidth, 0) || 0) + (parseInt(style.borderRightWidth, 0) || 0);
-      height -= (parseInt(style.borderTopWidth, 0) || 0) + (parseInt(style.borderBottomWidth, 0) || 0);
+      top += borderTopWidth;
+      left += borderLeftWidth;
+      width -= borderRightWidth;
+      height -= borderBottomWidth;
     }
+
     return {
       top,
       left,
@@ -107,7 +120,7 @@ class HTMLElementExtensions {
    */
   public geometry(): IGeometry;
   public geometry(this: HTMLElement): IGeometry {
-    const { width, height } = this.dimensions();
+    const { width, height } = this.dimensions({ excludingMargin: true });
     return {
       ...this.screenCoordinates(),
       width,
