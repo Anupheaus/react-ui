@@ -1,8 +1,8 @@
-import { useEffect, useRef, MutableRefObject } from 'react';
+import { useEffect, useRef, RefObject } from 'react';
 
-export function useOnUnmount(): MutableRefObject<boolean>;
-export function useOnUnmount(delegate: () => void): MutableRefObject<boolean>;
-export function useOnUnmount(delegate?: () => void): MutableRefObject<boolean> {
+export function useOnUnmount(): RefObject<boolean>;
+export function useOnUnmount(delegate: () => void): RefObject<boolean>;
+export function useOnUnmount(delegate?: () => void): RefObject<boolean> {
   const hasUnmountedRef = useRef(false);
 
   useEffect(() => () => {
@@ -10,5 +10,5 @@ export function useOnUnmount(delegate?: () => void): MutableRefObject<boolean> {
     if (typeof (delegate) === 'function') { delegate(); }
   }, []);
 
-  return hasUnmountedRef;
+  return hasUnmountedRef as RefObject<boolean>;
 }
