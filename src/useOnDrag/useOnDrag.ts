@@ -5,10 +5,7 @@ import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
 import { useSingleDOMRef, HTMLElementRef, HTMLTargetDelegate } from '../useDOMRef';
 import { setDraggingData } from '../dragAndDropRegistry/registry';
-
-interface IUseOnDragInternalConfig<TData, TPassthroughData> extends IUseOnDragConfig<TData, TPassthroughData> {
-  isUnmounted?: boolean;
-}
+import { useToggleState, IUseToggleStateResult } from '../useToggleState';
 
 interface IState {
   isDragging: boolean;
@@ -28,8 +25,8 @@ function getCoordinatesDiff(event: MouseEvent, coordinates: ICoordinates): ICoor
   };
 }
 
-function dragStartHandler<TData, TPassthroughData>(config: IUseOnDragInternalConfig<TData, TPassthroughData>, target: HTMLElement,
-  setIsDragging: (isDragging: boolean) => void, event: MouseEvent): void {
+function dragStartHandler<TData, TPassthroughData>(config: IUseOnDragConfig<TData, TPassthroughData>, target: HTMLElement,
+  setIsDragging: (isDragging: boolean) => void, enabledRef: IUseToggleStateResult, event: MouseEvent): void {
   const { threshold, onDragStart, onDrag, onDragEnd, data } = config;
   if (event.button !== 0) { return; }
   event.stopPropagation();
@@ -39,7 +36,6 @@ function dragStartHandler<TData, TPassthroughData>(config: IUseOnDragInternalCon
   let startedDragging = false;
 
   const dragHandler = (dragEvent: MouseEvent) => {
-    if (config.isUnmounted) { removeHandlers(); return; }
     dragEvent.stopPropagation();
     const coordinatesDiff = getCoordinatesDiff(dragEvent, coordinates);
     if (!startedDragging) {
@@ -53,7 +49,6 @@ function dragStartHandler<TData, TPassthroughData>(config: IUseOnDragInternalCon
   };
 
   const dragEndHandler = (dragEndEvent: MouseEvent) => {
-    if (config.isUnmounted) { removeHandlers(); return; }
     const coordinatesDiff = getCoordinatesDiff(dragEndEvent, coordinates);
     try {
       onDragEnd({ target, currentTarget, coordinates, coordinatesDiff, data, passthroughData });
@@ -73,24 +68,33 @@ function dragStartHandler<TData, TPassthroughData>(config: IUseOnDragInternalCon
     document.removeEventListener('mouseup', dragEndHandler);
   };
 
+  enabledRef.onDisable(removeHandlers);
+
   document.addEventListener('mousemove', dragHandler);
   document.addEventListener('mouseup', dragEndHandler);
 }
 
-function createDragTarget<TData, TPassthroughData>(dragTargetRef: HTMLElementRef, dragClassTargetRef: HTMLElementRef, config: IUseOnDragInternalConfig<TData, TPassthroughData>,
-  setState: Dispatch<SetStateAction<IState>>): [HTMLTargetDelegate, (element: HTMLElement) => void] {
-  const setIsDragging = useBound((isDragging: boolean) => {
+function createDragTarget<TData, TPassthroughData>(dragTargetRef: HTMLElementRef, dragClassTargetRef: HTMLElementRef, config: IUseOnDragConfig<TData, TPassthroughData>,
+  setState: Dispatch<SetStateAction<IState>>, enabledRef: IUseToggleStateResult): HTMLTargetDelegate {
+  const setIsDragging = (isDragging: boolean) => {
     setState(s => ({ ...s, isDragging }));
     applyClassToElement(dragClassTargetRef.current || dragTargetRef.current, config.classToApplyWhileDragging, isDragging);
-  });
-  const boundDragStartHandler = useBound((event: MouseEvent) => dragStartHandler(config, dragTargetRef.current, setIsDragging, event));
-  const connected = (element: HTMLElement) => { dragTargetRef.current = element; element.addEventListener('mousedown', boundDragStartHandler); };
-  const disconnected = (element: HTMLElement) => { dragTargetRef.current = undefined; element.removeEventListener('mousedown', boundDragStartHandler); };
-  const dragTarget = useSingleDOMRef({ connected, disconnected });
-  return [dragTarget, disconnected];
+  };
+  const boundDragStartHandler = useBound((event: MouseEvent) => dragStartHandler(config, dragTargetRef.current, setIsDragging, enabledRef, event));
+  const connected = (element: HTMLElement) => {
+    enabledRef.onChange(() => disconnected(element)); // if made disabled
+    dragTargetRef.current = element;
+    element.addEventListener('mousedown', boundDragStartHandler);
+  };
+  const disconnected = (element: HTMLElement) => {
+    enabledRef.onChange(() => connected(element)); // if made enabled
+    dragTargetRef.current = undefined;
+    element.removeEventListener('mousedown', boundDragStartHandler);
+  };
+  return useSingleDOMRef({ connected, disconnected });
 }
 
-function createDragClassTarget<TData, TPassthroughData>(dragClassTargetRef: HTMLElementRef, config: IUseOnDragInternalConfig<TData, TPassthroughData>, isDragging: boolean) {
+function createDragClassTarget<TData, TPassthroughData>(dragClassTargetRef: HTMLElementRef, config: IUseOnDragConfig<TData, TPassthroughData>, isDragging: boolean) {
   const connected = (element: HTMLElement) => {
     dragClassTargetRef.current = element;
     applyClassToElement(element, config.classToApplyWhileDragging, isDragging);
@@ -108,23 +112,24 @@ export function useOnDrag<TData = void, TPassthroughData = void>(config?: IUseOn
   });
   const dragTargetRef = useRef<HTMLElement>(undefined);
   const dragClassTargetRef = useRef<HTMLElement>(undefined);
+  const enabledRef = useToggleState(config.isDisabled);
+  enabledRef.current = config.isDisabled;
 
-  const internalConfig: IUseOnDragInternalConfig<TData, TPassthroughData> = {
+  const internalConfig: IUseOnDragConfig<TData, TPassthroughData> = {
     classToApplyWhileDragging: 'is-dragging',
     threshold: 3,
     onDragStart: () => null,
     onDrag: ({ passthroughData }) => passthroughData,
     onDragEnd: () => void 0,
-    isUnmounted: false,
     ...config,
   };
 
-  const [dragTarget, disconnectTarget] = createDragTarget(dragTargetRef, dragClassTargetRef, internalConfig, setState);
+  const dragTarget = createDragTarget(dragTargetRef, dragClassTargetRef, internalConfig, setState, enabledRef);
   const dragClassTarget = createDragClassTarget(dragClassTargetRef, internalConfig, state.isDragging);
 
   useOnUnmount(() => {
-    if (dragTargetRef.current) { disconnectTarget(dragTargetRef.current); }
-    internalConfig.isUnmounted = true;
+    enabledRef.current = false;
+    enabledRef.dispose();
   });
 
   return {
