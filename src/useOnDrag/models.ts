@@ -8,6 +8,7 @@ export interface IUseOnDragResult {
 }
 
 export interface IUseOnDragConfig<TData, TPassthroughData> {
+  isDisabled?: boolean;
   classToApplyWhileDragging?: string;
   threshold?: number;
   data?: TData;
