@@ -1,6 +1,7 @@
 import { ISize } from 'anux-common';
 import { HTMLTargetDelegate, useSingleDOMRef } from '../useDOMRef';
 import { useRef } from 'react';
+import { useToggleState } from '../useToggleState';
 
 interface IResizeObserverEntry {
   target: HTMLElement & { parentElement: HTMLElement & { resizeCallback(): void; }; resizeCallback(): void; };
@@ -16,18 +17,13 @@ const resizeObserver = ResizeObserver ? new ResizeObserver((entries: IResizeObse
 
 interface IUseOnResizeConfig {
   isDisabled?: boolean;
-  onVisible?(size: ISize, prevSize: ISize): void;
-  onFull?(size: ISize, prevSize: ISize): void;
+  onVisible?(size: ISize, prevSize: ISize, element: HTMLElement): void;
+  onFull?(size: ISize, prevSize: ISize, element: HTMLElement): void;
 }
 
 interface IPrevSizes {
   prevVisible: ISize;
   prevFull: ISize;
-}
-
-interface IConnectionRef {
-  connect(): void;
-  disconnect(): void;
 }
 
 function areEqual(current: ISize, previous: ISize): boolean {
@@ -45,18 +41,19 @@ export function useOnResize({ isDisabled = false, onFull, onVisible }: IUseOnRes
   const observedNodesRef = useRef<HTMLElement[]>([]);
   const mutationObserverRef = useRef<MutationObserver>();
   const prevSizeRef = useRef<IPrevSizes>({ prevVisible: undefined, prevFull: undefined });
-  const connectionRef = useRef<IConnectionRef>({ connect: () => void 0, disconnect: () => void 0 });
+  const isEnabledRef = useToggleState(!isDisabled);
+  isEnabledRef.current = !isDisabled;
 
   const createResizeCallbackFor = (element: HTMLElement) => () => {
     const { visible, full } = getSizesFor(element);
     let { prevVisible, prevFull } = prevSizeRef.current;
-    if (!areEqual(visible, prevVisible)) { onVisible(visible, prevVisible || visible); prevVisible = visible; }
-    if (!areEqual(full, prevFull)) { onFull(full, prevFull || full); prevFull = full; }
+    if (onVisible && !areEqual(visible, prevVisible)) { onVisible(visible, prevVisible || visible, element); prevVisible = visible; }
+    if (onFull && !areEqual(full, prevFull)) { onFull(full, prevFull || full, element); prevFull = full; }
     prevSizeRef.current = { prevVisible, prevFull };
   };
 
   const connected = (element: HTMLElement) => {
-    connectionRef.current = { disconnect: () => disconnected(element), connect: () => void 0 };
+    isEnabledRef.onChange(() => disconnected(element));
     const resizeCallback = createResizeCallbackFor(element);
     element['resizeCallback'] = resizeCallback;
     if (resizeObserver) {
@@ -74,14 +71,15 @@ export function useOnResize({ isDisabled = false, onFull, onVisible }: IUseOnRes
   };
 
   const disconnected = (element: HTMLElement) => {
-    connectionRef.current = { connect: () => connected(element), disconnect: () => void 0 };
-    if (resizeObserver) { resizeObserver.unobserve(element); observedNodesRef.current.forEach(resizeObserver.unobserve); }
+    isEnabledRef.onChange(() => connected(element));
+    if (resizeObserver) {
+      resizeObserver.unobserve(element);
+      observedNodesRef.current.forEach(node => resizeObserver.unobserve(node));
+    }
     observedNodesRef.current = [];
     mutationObserverRef.current.disconnect();
     delete element['resizeCallback'];
   };
-
-  if (isDisabled) { connectionRef.current.disconnect(); } else { connectionRef.current.connect(); }
 
   return useSingleDOMRef({
     connected,

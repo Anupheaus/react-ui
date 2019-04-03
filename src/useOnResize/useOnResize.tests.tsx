@@ -3,7 +3,7 @@ import { useOnResize } from './useOnResize';
 import { mount, ReactWrapper } from 'enzyme';
 import { ISize } from 'anux-common';
 
-describe.only('useOnResize', () => {
+describe('useOnResize', () => {
 
   interface ITestConfig {
     full: ISize;
