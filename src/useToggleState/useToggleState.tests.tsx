@@ -4,7 +4,7 @@ import { IUseToggleStateResult } from './models';
 import { mount, ReactWrapper } from 'enzyme';
 import { useOnUnmount } from '../useOnUnmount';
 
-describe.only('useToggleState', () => {
+describe('useToggleState', () => {
 
   interface IProps {
     value: boolean;
