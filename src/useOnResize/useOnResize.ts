@@ -17,6 +17,7 @@ const resizeObserver = ResizeObserver ? new ResizeObserver((entries: IResizeObse
 
 interface IUseOnResizeConfig {
   isDisabled?: boolean;
+  triggerOnInitialise?: boolean;
   onVisible?(size: ISize, prevSize: ISize, element: HTMLElement): void;
   onFull?(size: ISize, prevSize: ISize, element: HTMLElement): void;
 }
@@ -37,7 +38,7 @@ function getSizesFor(element: HTMLElement) {
   };
 }
 
-export function useOnResize({ isDisabled = false, onFull, onVisible }: IUseOnResizeConfig): HTMLTargetDelegate {
+export function useOnResize({ isDisabled = false, onFull, onVisible, triggerOnInitialise = true }: IUseOnResizeConfig): HTMLTargetDelegate {
   const observedNodesRef = useRef<HTMLElement[]>([]);
   const mutationObserverRef = useRef<MutationObserver>();
   const prevSizeRef = useRef<IPrevSizes>({ prevVisible: undefined, prevFull: undefined });
@@ -67,7 +68,7 @@ export function useOnResize({ isDisabled = false, onFull, onVisible }: IUseOnRes
     const mutationObserver = new MutationObserver(resizeCallback);
     mutationObserver.observe(element, { childList: true, subtree: true });
     mutationObserverRef.current = mutationObserver;
-    resizeCallback();
+    if (triggerOnInitialise) { resizeCallback(); }
   };
 
   const disconnected = (element: HTMLElement) => {
