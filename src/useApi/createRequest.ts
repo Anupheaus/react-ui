@@ -1,10 +1,11 @@
-import { useEffect, useRef, useReducer, MutableRefObject } from 'react';
+import { useEffect, useRef, MutableRefObject } from 'react';
 import { CancellationToken } from 'anux-common';
 import { CancelTokenSource } from 'axios';
 import { IUseApiResponse, IUseApiConfig, CancelRequest, ForceRequest } from './models';
 import { makeRequest } from './makeRequest';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
+import { useForceUpdate } from '../useForceUpdate';
 
 function resetCancelToken(tokenRef: MutableRefObject<CancellationToken>): void {
   if (tokenRef.current) { tokenRef.current.dispose(); }
@@ -13,7 +14,7 @@ function resetCancelToken(tokenRef: MutableRefObject<CancellationToken>): void {
 
 export function createRequest<TResponse>(config: IUseApiConfig): IUseApiResponse<TResponse> {
   let { apiConfig, catchDelegate, dependencies, exceptWhenDelegate, thenDelegate } = config;
-  const [, forceUpdate] = useReducer(x => 1 - x, 0);
+  const forceUpdate = useForceUpdate();
   const forceRequest = useBound<ForceRequest>(() => { performRequest(); }); // needs to be inside a arrow function to prevent return value and it is not yet defined
   const previousDependencies = useRef(dependencies);
   const cancelTokenRef = useRef<CancellationToken>(config.cancelToken || CancellationToken.create());
