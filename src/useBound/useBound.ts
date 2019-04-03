@@ -1,31 +1,52 @@
 import { useRef } from 'react';
-import { IMap } from 'anux-common';
 import { useOnUnmount } from '../useOnUnmount';
+import { AnonymousFunction, UseBoundFunctionResult, IUseBoundConfig, UseBoundFunction, UseBound } from './models';
 
-type Func = (...args: any[]) => any;
-
-interface IBoundFunc {
-  stub: Func;
-  func: Func;
+interface IBoundFuncState<T extends AnonymousFunction> {
+  stub: UseBoundFunctionResult<T>;
+  whenUnmounted: T;
+  func: T;
 }
 
-const boundFuncs: IMap<IBoundFunc> = {};
+function createBoundFactory(config: IUseBoundConfig): UseBoundFunction {
+  return <TFunc extends AnonymousFunction>(func: TFunc) => {
+    const boundFunc = useBoundFunc(func);
+    if (config.whenUnmounted) { boundFunc.whenUnmounted(config.whenUnmounted as TFunc); }
+    return boundFunc;
+  };
+}
 
-export function useBound<TFunc extends Func>(func: TFunc): TFunc {
-  const idRef = useRef(Math.uniqueId());
-  const id = idRef.current;
-  let { stub } = boundFuncs[id] = boundFuncs[id] || { stub: undefined, func: undefined };
+function disposeOfFuncs(funcs: AnonymousFunction | AnonymousFunction[]): void {
+  const funcsArray = funcs instanceof Array ? funcs : [funcs];
+  funcsArray.forEach(func => func['dispose'] ? func['dispose']() : null);
+}
 
-  if (!stub) {
-    stub = (...args: any[]) => {
-      if (!boundFuncs[id]) { throw new Error('The component for which this bound function has been created has since been unmounted.'); }
-      return boundFuncs[id].func(...args);
+function useBoundFunc<TFunc extends AnonymousFunction>(func: TFunc): UseBoundFunctionResult<TFunc> {
+  const isUnmountedRef = useOnUnmount();
+  const state = useRef<IBoundFuncState<TFunc>>({
+    stub: undefined,
+    func: undefined,
+    whenUnmounted: undefined,
+  });
+  if (!state.current.stub) {
+    state.current.stub = ((...args: any[]) => {
+      if (state.current.whenUnmounted && isUnmountedRef.current) { return state.current.whenUnmounted(...args); }
+      if (!state.current.func) { throw new Error('This bound method has been called after being disposed.'); }
+      return state.current.func(...args);
+    }) as UseBoundFunctionResult<TFunc>;
+    state.current.stub.whenUnmounted = (delegate: TFunc) => { state.current.whenUnmounted = delegate; return state.current.stub; };
+    state.current.stub.dispose = () => {
+      delete state.current.func;
     };
   }
-
-  boundFuncs[id] = { stub, func };
-
-  useOnUnmount(() => { delete boundFuncs[id]; });
-
-  return stub as TFunc;
+  state.current.func = func;
+  return state.current.stub;
 }
+
+const useBound = useBoundFunc as UseBound;
+useBound.create = createBoundFactory;
+useBound.disposeOf = disposeOfFuncs;
+
+export {
+  useBound,
+};
