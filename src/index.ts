@@ -23,3 +23,4 @@ export * from './useOnDrop';
 export * from './useDOMRef';
 export * from './useOnResize';
 export * from './useStaticState';
+export * from './useToggleState';
