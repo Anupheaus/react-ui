@@ -27,23 +27,9 @@ interface IStateData<TData, TPassthroughData> {
   state: DraggableValidityStates;
 }
 
-// enum DraggableTypes {
-//   File,
-//   Object,
-// }
-
-// interface IDraggable<TData = void> {
-//   type: DraggableTypes;
-//   data: TData;
-// }
-
 function isDragging(event: MouseEvent): boolean {
   return event.which === 1;
 }
-
-// function getDraggedElement(event: MouseEvent): HTMLElement {
-//   return event.currentTarget as HTMLElement;
-// }
 
 function applyStateClass<TData, TPassthroughData>(element: HTMLElement, stateClasses: IUseOnDropConfig<TData, TPassthroughData>['classes'], state: DraggableValidityStates): void {
   element.classList.remove(...DraggableValidityStates.toClassName(stateClasses, DraggableValidityStates.None));
