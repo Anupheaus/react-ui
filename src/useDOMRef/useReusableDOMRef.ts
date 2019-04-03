@@ -1,6 +1,7 @@
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import { HTMLTargetDelegate } from './models';
 import { is } from 'anux-common';
+import { useBound } from '../useBound';
 
 interface IDOMRef {
   key: string;
@@ -21,7 +22,7 @@ export function useReusableDOMRef<TData = void>(config: IUseReusableDOMConfig<TD
   };
   const domRefs = useRef<IDOMRef[]>([]);
 
-  return useCallback((key: string, data: TData) => {
+  return useBound((key: string, data: TData) => {
     let domRef = domRefs.current.find(item => item.key === key);
     if (!domRef) {
       domRef = { key, element: undefined, callback: undefined };
@@ -39,5 +40,5 @@ export function useReusableDOMRef<TData = void>(config: IUseReusableDOMConfig<TD
       }) as HTMLTargetDelegate;
     }
     return domRef.callback;
-  }, []);
+  });
 }
