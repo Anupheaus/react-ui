@@ -65,6 +65,19 @@ function createElementResizeTarget(state: IDragAndResizeState, setState: SetStat
   });
 }
 
+function hasGeometryChanged({ x, y, width, height }: IGeometry, { x: px, y: py, width: pwidth, height: pheight }: IGeometry): boolean {
+  return !(x === px && y === py && width === pwidth && height === pheight);
+}
+
+function raiseOnChangedEvent(state: IDragAndResizeState, prevState: IDragAndResizeState): void {
+  const { geometry, config: { onChanged }, isMoving, isResizing } = state;
+  const { isMoving: prevIsMoving, isResizing: prevIsResizing, geometry: prevGeometry } = prevState;
+  const geometryHasChanged = !isMoving && !isResizing && hasGeometryChanged(geometry, prevGeometry);
+  const isNowNotMovingOrResizing = (!isMoving && isMoving !== prevIsMoving) || (!isResizing && isResizing !== prevIsResizing);
+  if (!isNowNotMovingOrResizing && !geometryHasChanged) { return; }
+  onChanged(geometry);
+}
+
 function applyUpdateToElement(state: IDragAndResizeState, prevState: IDragAndResizeState): void {
   if (!state.hasInitialised || (state.geometry === prevState.geometry && state.maxExtents === prevState.maxExtents)) { return; }
   const { element, hasInitialised, geometry: { x, y, width, height } } = state;
@@ -76,14 +89,15 @@ function applyUpdateToElement(state: IDragAndResizeState, prevState: IDragAndRes
 function handleStateUpdate(state: IDragAndResizeState, prevState: IDragAndResizeState): IDragAndResizeState {
   applyUpdateToElement(state, prevState);
   addOrRemoveResizeHandles(state, prevState);
+  raiseOnChangedEvent(state, prevState);
   return state;
 }
 
 function calculateCentre(element: HTMLElement, width: number, height: number): ICoordinates {
   const centreOfParent = element && element.parentElement && element.parentElement.centreCoordinates();
   return {
-    x: centreOfParent.x - (width / 2),
-    y: centreOfParent.y - (height / 2),
+    x: Math.round(centreOfParent.x - (width / 2)),
+    y: Math.round(centreOfParent.y - (height / 2)),
   };
 }
 
@@ -99,7 +113,8 @@ function initialiseTarget({ element, config: { geometry: { x, y, width, height }
   height = height || minHeight;
   if (!element.classList.contains(ElementClassName)) { element.classList.add(ElementClassName); }
   if (element.parentElement && !element.parentElement.classList.contains(ElementContainerClassName)) { element.parentElement.classList.add(ElementContainerClassName); }
-  setState({ geometry: { x, y, width, height }, hasInitialised: true });
+  const geometry = { x, y, width, height };
+  setState({ geometry, hasInitialised: true });
 }
 
 function createMoveTarget(state: IDragAndResizeState, setState: SetState, containerResizeTarget: HTMLTargetDelegate, elementResizeTarget: HTMLTargetDelegate,
@@ -126,7 +141,10 @@ function createMoveTarget(state: IDragAndResizeState, setState: SetState, contai
 function createMoveDragTarget(state: IDragAndResizeState, setState: SetState) {
   return useOnDrag({
     isDisabled: !state.config.canBeMoved,
-    onDragStart: () => ({ x: state.geometry.x, y: state.geometry.y }),
+    onDragStart: () => {
+      setState({ isMoving: true });
+      return { x: state.geometry.x, y: state.geometry.y };
+    },
     onDrag: ({ coordinatesDiff: { x: xd, y: yd }, passthroughData }: IOnDragData<void, ICoordinates>) => {
       let { x, y } = passthroughData;
       const { geometry: { width, height }, maxExtents: { width: maxWidth, height: maxHeight } } = state;
@@ -136,6 +154,7 @@ function createMoveDragTarget(state: IDragAndResizeState, setState: SetState) {
       setState({ geometry: { ...state.geometry, x, y } });
       return passthroughData;
     },
+    onDragEnd: () => setState({ isMoving: false }),
   });
 }
 
@@ -144,6 +163,7 @@ export interface IDragAndResizeState {
   element: HTMLElement;
   geometry: IGeometry;
   isResizing: boolean;
+  isMoving: boolean;
   maxExtents: ISize;
   config: IDragAndResizeConfig;
   ignoreResizesOnElement: boolean;
@@ -162,6 +182,7 @@ export function useDragAndResize(config: IDragAndResizeConfig): IUseDragAndResiz
       height: undefined,
     },
     isResizing: false,
+    isMoving: false,
     maxExtents: {
       width: undefined,
       height: undefined,
