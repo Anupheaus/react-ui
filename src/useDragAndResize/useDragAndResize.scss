@@ -1,0 +1,8 @@
+.anux-drag-and-resize-container {
+  position: relative;
+  overflow: hidden;
+
+  .anux-drag-and-resize {
+    position: absolute;
+  }
+}

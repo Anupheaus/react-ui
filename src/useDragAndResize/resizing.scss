@@ -1,9 +1,9 @@
 drag-and-resize-handles-container {
   position: absolute;
-  top: -2px;
-  left: -2px;
-  bottom: -2px;
-  right: -2px;
+  top: var(--overhang-width);
+  left: var(--overhang-width);
+  bottom: var(--overhang-width);
+  right: var(--overhang-width);
   pointer-events: none;
   z-index: 1000;
 
@@ -14,7 +14,7 @@ drag-and-resize-handles-container {
     &[data-handle-position="1"] {
       top: 0;
       left: 0;
-      width: 4px;
+      width: var(--resize-handle-width);
       height: 25%;
       cursor: nw-resize;
     }
@@ -23,7 +23,7 @@ drag-and-resize-handles-container {
       top: 0;
       left: 0;
       width: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: nw-resize;
     }
 
@@ -31,7 +31,7 @@ drag-and-resize-handles-container {
       top: 0;
       left: 25%;
       right: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: ns-resize;
     }
 
@@ -39,14 +39,14 @@ drag-and-resize-handles-container {
       top: 0;
       right: 0;
       width: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: ne-resize;
     }
 
     &[data-handle-position="5"] {
       top: 0;
       right: 0;
-      width: 4px;
+      width: var(--resize-handle-width);
       height: 25%;
       cursor: ne-resize;
     }
@@ -55,14 +55,14 @@ drag-and-resize-handles-container {
       top: 25%;
       right: 0;
       bottom: 25%;
-      width: 4px;
+      width: var(--resize-handle-width);
       cursor: ew-resize;
     }
 
     &[data-handle-position="7"] {
       bottom: 0;
       right: 0;
-      width: 4px;
+      width: var(--resize-handle-width);
       height: 25%;
       cursor: se-resize;
     }
@@ -71,7 +71,7 @@ drag-and-resize-handles-container {
       bottom: 0;
       right: 0;
       width: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: se-resize;
     }
 
@@ -79,7 +79,7 @@ drag-and-resize-handles-container {
       bottom: 0;
       left: 25%;
       right: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: ns-resize;
     }
 
@@ -87,14 +87,14 @@ drag-and-resize-handles-container {
       bottom: 0;
       left: 0;
       width: 25%;
-      height: 4px;
+      height: var(--resize-handle-width);
       cursor: sw-resize;
     }
 
     &[data-handle-position="11"] {
       bottom: 0;
       left: 0;
-      width: 4px;
+      width: var(--resize-handle-width);
       height: 25%;
       cursor: sw-resize;
     }
@@ -103,7 +103,7 @@ drag-and-resize-handles-container {
       top: 25%;
       left: 0;
       bottom: 25%;
-      width: 4px;
+      width: var(--resize-handle-width);
       cursor: ew-resize;
     }
   }

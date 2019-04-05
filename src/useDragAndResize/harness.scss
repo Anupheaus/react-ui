@@ -10,7 +10,7 @@ draggable-container {
   > draggable-shell {
     display: flex;
     flex: none;
-    box-shadow: 0 0 2px 1px #00000015;
+    // box-shadow: 0 0 2px 1px #00000015;
     background-color: #f9f9f9;
     border: solid 1px #cccccc;
     flex-direction: column;
@@ -23,6 +23,32 @@ draggable-container {
       box-shadow: inset 0 0 2px 1px #00000015;
       background-color: #eaeaea;
       border: solid 1px #cccccc;
+    }
+  }
+
+  > draggable-options {
+    position: absolute;
+    display: flex;
+    flex: none;
+    top: 10px;
+    right: 10px;
+    width: 200px;
+    box-shadow: 0 0 2px 1px #00000015;
+    background-color: #f9f9f9;
+    border: solid 1px #cccccc;
+    padding: 5px 10px;
+    flex-direction: column;
+
+    > draggable-option {
+      display: flex;
+      flex: none;
+
+      > span {
+        display: flex;
+        flex: auto;
+        align-items: center;
+        width: 50%;
+      }
     }
   }
 }

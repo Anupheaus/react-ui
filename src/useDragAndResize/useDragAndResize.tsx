@@ -4,16 +4,20 @@ import { HTMLTargetDelegate, useSingleDOMRef } from '../useDOMRef';
 import { useOnResize } from '../useOnResize';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
-import { createResizeTarget } from './resizing';
+import { createResizeTarget, overhangWidth, addOrRemoveResizeHandles } from './resizing';
 import { useStaticState, SetStaticState } from '../useStaticState';
 import { useOnDrag, IOnDragData } from '../useOnDrag';
+import './useDragAndResize.scss';
+
+const ElementClassName = 'anux-drag-and-resize';
+const ElementContainerClassName = 'anux-drag-and-resize-container';
 
 export type SetState = SetStaticState<IDragAndResizeState>;
 
 function applyDefaults(config: IDragAndResizeConfig): IDragAndResizeConfig {
   return {
-    disableMove: false,
-    disableResize: false,
+    canBeMoved: true,
+    canBeResized: true,
     ...config,
     geometry: {
       ...config.geometry,
@@ -22,56 +26,57 @@ function applyDefaults(config: IDragAndResizeConfig): IDragAndResizeConfig {
 }
 
 function adjustElement(element: HTMLElement, adjustment: IGeometry): void {
-  element.style.position = 'absolute';
   element.style.transform = `translate(${adjustment.x}px,${adjustment.y}px)`;
   element.style.width = `${adjustment.width}px`;
   element.style.height = `${adjustment.height}px`;
 }
 
 function createContainerResizeTarget(state: IDragAndResizeState, setState: SetState): HTMLTargetDelegate {
-  const { config: { disableMove, disableResize } } = state;
+  const { config: { canBeMoved, canBeResized } } = state;
   return useOnResize({
-    isDisabled: disableResize && disableMove,
-    onFull: (_size, _prevSize, element) => {
-      const { top, left, width, height } = element.dimensions({ excludingBorder: true, excludingMargin: true, excludingPadding: true });
-      setState({ maxExtents: { width: width - left, height: height - top } });
+    isDisabled: !(canBeMoved && canBeResized),
+    onVisible: (_size, _prevSize, element) => {
+      let { top, left, width: maxWidth, height: maxHeight } = element.dimensions({ excludingBorder: true, excludingMargin: true, excludingPadding: true });
+      let { geometry: { x, y, width, height }, config: { minWidth, minHeight } } = state;
+      maxWidth -= left;
+      maxHeight -= top;
+      const maxX = maxWidth - width;
+      const maxY = maxHeight - height;
+      x = Math.between(x, 0, maxX);
+      y = Math.between(y, 0, maxY);
+      width = Math.between(width, minWidth, maxWidth - x);
+      height = Math.between(height, minHeight, maxHeight - y);
+      setState({ geometry: { x, y, width, height }, maxExtents: { width: maxWidth, height: maxHeight } });
     },
   });
 }
 
 function createElementResizeTarget(state: IDragAndResizeState, setState: SetState) {
-  const { config: { disableResize } } = state;
   return useOnResize({
-    isDisabled: disableResize,
+    isDisabled: !state.config.canBeResized,
     triggerOnInitialise: false,
-    onFull: size => setState(s => ({ ...s, geometry: { ...s.geometry, ...size } })),
+    onFull: ({ width, height }) => {
+      // need to adjust the width and height if we can be resized because the resize handles hang outside the boundaries of the target
+      width -= overhangWidth / 2;
+      height -= overhangWidth / 2;
+      if (state.isResizing || (state.geometry.width === width && state.geometry.height === height)) { return; }
+      setState({ geometry: { ...state.geometry, ...{ width, height } } });
+    },
   });
 }
 
-function applyUpdateToElement(state: IDragAndResizeState, prevState: IDragAndResizeState): IDragAndResizeState {
-  if (!state.hasInitialised || (state.geometry === prevState.geometry && state.maxExtents === prevState.maxExtents)) { return state; }
-  let { element, maxExtents: { width: maxWidth, height: maxHeight } } = state;
-  let { x = 0, y = 0, width = 0, height = 0 } = state.geometry;
-  const { x: prevX, y: prevY } = prevState.geometry;
-  const { minWidth, minHeight } = state.config;
-  const [xChanged, yChanged] = [x !== prevX, y !== prevY];
-  x = Math.max(0, x);
-  y = Math.max(0, y);
-  maxWidth = Math.max(minWidth, maxWidth);
-  maxHeight = Math.max(minHeight, maxHeight);
-  width = Math.max(minWidth, width);
-  height = Math.max(minHeight, height);
-  if (x + width > maxWidth) {
-    if (xChanged || maxWidth - x < minWidth) { x = maxWidth - width; } else { width = maxWidth - x; }
-  }
-  if (y + height > maxHeight) {
-    if (yChanged || maxHeight - y < minHeight) { y = maxHeight - height; } else { height = maxHeight - y; }
-  }
-  adjustElement(element, { x, y, width, height });
-  return {
-    ...state,
-    geometry: { x, y, width, height },
-  };
+function applyUpdateToElement(state: IDragAndResizeState, prevState: IDragAndResizeState): void {
+  if (!state.hasInitialised || (state.geometry === prevState.geometry && state.maxExtents === prevState.maxExtents)) { return; }
+  const { element, hasInitialised, geometry: { x, y, width, height } } = state;
+  const { hasInitialised: prevHasInitialised, geometry: { x: prevX, y: prevY, width: prevWidth, height: prevHeight } } = prevState;
+  if (!hasInitialised || (hasInitialised === prevHasInitialised && x === prevX && y === prevY && width === prevWidth && height === prevHeight)) { return; }
+  adjustElement(element, state.geometry);
+}
+
+function handleStateUpdate(state: IDragAndResizeState, prevState: IDragAndResizeState): IDragAndResizeState {
+  applyUpdateToElement(state, prevState);
+  addOrRemoveResizeHandles(state, prevState);
+  return state;
 }
 
 function calculateCentre(element: HTMLElement, width: number, height: number): ICoordinates {
@@ -92,7 +97,9 @@ function initialiseTarget({ element, config: { geometry: { x, y, width, height }
   y = y || 0;
   width = width || minWidth;
   height = height || minHeight;
-  setState({ geometry: { x, y, width, height } });
+  if (!element.classList.contains(ElementClassName)) { element.classList.add(ElementClassName); }
+  if (element.parentElement && !element.parentElement.classList.contains(ElementContainerClassName)) { element.parentElement.classList.add(ElementContainerClassName); }
+  setState({ geometry: { x, y, width, height }, hasInitialised: true });
 }
 
 function createMoveTarget(state: IDragAndResizeState, setState: SetState, containerResizeTarget: HTMLTargetDelegate, elementResizeTarget: HTMLTargetDelegate,
@@ -105,7 +112,6 @@ function createMoveTarget(state: IDragAndResizeState, setState: SetState, contai
       dragClassTarget(element);
       if (!state.hasInitialised) {
         initialiseTarget(state, setState); // on first connect, initialise the target
-        setState({ hasInitialised: true });
       }
     },
     disconnected: () => {
@@ -119,9 +125,15 @@ function createMoveTarget(state: IDragAndResizeState, setState: SetState, contai
 
 function createMoveDragTarget(state: IDragAndResizeState, setState: SetState) {
   return useOnDrag({
+    isDisabled: !state.config.canBeMoved,
     onDragStart: () => ({ x: state.geometry.x, y: state.geometry.y }),
-    onDrag: ({ coordinatesDiff: { x, y }, passthroughData }: IOnDragData<void, ICoordinates>) => {
-      setState(s => ({ ...s, geometry: { ...s.geometry, x: passthroughData.x + x, y: passthroughData.y + y } }));
+    onDrag: ({ coordinatesDiff: { x: xd, y: yd }, passthroughData }: IOnDragData<void, ICoordinates>) => {
+      let { x, y } = passthroughData;
+      const { geometry: { width, height }, maxExtents: { width: maxWidth, height: maxHeight } } = state;
+      const [maxX, maxY] = [maxWidth - width, maxHeight - height];
+      x = Math.between(x + xd, 0, maxX);
+      y = Math.between(y + yd, 0, maxY);
+      setState({ geometry: { ...state.geometry, x, y } });
       return passthroughData;
     },
   });
@@ -131,6 +143,7 @@ export interface IDragAndResizeState {
   hasInitialised: boolean;
   element: HTMLElement;
   geometry: IGeometry;
+  isResizing: boolean;
   maxExtents: ISize;
   config: IDragAndResizeConfig;
   ignoreResizesOnElement: boolean;
@@ -148,14 +161,16 @@ export function useDragAndResize(config: IDragAndResizeConfig): IUseDragAndResiz
       width: undefined,
       height: undefined,
     },
+    isResizing: false,
     maxExtents: {
       width: undefined,
       height: undefined,
     },
-    config: undefined,
+    config,
   });
-  setState({ config: applyDefaults(config) });
-  onStateUpdate(applyUpdateToElement);
+  onStateUpdate(handleStateUpdate);
+  setState({ config });
+
   const containerResizeTarget = createContainerResizeTarget(state, setState);
   const elementResizeTarget = createElementResizeTarget(state, setState);
   const { dragTarget, dragClassTarget } = createMoveDragTarget(state, setState);

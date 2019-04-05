@@ -11,8 +11,8 @@ export interface IDragAndResizeConfig {
   geometry?: IGeometry;
   minWidth: number;
   minHeight: number;
-  disableResize?: boolean;
-  disableMove?: boolean;
+  canBeMoved?: boolean;
+  canBeResized?: boolean;
   onChanged?(geometry: IGeometry): void;
 }
 
