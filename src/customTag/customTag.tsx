@@ -1,4 +1,4 @@
-import { useContext, createElement, forwardRef, FunctionComponent } from 'react';
+import { useContext, createElement, forwardRef, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react';
 import { CustomTagContext, ICustomTagContext } from './context';
 
 interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
@@ -21,4 +21,4 @@ export const CustomTag = forwardRef<HTMLElement, IProps>(({ name, children, ...r
     { key: name, ...rest, ref },
     children,
   );
-}) as FunctionComponent<IProps>;
+}) as ForwardRefExoticComponent<PropsWithoutRef<IProps> & RefAttributes<HTMLElement>>;
