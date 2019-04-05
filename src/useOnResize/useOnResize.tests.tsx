@@ -65,8 +65,8 @@ describe('useOnResize', () => {
     expect(test.visible.width).to.eq(200);
     expect(test.visible.height).to.eq(200);
     expect(test.visibleCount).to.eq(1);
-    expect(test.prevFull).to.eq(test.full);
-    expect(test.prevVisible).to.eq(test.visible);
+    expect(test.prevFull).to.eql({ width: undefined, height: undefined });
+    expect(test.prevVisible).to.eql({ width: undefined, height: undefined });
     test.component.unmount();
   });
 
@@ -78,7 +78,7 @@ describe('useOnResize', () => {
     const element = test.component.childAt(0).getDOMNode() as any;
     element.clientWidth = 300;
     element.clientHeight = 300;
-    window['resizeObserver'].triggerOn(element);
+    window['resizeObserver'].triggerWith([{ target: element }]);
     expect(test.full.width).to.eq(200);
     expect(test.full.height).to.eq(200);
     expect(test.fullCount).to.eq(1);
