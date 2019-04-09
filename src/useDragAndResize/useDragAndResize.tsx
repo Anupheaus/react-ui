@@ -4,7 +4,7 @@ import { HTMLTargetDelegate, useSingleDOMRef } from '../useDOMRef';
 import { useOnResize } from '../useOnResize';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
-import { createResizeTarget, overhangWidth, addOrRemoveResizeHandles } from './resizing';
+import { createResizeTarget, addOrRemoveResizeHandles } from './resizing';
 import { useStaticState, SetStaticState } from '../useStaticState';
 import { useOnDrag, IOnDragData } from '../useOnDrag';
 import './useDragAndResize.scss';
@@ -55,11 +55,11 @@ function createElementResizeTarget(state: IDragAndResizeState, setState: SetStat
   return useOnResize({
     isDisabled: !state.config.canBeResized,
     triggerOnInitialise: false,
-    onFull: ({ width, height }) => {
-      // need to adjust the width and height if we can be resized because the resize handles hang outside the boundaries of the target
-      width -= overhangWidth / 2;
-      height -= overhangWidth / 2;
-      if (state.isResizing || (state.geometry.width === width && state.geometry.height === height)) { return; }
+    onFull: () => {
+      const { element, isResizing, geometry: { width: currentWidth, height: currentHeight } } = state;
+      if (!element) { return; }
+      const { width, height } = element.dimensions({ excludingMargin: true });
+      if (isResizing || (currentWidth === width && currentHeight === height)) { return; }
       setState({ geometry: { ...state.geometry, ...{ width, height } } });
     },
   });
