@@ -37,7 +37,7 @@ function createContainerResizeTarget(state: IDragAndResizeState, setState: SetSt
     isDisabled: !(canBeMoved && canBeResized),
     onVisible: (_size, _prevSize, element) => {
       let { top, left, width: maxWidth, height: maxHeight } = element.dimensions({ excludingBorder: true, excludingMargin: true, excludingPadding: true });
-      let { geometry: { x, y, width, height }, config: { minWidth, minHeight } } = state;
+      let { geometry: { x = 0, y = 0, width = 0, height = 0 }, config: { minWidth, minHeight } } = state;
       maxWidth -= left;
       maxHeight -= top;
       const maxX = maxWidth - width;
