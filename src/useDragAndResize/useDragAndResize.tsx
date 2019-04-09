@@ -79,11 +79,10 @@ function raiseOnChangedEvent(state: IDragAndResizeState, prevState: IDragAndResi
 }
 
 function applyUpdateToElement(state: IDragAndResizeState, prevState: IDragAndResizeState): void {
-  if (!state.hasInitialised || (state.geometry === prevState.geometry && state.maxExtents === prevState.maxExtents)) { return; }
-  const { element, hasInitialised, geometry: { x, y, width, height } } = state;
-  const { hasInitialised: prevHasInitialised, geometry: { x: prevX, y: prevY, width: prevWidth, height: prevHeight } } = prevState;
-  if (!hasInitialised || (hasInitialised === prevHasInitialised && x === prevX && y === prevY && width === prevWidth && height === prevHeight)) { return; }
-  adjustElement(element, state.geometry);
+  const { element, geometry, maxExtents } = state;
+  const { geometry: prevGeometry, maxExtents: prevMaxExtents } = prevState;
+  if (!element || (!hasGeometryChanged(geometry, prevGeometry) && maxExtents === prevMaxExtents)) { return; }
+  adjustElement(element, geometry);
 }
 
 function handleStateUpdate(state: IDragAndResizeState, prevState: IDragAndResizeState): IDragAndResizeState {
@@ -93,28 +92,33 @@ function handleStateUpdate(state: IDragAndResizeState, prevState: IDragAndResize
   return state;
 }
 
-function calculateCentre(element: HTMLElement, width: number, height: number): ICoordinates {
+function moveToCentre(element: HTMLElement, geometry: IGeometry) {
   const centreOfParent = element && element.parentElement && element.parentElement.centreCoordinates();
-  return {
-    x: Math.round(centreOfParent.x - (width / 2)),
-    y: Math.round(centreOfParent.y - (height / 2)),
-  };
+  [geometry.x, geometry.y] = [Math.round(centreOfParent.x - (geometry.width / 2)), Math.round(centreOfParent.y - (geometry.height / 2))];
 }
 
-function initialiseTarget({ element, config: { geometry: { x, y, width, height }, minWidth, minHeight } }: IDragAndResizeState, setState: SetState): void {
-  if (!x && !y) {
-    const centre = calculateCentre(element, width || minWidth, height || minHeight);
-    x = centre.x;
-    y = centre.y;
-  }
-  x = x || 0;
-  y = y || 0;
-  width = width || minWidth;
-  height = height || minHeight;
+function applyExtentsToGeometry({ x, y, width, height }: IGeometry, { config: { minWidth, minHeight },
+  maxExtents: { width: maxWidth, height: maxHeight } }: IDragAndResizeState): IGeometry {
+  width = Math.between(width || 0, minWidth, maxWidth);
+  height = Math.between(height || 0, minHeight, maxHeight);
+  const maxX = maxWidth - width;
+  const maxY = maxHeight - height;
+  x = Math.between(x || 0, 0, maxX);
+  y = Math.between(y || 0, 0, maxY);
+  return { x, y, width, height };
+}
+
+function initialiseTarget(state: IDragAndResizeState, setState: SetState): void {
+  let { element, config: { geometry: { x: initialX, y: initialY, width: initialWidth = 0, height: initialHeight = 0 } }, geometry: { x, y, width, height } } = state;
+  x = x || initialX;
+  y = y || initialY;
+  width = width || initialWidth;
+  height = height || initialHeight;
+  const geometry = applyExtentsToGeometry({ x, y, width, height }, state);
+  if (!x && !y) { moveToCentre(element, geometry); }
   if (!element.classList.contains(ElementClassName)) { element.classList.add(ElementClassName); }
   if (element.parentElement && !element.parentElement.classList.contains(ElementContainerClassName)) { element.parentElement.classList.add(ElementContainerClassName); }
-  const geometry = { x, y, width, height };
-  setState({ geometry, hasInitialised: true });
+  setState({ geometry });
 }
 
 function createMoveTarget(state: IDragAndResizeState, setState: SetState, containerResizeTarget: HTMLTargetDelegate, elementResizeTarget: HTMLTargetDelegate,
@@ -125,9 +129,7 @@ function createMoveTarget(state: IDragAndResizeState, setState: SetState, contai
       containerResizeTarget(element.parentElement);
       elementResizeTarget(element);
       dragClassTarget(element);
-      if (!state.hasInitialised) {
-        initialiseTarget(state, setState); // on first connect, initialise the target
-      }
+      initialiseTarget(state, setState);
     },
     disconnected: () => {
       setState({ element: undefined });
@@ -159,7 +161,6 @@ function createMoveDragTarget(state: IDragAndResizeState, setState: SetState) {
 }
 
 export interface IDragAndResizeState {
-  hasInitialised: boolean;
   element: HTMLElement;
   geometry: IGeometry;
   isResizing: boolean;
@@ -172,7 +173,6 @@ export interface IDragAndResizeState {
 export function useDragAndResize(config: IDragAndResizeConfig): IUseDragAndResizeResult {
   config = applyDefaults(config);
   const [state, setState, onStateUpdate] = useStaticState<IDragAndResizeState>({
-    hasInitialised: false,
     element: undefined,
     ignoreResizesOnElement: false,
     geometry: {

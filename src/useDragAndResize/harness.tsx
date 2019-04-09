@@ -3,7 +3,7 @@ import { CustomTag } from '../customTag';
 import { useDragAndResize } from './useDragAndResize';
 import './harness.scss';
 import { Switch } from '@material-ui/core';
-import { useState, ChangeEvent } from 'react';
+import { useState, ChangeEvent, useRef } from 'react';
 import { useBound } from '../useBound';
 import { IGeometry } from 'anux-common';
 
@@ -19,11 +19,19 @@ export const useDragAndResizeHarness = createHarness({ name: 'useDragAndResize' 
     isResizable: true,
     geometry: { x: 0, y: 0, width: 0, height: 0 },
   });
+  const flag = useRef<boolean>(false);
+  flag.current = !flag.current;
   const { dragTarget, moveTarget, resizeTarget } = useDragAndResize({
     canBeMoved: state.isMovable,
     canBeResized: state.isResizable,
     minHeight: 400,
     minWidth: 400,
+    geometry: {
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 300,
+    },
     onChanged: geometry => setState(s => ({ ...s, geometry })),
   });
 
@@ -31,7 +39,7 @@ export const useDragAndResizeHarness = createHarness({ name: 'useDragAndResize' 
   const setIsResizable = useBound((event: ChangeEvent) => setState(s => ({ ...s, isResizable: event.target['checked'] })));
 
   return (
-    <CustomTag name="draggable-container">
+    <CustomTag name="draggable-container" className={flag ? 'test-class' : null}>
       <CustomTag name="draggable-shell" ref={moveTarget(resizeTarget)}>
         <CustomTag name="draggable-handle" ref={dragTarget} />
       </CustomTag>
