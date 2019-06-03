@@ -63,7 +63,6 @@ function getCoordinatesDiff(event: MouseEvent, coordinates: ICoordinates): ICoor
 
 function dragStartHandler(state: IState, setState: SetState, event: MouseEvent): void {
   if (event.button !== 0) { return; }
-  event.stopPropagation();
   const { config: { threshold, onDragStart, onDrag, onDragEnd, data }, dragTarget: target } = state;
   const coordinates: ICoordinates = { x: event.clientX, y: event.clientY };
   const currentTarget = event.target as HTMLElement;
@@ -76,7 +75,6 @@ function dragStartHandler(state: IState, setState: SetState, event: MouseEvent):
   };
 
   const dragHandler = (dragEvent: MouseEvent) => {
-    dragEvent.stopPropagation();
     const coordinatesDiff = getCoordinatesDiff(dragEvent, coordinates);
     if (!startedDragging) {
       if (Math.abs(coordinatesDiff.x) <= threshold && Math.abs(coordinatesDiff.y) <= threshold) { return; }
