@@ -21,10 +21,12 @@ export interface IUseApiResponse<TResponse> {
   error: Error;
   cancelRequest: CancelRequest;
   forceRequest: ForceRequest;
+  promise: Promise<TResponse>;
 }
 
 export interface IUseApiResponseActions<TResponse> {
   end: IUseApiResponse<TResponse>;
+  promise: Promise<TResponse>;
   then(delegate: ThenDelegate<TResponse>): Omit<IUseApiResponseActions<TResponse>, 'then'>;
   catch(delegate: CatchDelegate): Omit<IUseApiResponseActions<TResponse>, 'then' | 'catch'>;
 }

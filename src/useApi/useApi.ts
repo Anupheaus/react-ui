@@ -13,12 +13,20 @@ function apiFactory(config: IUseApiConfig) {
     delete: (url: string, data?: any) => apiFactory({ ...config, apiConfig: { method: 'delete', url, data } }),
     then: thenDelegate => apiFactory({ ...config, thenDelegate }),
     catch: catchDelegate => apiFactory({ ...config, catchDelegate }),
+    promise: undefined,
     end: undefined,
   };
-  Object.defineProperty(result, 'end', {
-    get: () => createRequest(config),
-    enumerable: true,
-    configurable: false,
+  Object.defineProperties(result, {
+    end: {
+      get: () => createRequest(config),
+      enumerable: true,
+      configurable: false,
+    },
+    promise: {
+      get: () => createRequest(config),
+      enumerable: true,
+      configurable: false,
+    },
   });
   return result;
 }

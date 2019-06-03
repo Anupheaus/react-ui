@@ -32,20 +32,20 @@ describe('useApi', () => {
       const TestDirectComponent: FunctionComponent<IProps> = ({ onRender, dependencies = Array.empty(), exceptWhen = () => false, children }) => {
         if (onRender) { onRender(); }
 
-        const { data, error, cancelRequest, forceRequest } = useApi
+        const { data, error, cancelRequest, forceRequest, promise } = useApi
           .observe(dependencies)
           .exceptWhen(exceptWhen)
         [method](requestUrl, requestData)
           .end;
 
-        return children({ data, error, cancelRequest, forceRequest });
+        return children({ data, error, cancelRequest, forceRequest, promise });
       };
 
       const TestThenAndCatchComponent: FunctionComponent<IProps> = ({ onRender, dependencies = Array.empty(), exceptWhen = () => false, children }) => {
         const [{ data, error }, setState] = useState<IState>({ data: undefined, error: undefined });
         if (onRender) { onRender(); }
 
-        const { cancelRequest, forceRequest } = useApi
+        const { cancelRequest, forceRequest, promise } = useApi
           .observe(dependencies)
           .exceptWhen(exceptWhen)
         [method](requestUrl, requestData)
@@ -53,7 +53,7 @@ describe('useApi', () => {
           .catch((e: Error) => setState(s => ({ ...s, error: e })))
           .end;
 
-        return children({ data, error, cancelRequest, forceRequest });
+        return children({ data, error, cancelRequest, forceRequest, promise });
       };
 
       async function respondWith(response: Parameters<ReturnType<typeof moxios.requests.mostRecent>['respondWith']>[0]) {
@@ -90,14 +90,16 @@ describe('useApi', () => {
               let error: Error;
               let cancelRequest: (reason?: string) => void;
               let forceRequest: () => void;
+              let promise: Promise<any>;
 
               const component = mount((
                 <Component>
-                  {({ data: innerData, error: innerError, cancelRequest: innerCancel, forceRequest: innerForce }) => {
+                  {({ data: innerData, error: innerError, cancelRequest: innerCancel, forceRequest: innerForce, promise: innerPromise }) => {
                     data = innerData;
                     error = innerError;
                     cancelRequest = innerCancel;
                     forceRequest = innerForce;
+                    promise = innerPromise;
                     return null;
                   }}
                 </Component>
@@ -107,6 +109,7 @@ describe('useApi', () => {
               expect(error).to.be.undefined;
               expect(cancelRequest).to.be.a('function');
               expect(forceRequest).to.be.a('function');
+              expect(promise).to.be.instanceOf(Promise);
 
               component.unmount();
             });
@@ -432,13 +435,15 @@ describe('useApi', () => {
                 let data: any;
                 let error: Error;
                 let forceRequest: ForceRequest;
+                let promise: Promise<any>;
 
                 const component = mount((
                   <Component onRender={() => { renderCount++; }}>
-                    {({ data: innerData, error: innerError, forceRequest: innerForce }) => {
+                    {({ data: innerData, error: innerError, forceRequest: innerForce, promise: innerPromise }) => {
                       data = innerData;
                       error = innerError;
                       forceRequest = innerForce;
+                      promise = innerPromise;
                       return null;
                     }}
                   </Component>
@@ -448,6 +453,7 @@ describe('useApi', () => {
                 expect(data).to.be.undefined;
                 expect(error).to.be.undefined;
                 expect(forceRequest).to.be.a('function');
+                expect(promise).to.be.instanceOf(Promise);
 
                 await moxios.wait();
                 confirmRequest();
