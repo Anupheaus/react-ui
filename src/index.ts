@@ -25,3 +25,4 @@ export * from './useOnResize';
 export * from './useStaticState';
 export * from './useToggleState';
 export * from './useDragAndResize';
+export * from './useStore';
