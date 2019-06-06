@@ -40,7 +40,10 @@ export function createStore<TData extends IMap, TActions extends IMap>(initialDa
       store.dispose();
     });
 
-    const content = !is.null(error) ? onError(error) : isLoading && is.function(onLoading) ? onLoading() : (children || null);
+    const renderError = () => !is.null(error) && is.function(onError) ? onError(error) : null;
+    const renderIsLoading = () => !isLoading ? null : onLoading == null ? null : is.function(onLoading) ? onLoading() : onLoading;
+    const content = renderError() || renderIsLoading() || children || null;
+
     return <StoreContext.Provider value={{ [storeTypeId]: storeId }}>{content}</StoreContext.Provider>;
   };
 
