@@ -5,7 +5,6 @@ import { StoreContext } from './context';
 import { useOnUnmount } from '../useOnUnmount';
 import { StoreTypeId, IStore, IProviderProps, StoreActionsDelegate } from './models';
 import { useOnMount } from '../useOnMount';
-import { useToggleState } from '../useToggleState';
 
 export function createStore<TData extends IMap, TActions extends IMap>(initialData: TData, actions: StoreActionsDelegate<TData, TActions>) {
   const storeTypeId = Math.uniqueId();
