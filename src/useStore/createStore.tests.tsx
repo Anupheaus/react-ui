@@ -7,7 +7,7 @@ import { stores } from './stores';
 import { Store as StoreInstance } from './store';
 import { useStore } from './useStore';
 
-describe.only('useStore - createStore', () => {
+describe('useStore - createStore', () => {
 
   // interface ITestStoreResult<TData extends IMap, TActions extends IMap> {
   //   data: TData;

@@ -4,7 +4,7 @@ import { useStore } from './useStore';
 import { mount, ReactWrapper } from 'enzyme';
 import { IMap } from 'anux-common';
 
-describe.only('useStore', () => {
+describe('useStore', () => {
 
   interface IData {
     something: string;
@@ -70,7 +70,7 @@ describe.only('useStore', () => {
       const [storeData, actions] = useStore(Store);
       results.levels[level].data = storeData as IData;
       results.levels[level].refreshCount++;
-      results.actions = actions;
+      results.levels[level].actions = actions;
       return null;
     };
 
@@ -148,17 +148,18 @@ describe.only('useStore', () => {
     component.unmount();
   });
 
-  it('works with different DOM levels', () => {
-    let onChangeCallCount = 0;
-    const test = createTestNestedComponent(undefined, () => {
-      onChangeCallCount++;
-    });
-    const { component, actions: { changeSomethingTo } } = test;
-    expect(test.refreshCount).to.eq(1);
-    expect(onChangeCallCount).to.eq(0);
-    changeSomethingTo('more');
-    expect(test.refreshCount).to.eq(2);
-    expect(onChangeCallCount).to.eq(1);
+  it('works with different stores at different levels - including nested', () => {
+    const test = createTestNestedComponent();
+    const { component, levels } = test;
+    expect(levels[0].refreshCount).to.eq(1);
+    expect(levels[0].data).to.eql({ something: 'else', someCount: 1 });
+    expect(levels[1].refreshCount).to.eq(1);
+    expect(levels[1].data).to.eql({ something: 'else', someCount: 1 });
+    levels[0].actions.changeSomethingTo('more');
+    expect(levels[0].refreshCount).to.eq(2);
+    expect(levels[0].data).to.eql({ something: 'more', someCount: 1 });
+    expect(levels[1].refreshCount).to.eq(1);
+    expect(levels[1].data).to.eql({ something: 'else', someCount: 1 });
     component.unmount();
   });
 

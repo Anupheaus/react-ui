@@ -5,6 +5,7 @@ export type StoreCallback<TData extends IMap = IMap> = (data: TData) => void;
 
 export interface IProviderProps<TData extends IMap> {
   initialData?: TData | ((initialData: TData) => TData);
+  onChanged?(data: TData): void;
 }
 
 export interface IStore<TData extends IMap, TActions extends IMap> extends FunctionComponent<IProviderProps<TData>> {
