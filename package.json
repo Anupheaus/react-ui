@@ -18,7 +18,7 @@
     "anux-common": "^1.0.35",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "axios": "^0.19.0"
+    "axios": "0.18.0"
   },
   "devDependencies": {
     "anux-package": "^1.0.40",
