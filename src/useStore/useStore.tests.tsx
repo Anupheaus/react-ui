@@ -1,10 +1,10 @@
 import { createStore } from './createStore';
 import { FunctionComponent } from 'react';
 import { useStore } from './useStore';
-import { mount } from 'enzyme';
+import { mount, ReactWrapper } from 'enzyme';
 import { IMap } from 'anux-common';
 
-describe('useStore', () => {
+describe.only('useStore', () => {
 
   interface IData {
     something: string;
@@ -16,33 +16,81 @@ describe('useStore', () => {
       something: 'else',
       someCount: 1,
     };
-    const testStore = createStore(data, update => ({
+
+    const Store = createStore(data, update => ({
       changeSomethingTo: (something: string) => update({ something }),
     }));
 
-    const result = {
-      data: testStore.data,
-      actions: testStore.actions,
+    const results = {
+      data,
+      actions: undefined as typeof Store['actionsType'],
       refreshCount: 0,
-      Component: null as FunctionComponent,
+      component: undefined as ReactWrapper<any, any>,
     };
 
     const Component: FunctionComponent = () => {
-      const [storeData] = useStore(testStore, selector, onChange);
-      result.data = storeData as IData;
-      result.refreshCount++;
+      const [storeData, actions] = useStore(Store, selector, onChange);
+      results.data = storeData as IData;
+      results.refreshCount++;
+      results.actions = actions;
       return null;
     };
 
-    result.Component = Component;
+    const component = mount(<Store><Component /></Store>);
 
-    return result;
+    results.component = component;
+
+    return results;
+  }
+
+  function createTestNestedComponent() {
+    const data: IData = {
+      something: 'else',
+      someCount: 1,
+    };
+
+    const Store = createStore(data, update => ({
+      changeSomethingTo: (something: string) => update({ something }),
+    }));
+
+    const results = {
+      levels: [{
+        data,
+        actions: undefined as typeof Store['actionsType'],
+        refreshCount: 0,
+      }, {
+        data,
+        actions: undefined as typeof Store['actionsType'],
+        refreshCount: 0,
+      }],
+      component: undefined as ReactWrapper<any, any>,
+    };
+
+    const Component: FunctionComponent<{ level: number; }> = ({ level }) => {
+      const [storeData, actions] = useStore(Store);
+      results.levels[level].data = storeData as IData;
+      results.levels[level].refreshCount++;
+      results.actions = actions;
+      return null;
+    };
+
+    const component = mount((
+      <Store>
+        <Component level={0} />
+        <Store>
+          <Component level={1} />
+        </Store>
+      </Store>
+    ));
+
+    results.component = component;
+
+    return results;
   }
 
   it('can be used within a component and it returns all the right data and actions', () => {
     const test = createTestComponent();
-    const { Component } = test;
-    const component = mount(<Component />);
+    const { component } = test;
     expect(test.refreshCount).to.eq(1);
     expect(test.data).to.be.a('object');
     expect(test.data.something).to.eq('else');
@@ -54,8 +102,7 @@ describe('useStore', () => {
 
   it('updates to the store cause the component to refresh', () => {
     const test = createTestComponent();
-    const { Component, actions: { changeSomethingTo } } = test;
-    const component = mount(<Component />);
+    const { component, actions: { changeSomethingTo } } = test;
     expect(test.data.something).to.eq('else');
     expect(test.refreshCount).to.eq(1);
     changeSomethingTo('more');
@@ -66,8 +113,7 @@ describe('useStore', () => {
 
   it('updates to the store that do not actually cause differences will not cause the component to refresh', () => {
     const test = createTestComponent();
-    const { Component, actions: { changeSomethingTo } } = test;
-    const component = mount(<Component />);
+    const { component, actions: { changeSomethingTo } } = test;
     expect(test.data.something).to.eq('else');
     expect(test.refreshCount).to.eq(1);
     changeSomethingTo('else');
@@ -78,8 +124,7 @@ describe('useStore', () => {
 
   it('updates to the store that are excluded by the selector will not cause the component to refresh', () => {
     const test = createTestComponent(({ someCount }) => ({ someCount }));
-    const { Component, actions: { changeSomethingTo } } = test;
-    const component = mount(<Component />);
+    const { component, actions: { changeSomethingTo } } = test;
     expect(test.data.something).to.be.undefined;
     expect(test.data.someCount).to.eq(1);
     expect(test.refreshCount).to.eq(1);
@@ -94,8 +139,7 @@ describe('useStore', () => {
     const test = createTestComponent(undefined, () => {
       onChangeCallCount++;
     });
-    const { Component, actions: { changeSomethingTo } } = test;
-    const component = mount(<Component />);
+    const { component, actions: { changeSomethingTo } } = test;
     expect(test.refreshCount).to.eq(1);
     expect(onChangeCallCount).to.eq(0);
     changeSomethingTo('more');
@@ -104,14 +148,29 @@ describe('useStore', () => {
     component.unmount();
   });
 
-  it('unmounting the component will prevent the callback being called', () => {
+  it('works with different DOM levels', () => {
+    let onChangeCallCount = 0;
+    const test = createTestNestedComponent(undefined, () => {
+      onChangeCallCount++;
+    });
+    const { component, actions: { changeSomethingTo } } = test;
+    expect(test.refreshCount).to.eq(1);
+    expect(onChangeCallCount).to.eq(0);
+    changeSomethingTo('more');
+    expect(test.refreshCount).to.eq(2);
+    expect(onChangeCallCount).to.eq(1);
+    component.unmount();
+  });
+
+  it('unmounting the component will error when a change is requested and prevent the callback being called', () => {
     const test = createTestComponent();
-    const { Component, actions: { changeSomethingTo } } = test;
-    const component = mount(<Component />);
+    const { component, actions: { changeSomethingTo } } = test;
     expect(test.data.something).to.eq('else');
     expect(test.refreshCount).to.eq(1);
     component.unmount();
-    changeSomethingTo('more');
+    expect(() => {
+      changeSomethingTo('more');
+    }).to.throw('An attempt was made to update a store that has been disposed.');
     expect(test.data.something).to.eq('else');
     expect(test.refreshCount).to.eq(1);
   });
