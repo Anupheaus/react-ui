@@ -1,5 +1,5 @@
 import { IMap, is } from 'anux-common';
-import { FunctionComponent, useState } from 'react';
+import { FunctionComponent, useState, useContext } from 'react';
 import { Store } from './store';
 import { StoreContext } from './context';
 import { useOnUnmount } from '../useOnUnmount';
@@ -12,6 +12,7 @@ export function createStore<TData extends IMap, TActions extends IMap>(initialDa
   const Provider: FunctionComponent<IProviderProps<TData, TActions>> = ({ children, initialData: providerInitialData, onChanged, onLoad, onLoading, onError }) => {
     const actualInitialData = is.function(providerInitialData) ? providerInitialData(initialData) : (providerInitialData || initialData);
     const store = new Store(actualInitialData, actions);
+    const currentContext = useContext(StoreContext);
     const [isLoading, setIsLoading] = useState(is.function(onLoad));
     const [error, recordError] = useState<Error>();
 
@@ -44,7 +45,7 @@ export function createStore<TData extends IMap, TActions extends IMap>(initialDa
     const renderIsLoading = () => !isLoading ? null : onLoading == null ? null : is.function(onLoading) ? onLoading() : onLoading;
     const content = renderError() || renderIsLoading() || children || null;
 
-    return <StoreContext.Provider value={{ [storeTypeId]: storeId }}>{content}</StoreContext.Provider>;
+    return <StoreContext.Provider value={{ ...currentContext, [storeTypeId]: storeId }}>{content}</StoreContext.Provider>;
   };
 
   Provider[StoreTypeId] = storeTypeId;
