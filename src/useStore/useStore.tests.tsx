@@ -1,4 +1,4 @@
-import { createStore } from './createStore';
+import { createStore } from './createStore2';
 import { FunctionComponent } from 'react';
 import { useStore } from './useStore';
 import { mount, ReactWrapper } from 'enzyme';

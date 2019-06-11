@@ -24,3 +24,5 @@ export interface IInternalStore<TData extends IMap, TActions extends IMap> exten
 export type StoreActionsDelegate<TData, TActions> = (upsert: (data: DeepPartial<TData>) => void, getData: () => TData) => TActions;
 
 export const StoreTypeId = Symbol('storeTypeId');
+
+export type ConstructorOfActionsBase = new (...args: any[]) => any;

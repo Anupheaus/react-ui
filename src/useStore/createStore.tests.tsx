@@ -1,4 +1,4 @@
-import { createStore } from './createStore';
+import { createStore } from './createStore2';
 import { StoreTypeId } from './models';
 import { mount } from 'enzyme';
 import { FunctionComponent, useContext } from 'react';
