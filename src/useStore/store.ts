@@ -1,45 +1,41 @@
-import { IMap, DeepPartial, bind } from 'anux-common';
-import { StoreCallback, StoreActionsDelegate } from './models';
 import { stores } from './stores';
+import { DeepPartial, bind, IMap } from 'anux-common';
+import { StoreCallback } from './models';
 
-export class Store<TData extends IMap = IMap, TActions extends IMap = IMap> {
-  constructor(data: TData, actions: StoreActionsDelegate<TData, TActions>) {
+export class Store<TData extends IMap> {
+  constructor(data: TData) {
     this._id = Math.uniqueId();
     this._data = data;
-    this._actions = actions(this.update, () => this._data);
     this._callbacks = [];
     this._callbackInvocationId = null;
     this._currentCallback = null;
     stores[this._id] = this;
+    this._hasDisposed = false;
   }
 
   //#region Variables
 
   private _id: string;
   private _data: TData;
-  private _actions: TActions;
   private _callbacks: StoreCallback<TData>[];
   private _callbackInvocationId: string;
-  private _currentCallback: StoreCallback;
+  private _currentCallback: StoreCallback<TData>;
+  private _hasDisposed: boolean;
 
   //#endregion
 
   //#region Properties
 
-  public get id() { return this._id; }
-
-  public get data() { return this._data; }
-
-  public get actions() { return this._actions; }
+  protected get storeId() { return this._id; }
 
   //#endregion
 
   //#region Methods
 
   @bind
-  public update(partialData: DeepPartial<TData>): void {
-    if (!this._data && !this._callbacks) { throw new Error('An attempt was made to update a store that has been disposed.'); }
-    const newData = Object.merge({}, this._data, partialData);
+  protected updateData(update: DeepPartial<TData>): void {
+    if (this._hasDisposed) { throw new Error('An attempt was made to update a store that has been disposed.'); }
+    const newData = Object.merge({}, this._data, update);
     if (Reflect.areDeepEqual(this._data, newData)) { return; }
     this._data = newData;
     const callbacks = this._callbackInvocationId == null
@@ -48,26 +44,36 @@ export class Store<TData extends IMap = IMap, TActions extends IMap = IMap> {
     this.invokeCallbacks(callbacks);
   }
 
-  public register(callback: StoreCallback<TData>): () => void {
-    if (!this._callbacks) { return; }
-    this._callbacks.push(callback);
-    return () => {
-      if (!this._callbacks) { return; }
-      this._callbacks = this._callbacks.remove(callback);
-    };
+  protected getData(): TData {
+    if (this._hasDisposed) { throw new Error('An attempt was made to retrieve data from a store that has been disposed.'); }
+    return this._data;
   }
 
-  public dispose(): void {
+  protected async load?(...args: any[]): Promise<void>;
+
+  // @ts-ignore
+  private dispose(): void {
+    if (this._hasDisposed) { throw new Error('An attempt was made to dispose of a store that has already been disposed.'); }
+    this._hasDisposed = true;
     delete stores[this._id];
     this._id = undefined;
     this._data = undefined;
-    this._actions = undefined;
     this._callbacks = undefined;
     this._callbackInvocationId = undefined;
     this._currentCallback = undefined;
   }
 
-  private invokeCallbacks(callbacks: StoreCallback[]): void {
+  // @ts-ignore
+  private registerOnUpdateCallback(callback: StoreCallback<TData>): () => void {
+    if (this._hasDisposed) { throw new Error('An attempt was made to register a callback on a store that has already been disposed.'); }
+    this._callbacks.push(callback);
+    return () => {
+      if (this._hasDisposed) { return; }
+      this._callbacks = this._callbacks.remove(callback);
+    };
+  }
+
+  private invokeCallbacks(callbacks: StoreCallback<TData>[]): void {
     const callbackInvocationId = this._callbackInvocationId = Math.uniqueId();
     callbacks.forEach(callback => {
       if (callbackInvocationId !== this._callbackInvocationId) { return; } // check that we are still the right instance of callAllCallbacks

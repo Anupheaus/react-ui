@@ -1,10 +1,10 @@
 import { FunctionComponent, useContext, useState } from 'react';
 import { IMap } from 'anux-common';
-import { ConstructorOfActionsBase, StoreTypeId } from './models';
-import { stores } from './stores';
+import { ConstructorOfStore, StoreTypeId } from './models';
 import { StoreContext } from './context';
-import { ActionsBase } from './storeActions';
+import { Store } from './store';
 import { useOnMount } from '../useOnMount';
+import { useOnUnmount } from '../useOnUnmount';
 
 interface IProviderProps<TData extends IMap> {
   initialData?: TData;
@@ -38,14 +38,13 @@ function renderPending(isLoading: boolean, onLoading: () => JSX.Element) {
   return onLoading();
 }
 
-export function createProvider<TData extends IMap, TActionsType extends ConstructorOfActionsBase, TOnLoad extends any = never>(data: TData, actionsType: TActionsType) {
+export function createProvider<TData extends IMap, TStoreType extends ConstructorOfStore<TData>, TOnLoad extends any = undefined>(data: TData, storeType: TStoreType) {
   const typeId = Math.uniqueId();
   const Provider: FunctionComponent<ProviderProps<TData, TOnLoad>> = ({ children, initialData, onError, onLoading, ...rest }) => {
     const { onLoadParameters } = rest as any as IProviderOnLoadProps<TOnLoad>;
     const currentStores = useContext(StoreContext);
     data = Object.merge({}, data, initialData);
-    const store = new actionsType(data) as ActionsBase<TData>;
-    stores[store.id] = store;
+    const store = new storeType(data) as Store<TData>;
     const hasStoreLoad = !!store['load'];
     const [{ error, isLoading }, setState] = useState<IProviderState>({ error: null, isLoading: hasStoreLoad });
 
@@ -60,8 +59,12 @@ export function createProvider<TData extends IMap, TActionsType extends Construc
       }
     });
 
+    useOnUnmount(() => {
+      store['dispose']();
+    });
+
     return (
-      <StoreContext.Provider value={{ ...currentStores, [typeId]: store.id }}>
+      <StoreContext.Provider value={{ ...currentStores, [typeId]: store['storeId'] }}>
         {renderError(error, onError) || renderPending(isLoading, onLoading) || children || null}
       </StoreContext.Provider>
     );
@@ -69,5 +72,5 @@ export function createProvider<TData extends IMap, TActionsType extends Construc
 
   Provider[StoreTypeId] = typeId;
 
-  return Provider as IProvider<TData, InstanceType<TActionsType>, TOnLoad>;
+  return Provider as IProvider<TData, InstanceType<TStoreType>, TOnLoad>;
 }

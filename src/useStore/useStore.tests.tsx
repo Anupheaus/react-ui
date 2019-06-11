@@ -1,8 +1,8 @@
-import { createStore } from './createStore2';
+import { defineStore } from './defineStore';
 import { FunctionComponent } from 'react';
 import { useStore } from './useStore';
 import { mount, ReactWrapper } from 'enzyme';
-import { IMap } from 'anux-common';
+import { IMap, bind } from 'anux-common';
 
 describe('useStore', () => {
 
@@ -17,26 +17,36 @@ describe('useStore', () => {
       someCount: 1,
     };
 
-    const Store = createStore(data, update => ({
-      changeSomethingTo: (something: string) => update({ something }),
-    }));
+    const TestStore = defineStore()
+      .data(data)
+      .actions(base => {
+        class TestStore extends base {
+
+          @bind
+          public changeSomethingTo(something: string) {
+            this.updateData({ something });
+          }
+        }
+        return TestStore;
+      })
+      .create();
 
     const results = {
       data,
-      actions: undefined as typeof Store['actionsType'],
+      actions: undefined as typeof TestStore['actionsType'],
       refreshCount: 0,
       component: undefined as ReactWrapper<any, any>,
     };
 
     const Component: FunctionComponent = () => {
-      const [storeData, actions] = useStore(Store, selector, onChange);
+      const [storeData, actions] = useStore(TestStore, selector, onChange);
       results.data = storeData as IData;
       results.refreshCount++;
       results.actions = actions;
       return null;
     };
 
-    const component = mount(<Store><Component /></Store>);
+    const component = mount(<TestStore><Component /></TestStore>);
 
     results.component = component;
 
@@ -49,25 +59,30 @@ describe('useStore', () => {
       someCount: 1,
     };
 
-    const Store = createStore(data, update => ({
-      changeSomethingTo: (something: string) => update({ something }),
-    }));
+    const TestStore = defineStore()
+      .data(data)
+      .actions(base => class extends base {
+        public changeSomethingTo(something: string) {
+          this.updateData({ something });
+        }
+      })
+      .create();
 
     const results = {
       levels: [{
         data,
-        actions: undefined as typeof Store['actionsType'],
+        actions: undefined as typeof TestStore['actionsType'],
         refreshCount: 0,
       }, {
         data,
-        actions: undefined as typeof Store['actionsType'],
+        actions: undefined as typeof TestStore['actionsType'],
         refreshCount: 0,
       }],
       component: undefined as ReactWrapper<any, any>,
     };
 
     const Component: FunctionComponent<{ level: number; }> = ({ level }) => {
-      const [storeData, actions] = useStore(Store);
+      const [storeData, actions] = useStore(TestStore);
       results.levels[level].data = storeData as IData;
       results.levels[level].refreshCount++;
       results.levels[level].actions = actions;
@@ -75,12 +90,12 @@ describe('useStore', () => {
     };
 
     const component = mount((
-      <Store>
+      <TestStore>
         <Component level={0} />
-        <Store>
+        <TestStore>
           <Component level={1} />
-        </Store>
-      </Store>
+        </TestStore>
+      </TestStore>
     ));
 
     results.component = component;
@@ -163,7 +178,7 @@ describe('useStore', () => {
     component.unmount();
   });
 
-  it('unmounting the component will error when a change is requested and prevent the callback being called', () => {
+  it('unmounting the component will error when a change is requested and prevent the callback being called', async () => {
     const test = createTestComponent();
     const { component, actions: { changeSomethingTo } } = test;
     expect(test.data.something).to.eq('else');
@@ -171,7 +186,7 @@ describe('useStore', () => {
     component.unmount();
     expect(() => {
       changeSomethingTo('more');
-    }).to.throw('An attempt was made to update a store that has been disposed.');
+    }).to.throw();
     expect(test.data.something).to.eq('else');
     expect(test.refreshCount).to.eq(1);
   });

@@ -1,4 +1,4 @@
 import { IMap } from 'anux-common';
-import { ActionsBase } from './storeActions';
+import { Store } from './store';
 
-export const stores: IMap<ActionsBase<IMap>> = {};
+export const stores: IMap<Store<IMap>> = {};

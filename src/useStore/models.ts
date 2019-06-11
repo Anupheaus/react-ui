@@ -1,5 +1,6 @@
-import { IMap, DeepPartial, PromiseMaybe } from 'anux-common';
+import { IMap, DeepPartial, PromiseMaybe, ConstructorOf } from 'anux-common';
 import { FunctionComponent, ReactNode } from 'react';
+import { Store } from './store';
 
 export type StoreCallback<TData extends IMap = IMap> = (data: TData) => void;
 
@@ -25,4 +26,4 @@ export type StoreActionsDelegate<TData, TActions> = (upsert: (data: DeepPartial<
 
 export const StoreTypeId = Symbol('storeTypeId');
 
-export type ConstructorOfActionsBase = new (...args: any[]) => any;
+export type ConstructorOfStore<TData extends IMap> = ConstructorOf<Store<TData>>;
