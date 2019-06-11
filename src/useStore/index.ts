@@ -1,2 +1,2 @@
-export * from './createStore';
+export * from './defineStore';
 export * from './useStore';
