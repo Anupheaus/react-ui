@@ -3,7 +3,7 @@ import { IStoreActions, createStoreActions } from './storeActions';
 import { IStoreCreate } from './createStore';
 
 interface IStoreData {
-  data<TData extends IMap>(data: TData): IStoreActions<TData> & IStoreCreate<TData, never, never>;
+  data<TData extends IMap>(data: TData): IStoreActions<TData> & IStoreCreate<TData, undefined, undefined>;
 }
 
 export function defineStore(): IStoreData {

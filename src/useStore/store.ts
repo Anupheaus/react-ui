@@ -1,4 +1,4 @@
-import { stores } from './stores';
+import { stores } from './storesRegistry';
 import { DeepPartial, bind, IMap } from 'anux-common';
 import { StoreCallback } from './models';
 

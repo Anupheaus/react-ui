@@ -11,8 +11,8 @@ export interface IStoreActions<TData extends IMap> {
     OnLoadParamType<TStoreType>>;
 }
 
-export function createStoreActions<TData extends IMap>(data: TData): IStoreActions<TData> & IStoreCreate<TData, never, never> {
-  const storeCreate = createCreateStore<TData, never, never>(data);
+export function createStoreActions<TData extends IMap>(data: TData): IStoreActions<TData> & IStoreCreate<TData, undefined, undefined> {
+  const storeCreate = createCreateStore<TData, undefined, undefined>(data);
 
   return {
     actions<TStoreType extends ConstructorOfStore<TData>>(delegate: (base: ConstructorOf<Store<TData>>) => TStoreType) {

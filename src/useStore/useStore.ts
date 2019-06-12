@@ -3,7 +3,7 @@ import { StoreTypeId } from './models';
 import { IMap } from 'anux-common';
 import { useOnUnmount } from '../useOnUnmount';
 import { StoreContext } from './context';
-import { stores } from './stores';
+import { stores } from './storesRegistry';
 import { Store } from './store';
 import { IProvider } from './provider';
 
