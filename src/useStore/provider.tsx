@@ -44,6 +44,7 @@ export function createProvider<TData extends IMap, TStoreType extends Constructo
     const { onLoadParameters } = rest as any as IProviderOnLoadProps<TOnLoad>;
     const currentStores = useContext(StoreContext);
     data = Object.merge({}, data, initialData);
+    if (!storeType) { storeType = Store as TStoreType; }
     const store = new storeType(data) as Store<TData>;
     const hasStoreLoad = !!store['load'];
     const [{ error, isLoading }, setState] = useState<IProviderState>({ error: null, isLoading: hasStoreLoad });
