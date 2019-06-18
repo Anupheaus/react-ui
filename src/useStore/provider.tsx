@@ -1,4 +1,4 @@
-import { FunctionComponent, useContext, useState } from 'react';
+import { FunctionComponent, useContext, useState, useMemo, Dispatch, SetStateAction } from 'react';
 import { IMap } from 'anux-common';
 import { ConstructorOfStore, StoreTypeId } from './models';
 import { StoreContext } from './context';
@@ -38,31 +38,41 @@ function renderPending(isLoading: boolean, onLoading: () => JSX.Element) {
   return onLoading();
 }
 
+function createStore<TData extends IMap, TStoreType extends ConstructorOfStore<TData>>(data: TData, initialData: TData, storeType: TStoreType) {
+  return () => {
+    const newData = Object.merge({}, data, initialData);
+    if (!storeType) { storeType = Store as TStoreType; }
+    return new storeType(newData);
+  };
+}
+
+function loadStore<TData extends IMap, TOnLoad extends any>(store: Store<TData>, setState: Dispatch<SetStateAction<IProviderState>>,
+  onLoadParameters: IProviderOnLoadProps<TOnLoad>) {
+  return async () => {
+    try {
+      if (!store['load']) { return; }
+      setState(s => ({ ...s, isLoading: true }));
+      await store['load'](onLoadParameters);
+      setState(s => ({ ...s, isLoading: false }));
+    } catch (error) {
+      setState(s => ({ ...s, error, isLoading: false }));
+    }
+  };
+}
+
+function tidyUpStore<TData extends IMap>(store: Store<TData>) {
+  return () => store['dispose']();
+}
+
 export function createProvider<TData extends IMap, TStoreType extends ConstructorOfStore<TData>, TOnLoad extends any = undefined>(data: TData, storeType: TStoreType) {
   const typeId = Math.uniqueId();
   const Provider: FunctionComponent<ProviderProps<TData, TOnLoad>> = ({ children, initialData, onError, onLoading, ...rest }) => {
-    const { onLoadParameters } = rest as any as IProviderOnLoadProps<TOnLoad>;
     const currentStores = useContext(StoreContext);
-    const newData = Object.merge({}, data, initialData);
-    if (!storeType) { storeType = Store as TStoreType; }
-    const store = new storeType(newData) as Store<TData>;
-    const hasStoreLoad = !!store['load'];
-    const [{ error, isLoading }, setState] = useState<IProviderState>({ error: null, isLoading: hasStoreLoad });
+    const store = useMemo<Store<TData>>(createStore(data, initialData, storeType), []);
+    const [{ error, isLoading }, setState] = useState<IProviderState>({ error: null, isLoading: false });
 
-    useOnMount(async () => {
-      try {
-        if (hasStoreLoad) {
-          await store['load'](onLoadParameters);
-          setState(s => ({ ...s, isLoading: false }));
-        }
-      } catch (error) {
-        setState(s => ({ ...s, error, isLoading: false }));
-      }
-    });
-
-    useOnUnmount(() => {
-      store['dispose']();
-    });
+    useOnMount(loadStore(store, setState, rest as any));
+    useOnUnmount(tidyUpStore(store));
 
     return (
       <StoreContext.Provider value={{ ...currentStores, [typeId]: store['storeId'] }}>
