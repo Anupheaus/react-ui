@@ -34,7 +34,7 @@ export function useAsync<T = any>(delegate: () => PromiseMaybe<T>, dependencies:
         .then(handleFinishedLoading(setState, isUnmountedRef))
         .catch(saveToState(setState, 'error', isUnmountedRef));
     } else {
-      setState(s => ({ ...s, result }));
+      handleFinishedLoading(setState, isUnmountedRef)(result);
     }
   }, dependencies);
 
