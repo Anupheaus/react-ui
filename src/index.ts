@@ -26,3 +26,5 @@ export * from './useStaticState';
 export * from './useToggleState';
 export * from './useDragAndResize';
 export * from './useStore';
+export * from './useInterval';
+export * from './useTimeout';
