@@ -86,7 +86,7 @@ describe('useAsync', () => {
     expect(test.result).to.undefined;
   });
 
-  it.only('works even when the return value is not a promise', async () => {
+  it('works even when the return value is not a promise', async () => {
     const test = setupTest({ test: 1 }, false);
     expect(test.renderCount).to.eq(2); // the useEffect is synchronous so it actually happens before we get the component back
     expect(test.result).to.eql({ test: 1 });
