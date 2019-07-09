@@ -1,40 +1,49 @@
 import { mount } from 'enzyme';
 import { CustomTag } from './customTag';
-import { CustomTagPrefix } from './customTagPrefix';
+import { useRef, FunctionComponent, MutableRefObject } from 'react';
 
-describe('customTag', () => {
+describe.only('customTag', () => {
 
-  [
-    { prefix: '', title: 'without prefix' },
-    { prefix: 'test', title: 'with prefix' },
-  ].forEach(({ prefix, title }) => {
+  function createWrapper() {
+    const result = {
+      Component: null as FunctionComponent,
+      ref: null as MutableRefObject<HTMLElement>,
+    };
 
-    const prefixWithSeparator = prefix.length > 0 ? `${prefix}-` : '';
+    result.Component = () => {
+      const ref = useRef<HTMLElement>(null);
+      result.ref = ref;
+      return (
+        <CustomTag name="testing-wrapper" ref={ref}></CustomTag>
+      );
+    };
 
-    describe(title, () => {
+    return result;
+  }
 
-      it('can create a custom tag', () => {
-        const component = mount((
-          <CustomTagPrefix prefix={prefix}>
-            <CustomTag name="my-tag" />
-          </CustomTagPrefix>
-        ));
-        expect(component.html()).to.eq(`<${prefixWithSeparator}my-tag></${prefixWithSeparator}my-tag>`);
-        component.unmount();
-      });
+  it('can create a custom tag', () => {
+    const component = mount((
+      <CustomTag name="my-tag" />
+    ));
+    expect(component.html()).to.eq('<my-tag></my-tag>');
+    component.unmount();
+  });
 
-      it('can create a custom tag with some attributes', () => {
-        const component = mount((
-          <CustomTagPrefix prefix={prefix}>
-            <CustomTag name="my-tag" className="boo" style={{ backgroundColor: 'red' }} />
-          </CustomTagPrefix>
-        ));
-        expect(component.html()).to.eq(`<${prefixWithSeparator}my-tag class="boo" style="background-color: red;"></${prefixWithSeparator}my-tag>`);
-        component.unmount();
-      });
+  it('can create a custom tag with some attributes', () => {
+    const component = mount((
+      <CustomTag name="my-tag" className="boo" style={{ backgroundColor: 'red' }} />
+    ));
+    expect(component.html()).to.eq('<my-tag class="boo" style="background-color: red;"></my-tag>');
+    component.unmount();
+  });
 
-    });
-
+  it('can forward a ref to the underlying element', () => {
+    const result = createWrapper();
+    const component = mount((
+      <result.Component />
+    ));
+    expect(result.ref.current).to.have.property('children').and.be.instanceOf(window['HTMLCollection']);
+    component.unmount();
   });
 
 });

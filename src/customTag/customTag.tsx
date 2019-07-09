@@ -1,19 +1,15 @@
-import { useContext, createElement, forwardRef, ForwardRefExoticComponent, PropsWithoutRef, RefAttributes } from 'react';
-import { CustomTagContext, ICustomTagContext } from './context';
+import { createElement } from 'react';
+import { anuxFunctionComponent } from '../anuxComponents/anuxFunctionComponent';
 
 interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   name: string;
 }
 
-export const CustomTag = forwardRef<HTMLElement, IProps>(({ name, children, ...rest }, ref) => {
-  const { prefix = '' } = useContext(CustomTagContext) || {} as ICustomTagContext;
-  const separator = prefix.length > 0 ? '-' : '';
-  name = `${prefix}${separator}${name}`;
-
+export const CustomTag = anuxFunctionComponent<IProps>('CustomTag', ({ name, children, ...rest }, ref) => {
   rest = {
     class: rest['class'] || rest.className,
     ...rest,
-  } as any;
+  } as unknown;
   delete rest.className;
 
   return createElement(
@@ -21,4 +17,4 @@ export const CustomTag = forwardRef<HTMLElement, IProps>(({ name, children, ...r
     { key: name, ...rest, ref },
     children,
   );
-}) as ForwardRefExoticComponent<PropsWithoutRef<IProps> & RefAttributes<HTMLElement>>;
+});
