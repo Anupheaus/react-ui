@@ -28,4 +28,4 @@ export * from './useDragAndResize';
 export * from './useStore';
 export * from './useInterval';
 export * from './useTimeout';
-export * from './addDisplayName';
+export * from './anuxComponents';
