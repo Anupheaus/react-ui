@@ -9,6 +9,7 @@ export interface IAnuxRefForwardingComponent<TProps extends {}, TRef> extends Om
 }
 
 export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>): FunctionComponent<TProps & RefAttributes<TRef>> {
-  component.displayName = name;
-  return forwardRef<TRef, TProps>((props, ref) => component(props, ref as any)) as any;
+  const result = forwardRef<TRef, TProps>((props, ref) => component(props, ref as any));
+  result.displayName = name;
+  return result as any;
 }
