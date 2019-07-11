@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { anuxFunctionComponent } from '../anuxComponents/anuxFunctionComponent';
+import { anuxFunctionComponent } from '../anuxComponents';
 
 interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   name: string;
