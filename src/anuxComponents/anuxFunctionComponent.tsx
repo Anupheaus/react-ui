@@ -1,4 +1,4 @@
-import { RefForwardingComponent, forwardRef, PropsWithChildren, ReactElement, RefObject } from 'react';
+import { RefForwardingComponent, forwardRef, PropsWithChildren, ReactElement, RefObject, FunctionComponent, RefAttributes } from 'react';
 
 export interface IAnuxRef<T> extends RefObject<T> {
   (instance: T | null): void;
@@ -8,7 +8,7 @@ export interface IAnuxRefForwardingComponent<TProps extends {}, TRef> extends Om
   (props: PropsWithChildren<TProps>, ref: IAnuxRef<TRef>): ReactElement | null;
 }
 
-export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>) {
+export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>): FunctionComponent<TProps & RefAttributes<TRef>> {
   component.displayName = name;
-  return forwardRef<TRef, TProps>((props, ref) => component(props, ref as any));
+  return forwardRef<TRef, TProps>((props, ref) => component(props, ref as any)) as any;
 }
