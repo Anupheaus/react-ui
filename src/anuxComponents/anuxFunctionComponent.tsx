@@ -1,6 +1,14 @@
-import { RefForwardingComponent, forwardRef } from 'react';
+import { RefForwardingComponent, forwardRef, PropsWithChildren, ReactElement, RefObject } from 'react';
 
-export function anuxFunctionComponent<TProps extends {}>(name: string, component: RefForwardingComponent<HTMLElement, TProps>) {
+export interface IAnuxRef<T> extends RefObject<T> {
+  (instance: T | null): void;
+}
+
+export interface IAnuxRefForwardingComponent<TProps extends {}, TRef> extends Omit<RefForwardingComponent<TRef, TProps>, '(props: PropsWithChildren<P>, ref: Ref<T>)'> {
+  (props: PropsWithChildren<TProps>, ref: IAnuxRef<TRef>): ReactElement | null;
+}
+
+export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>) {
   component.displayName = name;
-  return forwardRef(component);
+  return forwardRef<TRef, TProps>((props, ref) => component(props, ref as any));
 }
