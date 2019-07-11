@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { anuxFunctionComponent } from '../anuxComponents';
 
-interface IProps extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
+interface IProps extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref'> {
   name: string;
 }
 
