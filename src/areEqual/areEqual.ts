@@ -1,3 +1,5 @@
+import 'anux-common';
+
 function compareElements(elementA: React.ReactElement<any>, elementB: React.ReactElement<any>): boolean | void {
   const isAElement = React.isValidElement(elementA);
   const isBElement = React.isValidElement(elementB);
