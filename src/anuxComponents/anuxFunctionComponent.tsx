@@ -1,4 +1,5 @@
-import { RefForwardingComponent, forwardRef, PropsWithChildren, ReactElement, RefObject, FunctionComponent, RefAttributes } from 'react';
+import { RefForwardingComponent, forwardRef, PropsWithChildren, ReactElement, RefObject, FunctionComponent, RefAttributes, memo } from 'react';
+import { areDeepEqual } from '../areEqual';
 
 export interface IAnuxRef<T> extends RefObject<T> {
   (instance: T | null): void;
@@ -8,8 +9,33 @@ export interface IAnuxRefForwardingComponent<TProps extends {}, TRef> extends Om
   (props: PropsWithChildren<TProps>, ref: IAnuxRef<TRef>): ReactElement | null;
 }
 
-export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>): FunctionComponent<TProps & RefAttributes<TRef>> {
-  const result = forwardRef<TRef, TProps>((props, ref) => component(props, ref as any));
+function anuxBaseFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(isPure: boolean, processProps: (props: TProps) => void, name: string, component: IAnuxRefForwardingComponent<TProps, TRef>): FunctionComponent<TProps & RefAttributes<TRef>> {
+  let result = forwardRef<TRef, TProps>((props, ref) => {
+    if (processProps) { processProps(props); }
+    return component(props, ref as any);
+  });
+  if (isPure) { result = memo(result) as typeof result; }
   result.displayName = name;
   return result as any;
+}
+
+export function anuxFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>) {
+  return anuxBaseFunctionComponent(false, null, name, component);
+}
+
+export function anuxPureFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(name: string, component: IAnuxRefForwardingComponent<TProps, TRef>) {
+  let lastProps: TProps = null;
+  const processProps = (props: TProps) => {
+    if (process.env.NODE_ENV !== 'development') { return; }
+    if (areDeepEqual(lastProps, props)) {
+      if (lastProps && lastProps['children'] && props && props['children'] && lastProps['children'] !== props['children']) {
+        console.warn(`WARNING: the "children" property of "${name}" is causing an unnecessary render, recommend using useMemo or useBinder to prevent this.`);
+      } else {
+        const changedProps = Object.keys(props).filter(key => props[key] !== lastProps[key] && areDeepEqual(props[key], lastProps[key]));
+        console.warn(`WARNING: Unnecessary render of "${name}" due to the following properties:`, changedProps);
+      }
+    }
+    lastProps = props;
+  }
+  return anuxBaseFunctionComponent(true, processProps, name, component);
 }
