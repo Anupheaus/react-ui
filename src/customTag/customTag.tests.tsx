@@ -2,7 +2,7 @@ import { mount } from 'enzyme';
 import { CustomTag } from './customTag';
 import { useRef, FunctionComponent, MutableRefObject } from 'react';
 
-describe.only('customTag', () => {
+describe('customTag', () => {
 
   function createWrapper() {
     const result = {
