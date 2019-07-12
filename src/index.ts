@@ -29,3 +29,4 @@ export * from './useStore';
 export * from './useInterval';
 export * from './useTimeout';
 export * from './anuxComponents';
+export * from './useBinder';
