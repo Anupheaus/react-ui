@@ -1,26 +1,8 @@
 import { anuxPureFunctionComponent } from '../anuxComponents';
 import { useBinder } from './useBinder';
 import { mount } from 'enzyme';
-import { ReactElement } from 'react';
 
 describe('useBinder', () => {
-  let originalWarning: typeof console.warn = null;
-  let hasRaisedWarning = false;
-
-  beforeEach(() => {
-    process.env.NODE_ENV = 'development';
-    originalWarning = console.warn;
-    hasRaisedWarning = false;
-    console.warn = function () {
-      hasRaisedWarning = true;
-    };
-  });
-
-  afterEach(() => {
-    console.warn = originalWarning;
-    originalWarning = null;
-    hasRaisedWarning = false;
-  });
 
   interface IProps {
     onBoundFuncsCreated(boundFuncA: () => number, boundFuncB: () => number): void;
@@ -30,7 +12,6 @@ describe('useBinder', () => {
     const bind = useBinder();
 
     onBoundFuncsCreated(bind(() => 1), bind(() => 2));
-    // if (saveSetValue) { saveSetValue(setValue); }
 
     return null;
   });
@@ -62,85 +43,85 @@ describe('useBinder', () => {
     component.unmount();
   });
 
-  it('warns if the bind has been called more than once per render', () => {
-    const SubComponent = anuxPureFunctionComponent<{
-      doSomething(): void;
-      doSomethingElse(): void;
-    }>('SubComponent', () => {
-      return null;
-    });
+  // it('warns if the bind has been called more than once per render', () => {
+  //   const SubComponent = anuxPureFunctionComponent<{
+  //     doSomething(): void;
+  //     doSomethingElse(): void;
+  //   }>('SubComponent', () => {
+  //     return null;
+  //   });
 
-    const WrapperComponent = anuxPureFunctionComponent<{
-      children(): ReactElement;
-    }>('WrapperComponent', ({
-      children,
-    }) => {
-      // call twice
-      children();
-      return children();
-    });
+  //   const WrapperComponent = anuxPureFunctionComponent<{
+  //     children(): ReactElement;
+  //   }>('WrapperComponent', ({
+  //     children,
+  //   }) => {
+  //     // call twice
+  //     children();
+  //     return children();
+  //   });
 
-    const Component = anuxPureFunctionComponent('Component', () => {
-      const bind = useBinder();
+  //   const Component = anuxPureFunctionComponent('Component', () => {
+  //     const bind = useBinder();
 
-      return (
-        <WrapperComponent>
-          {bind(() => (
-            <SubComponent
-              doSomething={bind(() => void 0)}
-              doSomethingElse={bind(() => void 0)}
-            />
-          ))}
-        </WrapperComponent>
-      );
-    });
+  //     return (
+  //       <WrapperComponent>
+  //         {bind(() => (
+  //           <SubComponent
+  //             doSomething={bind(() => void 0)}
+  //             doSomethingElse={bind(() => void 0)}
+  //           />
+  //         ))}
+  //       </WrapperComponent>
+  //     );
+  //   });
 
-    expect(hasRaisedWarning).to.be.false;
-    const component = mount(<Component />);
-    expect(hasRaisedWarning).to.be.true;
+  //   expect(hasRaisedWarning).to.be.false;
+  //   const component = mount(<Component />);
+  //   expect(hasRaisedWarning).to.be.true;
 
-    component.unmount();
-  });
+  //   component.unmount();
+  // });
 
-  it('does not warn if the bind has been called more than once per render if the allowMultipleCalls option is set', () => {
-    const SubComponent = anuxPureFunctionComponent<{
-      doSomething(): void;
-      doSomethingElse(): void;
-    }>('SubComponent', () => {
-      return null;
-    });
+  // it('does not warn if the bind has been called more than once per render if the allowMultipleCalls option is set', () => {
+  //   const SubComponent = anuxPureFunctionComponent<{
+  //     doSomething(): void;
+  //     doSomethingElse(): void;
+  //   }>('SubComponent', () => {
+  //     return null;
+  //   });
 
-    const WrapperComponent = anuxPureFunctionComponent<{
-      children(): ReactElement;
-    }>('WrapperComponent', ({
-      children,
-    }) => {
-      // call twice
-      children();
-      return children();
-    });
+  //   const WrapperComponent = anuxPureFunctionComponent<{
+  //     children(): ReactElement;
+  //   }>('WrapperComponent', ({
+  //     children,
+  //   }) => {
+  //     // call twice
+  //     children();
+  //     return children();
+  //   });
 
-    const Component = anuxPureFunctionComponent('Component', () => {
-      const bind = useBinder();
+  //   const Component = anuxPureFunctionComponent('Component', () => {
+  //     const bind = useBinder();
 
-      return (
-        <WrapperComponent>
-          {bind(() => (
-            <SubComponent
-              doSomething={bind(() => void 0, { allowMultipleCalls: 2 })}
-              doSomethingElse={bind(() => void 0, { allowMultipleCalls: true })}
-            />
-          ))}
-        </WrapperComponent>
-      );
-    });
+  //     return (
+  //       <WrapperComponent>
+  //         {bind(() => (
+  //           <SubComponent
+  //             doSomething={bind(() => void 0, { allowMultipleCalls: 2 })}
+  //             doSomethingElse={bind(() => void 0, { allowMultipleCalls: true })}
+  //           />
+  //         ))}
+  //       </WrapperComponent>
+  //     );
+  //   });
 
-    expect(hasRaisedWarning).to.be.false;
-    const component = mount(<Component />);
-    expect(hasRaisedWarning).to.be.false;
+  //   expect(hasRaisedWarning).to.be.false;
+  //   const component = mount(<Component />);
+  //   expect(hasRaisedWarning).to.be.false;
 
-    component.unmount();
-  });
+  //   component.unmount();
+  // });
 
   it('works with an array', () => {
     let itemRenderCount = 0;

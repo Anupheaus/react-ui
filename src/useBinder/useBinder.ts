@@ -11,7 +11,6 @@ interface IInlineDelegate {
 
 interface IBinderConfig {
   key?: string;
-  allowMultipleCalls?: boolean | number;
   dependencies?: any[];
 }
 
@@ -33,8 +32,6 @@ function createKey(): string {
 
 export function useBinder(): IBinder {
   const delegateStoreRef = useRef<IMap<IInlineDelegate>>({});
-  const keyWarningsRef = useRef<IMap<boolean>>({});
-  const boundFuncKeys: IMap<number> = {};
   const keySuffixes: string[] = [];
 
   useOnUnmount(() => {
@@ -50,20 +47,10 @@ export function useBinder(): IBinder {
     let options: IBinderConfig = is.array(optionsOrDependencies) ? { dependencies: optionsOrDependencies } : (optionsOrDependencies || {});
     let {
       key = createKey(),
-      allowMultipleCalls = false,
       dependencies = [],
     } = options || {};
 
     key += keySuffixes.join('');
-
-    boundFuncKeys[key] = (boundFuncKeys[key] || 0) + 1;
-    if (boundFuncKeys[key] > 1 && (allowMultipleCalls === false || (typeof (allowMultipleCalls) === 'number' && allowMultipleCalls < boundFuncKeys[key]))) {
-      if (!keyWarningsRef.current[key]) {
-        keyWarningsRef.current[key] = true;
-        console.warn('WARNING: This bind function has been called too many times, suggesting that it is in an array.  If this is the case, ' +
-          'please use bind.withinArray for the array loop or if it is not, then please use allowMultipleCalls = [true or a maximum number of calls].');
-      }
-    }
 
     const data = delegateStoreRef.current[key] = delegateStoreRef.current[key] || { delegate, func: createFunc(key), dependencies };
     if (!areShallowEqual(data.dependencies, dependencies)) { data.func = createFunc(key); }
