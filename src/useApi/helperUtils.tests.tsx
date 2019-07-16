@@ -2,6 +2,7 @@ import { FunctionComponent, useState } from 'react';
 import { saveToState } from './helperUtils';
 import { useOnUnmount } from '../useOnUnmount';
 import { mount } from 'enzyme';
+import { useTimeout } from '../useTimeout';
 
 describe('helperUtils', () => {
 
@@ -24,9 +25,9 @@ describe('helperUtils', () => {
           setState(delegate);
         };
 
-        setTimeout(() => {
+        useTimeout(() => {
           saveToState(setStateWrapper, 'something', isUnmountedRef)('hey');
-        }, 1);
+        }, 1, { dependencies: [''] });
 
         return (
           <div>{state.something}</div>
@@ -42,7 +43,7 @@ describe('helperUtils', () => {
     it('can save to the state', async () => {
       let setStateCalled = 0;
       const component = createTest(() => { setStateCalled++; });
-      await Promise.delay(2);
+      await Promise.delay(4);
       expect(component.html()).to.eq('<div>hey</div>');
       expect(setStateCalled).to.eq(1);
       component.unmount();
@@ -52,7 +53,7 @@ describe('helperUtils', () => {
       let setStateCalled = 0;
       const component = createTest(() => { setStateCalled++; });
       component.unmount();
-      await Promise.delay(2);
+      await Promise.delay(4);
       expect(setStateCalled).to.eq(0);
     });
 
