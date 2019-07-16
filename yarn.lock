@@ -691,10 +691,10 @@ ansi-styles@^3.2.0, ansi-styles@^3.2.1:
   dependencies:
     color-convert "^1.9.0"
 
-anux-common@^1.0.39:
-  version "1.0.39"
-  resolved "https://registry.yarnpkg.com/anux-common/-/anux-common-1.0.39.tgz#d9addb9b0403b1198d71645475511a9973a037da"
-  integrity sha512-dhGHnHO2fTDFO+BaZMrrf4I77JD2+QAeLGunkRvgK51WuvHXH7pGWXz6hLqbtCSeaAJG0ZVf2ofoHt8jop0K3Q==
+anux-common@^1.0.40:
+  version "1.0.40"
+  resolved "https://registry.yarnpkg.com/anux-common/-/anux-common-1.0.40.tgz#9a3aca3dca211fefedb10b91dd62d3f40b86e008"
+  integrity sha512-JrXUwdOcgs/qcZDQYPKLF4Q7FrGthN4BWjYmHG0kn4RhCUdfd0/9SzzpwvmFtLpxOZjeLQBDtUSJ28m/f1tvcA==
   dependencies:
     "@types/datejs" "^0.0.30"
     "@types/numeral" "^0.0.25"
