@@ -31,3 +31,4 @@ export * from './useTimeout';
 export * from './anuxComponents';
 export * from './useBinder';
 export * from './useSharedHookState';
+export * from './useLooper';
