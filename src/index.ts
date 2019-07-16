@@ -30,3 +30,4 @@ export * from './useInterval';
 export * from './useTimeout';
 export * from './anuxComponents';
 export * from './useBinder';
+export * from './useSharedHookState';
