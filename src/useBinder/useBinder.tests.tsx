@@ -1,6 +1,8 @@
-import { anuxPureFunctionComponent } from '../anuxComponents';
+import { anuxPureFunctionComponent, anuxFunctionComponent } from '../anuxComponents';
 import { useBinder } from './useBinder';
 import { mount } from 'enzyme';
+import { useLooper } from '../useLooper';
+import { useSharedHookState } from '../useSharedHookState';
 
 describe('useBinder', () => {
 
@@ -9,7 +11,8 @@ describe('useBinder', () => {
   }
 
   const TestComponent = anuxPureFunctionComponent<IProps>('TestComponent', ({ onBoundFuncsCreated }) => {
-    const bind = useBinder();
+    const sharedHookState = useSharedHookState();
+    const bind = useBinder(sharedHookState);
 
     onBoundFuncsCreated(bind(() => 1), bind(() => 2));
 
@@ -125,39 +128,39 @@ describe('useBinder', () => {
 
   it('works with an array', () => {
     let itemRenderCount = 0;
-    const ItemComponent = anuxPureFunctionComponent<{ render(): string; }>('ItemComponent', ({
+    let renderInstances: (() => void)[] = [];
+    const ItemComponent = anuxFunctionComponent<{ render(): void; }>('ItemComponent', ({ // deliberately used non-pure function here
       render,
     }) => {
       itemRenderCount++;
-      return (
-        <div>{render()}</div>
-      );
+      renderInstances.push(render);
+      return null;
     });
 
-    const Component = anuxPureFunctionComponent<{ something?: string; indexStart?: number; }>('Component', ({
-      indexStart = 1,
-    }) => {
+    const Component = anuxPureFunctionComponent<{ something?: string; }>('Component', () => {
       const items = ['one', 'two', 'three', 'four'];
-      const bind = useBinder();
+      const sharedHookState = useSharedHookState();
+      const loop = useLooper(sharedHookState);
+      const bind = useBinder(sharedHookState);
 
       return (
         <div>
-          {bind.withinArray(items, (item, key, index) => (
-            <ItemComponent key={key} render={bind(() => `${item} - ${index + indexStart}`, [indexStart])} />
-          ))}
+          {loop(items, (_ignore, key) => {
+            return (
+              <ItemComponent key={key} render={bind(() => void 0)} />
+            );
+          })}
         </div>
       )
     });
 
     const component = mount(<Component />);
-    expect(component.text()).to.eq('one - 1two - 2three - 3four - 4');
     expect(itemRenderCount).to.eq(4);
+    expect(renderInstances).to.be.an('array').with.lengthOf(4);
     component.setProps({ something: 'else' });
-    expect(component.text()).to.eq('one - 1two - 2three - 3four - 4');
-    expect(itemRenderCount).to.eq(4);
-    component.setProps({ indexStart: 2 });
-    expect(component.text()).to.eq('one - 2two - 3three - 4four - 5');
     expect(itemRenderCount).to.eq(8);
+    expect(renderInstances).to.be.an('array').with.lengthOf(8);
+    for (let index = 0; index < 4; index++) { expect(renderInstances[index]).to.eq(renderInstances[index + 4]); }
     component.unmount();
   });
 
