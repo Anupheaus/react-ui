@@ -50,15 +50,13 @@ describe('useLooper', () => {
     const component = test.mount();
     expect(test.results).to.be.an('array').with.lengthOf(20);
     const expectedIndexes = [0, 0, 1, 2, 3, 1, 0, 1, 2, 3, 2, 0, 1, 2, 3, 3, 0, 1, 2, 3];
-    console.log(test.results[0].key.substr(0, 5));
-    const keys = [test.results[0].key.substr(0, 5), test.results[1].key.substr(0, 5)];
-    expect(keys[0]).not.to.eq(keys[1]);
-    const expectedKeys = [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1].map(index => keys[index]);
     test.results.forEach((result, index) => {
       expect(result).to.have.property('key').and.be.a('string');
-      expect(result.key.startsWith(expectedKeys[index])).to.be.true;
       expect(result).to.have.property('index').and.be.eq(expectedIndexes[index]);
     });
+    const keys = test.results.map(item => item.key);
+    expect(keys).to.be.an('array').with.lengthOf(20);
+    keys.forEach((key, index) => keys.forEach((otherKey, otherIndex) => index === otherIndex ? null : expect(key).not.to.eq(otherKey)));
     expect(component.text()).to.eq('one-0-ten-0nine-1eight-2seven-3two-1-ten-0nine-1eight-2seven-3three-2-ten-0nine-1eight-2seven-3four-3-ten-0nine-1eight-2seven-3');
     component.unmount();
   });
