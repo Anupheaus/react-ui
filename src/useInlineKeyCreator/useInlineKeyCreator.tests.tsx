@@ -27,34 +27,38 @@ describe('useInlineKeyCreator', () => {
     return result;
   }
 
-  it('provides correct functionality', () => {
-    const test = createTest();
-    expect(test.createKey()).to.be.a('string').with.lengthOf(5);
-    test.updateSuffix(':[something,1]');
-    expect(test.createKey()).to.be.a('string').with.lengthOf(20);
-    expect(test.createKey().endsWith(':[something,1]')).to.be.true;
-    test.component.unmount();
-  });
-
   it('returns the same key if called from the same place more than once', () => {
     const test = createTest();
-    const createKey3 = () => test.createKey();
-    const createKey2 = () => createKey3();
-    const createKey = () => createKey2();
-    const firstResult = createKey();
-    const secondResult = createKey();
-    expect(firstResult).to.eq(secondResult);
+    const keys = new Array(10).fill(0).map(() => test.createKey());
+    expect(keys).to.be.an('array').with.lengthOf(10);
+    keys.forEach(key => {
+      expect(key).to.be.a('string').with.lengthOf(32);
+      keys.forEach(otherKey => expect(key).to.eq(otherKey));
+    });
     test.component.unmount();
   });
 
   it('returns a different key if called from different places', () => {
     const test = createTest();
-    const createKey2 = () => test.createKey();
-    const createKey = () => createKey2();
-    const firstResult = createKey();
-    const secondResult = createKey();
-    expect(firstResult).not.to.eq(secondResult);
+    const key1 = test.createKey();
+    const key2 = test.createKey();
+    expect(key1).to.be.a('string').with.lengthOf(32);
+    expect(key2).to.be.a('string').with.lengthOf(32);
+    expect(key2).not.to.eq(key1);
     test.component.unmount();
+  });
+
+  it('returns a different key if the suffix is changed but called from the same place more than once', () => {
+    const test = createTest();
+    const keys = new Array(10).fill(0).map((_, index) => {
+      if (index === 5) { test.updateSuffix('something'); }
+      return test.createKey();
+    });
+    expect(keys).to.be.an('array').with.lengthOf(10);
+    keys.forEach(key => expect(key).to.be.a('string').with.lengthOf(32));
+    keys.take(5).forEach(key => keys.take(5).forEach(otherKey => expect(key).to.eq(otherKey)));
+    keys.skip(5).forEach(key => keys.skip(5).forEach(otherKey => expect(key).to.eq(otherKey)));
+    keys.take(5).forEach(key => keys.skip(5).forEach(otherKey => expect(key).not.to.eq(otherKey)));
   });
 
 });
