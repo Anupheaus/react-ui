@@ -1,14 +1,15 @@
 import { anuxPureFunctionComponent } from "../anuxComponents";
 import { mount, ReactWrapper } from 'enzyme';
-import { useInlineKeyCreator } from './useInlineKeyCreator';
+import { useInlineKeyCreator, CreateKeyType } from './useInlineKeyCreator';
 import { useSharedHookState } from '../useSharedHookState';
+import { ReactNode, useRef } from 'react';
 
 describe('useInlineKeyCreator', () => {
 
   function createTest() {
     const result = {
       component: null as ReactWrapper,
-      createKey(): string { throw new Error('This should not have been called.'); },
+      createKey: null as CreateKeyType,
       updateSuffix(_suffix: string): void { throw new Error('This should not have been called.'); },
     };
 
@@ -40,8 +41,8 @@ describe('useInlineKeyCreator', () => {
 
   it('returns a different key if called from different places', () => {
     const test = createTest();
-    const key1 = test.createKey();
-    const key2 = test.createKey();
+    const key1 = test.createKey({ skipTraceFrames: -1 });
+    const key2 = test.createKey({ skipTraceFrames: -1 });
     expect(key1).to.be.a('string').with.lengthOf(32);
     expect(key2).to.be.a('string').with.lengthOf(32);
     expect(key2).not.to.eq(key1);
@@ -59,6 +60,52 @@ describe('useInlineKeyCreator', () => {
     keys.take(5).forEach(key => keys.take(5).forEach(otherKey => expect(key).to.eq(otherKey)));
     keys.skip(5).forEach(key => keys.skip(5).forEach(otherKey => expect(key).to.eq(otherKey)));
     keys.take(5).forEach(key => keys.skip(5).forEach(otherKey => expect(key).not.to.eq(otherKey)));
+  });
+
+  it('works regardless of how the surrounding code is called', () => {
+    const keys: string[] = [];
+    let invokeChildren: () => void;
+    const SubComponent = anuxPureFunctionComponent<{ children(): ReactNode; }>('SubComponent', ({ children }) => {
+      const renderedChildren = useRef<ReactNode>(null);
+      invokeChildren = () => {
+        renderedChildren.current = children();
+      };
+
+      return (
+        <>
+          {renderedChildren.current}
+        </>
+      );
+    });
+
+    const Component = anuxPureFunctionComponent('Component', () => {
+      const [createKey] = useInlineKeyCreator(useSharedHookState());
+      const renderKey = () => {
+        const key = createKey();
+        keys.push(key);
+        return key;
+      };
+
+      return (
+        <SubComponent>
+          {() => (
+            <div>{renderKey()}</div>
+          )}
+        </SubComponent>
+      );
+    });
+
+    const component = mount(<Component />);
+    expect(keys).to.be.an('array').with.lengthOf(0);
+    invokeChildren();
+    expect(keys).to.be.an('array').with.lengthOf(1);
+    invokeChildren();
+    expect(keys).to.be.an('array').with.lengthOf(2);
+    keys.forEach((key, index) => keys.forEach((otherKey, otherIndex) => index === otherIndex ? null : expect(key).to.eq(otherKey)));
+    invokeChildren();
+    expect(keys).to.be.an('array').with.lengthOf(3);
+    keys.forEach((key, index) => keys.forEach((otherKey, otherIndex) => index === otherIndex ? null : expect(key).to.eq(otherKey)));
+    component.unmount();
   });
 
 });

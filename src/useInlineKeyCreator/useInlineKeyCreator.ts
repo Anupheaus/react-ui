@@ -1,38 +1,39 @@
 import { SharedHookState } from '../useSharedHookState';
-import { IFunctionStackTraceInfo } from 'anux-common/dist/extensions/function';
-import { areShallowEqual } from '../areEqual';
 
-type KeyCreator = () => string;
+interface ICreateKeyOptions {
+  skipTraceFrames?: number;
+  debug?: boolean;
+}
+
+export type CreateKeyType = (options?: ICreateKeyOptions) => string;
 type SuffixUpdater = (suffix: string) => void;
 
 const SharedKeyState = Symbol('SharedKeyState');
 
-function createKey(parentStackTrace: IFunctionStackTraceInfo[], suffix: string): string {
-  let stackTrace = Function.getStackTrace();
-  parentStackTrace.forEach(parentItem => {
-    const index = stackTrace.findIndex(item => areShallowEqual(item, parentItem));
-    if (index >= 0) { stackTrace.splice(index, 1); }
-  });
-  let key = stackTrace.map(({ methodName, file, line, column }) => `${methodName}-${file}-${line}-${column}`).join(':');
-  key += suffix.length > 0 ? `:${suffix}` : '';
-  return key.hash(32);
-}
-
-export function useInlineKeyCreator(sharedHookState: SharedHookState): [KeyCreator, SuffixUpdater] {
+export function useInlineKeyCreator(sharedHookState: SharedHookState): [CreateKeyType, SuffixUpdater] {
   sharedHookState.current[SharedKeyState] = sharedHookState.current[SharedKeyState] || {
     suffix: '',
   };
-  const parentStackTrace = Function.getStackTrace();
 
   const getSuffix = () => sharedHookState.current[SharedKeyState].suffix || '';
   const setSuffix = (suffix: string) => { sharedHookState.current[SharedKeyState].suffix = suffix; };
 
-  const keyCreator: KeyCreator = () => {
+  const createKey = (options?: ICreateKeyOptions) => {
+    const { skipTraceFrames, debug } = {
+      skipTraceFrames: 0,
+      debug: false,
+      ...options,
+    };
     const suffix = getSuffix();
-    return createKey(parentStackTrace, suffix);
-  }
+    const stackTrace = Function.getStackTrace();
+    const frame = stackTrace[2 + skipTraceFrames];
+    if (!frame) { throw new Error('Stack trace was not long enough (or skipTraceFrames was set too high) to provide a unique key for this method.'); }
+    const key = `${frame.methodName}-${frame.file}-${frame.line}-${frame.column}${suffix.length > 0 ? `:${suffix}` : ''}`.hash(32);
+    if (debug) { console.info({ stackTrace, frame, suffix, key }); }
+    return key;
+  };
 
   const suffixUpdater: SuffixUpdater = setSuffix;
 
-  return [keyCreator, suffixUpdater];
+  return [createKey, suffixUpdater];
 }
