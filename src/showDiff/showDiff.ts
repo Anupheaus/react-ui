@@ -80,7 +80,7 @@ function diffNonMatching(indent: number, infoA: Reflect.ITypeOf, infoB: Reflect.
     const dateB = moment(infoB.value);
     const diff = dateB.diff(dateA);
     const duration = moment.duration(diff);
-    return `%rs${formatValue(indent, infoA)} %gr${formatValue(indent, infoB)} (difference: ${Math.floor(duration.asHours()).toString().padLeft(2, '0')}` +
+    return `%rs${formatValue(indent, infoA)} %gr${formatValue(indent, infoB)} (difference: ${Math.floor(duration.asHours()).toString().padStart(3, '0')}` +
       `:${moment.utc(diff).format('mm:ss SSS')})`;
   } else if (infoA.isUndefined && !infoB.isUndefined) {
     return `%gr${formatValue(indent, infoB)}`;
