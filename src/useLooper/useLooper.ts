@@ -2,46 +2,35 @@ import { ReactElement } from 'react';
 import { useInlineKeyCreator } from '../useInlineKeyCreator';
 import { SharedHookState } from '../useSharedHookState';
 
-interface ILoopData {
-  key: string;
-  index: number;
-}
-
 type Looper = <T, R extends ReactElement | null>(values: T[], delegate: (item: T, key: string, index: number) => R) => R[];
 
 export function useLooper(sharedHookState: SharedHookState): Looper {
-  const loopData: ILoopData[] = [];
+  const loopIndexes: number[] = [];
   const [createKey, updateKeySuffix] = useInlineKeyCreator(sharedHookState);
 
   const setKeySuffix = () => {
-    const { key = undefined, index = undefined } = loopData[loopData.length - 1] || {};
-    updateKeySuffix(loopData.length === 0 ? '' : `[${key}:${index}]`);
+    updateKeySuffix(loopIndexes.join('-'));
   };
 
-  const addNewLoop = (key: string) => {
-    loopData.push({ key, index: -1 });
+  const addNewLoop = () => {
+    loopIndexes.push(0);
   };
 
   const updateLoopData = (index: number) => {
-    const currentData = loopData[loopData.length - 1];
-    loopData[loopData.length - 1] = {
-      ...currentData,
-      index,
-    };
+    loopIndexes[loopIndexes.length - 1] = index;
     setKeySuffix();
   };
 
   const removeLoop = () => {
-    loopData.pop();
+    loopIndexes.pop();
     setKeySuffix();
   };
 
   const looper: Looper = (values, delegate) => {
-    const key = createKey();
-    addNewLoop(key);
+    addNewLoop();
     const results = values.map((item, index) => {
       updateLoopData(index);
-      return delegate(item, `${key}-${index}`, index);
+      return delegate(item, createKey(), index);
     });
     removeLoop();
     return results;
