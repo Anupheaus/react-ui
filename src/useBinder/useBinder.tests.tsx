@@ -126,6 +126,50 @@ describe('useBinder', () => {
   //   component.unmount();
   // });
 
+  it('works with multiple uses', () => {
+    let invokeMethods: () => void = null;
+    let methodACallCount = 0;
+    let methodBCallCount = 0;
+
+    const SubComponent = anuxPureFunctionComponent<{
+      methodA(): void;
+      methodB(): void;
+    }>('ItemComponent', ({
+      methodA,
+      methodB,
+    }) => {
+      invokeMethods = () => {
+        methodA();
+        methodB();
+      };
+      return null;
+    });
+
+    const Component = anuxPureFunctionComponent('Component', () => {
+      const bind = useBinder(useSharedHookState());
+
+      return (
+        <div>
+          <SubComponent
+            methodA={bind(() => { methodACallCount++; })}
+            methodB={bind(() => { methodBCallCount++; })}
+          />
+        </div>
+      )
+    });
+
+    const component = mount(<Component />);
+    expect(methodACallCount).to.eq(0);
+    expect(methodBCallCount).to.eq(0);
+    invokeMethods();
+    expect(methodACallCount).to.eq(1);
+    expect(methodBCallCount).to.eq(1);
+    invokeMethods();
+    expect(methodACallCount).to.eq(2);
+    expect(methodBCallCount).to.eq(2);
+    component.unmount();
+  });
+
   it('works with an array', () => {
     let itemRenderCount = 0;
     let renderInstances: (() => void)[] = [];
