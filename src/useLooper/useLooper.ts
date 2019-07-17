@@ -30,7 +30,8 @@ export function useLooper(sharedHookState: SharedHookState): Looper {
     addNewLoop();
     const results = values.map((item, index) => {
       updateLoopData(index);
-      return delegate(item, createKey(), index);
+      const key = createKey({ skipTraceFrames: 1 });
+      return delegate(item, key, index);
     });
     removeLoop();
     return results;
