@@ -1,8 +1,10 @@
+import 'anux-common';
+import { isValidElement, Component } from 'react';
 export { };
 
 declare global {
   namespace Reflect {
-    interface ITypeOf<T = any> {
+    interface ITypeOf<T = object> {
       isReactElement: boolean;
       isReactComponent: boolean;
     }
@@ -11,11 +13,11 @@ declare global {
 
 const originalTypeOf = Reflect.typeOf;
 
-Reflect.typeOf = (value: any): Reflect.ITypeOf => {
+Reflect.typeOf = <T = object>(value: T): Reflect.ITypeOf<T> => {
   const result = originalTypeOf(value);
 
-  const isReactElement = React.isValidElement(value);
-  const isReactComponent = value instanceof React.Component;
+  const isReactElement = isValidElement(value);
+  const isReactComponent = value instanceof Component;
 
   return {
     ...result,

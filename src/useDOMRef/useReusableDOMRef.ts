@@ -1,7 +1,7 @@
 import { useRef } from 'react';
-import { HTMLTargetDelegate } from './models';
 import { is } from 'anux-common';
 import { useBound } from '../useBound';
+import { HTMLTargetDelegate } from './models';
 
 interface IDOMRef {
   key: string;

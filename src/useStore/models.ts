@@ -26,4 +26,4 @@ export type StoreActionsDelegate<TData, TActions> = (upsert: (data: DeepPartial<
 
 export const StoreTypeId = Symbol('storeTypeId');
 
-export type ConstructorOfStore<TData extends IMap> = ConstructorOf<Store<TData>>;
+export type ConstructorOfStore<TData extends IMap = IMap> = ConstructorOf<Store<TData>>;

@@ -1,10 +1,10 @@
-import { IUseOnDragResult, IUseOnDragConfig } from './models';
 import { ICoordinates } from 'anux-common';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
 import { useSingleDOMRef } from '../useDOMRef';
 import { setDraggingData } from '../dragAndDropRegistry/registry';
 import { useStaticState, SetStaticState } from '../useStaticState';
+import { IUseOnDragResult, IUseOnDragConfig } from './models';
 
 type IConfig = IUseOnDragConfig<any, any>;
 type SetState = SetStaticState<IState>;

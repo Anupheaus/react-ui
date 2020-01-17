@@ -1,5 +1,5 @@
-import { stores } from './storesRegistry';
 import { DeepPartial, bind, IMap } from 'anux-common';
+import { stores } from './storesRegistry';
 import { StoreCallback } from './models';
 
 export class Store<TData extends IMap> {

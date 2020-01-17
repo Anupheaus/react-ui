@@ -1,11 +1,11 @@
 import { useEffect, useRef, MutableRefObject } from 'react';
 import { CancellationToken } from 'anux-common';
 import { CancelTokenSource } from 'axios';
-import { IUseApiResponse, IUseApiConfig, CancelRequest, ForceRequest } from './models';
-import { makeRequest } from './makeRequest';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
 import { useForceUpdate } from '../useForceUpdate';
+import { makeRequest } from './makeRequest';
+import { IUseApiResponse, IUseApiConfig, CancelRequest, ForceRequest } from './models';
 
 interface IPromise<TResponse> {
   promise: Promise<TResponse>;

@@ -1,10 +1,10 @@
 import { FunctionComponent, useContext, useState, useMemo, Dispatch, SetStateAction } from 'react';
 import { IMap } from 'anux-common';
+import { useOnMount } from '../useOnMount';
+import { useOnUnmount } from '../useOnUnmount';
 import { ConstructorOfStore, StoreTypeId } from './models';
 import { StoreContext } from './context';
 import { Store } from './store';
-import { useOnMount } from '../useOnMount';
-import { useOnUnmount } from '../useOnUnmount';
 
 interface IProviderProps<TData extends IMap> {
   initialData?: TData;
@@ -13,12 +13,12 @@ interface IProviderProps<TData extends IMap> {
 }
 
 interface IProviderOnLoadProps<TOnLoad extends IMap> {
-  onLoadParameters: TOnLoad;
+  onLoadParameters?: TOnLoad;
 }
 
 type ProviderProps<TData extends IMap, TOnLoad extends IMap> = TOnLoad extends undefined ? IProviderProps<TData> : IProviderProps<TData> & IProviderOnLoadProps<TOnLoad>;
 
-export interface IProvider<TData extends IMap, TActions extends IMap, TOnLoad extends IMap = any> extends FunctionComponent<ProviderProps<TData, TOnLoad>> {
+export interface IProvider<TData extends IMap, TActions extends IMap, TOnLoad extends IMap = unknown> extends FunctionComponent<ProviderProps<TData, TOnLoad>> {
   dataType: TData;
   actionsType: TActions;
 }

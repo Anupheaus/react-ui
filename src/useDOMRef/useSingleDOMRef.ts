@@ -1,5 +1,5 @@
-import { useReusableDOMRef } from './useReusableDOMRef';
 import { useRef, RefObject } from 'react';
+import { useReusableDOMRef } from './useReusableDOMRef';
 import { HTMLTargetDelegate } from './models';
 
 interface IUseSingleDOMConfig {

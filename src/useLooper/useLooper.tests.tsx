@@ -1,7 +1,6 @@
-import { anuxPureFunctionComponent } from "../anuxComponents";
-import { useLooper } from './useLooper';
 import { mount, ReactWrapper } from 'enzyme';
-import { useSharedHookState } from '../useSharedHookState';
+import { anuxPureFunctionComponent } from '../anuxComponents';
+import { useLooper } from './useLooper';
 
 interface ILooperData {
   key: string;
@@ -17,8 +16,7 @@ describe('useLooper', () => {
     };
 
     const TestComponent = anuxPureFunctionComponent('TestComponent', () => {
-      const sharedHookState = useSharedHookState();
-      const loop = useLooper(sharedHookState);
+      const loop = useLooper();
       const data1 = ['one', 'two', 'three', 'four'];
       const data2 = ['ten', 'nine', 'eight', 'seven'];
 
@@ -30,7 +28,7 @@ describe('useLooper', () => {
               <p key={key1}>{item1}-{index1}-{loop(data2, (item2, key2, index2) => {
                 result.results.push({ key: key2, index: index2 });
                 return (
-                  <p key={key2}>{item2}-{index2}</p>
+                  <span key={key2}>{item2}-{index2}</span>
                 );
               })}</p>
             );

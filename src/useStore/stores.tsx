@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
-import { IProvider } from './provider';
 import { IMap, is } from 'anux-common';
+import { IProvider } from './provider';
 
 interface IProps {
   stores: (JSX.Element | IProvider<IMap, IMap>)[];

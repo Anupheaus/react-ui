@@ -1,6 +1,6 @@
 import { FunctionComponent, ReactElement } from 'react';
-import { useReusableDOMRef } from './useReusableDOMRef';
 import { mount, ReactWrapper } from 'enzyme';
+import { useReusableDOMRef } from './useReusableDOMRef';
 import { HTMLTargetDelegate } from './models';
 
 interface IProps {

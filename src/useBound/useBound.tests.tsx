@@ -1,6 +1,6 @@
-import { useBound } from './useBound';
 import { FunctionComponent, useState } from 'react';
 import { mount } from 'enzyme';
+import { useBound } from './useBound';
 import { UseBoundFunctionResult } from './models';
 
 interface IProps {

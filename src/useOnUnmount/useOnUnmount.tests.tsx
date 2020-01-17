@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
-import { useOnUnmount } from './useOnUnmount';
 import { mount } from 'enzyme';
+import { useOnUnmount } from './useOnUnmount';
 
 describe('useOnUnmount', () => {
 

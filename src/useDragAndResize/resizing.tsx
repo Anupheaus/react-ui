@@ -1,5 +1,5 @@
-import { useSingleDOMRef } from '../useDOMRef';
 import * as ReactDOMServer from 'react-dom/server';
+import { useSingleDOMRef } from '../useDOMRef';
 import { CustomTag } from '../customTag';
 import './resizing.scss';
 import { useOnDrag } from '../useOnDrag';

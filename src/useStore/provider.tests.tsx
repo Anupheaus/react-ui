@@ -1,13 +1,13 @@
-import { StoreTypeId } from './models';
 import { mount } from 'enzyme';
 import { FunctionComponent, useContext } from 'react';
+import { StoreTypeId } from './models';
 import { StoreContext } from './context';
 import { createProvider } from './provider';
 import { Store } from './store';
 
 describe('useStore - provider', () => {
 
-  function createTestProvider(withOnLoading: boolean = true, withError: boolean = false, withChild: boolean = true) {
+  function createTestProvider(withOnLoading = true, withError = false, withChild = true) {
     const data = {
       something: 'else',
     };

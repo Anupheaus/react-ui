@@ -27,13 +27,13 @@ describe('children > separate', () => {
       <>
         <Component1>
           test1
-      </Component1>
+        </Component1>
         <Component2>
           test2
-      </Component2>
+        </Component2>
         <Component1>
           test3
-      </Component1>
+        </Component1>
         <div></div>
         test
     </>

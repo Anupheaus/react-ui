@@ -1,8 +1,7 @@
-import { anuxPureFunctionComponent } from '../anuxComponents';
-import { useInlineMemo } from './useInlineMemo';
 import { mount } from 'enzyme';
+import { anuxPureFunctionComponent } from '../anuxComponents';
 import { useLooper } from '../useLooper';
-import { useSharedHookState } from '../useSharedHookState';
+import { useInlineMemo } from './useInlineMemo';
 
 describe('useInlineMemo', () => {
 
@@ -13,8 +12,7 @@ describe('useInlineMemo', () => {
   }
 
   const TestComponent = anuxPureFunctionComponent<IProps>('TestComponent', ({ calculation, dependencies, onRender }) => {
-    const sharedHookState = useSharedHookState();
-    const memo = useInlineMemo(sharedHookState);
+    const memo = useInlineMemo();
 
     onRender();
 
@@ -155,7 +153,7 @@ describe('useInlineMemo', () => {
     let itemRenderCount = 0;
     let calculationCount = 0;
 
-    const ItemComponent = anuxPureFunctionComponent<{ something: string; render: string; }>('ItemComponent', ({
+    const ItemComponent = anuxPureFunctionComponent<{ something: string; render: string }>('ItemComponent', ({
       render,
     }) => {
       itemRenderCount++;
@@ -164,14 +162,13 @@ describe('useInlineMemo', () => {
       );
     });
 
-    const Component = anuxPureFunctionComponent<{ something?: string; indexStart?: number; }>('Component', ({
+    const Component = anuxPureFunctionComponent<{ something?: string; indexStart?: number }>('Component', ({
       something,
       indexStart = 1,
     }) => {
       const items = ['one', 'two', 'three', 'four'];
-      const sharedHookState = useSharedHookState();
-      const loop = useLooper(sharedHookState);
-      const memo = useInlineMemo(sharedHookState);
+      const loop = useLooper();
+      const memo = useInlineMemo();
 
 
       return (

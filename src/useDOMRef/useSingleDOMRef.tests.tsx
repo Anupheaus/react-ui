@@ -1,6 +1,6 @@
 import { FunctionComponent, ReactElement, RefObject } from 'react';
-import { useSingleDOMRef } from './useSingleDOMRef';
 import { mount, ReactWrapper } from 'enzyme';
+import { useSingleDOMRef } from './useSingleDOMRef';
 import { HTMLTargetDelegate } from './models';
 
 interface IProps {
@@ -110,7 +110,7 @@ describe('useSingleDOMRef', () => {
   it('can be used without config', () => {
     let elementRef: RefObject<HTMLElement>;
     let targetElement: HTMLTargetDelegate;
-    const Component: FunctionComponent<{ assignTarget: boolean; }> = ({ assignTarget }) => {
+    const Component: FunctionComponent<{ assignTarget: boolean }> = ({ assignTarget }) => {
       const [innerElementRef, innerTargetElement] = useSingleDOMRef();
       elementRef = innerElementRef;
       targetElement = innerTargetElement;

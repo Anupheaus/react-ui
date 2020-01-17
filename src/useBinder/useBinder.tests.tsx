@@ -1,8 +1,7 @@
-import { anuxPureFunctionComponent, anuxFunctionComponent } from '../anuxComponents';
-import { useBinder } from './useBinder';
 import { mount } from 'enzyme';
+import { anuxPureFunctionComponent, anuxFC } from '../anuxComponents';
 import { useLooper } from '../useLooper';
-import { useSharedHookState } from '../useSharedHookState';
+import { useBinder } from './useBinder';
 
 describe('useBinder', () => {
 
@@ -11,8 +10,7 @@ describe('useBinder', () => {
   }
 
   const TestComponent = anuxPureFunctionComponent<IProps>('TestComponent', ({ onBoundFuncsCreated }) => {
-    const sharedHookState = useSharedHookState();
-    const bind = useBinder(sharedHookState);
+    const bind = useBinder();
 
     onBoundFuncsCreated(bind(() => 1), bind(() => 2));
 
@@ -135,18 +133,18 @@ describe('useBinder', () => {
       methodA(): void;
       methodB(): void;
     }>('ItemComponent', ({
-      methodA,
-      methodB,
-    }) => {
-      invokeMethods = () => {
-        methodA();
-        methodB();
-      };
-      return null;
-    });
+          methodA,
+          methodB,
+        }) => {
+          invokeMethods = () => {
+            methodA();
+            methodB();
+          };
+          return null;
+        });
 
     const Component = anuxPureFunctionComponent('Component', () => {
-      const bind = useBinder(useSharedHookState());
+      const bind = useBinder();
 
       return (
         <div>
@@ -172,8 +170,8 @@ describe('useBinder', () => {
 
   it('works with an array', () => {
     let itemRenderCount = 0;
-    let renderInstances: (() => void)[] = [];
-    const ItemComponent = anuxFunctionComponent<{ render(): void; }>('ItemComponent', ({ // deliberately used non-pure function here
+    const renderInstances: (() => void)[] = [];
+    const ItemComponent = anuxFC<{ render(): void }>('ItemComponent', ({ // deliberately used non-pure function here
       render,
     }) => {
       itemRenderCount++;
@@ -181,11 +179,10 @@ describe('useBinder', () => {
       return null;
     });
 
-    const Component = anuxPureFunctionComponent<{ something?: string; }>('Component', () => {
+    const Component = anuxPureFunctionComponent<{ something?: string }>('Component', () => {
       const items = ['one', 'two', 'three', 'four'];
-      const sharedHookState = useSharedHookState();
-      const loop = useLooper(sharedHookState);
-      const bind = useBinder(sharedHookState);
+      const loop = useLooper();
+      const bind = useBinder();
 
       return (
         <div>

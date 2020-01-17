@@ -9,7 +9,7 @@ interface IState<T> {
   error: Error;
 }
 
-export interface IUseAsync<T = any> extends IState<T> { }
+export interface IUseAsync<T = unknown> extends IState<T> { }
 
 function handleFinishedLoading<T>(setState: Dispatch<SetStateAction<IState<T>>>, isUnmounted: MutableRefObject<boolean>) {
   return (result: T): void => {
@@ -18,7 +18,8 @@ function handleFinishedLoading<T>(setState: Dispatch<SetStateAction<IState<T>>>,
   };
 }
 
-export function useAsync<T = any>(delegate: () => PromiseMaybe<T>, dependencies: ReadonlyArray<any>): IUseAsync<T> {
+// eslint-disable-next-line @typescript-eslint/array-type
+export function useAsync<T = unknown>(delegate: () => PromiseMaybe<T>, dependencies: ReadonlyArray<unknown>): IUseAsync<T> {
   const [state, setState] = useState<IState<T>>({
     isBusy: true,
     error: undefined,

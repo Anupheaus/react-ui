@@ -1,11 +1,11 @@
 import { createHarness } from 'anux-package';
-import { CustomTag } from '../customTag';
-import { useDragAndResize } from './useDragAndResize';
 import './harness.scss';
 import { Switch } from '@material-ui/core';
 import { useState, ChangeEvent, useRef } from 'react';
-import { useBound } from '../useBound';
 import { IGeometry } from 'anux-common';
+import { useBound } from '../useBound';
+import { CustomTag } from '../customTag';
+import { useDragAndResize } from './useDragAndResize';
 
 interface IState {
   isMovable: boolean;

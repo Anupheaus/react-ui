@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
-import { useInterval } from './useInterval';
 import { mount } from 'enzyme';
+import { useInterval } from './useInterval';
 
 describe('useInterval', () => {
 

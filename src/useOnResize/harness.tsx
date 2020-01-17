@@ -2,8 +2,8 @@ import { createHarness } from 'anux-package';
 import { useState, ChangeEvent, ReactNode } from 'react';
 import { ISize } from 'anux-common';
 import { Switch, Button } from '@material-ui/core';
-import { useOnResize } from './useOnResize';
 import { useBound } from '../useBound';
+import { useOnResize } from './useOnResize';
 import './harness.scss';
 
 interface IState {

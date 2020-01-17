@@ -1,6 +1,6 @@
 import { useRef } from 'react';
-import { IUseToggleStateResult } from './models';
 import { useBound } from '../useBound';
+import { IUseToggleStateResult } from './models';
 
 interface IState {
   value: boolean;
@@ -9,7 +9,7 @@ interface IState {
   onDisable(): void | boolean;
 }
 
-export function useToggleState(initialState: boolean = false): IUseToggleStateResult {
+export function useToggleState(initialState = false): IUseToggleStateResult {
   const stateRef = useRef<IState>({
     value: initialState,
     onChange: () => void 0,

@@ -1,7 +1,7 @@
 import { FunctionComponent, ReactNode } from 'react';
-import { useDataState, DataWithState, SetDataStateAction } from './useDataState';
 import { IRecord } from 'anux-common';
 import { mount, ReactWrapper } from 'enzyme';
+import { useDataState, DataWithState, SetDataStateAction } from './useDataState';
 
 interface IFilter extends IRecord {
   field: string;

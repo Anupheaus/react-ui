@@ -1,7 +1,7 @@
 import { FunctionComponent, ReactElement, useState } from 'react';
 import { mount } from 'enzyme';
-import { useApi } from './useApi';
 import moxios from '@anilanar/moxios';
+import { useApi } from './useApi';
 import { ExceptWhenDelegate, IUseApiResponse, CancelRequest, ForceRequest } from './models';
 
 describe('useApi', () => {
@@ -35,7 +35,7 @@ describe('useApi', () => {
         const { data, error, cancelRequest, forceRequest, promise } = useApi
           .observe(dependencies)
           .exceptWhen(exceptWhen)
-        [method](requestUrl, requestData)
+          [method](requestUrl, requestData)
           .end;
 
         return children({ data, error, cancelRequest, forceRequest, promise });
@@ -48,7 +48,7 @@ describe('useApi', () => {
         const { cancelRequest, forceRequest, promise } = useApi
           .observe(dependencies)
           .exceptWhen(exceptWhen)
-        [method](requestUrl, requestData)
+          [method](requestUrl, requestData)
           .then((d: any) => setState(s => ({ ...s, data: d })))
           .catch((e: Error) => setState(s => ({ ...s, error: e })))
           .end;

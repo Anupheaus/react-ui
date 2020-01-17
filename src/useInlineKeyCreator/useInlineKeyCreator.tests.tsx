@@ -1,8 +1,8 @@
-import { anuxPureFunctionComponent } from "../anuxComponents";
 import { mount, ReactWrapper } from 'enzyme';
-import { useInlineKeyCreator, CreateKeyType } from './useInlineKeyCreator';
-import { useSharedHookState } from '../useSharedHookState';
 import { ReactNode, useRef } from 'react';
+import { anuxPureFunctionComponent } from '../anuxComponents';
+import { useSharedHookState } from '../useSharedHookState';
+import { useInlineKeyCreator, CreateKeyType } from './useInlineKeyCreator';
 
 describe('useInlineKeyCreator', () => {
 
@@ -28,9 +28,9 @@ describe('useInlineKeyCreator', () => {
     return result;
   }
 
-  it('returns the same key if called from the same place more than once', () => {
+  it('returns the same key if called with the same from', () => {
     const test = createTest();
-    const keys = new Array(10).fill(0).map(() => test.createKey());
+    const keys = new Array(10).fill(0).map(() => test.createKey({ from: 'hey' }));
     expect(keys).to.be.an('array').with.lengthOf(10);
     keys.forEach(key => {
       expect(key).to.be.a('string').with.lengthOf(32);
@@ -39,21 +39,21 @@ describe('useInlineKeyCreator', () => {
     test.component.unmount();
   });
 
-  it('returns a different key if called from different places', () => {
+  it('returns a different key if called with different from values', () => {
     const test = createTest();
-    const key1 = test.createKey({ skipTraceFrames: -1 });
-    const key2 = test.createKey({ skipTraceFrames: -1 });
+    const key1 = test.createKey({ from: 'a' });
+    const key2 = test.createKey({ from: 'b' });
     expect(key1).to.be.a('string').with.lengthOf(32);
     expect(key2).to.be.a('string').with.lengthOf(32);
     expect(key2).not.to.eq(key1);
     test.component.unmount();
   });
 
-  it('returns a different key if the suffix is changed but called from the same place more than once', () => {
+  it('returns a different key if the suffix is changed but called using the same from value', () => {
     const test = createTest();
     const keys = new Array(10).fill(0).map((_, index) => {
       if (index === 5) { test.updateSuffix('something'); }
-      return test.createKey();
+      return test.createKey({ from: 'a' });
     });
     expect(keys).to.be.an('array').with.lengthOf(10);
     keys.forEach(key => expect(key).to.be.a('string').with.lengthOf(32));
@@ -65,7 +65,7 @@ describe('useInlineKeyCreator', () => {
   it('works regardless of how the surrounding code is called', () => {
     const keys: string[] = [];
     let invokeChildren: () => void;
-    const SubComponent = anuxPureFunctionComponent<{ children(): ReactNode; }>('SubComponent', ({ children }) => {
+    const SubComponent = anuxPureFunctionComponent<{ children(): ReactNode }>('SubComponent', ({ children }) => {
       const renderedChildren = useRef<ReactNode>(null);
       invokeChildren = () => {
         renderedChildren.current = children();
@@ -81,7 +81,7 @@ describe('useInlineKeyCreator', () => {
     const Component = anuxPureFunctionComponent('Component', () => {
       const [createKey] = useInlineKeyCreator(useSharedHookState());
       const renderKey = () => {
-        const key = createKey();
+        const key = createKey({ from: 'a' });
         keys.push(key);
         return key;
       };

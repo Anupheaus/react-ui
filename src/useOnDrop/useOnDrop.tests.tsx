@@ -1,13 +1,13 @@
 import { FunctionComponent, useCallback } from 'react';
 import { mount } from 'enzyme';
 import '../extensions';
+import { setDraggingData } from '../dragAndDropRegistry/registry';
 import { IUseOnDropConfig } from './models';
 import { useOnDrop } from './useOnDrop';
-import { setDraggingData } from '../dragAndDropRegistry/registry';
 
 describe('useOnDrop', () => {
 
-  function createComponentWithDropTarget<TData, TPassthroughData>(config?: IUseOnDropConfig<TData, TPassthroughData>, useDropClassTarget: boolean = false) {
+  function createComponentWithDropTarget<TData, TPassthroughData>(config?: IUseOnDropConfig<TData, TPassthroughData>, useDropClassTarget = false) {
     const Component: FunctionComponent = () => {
       const { dropTarget, dropClassTarget } = useOnDrop(config);
 

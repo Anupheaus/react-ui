@@ -1,8 +1,8 @@
 import { FunctionComponent } from 'react';
-import { useToggleState } from './useToggleState';
-import { IUseToggleStateResult } from './models';
 import { mount, ReactWrapper } from 'enzyme';
 import { useOnUnmount } from '../useOnUnmount';
+import { useToggleState } from './useToggleState';
+import { IUseToggleStateResult } from './models';
 
 describe('useToggleState', () => {
 
@@ -10,7 +10,7 @@ describe('useToggleState', () => {
     value: boolean;
   }
 
-  function createTest(initialValue: boolean = true, overrideCallbacks: boolean = true, allowPropsToChangeValue: boolean = false) {
+  function createTest(initialValue = true, overrideCallbacks = true, allowPropsToChangeValue = false) {
     const state = {
       toggle: undefined as IUseToggleStateResult,
       renderCount: 0,

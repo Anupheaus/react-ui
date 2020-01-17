@@ -1,7 +1,7 @@
 import { mount } from 'enzyme';
+import { FunctionComponent } from 'react';
 import { Stores } from './stores';
 import { defineStore } from './defineStore';
-import { FunctionComponent } from 'react';
 import { useStore } from './useStore';
 
 describe('useStore - stores', () => {

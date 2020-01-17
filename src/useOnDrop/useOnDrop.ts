@@ -1,7 +1,7 @@
-import { IUseOnDropConfig, IUseOnDropResult, IUseOnDropStateClasses } from './models';
 import { useRef, MutableRefObject } from 'react';
 import { useSingleDOMRef, HTMLElementRef } from '../useDOMRef';
 import { retrieveDraggingData } from '../dragAndDropRegistry/registry';
+import { IUseOnDropConfig, IUseOnDropResult, IUseOnDropStateClasses } from './models';
 
 enum DraggableValidityStates {
   None,

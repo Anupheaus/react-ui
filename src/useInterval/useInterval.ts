@@ -1,19 +1,23 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
 import { useBound } from '../useBound';
 
 interface IOptions {
   triggerOnUnmount?: boolean;
+  dependencies: unknown[];
 }
 
 export function useInterval(delegate: () => void, interval: number, options?: IOptions): () => void {
-  options = {
+  const { dependencies, triggerOnUnmount } = {
     triggerOnUnmount: false,
+    dependencies: [],
     ...options,
   };
 
   const intervalRef = useRef(null);
-  intervalRef.current = setInterval(delegate, interval);
+  useMemo(() => {
+    intervalRef.current = setInterval(delegate, interval);
+  }, dependencies);
 
   const cancelInterval = useBound(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); }
@@ -21,7 +25,7 @@ export function useInterval(delegate: () => void, interval: number, options?: IO
   });
 
   useOnUnmount(() => {
-    if (options.triggerOnUnmount && intervalRef.current) { delegate(); }
+    if (triggerOnUnmount && intervalRef.current) { delegate(); }
     cancelInterval();
   });
 

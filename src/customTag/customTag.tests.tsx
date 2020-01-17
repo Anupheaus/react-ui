@@ -1,6 +1,6 @@
 import { mount } from 'enzyme';
-import { CustomTag } from './customTag';
 import { useRef, FunctionComponent, MutableRefObject } from 'react';
+import { CustomTag } from './customTag';
 
 describe('customTag', () => {
 

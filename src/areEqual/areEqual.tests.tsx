@@ -20,21 +20,21 @@ describe('areEqual', () => {
       a: (
         <div>
           should pass
-      </div>
+        </div>
       ),
     };
     const b = {
       a: (
         <div>
           should pass
-      </div>
+        </div>
       ),
     };
     const c = {
       a: (
         <div>
           should fail
-      </div>
+        </div>
       ),
     };
     expect(areDeepEqual(a, b)).to.be.true;
@@ -48,21 +48,21 @@ describe('areEqual', () => {
       a: (
         <Component1>
           should pass
-      </Component1>
+        </Component1>
       ),
     };
     const b = {
       a: (
         <Component1>
           should pass
-      </Component1>
+        </Component1>
       ),
     };
     const c = {
       a: (
         <Component2>
           should fail
-      </Component2>
+        </Component2>
       ),
     };
     expect(areDeepEqual(a, b)).to.be.true;
@@ -78,7 +78,7 @@ describe('areEqual', () => {
       a: (
         <Component1>
           should pass
-      </Component1>
+        </Component1>
       ),
     };
     const b = {

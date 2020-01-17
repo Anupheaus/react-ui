@@ -1,6 +1,6 @@
 import { FunctionComponent, ReactElement } from 'react';
-import { IUseAsync, useAsync } from './useAsync';
 import { mount } from 'enzyme';
+import { IUseAsync, useAsync } from './useAsync';
 
 interface IProps {
   data: any;
@@ -22,7 +22,7 @@ const SyncTestComponent: FunctionComponent<IProps> = ({ children, data }) => {
   return children(asyncState);
 };
 
-function setupTest(data?: any, asyncTest: boolean = true) {
+function setupTest(data?: any, asyncTest = true) {
   const state: IUseAsync & {
     renderCount: number;
     dispose(): void;

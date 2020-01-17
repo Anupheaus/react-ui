@@ -1,8 +1,8 @@
 import { FunctionComponent, useState } from 'react';
-import { saveToState } from './helperUtils';
-import { useOnUnmount } from '../useOnUnmount';
 import { mount } from 'enzyme';
+import { useOnUnmount } from '../useOnUnmount';
 import { useTimeout } from '../useTimeout';
+import { saveToState } from './helperUtils';
 
 describe('helperUtils', () => {
 

@@ -1,11 +1,11 @@
 import { createHarness } from 'anux-package';
 import '../extensions';
 import './harness.scss';
+import { ICoordinates } from 'anux-common';
+import { useState, CSSProperties } from 'react';
 import { CustomTag } from '../customTag';
 import { useOnDrag } from '../useOnDrag';
 import { useOnDrop } from './useOnDrop';
-import { ICoordinates } from 'anux-common';
-import { useState, CSSProperties } from 'react';
 
 interface IState {
   state: string;

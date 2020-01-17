@@ -1,15 +1,20 @@
 import { ReactElement } from 'react';
 import { useInlineKeyCreator } from '../useInlineKeyCreator';
-import { SharedHookState } from '../useSharedHookState';
+import { useSharedHookState } from '../useSharedHookState';
 
-type Looper = <T, R extends ReactElement | null>(values: T[], delegate: (item: T, key: string, index: number) => R) => R[];
+interface ILooperOptions {
+  key?: string;
+  debug?: boolean;
+}
 
-export function useLooper(sharedHookState: SharedHookState): Looper {
+type Looper = <T, R extends ReactElement | null>(values: T[], delegate: (item: T, key: string, index: number) => R, options?: ILooperOptions) => R[];
+
+export function useLooper(): Looper {
   const loopIndexes: number[] = [];
-  const [createKey, updateKeySuffix] = useInlineKeyCreator(sharedHookState);
+  const [createKey, updateKeySuffix] = useInlineKeyCreator(useSharedHookState());
 
   const setKeySuffix = () => {
-    updateKeySuffix(loopIndexes.join('-'));
+    updateKeySuffix(loopIndexes.length === 0 ? '' : `[${loopIndexes.join('-')}]`);
   };
 
   const addNewLoop = () => {
@@ -26,11 +31,16 @@ export function useLooper(sharedHookState: SharedHookState): Looper {
     setKeySuffix();
   };
 
-  const looper: Looper = (values, delegate) => {
+  const looper: Looper = (values, delegate, options) => {
+    const { key: from, debug }: ILooperOptions = {
+      key: delegate.toString(),
+      debug: false,
+      ...options,
+    };
     addNewLoop();
     const results = values.map((item, index) => {
       updateLoopData(index);
-      const key = createKey({ skipTraceFrames: 1 });
+      const key = createKey({ from, debug });
       return delegate(item, key, index);
     });
     removeLoop();

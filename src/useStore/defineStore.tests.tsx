@@ -1,7 +1,7 @@
-import { defineStore } from './defineStore';
-import { StoreTypeId } from './models';
 import { mount } from 'enzyme';
 import { FunctionComponent, useContext } from 'react';
+import { defineStore } from './defineStore';
+import { StoreTypeId } from './models';
 import { StoreContext } from './context';
 
 describe('useStore - defineStore', () => {

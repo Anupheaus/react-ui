@@ -10,6 +10,7 @@ interface IBoundFuncState<T extends AnonymousFunction> {
 
 function createBoundFactory(config: IUseBoundConfig): UseBoundFunction {
   return <TFunc extends AnonymousFunction>(func: TFunc) => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
     const boundFunc = useBoundFunc(func);
     if (config.whenUnmounted) { boundFunc.whenUnmounted(config.whenUnmounted as TFunc); }
     return boundFunc;
@@ -29,7 +30,7 @@ function useBoundFunc<TFunc extends AnonymousFunction>(func: TFunc): UseBoundFun
     whenUnmounted: undefined,
   });
   if (!state.current.stub) {
-    state.current.stub = ((...args: any[]) => {
+    state.current.stub = ((...args: unknown[]) => {
       if (state.current.whenUnmounted && isUnmountedRef.current) { return state.current.whenUnmounted(...args); }
       if (!state.current.func) { throw new Error('This bound method has been called after being disposed.'); }
       return state.current.func(...args);

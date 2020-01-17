@@ -1,7 +1,7 @@
 import { FunctionComponent, ReactElement } from 'react';
 import { IMap } from 'anux-common';
-import { useActions } from './useActions';
 import { mount } from 'enzyme';
+import { useActions } from './useActions';
 
 interface IProps {
   actions: IMap<Function>;

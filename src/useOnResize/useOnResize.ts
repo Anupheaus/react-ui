@@ -3,7 +3,7 @@ import { HTMLTargetDelegate, useSingleDOMRef } from '../useDOMRef';
 import { useStaticState } from '../useStaticState';
 
 interface IResizeObserverEntry {
-  target: HTMLElement & { parentElement: HTMLElement & { resizeCallback(): void; }; resizeCallback(): void; };
+  target: HTMLElement & { parentElement: HTMLElement & { resizeCallback(): void }; resizeCallback(): void };
 }
 
 const ResizeObserver = window['ResizeObserver'];

@@ -2,16 +2,22 @@ import { IMap } from 'anux-common';
 import { useRef } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
 import { useInlineKeyCreator } from '../useInlineKeyCreator';
-import { SharedHookState } from '../useSharedHookState';
+import { useSharedHookState } from '../useSharedHookState';
+
+interface IBinderOptions {
+  debug?: boolean;
+  key?: string;
+}
 
 interface IInlineDelegate {
   delegate(...args: unknown[]): unknown;
   func(...args: unknown[]): unknown;
 }
 
-export type Binder = <TDelegate extends (...args: any[]) => any>(delegate: TDelegate) => TDelegate;
+export type Binder = <TDelegate extends (...args: any[]) => any>(delegate: TDelegate, options?: IBinderOptions) => TDelegate;
 
-export function useBinder(sharedHookState: SharedHookState): Binder {
+export function useBinder(): Binder {
+  const sharedHookState = useSharedHookState();
   const [createKey] = useInlineKeyCreator(sharedHookState);
   const delegateStoreRef = useRef<IMap<IInlineDelegate>>({});
 
@@ -26,12 +32,17 @@ export function useBinder(sharedHookState: SharedHookState): Binder {
     return delegateStoreRef.current[key].delegate(...args);
   };
 
-  const binder: Binder = <TDelegate extends (...args: any[]) => any>(delegate: TDelegate): TDelegate => {
-    const key = createKey();
+  function binder<TDelegate extends (...args: any[]) => any>(delegate: TDelegate, options?: IBinderOptions): TDelegate {
+    const { debug, key: from }: IBinderOptions = {
+      debug: false,
+      key: delegate.toString(),
+      ...options,
+    };
+    const key = createKey({ from, debug });
     const data = delegateStoreRef.current[key] = delegateStoreRef.current[key] || { delegate, func: createFunc(key) };
     data.delegate = delegate;
     return data.func as TDelegate;
-  };
+  }
 
   return binder;
 }

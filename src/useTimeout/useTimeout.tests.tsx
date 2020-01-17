@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
-import { useTimeout } from './useTimeout';
 import { mount } from 'enzyme';
+import { useTimeout } from './useTimeout';
 
 describe('useTimeout', () => {
 

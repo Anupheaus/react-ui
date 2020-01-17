@@ -24,11 +24,11 @@ function formatValue(indent: number, info: Reflect.ITypeOf): string {
     const keys = Object.keys(info.value).sort().map(key => `${addIndent(indent + 1)}${key}: ${formatValue(indent + 1, Reflect.typeOf(info.value[key]))}`);
     return `{${keys.length > 0 ? '\n' : ''}${keys}${keys.length > 0 ? ',\n' : ''}${addIndent(keys.length > 0 ? indent : 0)}}`;
   } else if (info.isArray) {
-    return `[\n${info.value.map((val, index) => `${addIndent(indent + 1)}${index}: ${formatValue(indent + 1, Reflect.typeOf(val))},`)}\n${addIndent(indent)}]`;
+    return `[\n${(info.value as []).map((val, index) => `${addIndent(indent + 1)}${index}: ${formatValue(indent + 1, Reflect.typeOf(val))},`)}\n${addIndent(indent)}]`;
   } else if (info.isString) {
     return `'${info.value}'`;
   } else if (info.isDate) {
-    return `${Date.format(info.value)} ${(info.value as Date).getMilliseconds()}`;
+    return `${Date.format(info.value as number)} ${(info.value as Date).getMilliseconds()}`;
   } else if (info.isInstance) {
     return `[Instance: ${info.value.constructor.name}]`;
   } else if (info.isFunction) {
@@ -36,13 +36,13 @@ function formatValue(indent: number, info: Reflect.ITypeOf): string {
     if (functionString.length > 50) { functionString = `${functionString.substr(0, 25)}...${functionString.substr(functionString.length - 25)}`; }
     return `[${functionString}]`;
   } else if (info.isPrototype) {
-    return `[Type: ${info.value.name}]`;
+    return `[Type: ${(info.value as Function).name}]`;
   } else {
     return info.value.toString();
   }
 }
 
-function diffArray(indent: number, infoA: Reflect.ITypeOf<any[]>, infoB: Reflect.ITypeOf<any[]>): string {
+function diffArray(indent: number, infoA: Reflect.ITypeOf<unknown[]>, infoB: Reflect.ITypeOf<unknown[]>): string {
   const max = Math.max(infoA.value.length, infoB.value.length);
   const compareValues = (index: number) => {
     const valA = index < infoA.value.length ? Reflect.typeOf(infoA.value[index]) : null;
@@ -52,6 +52,7 @@ function diffArray(indent: number, infoA: Reflect.ITypeOf<any[]>, infoB: Reflect
     } else if (valB == null && valA != null && valA.isUndefined) {
       return '%rsundefined%cl';
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-use-before-define
       return diffValues(indent + 1, Reflect.typeOf(infoA.value[index]), Reflect.typeOf(infoB.value[index]));
     }
   };
@@ -68,6 +69,7 @@ function diffReactElement(indent: number, infoA: Reflect.ITypeOf<React.ReactElem
   const elementA = (({ type, key, props }) => ({ type, key, props }))(infoA.value);
   const elementB = (({ type, key, props }) => ({ type, key, props }))(infoB.value);
 
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return diffObject(indent, Reflect.typeOf(elementA), Reflect.typeOf(elementB), false);
 }
 
@@ -91,13 +93,13 @@ function diffNonMatching(indent: number, infoA: Reflect.ITypeOf, infoB: Reflect.
   }
 }
 
-function diffObject(indent: number, infoA: Reflect.ITypeOf, infoB: Reflect.ITypeOf, sortKeys: boolean = true): string {
+function diffObject(indent: number, infoA: Reflect.ITypeOf, infoB: Reflect.ITypeOf, sortKeys = true): string {
   const keysA = Object.keys(infoA.value);
   const keysB = Object.keys(infoB.value);
   let combinedKeys = keysA.concat(keysB).distinct();
   if (sortKeys) { combinedKeys = combinedKeys.sort(); }
   return [
-    log(0, `{\n`),
+    log(0, '{\n'),
     ...combinedKeys
       .map(key => log(indent + 1, `${key}: ${diffValues(indent + 1, Reflect.typeOf(infoA.value[key]), Reflect.typeOf(infoB.value[key]))},\n`)),
     log(indent, '}'),

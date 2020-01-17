@@ -1,7 +1,7 @@
 import { FunctionComponent, CSSProperties } from 'react';
-import { useOnResize } from './useOnResize';
 import { mount, ReactWrapper } from 'enzyme';
 import { ISize } from 'anux-common';
+import { useOnResize } from './useOnResize';
 
 describe('useOnResize', () => {
 
@@ -20,7 +20,7 @@ describe('useOnResize', () => {
       fullCount: 0,
       component: undefined as ReactWrapper<any, Readonly<{}>, React.Component<{}, {}, any>>,
     };
-    const Component: FunctionComponent<{ style: CSSProperties; }> = ({ style }) => {
+    const Component: FunctionComponent<{ style: CSSProperties }> = ({ style }) => {
       let watchForResizes = useOnResize({
         onVisible: (size, prevSize) => {
           state.visible = size;

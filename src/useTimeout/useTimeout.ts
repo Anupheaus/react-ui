@@ -1,7 +1,6 @@
 import { useRef, useEffect } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
 import { useBinder } from '../useBinder';
-import { useSharedHookState } from '../useSharedHookState';
 
 interface IOptions {
   triggerOnUnmount?: boolean;
@@ -16,8 +15,7 @@ export function useTimeout(delegate: () => void, timeout: number, options?: IOpt
   };
 
   const timeoutRef = useRef(null);
-  const sharedHookState = useSharedHookState();
-  const bind = useBinder(sharedHookState);
+  const bind = useBinder();
 
   const cancelTimeout = bind(() => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); }

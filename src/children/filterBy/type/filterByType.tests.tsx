@@ -21,15 +21,15 @@ describe('children > filterBy > type', () => {
       <>
         <Component1>
           test1
-      </Component1>
+        </Component1>
         <Component2>
           <Component1>
             Blah
-        </Component1>
+          </Component1>
         </Component2>
         <Component1>
           test3
-      </Component1>
+        </Component1>
         <div></div>
         test
     </>

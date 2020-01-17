@@ -1,12 +1,12 @@
 import { ISize, IGeometry, ICoordinates } from 'anux-common';
-import { IUseDragAndResizeResult, IDragAndResizeConfig } from './models';
 import { HTMLTargetDelegate, useSingleDOMRef } from '../useDOMRef';
 import { useOnResize } from '../useOnResize';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
-import { createResizeTarget, addOrRemoveResizeHandles } from './resizing';
 import { useStaticState, SetStaticState } from '../useStaticState';
 import { useOnDrag, IOnDragData } from '../useOnDrag';
+import { createResizeTarget, addOrRemoveResizeHandles } from './resizing';
+import { IUseDragAndResizeResult, IDragAndResizeConfig } from './models';
 import './useDragAndResize.scss';
 
 const ElementClassName = 'anux-drag-and-resize';

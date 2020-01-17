@@ -1,6 +1,6 @@
-import { anuxPureFunctionComponent } from './anuxFunctionComponent';
 import { mount } from 'enzyme';
 import { ReactElement } from 'react';
+import { anuxPureFunctionComponent } from './anuxFunctionComponent';
 
 describe('anuxComponents', () => {
 
@@ -37,7 +37,7 @@ describe('anuxComponents', () => {
         );
       });
 
-      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string; }>('Component', ({
+      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string }>('Component', ({
         index
       }) => {
         return (
@@ -53,11 +53,11 @@ describe('anuxComponents', () => {
     });
 
     it('does warn when the children are different unnecessarily', () => {
-      const SubComponent = anuxPureFunctionComponent<{ children(): ReactElement; }>('SubComponent', ({
+      const SubComponent = anuxPureFunctionComponent<{ children(): ReactElement }>('SubComponent', ({
         children,
       }) => children());
 
-      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string; }>('Component', ({
+      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string }>('Component', ({
         index
       }) => {
         return (
@@ -73,7 +73,7 @@ describe('anuxComponents', () => {
     });
 
     it('does warn when the properties are different unnecessarily', () => {
-      const SubComponent = anuxPureFunctionComponent<{ obj: Object; }>('SubComponent', ({
+      const SubComponent = anuxPureFunctionComponent<{ obj: Object }>('SubComponent', ({
         obj,
       }) => {
         return (
@@ -81,11 +81,11 @@ describe('anuxComponents', () => {
         );
       });
 
-      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string; }>('Component', ({
+      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string }>('Component', ({
         index,
       }) => {
         // @ts-ignore
-        let _ignore = index;
+        const _ignore = index;
 
         return (
           <SubComponent obj={{ something: 'hey' }} />
@@ -105,7 +105,7 @@ describe('anuxComponents', () => {
 
     it('does not warn when the properties are different unnecessarily and in production mode', () => {
       process.env.NODE_ENV = 'production';
-      const SubComponent = anuxPureFunctionComponent<{ obj: Object; }>('SubComponent', ({
+      const SubComponent = anuxPureFunctionComponent<{ obj: Object }>('SubComponent', ({
         obj,
       }) => {
         return (
@@ -113,11 +113,11 @@ describe('anuxComponents', () => {
         );
       });
 
-      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string; }>('Component', ({
+      const Component = anuxPureFunctionComponent<{ index: number; somethingElse: string }>('Component', ({
         index,
       }) => {
         // @ts-ignore
-        let _ignore = index;
+        const _ignore = index;
 
         return (
           <SubComponent obj={{ something: 'hey' }} />

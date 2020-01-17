@@ -1,5 +1,5 @@
-import { HTMLTargetDelegate } from '../useDOMRef';
 import { IGeometry } from 'anux-common';
+import { HTMLTargetDelegate } from '../useDOMRef';
 
 export interface IUseDragAndResizeResult {
   dragTarget: HTMLTargetDelegate;

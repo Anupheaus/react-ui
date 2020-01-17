@@ -1,8 +1,8 @@
-import { defineStore } from './defineStore';
 import { FunctionComponent } from 'react';
-import { useStore } from './useStore';
 import { mount, ReactWrapper } from 'enzyme';
 import { IMap, bind } from 'anux-common';
+import { useStore } from './useStore';
+import { defineStore } from './defineStore';
 
 describe('useStore', () => {
 
@@ -81,7 +81,7 @@ describe('useStore', () => {
       component: undefined as ReactWrapper<any, any>,
     };
 
-    const Component: FunctionComponent<{ level: number; }> = ({ level }) => {
+    const Component: FunctionComponent<{ level: number }> = ({ level }) => {
       const [storeData, actions] = useStore(TestStore);
       results.levels[level].data = storeData as IData;
       results.levels[level].refreshCount++;
