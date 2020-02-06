@@ -1,10 +1,10 @@
 import { useRef, useEffect } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
-import { useBinder } from '../useBinder';
+import { useBound } from '../useBound';
 
 interface IOptions {
   triggerOnUnmount?: boolean;
-  dependencies?: any[];
+  dependencies?: unknown[];
 }
 
 export function useTimeout(delegate: () => void, timeout: number, options?: IOptions): () => void {
@@ -15,9 +15,8 @@ export function useTimeout(delegate: () => void, timeout: number, options?: IOpt
   };
 
   const timeoutRef = useRef(null);
-  const bind = useBinder();
 
-  const cancelTimeout = bind(() => {
+  const cancelTimeout = useBound(() => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); }
     timeoutRef.current = null;
   });

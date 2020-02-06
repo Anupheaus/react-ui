@@ -1,3 +1,3 @@
-export * from './src/useOnDrop/harness';
-export * from './src/useOnResize/harness';
-export * from './src/useDragAndResize/harness';
+import './src/useOnDrop/harness';
+import './src/useOnResize/harness';
+import './src/useDragAndResize/harness';

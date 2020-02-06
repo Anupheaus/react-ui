@@ -7,17 +7,17 @@ import { areShallowEqual } from '../areEqual';
 
 interface IInlineMemoOptions {
   key?: string;
-  dependencies?: any[];
+  dependencies?: unknown[];
   debug?: boolean;
 }
 
 interface IInlineMemoData {
-  dependencies: any[];
-  lastValue: any;
+  dependencies: unknown[];
+  lastValue: unknown;
 }
 
 export interface InlineMemo {
-  <TResult, TDelegate extends () => TResult = () => TResult>(delegate: TDelegate, dependencies?: any[]): TResult;
+  <TResult, TDelegate extends () => TResult = () => TResult>(delegate: TDelegate, dependencies?: unknown[]): TResult;
   <TResult, TDelegate extends () => TResult = () => TResult>(delegate: TDelegate, options?: IInlineMemoOptions): TResult;
 }
 
@@ -29,7 +29,7 @@ export function useInlineMemo(): InlineMemo {
     dataStoreRef.current = null; // free up all data
   });
 
-  function memo<TResult, TDelegate extends () => TResult = () => TResult>(delegate: TDelegate, dependenciesOrOptions?: (any[]) | IInlineMemoOptions): TResult {
+  function memo<TResult, TDelegate extends () => TResult = () => TResult>(delegate: TDelegate, dependenciesOrOptions?: (unknown[]) | IInlineMemoOptions): TResult {
     const { key: from, dependencies, debug }: IInlineMemoOptions = {
       key: delegate.toString(),
       dependencies: dependenciesOrOptions instanceof Array ? dependenciesOrOptions : [],
@@ -40,7 +40,7 @@ export function useInlineMemo(): InlineMemo {
     const key = createKey({ from, debug });
     const data = dataStoreRef.current[key] = dataStoreRef.current[key] || { dependencies } as IInlineMemoData;
     if (!Reflect.has(data, 'lastValue') || !areShallowEqual(data.dependencies, dependencies)) { data.lastValue = delegate(); }
-    return data.lastValue;
+    return data.lastValue as TResult;
   }
 
   return memo;

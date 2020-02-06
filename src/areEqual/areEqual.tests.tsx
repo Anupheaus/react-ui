@@ -1,5 +1,5 @@
+/* eslint-disable max-classes-per-file */
 import { PureComponent } from 'react';
-import '../global';
 import { areDeepEqual, areShallowEqual } from './areEqual';
 
 class Component1 extends PureComponent {

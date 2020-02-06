@@ -1,5 +1,5 @@
 import { mount, ReactWrapper } from 'enzyme';
-import { anuxPureFunctionComponent } from '../anuxComponents';
+import { anuxPureFC } from '../anuxComponents';
 import { useLooper } from './useLooper';
 
 interface ILooperData {
@@ -15,7 +15,7 @@ describe('useLooper', () => {
       mount(): ReactWrapper { throw new Error('This should not have been called.'); },
     };
 
-    const TestComponent = anuxPureFunctionComponent('TestComponent', () => {
+    const TestComponent = anuxPureFC('TestComponent', () => {
       const loop = useLooper();
       const data1 = ['one', 'two', 'three', 'four'];
       const data2 = ['ten', 'nine', 'eight', 'seven'];

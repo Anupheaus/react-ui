@@ -28,7 +28,7 @@ function formatValue(indent: number, info: Reflect.ITypeOf): string {
   } else if (info.isString) {
     return `'${info.value}'`;
   } else if (info.isDate) {
-    return `${Date.format(info.value as number)} ${(info.value as Date).getMilliseconds()}`;
+    return `${Date.format(info.value as unknown as number)} ${(info.value as Date).getMilliseconds()}`;
   } else if (info.isInstance) {
     return `[Instance: ${info.value.constructor.name}]`;
   } else if (info.isFunction) {
@@ -53,7 +53,7 @@ function diffArray(indent: number, infoA: Reflect.ITypeOf<unknown[]>, infoB: Ref
       return '%rsundefined%cl';
     } else {
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-      return diffValues(indent + 1, Reflect.typeOf(infoA.value[index]), Reflect.typeOf(infoB.value[index]));
+      return diffValues(indent + 1, Reflect.typeOf(infoA.value[index] as object), Reflect.typeOf(infoB.value[index] as object));
     }
   };
   return [

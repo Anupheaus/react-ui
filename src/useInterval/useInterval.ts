@@ -4,7 +4,7 @@ import { useBound } from '../useBound';
 
 interface IOptions {
   triggerOnUnmount?: boolean;
-  dependencies: unknown[];
+  dependencies?: unknown[];
 }
 
 export function useInterval(delegate: () => void, interval: number, options?: IOptions): () => void {
@@ -13,16 +13,17 @@ export function useInterval(delegate: () => void, interval: number, options?: IO
     dependencies: [],
     ...options,
   };
-
   const intervalRef = useRef(null);
-  useMemo(() => {
-    intervalRef.current = setInterval(delegate, interval);
-  }, dependencies);
 
   const cancelInterval = useBound(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); }
     intervalRef.current = null;
   });
+
+  useMemo(() => {
+    cancelInterval();
+    intervalRef.current = setInterval(delegate, interval);
+  }, dependencies);
 
   useOnUnmount(() => {
     if (triggerOnUnmount && intervalRef.current) { delegate(); }

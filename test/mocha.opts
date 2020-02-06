@@ -1,0 +1,5 @@
+--require ts-node/register
+--require jsdom-global/register
+--require anux-common
+--require ./test/setup.ts
+./src/**/*.tests.+(ts|tsx)

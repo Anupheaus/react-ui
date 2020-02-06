@@ -1,4 +1,4 @@
-import { createHarness } from 'anux-package';
+import { registerHarness } from 'anux-react-package';
 import { useState, ChangeEvent, ReactNode } from 'react';
 import { ISize } from 'anux-common';
 import { Switch, Button } from '@material-ui/core';
@@ -15,7 +15,7 @@ interface IState {
   content: ReactNode[];
 }
 
-export const onResizeHarness = createHarness({ name: 'useOnResize' }, () => {
+registerHarness({ name: 'useOnResize' }, () => {
   const [state, setState] = useState<IState>({
     isDisabled: false,
     full: { width: 0, height: 0 },

@@ -1,4 +1,4 @@
-import { createHarness } from 'anux-package';
+import { registerHarness } from 'anux-react-package';
 import './harness.scss';
 import { Switch } from '@material-ui/core';
 import { useState, ChangeEvent, useRef } from 'react';
@@ -13,7 +13,7 @@ interface IState {
   geometry: IGeometry;
 }
 
-export const useDragAndResizeHarness = createHarness({ name: 'useDragAndResize' }, () => {
+registerHarness({ name: 'useDragAndResize' }, () => {
   const [state, setState] = useState<IState>({
     isMovable: true,
     isResizable: true,

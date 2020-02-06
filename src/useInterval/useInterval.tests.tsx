@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import { FC } from 'react';
 import { mount } from 'enzyme';
 import { useInterval } from './useInterval';
 
@@ -12,7 +12,7 @@ describe('useInterval', () => {
       dispose: undefined as VoidFunction,
     };
 
-    const Component: FunctionComponent = () => {
+    const Component: FC = () => {
 
       result.refreshCount++;
 

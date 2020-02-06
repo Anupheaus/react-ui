@@ -1,6 +1,6 @@
 import { mount, ReactWrapper } from 'enzyme';
 import { ReactNode, useRef } from 'react';
-import { anuxPureFunctionComponent } from '../anuxComponents';
+import { anuxPureFC } from '../anuxComponents';
 import { useSharedHookState } from '../useSharedHookState';
 import { useInlineKeyCreator, CreateKeyType } from './useInlineKeyCreator';
 
@@ -13,7 +13,7 @@ describe('useInlineKeyCreator', () => {
       updateSuffix(_suffix: string): void { throw new Error('This should not have been called.'); },
     };
 
-    const TestComponent = anuxPureFunctionComponent('TestComponent', () => {
+    const TestComponent = anuxPureFC('TestComponent', () => {
       const sharedHookState = useSharedHookState();
       const [createKey, suffixUpdater] = useInlineKeyCreator(sharedHookState);
 
@@ -65,7 +65,7 @@ describe('useInlineKeyCreator', () => {
   it('works regardless of how the surrounding code is called', () => {
     const keys: string[] = [];
     let invokeChildren: () => void;
-    const SubComponent = anuxPureFunctionComponent<{ children(): ReactNode }>('SubComponent', ({ children }) => {
+    const SubComponent = anuxPureFC<{ children(): ReactNode }>('SubComponent', ({ children }) => {
       const renderedChildren = useRef<ReactNode>(null);
       invokeChildren = () => {
         renderedChildren.current = children();
@@ -78,7 +78,7 @@ describe('useInlineKeyCreator', () => {
       );
     });
 
-    const Component = anuxPureFunctionComponent('Component', () => {
+    const Component = anuxPureFC('Component', () => {
       const [createKey] = useInlineKeyCreator(useSharedHookState());
       const renderKey = () => {
         const key = createKey({ from: 'a' });

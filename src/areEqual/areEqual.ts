@@ -5,6 +5,7 @@ function compareElements(elementA: React.ReactElement<any>, elementB: React.Reac
   const isBElement = React.isValidElement(elementB);
   if (!isAElement && !isBElement) { return; }
   if (elementA.type !== elementB.type || elementA.key !== elementB.key) { return false; }
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
   return areDeepEqual(elementA.props, elementB.props);
 }
 

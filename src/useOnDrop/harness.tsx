@@ -1,9 +1,9 @@
-import { createHarness } from 'anux-package';
+import { registerHarness } from 'anux-react-package';
 import '../extensions';
 import './harness.scss';
 import { ICoordinates } from 'anux-common';
 import { useState, CSSProperties } from 'react';
-import { CustomTag } from '../customTag';
+import { Tag } from '../tag';
 import { useOnDrag } from '../useOnDrag';
 import { useOnDrop } from './useOnDrop';
 
@@ -19,7 +19,7 @@ interface IData {
   something: string;
 }
 
-export const onDropHarness = createHarness({ name: 'onDrop' }, () => {
+registerHarness({ name: 'onDrop' }, () => {
   const [state, setState] = useState<IState>({
     state: 'idle',
     coordinates: {
@@ -57,14 +57,14 @@ export const onDropHarness = createHarness({ name: 'onDrop' }, () => {
 
   return (
     <>
-      <CustomTag name="dragging-details" className="boo">
-        <CustomTag name="dragging-details-state">State: {state.state}</CustomTag>
-        <CustomTag name="dragging-details-coordinates">Coordinates: {`${state.coordinates.x}, ${state.coordinates.y}`}</CustomTag>
-        <CustomTag name="dragging-details-coordinates-diff">Difference: {`${state.coordinatesDiff.x}, ${state.coordinatesDiff.y}`}</CustomTag>
-        <CustomTag name="dragging-details-dragged-data">Dragged Data: {JSON.stringify(state.draggableData)}</CustomTag>
-      </CustomTag>
-      <CustomTag name="drop-box" ref={dropTarget} />
-      <CustomTag name="draggable-box" ref={dragTarget} style={state.style} />
+      <Tag name="dragging-details" className="boo">
+        <Tag name="dragging-details-state">State: {state.state}</Tag>
+        <Tag name="dragging-details-coordinates">Coordinates: {`${state.coordinates.x}, ${state.coordinates.y}`}</Tag>
+        <Tag name="dragging-details-coordinates-diff">Difference: {`${state.coordinatesDiff.x}, ${state.coordinatesDiff.y}`}</Tag>
+        <Tag name="dragging-details-dragged-data">Dragged Data: {JSON.stringify(state.draggableData)}</Tag>
+      </Tag>
+      <Tag name="drop-box" ref={dropTarget} />
+      <Tag name="draggable-box" ref={dragTarget} style={state.style} />
     </>
   );
 });

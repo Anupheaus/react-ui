@@ -1,25 +1,25 @@
 import { mount } from 'enzyme';
-import { anuxPureFunctionComponent } from '../anuxComponents';
+import { anuxPureFC } from '../anuxComponents';
 import { useLooper } from '../useLooper';
 import { useInlineMemo } from './useInlineMemo';
 
+interface IProps {
+  dependencies: unknown[];
+  calculation(): number;
+  onRender(): void;
+}
+
+const TestComponent = anuxPureFC<IProps>('TestComponent', ({ calculation, dependencies, onRender }) => {
+  const memo = useInlineMemo();
+
+  onRender();
+
+  return (
+    <div>{memo(calculation, dependencies)}</div>
+  );
+});
+
 describe('useInlineMemo', () => {
-
-  interface IProps {
-    dependencies: any[];
-    calculation(): number;
-    onRender(): void;
-  }
-
-  const TestComponent = anuxPureFunctionComponent<IProps>('TestComponent', ({ calculation, dependencies, onRender }) => {
-    const memo = useInlineMemo();
-
-    onRender();
-
-    return (
-      <div>{memo(calculation, dependencies)}</div>
-    );
-  });
 
   it('returns the same value each time without any dependencies', () => {
     let calculationCount = 0;
@@ -153,7 +153,7 @@ describe('useInlineMemo', () => {
     let itemRenderCount = 0;
     let calculationCount = 0;
 
-    const ItemComponent = anuxPureFunctionComponent<{ something: string; render: string }>('ItemComponent', ({
+    const ItemComponent = anuxPureFC<{ something: string; render: string }>('ItemComponent', ({
       render,
     }) => {
       itemRenderCount++;
@@ -162,7 +162,7 @@ describe('useInlineMemo', () => {
       );
     });
 
-    const Component = anuxPureFunctionComponent<{ something?: string; indexStart?: number }>('Component', ({
+    const Component = anuxPureFC<{ something?: string; indexStart?: number }>('Component', ({
       something,
       indexStart = 1,
     }) => {

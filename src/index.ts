@@ -1,7 +1,6 @@
 import './typeOf';
 import './extensions';
 
-export * from './binder';
 export * from './areEqual';
 export * from './useClasses';
 export * from './createStyle';
@@ -16,7 +15,7 @@ export * from './useOnUnmount';
 export * from './useOnMount';
 export * from './useForceUpdate';
 // export * from './useDataState';
-export * from './customTag';
+export * from './tag';
 // export * from './useOnDrag';
 // export * from './useOnDrop';
 export * from './useDOMRef';
@@ -28,6 +27,8 @@ export * from './useStore';
 export * from './useInterval';
 export * from './useTimeout';
 export * from './anuxComponents';
-export * from './useBinder';
 export * from './useLooper';
 export * from './useInlineMemo';
+export * from './useId';
+export * from './useDebounce';
+export * from './useOnChange';
