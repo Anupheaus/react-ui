@@ -8,8 +8,11 @@ interface IDimensionOptions {
   excludingBorder?: boolean;
 }
 
-function getNumericDimensions(element: HTMLElement) {
-  const style: CSSStyleDeclaration = element ? (windowObj.getComputedStyle ? windowObj.getComputedStyle(element) : element['currentStyle']) : {};
+const windowObj = typeof (window) === 'undefined' ? undefined : window;
+
+function getNumericDimensions(element: HTMLElement | null) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const style: CSSStyleDeclaration = element ? (windowObj && windowObj.getComputedStyle ? windowObj.getComputedStyle(element) : (element as any).currentStyle) : {};
   const getValue = (value: string): number => parseInt(value, 0) || 0;
   const { marginTop, marginLeft, marginRight, marginBottom, paddingTop, paddingLeft, paddingRight, paddingBottom, borderTopWidth, borderLeftWidth, borderRightWidth,
     borderBottomWidth } = style;
@@ -34,8 +37,8 @@ class HTMLElementExtensions {
 
   public pageCoordinates(): ICoordinates;
   public pageCoordinates(this: HTMLElement): ICoordinates {
-    const scrollLeft = windowObj.pageXOffset || document.documentElement.scrollLeft;
-    const scrollTop = windowObj.pageYOffset || document.documentElement.scrollTop;
+    const scrollLeft = (windowObj ? windowObj.pageXOffset : undefined) ?? document.documentElement.scrollLeft;
+    const scrollTop = (windowObj ? windowObj.pageYOffset : undefined) ?? document.documentElement.scrollTop;
     const screenCoordinates = this.screenCoordinates();
 
     return {
@@ -142,7 +145,6 @@ class HTMLElementExtensions {
 
 }
 
-const windowObj = typeof (window) === 'undefined' ? undefined : global['window'];
 if (windowObj) { Object.extendPrototype(windowObj['HTMLElement'].prototype, HTMLElementExtensions.prototype); }
 
 declare global { interface HTMLElement extends HTMLElementExtensions { } }

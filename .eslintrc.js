@@ -1,1 +1,1 @@
-module.exports = require('anux-react-package/configs/eslint');
+module.exports = require('anux-package/configs/eslint');

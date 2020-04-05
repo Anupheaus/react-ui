@@ -1,80 +1,92 @@
-import { FunctionComponent } from 'react';
 import { mount } from 'enzyme';
 import { useTimeout } from './useTimeout';
+import { anuxFC } from '../anuxComponents';
+import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
 describe('useTimeout', () => {
 
-  function createComponent(timeout: number, options?: Parameters<typeof useTimeout>[2]) {
-    const result = {
-      refreshCount: 0,
-      cancel: undefined as VoidFunction,
-      timeoutTriggerCount: 0,
-      dispose: undefined as VoidFunction,
-    };
-
-    const Component: FunctionComponent = () => {
-
-      result.refreshCount++;
-
-      result.cancel = useTimeout(() => {
-        result.timeoutTriggerCount++;
-      }, timeout, options);
-
-      return null;
-    };
-
-    const component = mount(<Component />);
-
-    result.dispose = () => {
-      component.unmount();
-    };
-
-    return result;
+  interface Props {
+    refreshCount: number;
+    cancel: VoidFunction;
+    timeoutTriggerCount: number;
+    dispose: VoidFunction;
+    clock: SinonFakeTimers;
   }
 
-  it('can create a timeout', async () => {
-    const result = createComponent(5);
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.timeoutTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
+  function test(description: string, timeout: number, options: Parameters<typeof useTimeout>[2], delegate: (props: Props) => Promise<void>): void {
+    it(description, async () => {
+      const props = {
+        refreshCount: 0,
+        cancel: undefined as unknown as VoidFunction,
+        timeoutTriggerCount: 0,
+        dispose: undefined as unknown as VoidFunction,
+        clock: useFakeTimers(),
+      };
+      let hasBeenUnmounted = false;
+
+      const Component = anuxFC('Component', () => {
+        props.refreshCount++;
+        props.cancel = useTimeout(() => {
+          props.timeoutTriggerCount++;
+        }, timeout, options);
+        return (<div></div>);
+      });
+
+      const component = mount(<Component />);
+
+      props.dispose = () => {
+        if (hasBeenUnmounted) return;
+        hasBeenUnmounted = true;
+        component.unmount();
+      };
+
+      await delegate(props);
+
+      props.clock.restore();
+
+      props.dispose();
+
+    });
+  }
+
+  test('can create a timeout', 5, {}, async props => {
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.timeoutTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('timeout is not called if component is disposed before being triggered', async () => {
-    const result = createComponent(5);
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
-    await Promise.delay(6);
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
+  test('timeout is not called if component is disposed before being triggered', 5, {}, async props => {
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
+    props.clock.tick(6);
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('can be triggered on unmount if required', async () => {
-    const result = createComponent(5, { triggerOnUnmount: true });
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
-    expect(result.timeoutTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.timeoutTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
+  test('can be triggered on unmount if required', 5, { triggerOnUnmount: true }, async props => {
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
+    expect(props.timeoutTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.timeoutTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('can be manually cancelled', async () => {
-    const result = createComponent(5, { triggerOnUnmount: true });
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.cancel();
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.timeoutTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
+  test('can be manually cancelled', 5, {}, async props => {
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.cancel();
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.timeoutTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
   });
 
 });

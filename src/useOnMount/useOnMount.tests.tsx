@@ -1,20 +1,20 @@
-import { FunctionComponent } from 'react';
 import { mount } from 'enzyme';
 import { useOnMount } from './useOnMount';
+import { anuxFC } from '../anuxComponents';
 
 describe('useOnMount', () => {
 
   interface IProps {
-    value?: any;
+    value?: unknown;
     onMounted(): void;
   }
 
-  const TestComponent: FunctionComponent<IProps> = ({ onMounted }) => {
+  const TestComponent = anuxFC<IProps>('TestComponent', ({ onMounted }) => {
 
     useOnMount(onMounted);
 
-    return null;
-  };
+    return (<div></div>);
+  });
 
   it('calls the method when mounted', async () => {
     let hasMountedBeenCalled = false;
@@ -26,6 +26,8 @@ describe('useOnMount', () => {
     const component = mount((
       <TestComponent onMounted={handleMounted} />
     ));
+
+    await Promise.delay(1);
 
     expect(hasMountedBeenCalled).to.be.true;
 
@@ -42,6 +44,8 @@ describe('useOnMount', () => {
     const component = mount((
       <TestComponent onMounted={handleMounted} />
     ));
+
+    await Promise.delay(1);
 
     expect(mountedCallCount).to.eq(1);
     component.setProps({ value: 'something' });

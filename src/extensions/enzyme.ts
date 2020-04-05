@@ -12,5 +12,5 @@ declare module 'enzyme' {
 }
 
 enzyme.ReactWrapper.prototype.simulateEvent = function simulateEvent(this: enzyme.ReactWrapper, eventName: string, eventData?: Object) {
-  (this.getDOMNode() as HTMLElement).simulateEvent(eventName, eventData);
+  (this.getDOMNode() as HTMLElement).simulateEvent(eventName, eventData ?? {});
 };

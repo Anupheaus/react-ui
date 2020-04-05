@@ -1,10 +1,10 @@
 import { mount } from 'enzyme';
-import { useBound } from './useBound';
+import { useDelegatedBound } from './useDelegatedBound';
 import { anuxFC } from '../anuxComponents';
 
 interface Props {
   value: number;
-  onGetValue(getValue: () => number): void;
+  onGetValue(getValue: (key: string | number, provided: string) => () => [number, string]): void;
   onRendered(): void;
 }
 
@@ -13,7 +13,7 @@ const TestComponent = anuxFC<Props>('TestComponent', ({
   onGetValue,
   onRendered,
 }) => {
-  const getValue = useBound(() => value);
+  const getValue = useDelegatedBound((provided: string) => (): [number, string] => [value, provided]);
   onGetValue(getValue);
   onRendered();
 
@@ -25,7 +25,7 @@ const TestComponent = anuxFC<Props>('TestComponent', ({
 interface TestProps {
   renderCount: number;
   setValue(value: number): void;
-  getValue(): number;
+  getValue(key: string | number, provided: string): () => [number, string];
   unmount(): void;
 }
 
@@ -48,24 +48,29 @@ function test(name: string, delegate: (props: TestProps) => void): void {
   });
 }
 
-describe('useBound', () => {
+describe('useDelegatedBound', () => {
 
-  test('returns the same function every time', props => {
-    const firstGetFunc = props.getValue;
-    expect(props.getValue()).to.eq(0);
+  test('returns the same function every time the same key is used but is different when a different key is used', props => {
+    const firstGetFunc = props.getValue(0, 'hey');
+    expect(firstGetFunc()).to.eql([0, 'hey']);
     expect(props.renderCount).to.eq(1);
     props.setValue(1);
 
-    const secondGetFunc = props.getValue;
-    expect(props.getValue()).to.eq(1);
+    const secondGetFunc = props.getValue(0, 'there');
+    expect(secondGetFunc()).to.eql([1, 'there']);
     expect(props.renderCount).to.eq(2);
     expect(secondGetFunc).to.eq(firstGetFunc);
+
+    const thirdGetFunc = props.getValue(1, 'boo');
+    expect(thirdGetFunc()).to.eql([1, 'boo']);
+    expect(props.renderCount).to.eq(2);
+    expect(thirdGetFunc).not.to.eq(firstGetFunc);
   });
 
-  test('continues to work even after unmounted by default', props => {
-    props.setValue(100);
-    props.unmount();
-    expect(props.getValue()).to.eq(100);
-  });
+  // test('continues to work even after unmounted by default', props => {
+  //   props.setValue(100);
+  //   props.unmount();
+  //   expect(props.getValue()).to.eq(100);
+  // });
 
 });

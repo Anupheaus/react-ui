@@ -1,33 +1,28 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useMemo } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
 import { useBound } from '../useBound';
 
-interface IOptions {
+interface UseTimeoutOptions {
   triggerOnUnmount?: boolean;
   dependencies?: unknown[];
 }
 
-export function useTimeout(delegate: () => void, timeout: number, options?: IOptions): () => void {
-  options = {
-    triggerOnUnmount: false,
-    dependencies: [],
-    ...options,
-  };
-
-  const timeoutRef = useRef(null);
+export function useTimeout(delegate: () => void, timeout: number, { dependencies = [], triggerOnUnmount = false }: UseTimeoutOptions = {}): () => void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const timeoutRef = useRef<any>();
 
   const cancelTimeout = useBound(() => {
     if (timeoutRef.current) { clearTimeout(timeoutRef.current); }
     timeoutRef.current = null;
   });
 
-  useEffect(() => {
+  useMemo(() => {
     cancelTimeout();
     timeoutRef.current = setTimeout(delegate, timeout);
-  }, options.dependencies);
+  }, dependencies);
 
   useOnUnmount(() => {
-    if (options.triggerOnUnmount && timeoutRef.current) { delegate(); }
+    if (triggerOnUnmount && timeoutRef.current) { delegate(); }
     cancelTimeout();
   });
 

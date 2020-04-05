@@ -1,26 +1,26 @@
 import { createElement, useCallback } from 'react';
 import { anuxPureFC } from '../anuxComponents';
 
-interface IProps extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref'> {
+interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref'> {
   name: string;
 }
 
-export const Tag = anuxPureFC<IProps>('Tag', ({ name, children, ...rest }, passedRef) => {
-  rest = {
-    class: rest['class'] ?? rest.className,
+export const Tag = anuxPureFC<Props>('Tag', ({ name, children, ...rest }, passedRef) => {
+  const props = {
+    class: rest.className,
     is: 'custom-element',
     ...rest,
-  } as unknown;
+  };
   delete rest.className;
 
   const ref = useCallback((element?: HTMLElement) => {
     element?.attributes.removeNamedItem('is');
-    passedRef?.(element);
+    passedRef?.(element ?? null);
   }, [passedRef]);
 
   return createElement(
     name,
-    { key: name, ...rest, ref },
+    { key: name, ...props, ref },
     children,
   );
 });

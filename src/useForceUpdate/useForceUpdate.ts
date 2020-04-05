@@ -1,6 +1,6 @@
-import { useReducer } from 'react';
+import { useState } from 'react';
 
 export function useForceUpdate() {
-  const [value, setValue] = useReducer(x => 1 - x, 0);
-  return () => setValue(value);
+  const [, setValue] = useState({});
+  return () => setValue({});
 }

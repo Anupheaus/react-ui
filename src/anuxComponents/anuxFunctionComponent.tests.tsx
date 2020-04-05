@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { mount } from 'enzyme';
 import { ReactElement } from 'react';
 import { anuxPureFC } from './anuxFunctionComponent';
@@ -5,23 +6,22 @@ import { anuxPureFC } from './anuxFunctionComponent';
 describe('anuxComponents', () => {
 
   describe('anuxPureFunctionComponent', () => {
-    let originalWarning: typeof console.warn = null;
+    let originalWarning: typeof console.warn;
     let hasRaisedWarning = false;
-    let warningArgs: any[] = [];
+    let warningArgs: unknown[] = [];
 
     beforeEach(() => {
       process.env.NODE_ENV = 'development';
       originalWarning = console.warn;
       hasRaisedWarning = false;
-      console.warn = function () {
-        warningArgs = Array.from(arguments).slice(1);
+      console.warn = function (...args: unknown[]) {
+        warningArgs = args.slice(1);
         hasRaisedWarning = true;
       };
     });
 
     afterEach(() => {
       console.warn = originalWarning;
-      originalWarning = null;
       hasRaisedWarning = false;
       warningArgs = [];
     });
@@ -84,7 +84,6 @@ describe('anuxComponents', () => {
       const Component = anuxPureFC<{ index: number; somethingElse: string }>('Component', ({
         index,
       }) => {
-        // @ts-ignore
         const _ignore = index;
 
         return (
@@ -98,8 +97,8 @@ describe('anuxComponents', () => {
       component.setProps({ somethingElse: 'blah' });
       expect(hasRaisedWarning).to.be.true;
       expect(warningArgs.length).to.eq(1);
-      expect(warningArgs[0].length).to.eq(1);
-      expect(warningArgs[0][0]).to.eq('obj');
+      expect((warningArgs[0] as []).length).to.eq(1);
+      expect((warningArgs[0] as string[])[0]).to.eq('obj');
       component.unmount();
     });
 
@@ -116,7 +115,6 @@ describe('anuxComponents', () => {
       const Component = anuxPureFC<{ index: number; somethingElse: string }>('Component', ({
         index,
       }) => {
-        // @ts-ignore
         const _ignore = index;
 
         return (

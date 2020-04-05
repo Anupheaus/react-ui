@@ -1,23 +1,23 @@
-import { FunctionComponent } from 'react';
 import { mount } from 'enzyme';
 import { useOnUnmount } from './useOnUnmount';
+import { anuxFC } from '../anuxComponents';
 
 describe('useOnUnmount', () => {
 
   interface IProps {
-    value?: any;
+    value?: unknown;
     onUnmounted(): void;
     onAfterTimeout?(hasUnmounted: boolean): void;
   }
 
-  const TestComponent: FunctionComponent<IProps> = ({ onUnmounted, onAfterTimeout }) => {
+  const TestComponent = anuxFC<IProps>('TestComponent', ({ onUnmounted, onAfterTimeout }) => {
 
     const hasUnmountedRef = useOnUnmount(onUnmounted);
 
-    setTimeout(() => onAfterTimeout && onAfterTimeout(hasUnmountedRef.current), 5);
+    setTimeout(() => onAfterTimeout && hasUnmountedRef.current != null && onAfterTimeout(hasUnmountedRef.current), 5);
 
-    return null;
-  };
+    return (<div></div>);
+  });
 
   it('calls the method when unmounted', async () => {
     let hasUnmountedBeenCalled = false;

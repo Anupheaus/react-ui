@@ -7,13 +7,11 @@ interface IOptions {
   dependencies?: unknown[];
 }
 
-export function useInterval(delegate: () => void, interval: number, options?: IOptions): () => void {
-  const { dependencies, triggerOnUnmount } = {
-    triggerOnUnmount: false,
-    dependencies: [],
-    ...options,
-  };
-  const intervalRef = useRef(null);
+const emptyArray: unknown[] = [];
+
+export function useInterval(delegate: () => void, interval: number, { dependencies = emptyArray, triggerOnUnmount = false }: IOptions = {}): () => void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const intervalRef = useRef<any>();
 
   const cancelInterval = useBound(() => {
     if (intervalRef.current) { clearInterval(intervalRef.current); }

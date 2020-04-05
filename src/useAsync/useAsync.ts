@@ -1,105 +1,83 @@
-import flatted from 'flatted';
-import { useRef, useState } from 'react';
-import { MapOf } from 'anux-common';
-import { useBinder } from '../useBinder';
+import { useState } from 'react';
+import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
-import { useId } from '../useId';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AsyncDelegate<ResultType> = (...args: any[]) => Promise<ResultType>;
-
-export interface AsyncDelegateState {
+export interface UseAsyncState {
   onCancelled(delegate: () => void): void;
   hasBeenCancelled(): boolean;
 }
 
-type UseAsyncDelegate<ResultType, DelegateType extends AsyncDelegate<ResultType>> = (state: AsyncDelegateState) => DelegateType;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AsyncDelegate<ResultType = any> = (state: UseAsyncState, ...args: any[]) => Promise<ResultType>;
 
-type ArgumentTypes<T> = T extends (...args: infer U) => unknown ? U : never;
-type ReplaceReturnType<T, R> = (...a: ArgumentTypes<T>) => R;
+type GetParametersOfDelegate<T> = T extends (state: UseAsyncState, ...args: infer R) => unknown ? R : never;
 
-export type UseAsyncDelegateResultType<ResultType = unknown> =
-  Promise<ResultType> & { isCancelled: boolean; cancel(): void };
-
-export type WrappedAsyncDelegate<ResultType = unknown, DelegateType extends AsyncDelegate<ResultType> = AsyncDelegate<ResultType>> =
-  ReplaceReturnType<DelegateType, UseAsyncDelegateResultType<ResultType>>;
-
-export type UseAsyncResultType<ResultType = unknown, DelegateType extends AsyncDelegate<ResultType> = AsyncDelegate<ResultType>> =
-  [WrappedAsyncDelegate<ResultType, DelegateType>, boolean, () => void];
-
-function createRequestFrom<ResultType = unknown>(result: Promise<ResultType>, hasBeenCancelled: () => boolean, cancel: () => void): UseAsyncDelegateResultType<ResultType> {
-  Object.defineProperties(result, {
-    cancel: {
-      value: cancel,
-      enumerable: true,
-      configurable: false,
-      writable: false,
-    },
-    isCancelled: {
-      get: hasBeenCancelled,
-      enumerable: true,
-      configurable: false,
-    },
-  });
-
-  return result as unknown as UseAsyncDelegateResultType<ResultType>;
-}
+export type UseAsyncTrigger<DelegateType extends AsyncDelegate> = (...args: GetParametersOfDelegate<DelegateType>) => ReturnType<DelegateType>;
+export type UseAsyncResponse<T> = T extends (...args: unknown[]) => Promise<infer R> ? R : never;
+export type UseAsyncCancel = () => Promise<void>;
+export type UseAsyncOnCancelled = (handler: () => void) => void;
+export type UseAsyncResult<DelegateType extends AsyncDelegate> = [UseAsyncTrigger<DelegateType>, UseAsyncResponse<DelegateType>, boolean, UseAsyncCancel, UseAsyncOnCancelled];
 
 export interface UseAsyncOptions {
   cancelCurrentRequestOnInvocation?: 'never' | 'whenSameParamsAreUsed' | 'always';
 }
 
-export function useAsync<ResultType, DelegateType extends AsyncDelegate<ResultType>>(delegate: UseAsyncDelegate<ResultType, DelegateType>,
-  options?: UseAsyncOptions): UseAsyncResultType<ResultType, DelegateType> {
-  const { cancelCurrentRequest } = {
-    cancelCurrentRequest: 'never',
-    ...options,
+interface InternalState {
+  isBusy: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  response: any;
+}
+
+export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateType): UseAsyncResult<DelegateType> {
+  let request: ReturnType<DelegateType> | undefined;
+  let isCancelled = false;
+  const onCancelledHandlers: (() => void)[] = [];
+  const [{ isBusy, response }, setState] = useState<InternalState>({ isBusy: false, response: undefined });
+
+  const cancel = async () => {
+    if (!request) return;
+    isCancelled = true;
+    const tempRequest = request;
+    onCancelledHandlers.forEach(handler => handler());
+    onCancelledHandlers.clear();
+    request = undefined;
+    await tempRequest;
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    updateState({ isBusy: false });
   };
-  const bind = useBinder();
-  const globalId = useId();
-  const [isBusy, setBusy] = useState(false);
 
-  type RequestType = UseAsyncDelegateResultType<ResultType>;
-
-  const requestsRef = useRef<MapOf<RequestType>>({});
-
-  const cancelAll = bind(() => Object.values<RequestType>(requestsRef.current).forEach(request => request.cancel()));
-
-  const isUnmounted = useOnUnmount(cancelAll);
-
-  const updateBusy = () => {
-    if (isUnmounted.current) { return; } // no need to update the busy flag as we are unmounting.
-    setBusy(Object.keys(requestsRef.current).length > 0);
-  }
-
-  const getRequest = (id: string) => requestsRef.current[id];
-  const saveRequest = (id: string, request: RequestType) => { requestsRef.current[id] = request; updateBusy(); }
-  const removeRequest = (id: string) => { delete requestsRef.current[id]; updateBusy(); };
-
-  const trigger = bind<WrappedAsyncDelegate<ResultType, DelegateType>>((...args) => {
-    const id = cancelCurrentRequest === 'whenSameParamsAreUsed' ? flatted.stringify(args).hash() : globalId;
-    const existingRequest = getRequest(id);
-    let onCancelledHandler: () => void = () => void 0;
-
-    if (existingRequest) {
-      if (cancelCurrentRequest === 'never') { return existingRequest; }
-      if (cancelCurrentRequest === 'whenSameParamsAreUsed') { existingRequest.cancel(); }
-    }
-    let isCancelled = false;
-    const cancel = () => {
-      isCancelled = true;
-      removeRequest(id);
-      onCancelledHandler();
-    };
-    const state: AsyncDelegateState = {
-      hasBeenCancelled: () => isCancelled,
-      onCancelled: handler => { onCancelledHandler = handler; },
-    };
-    const request = createRequestFrom<ResultType>(delegate(state)(...args), state.hasBeenCancelled, cancel);
-    saveRequest(id, request);
-    request.finally(() => removeRequest(id));
-    return request;
+  const isUnmounted = useOnUnmount(() => {
+    cancel();
   });
 
-  return [trigger, isBusy, cancelAll];
+  const updateState = (state: Partial<InternalState>): void => {
+    if (isUnmounted.current) { return; } // no need to update the busy flag as we are unmounting.
+    setState(s => ({ ...s, ...state }));
+  };
+
+  const reset = (result: unknown) => {
+    request = undefined;
+    updateState({ isBusy: false, response: result });
+    return result;
+  };
+
+  const addHandler = (handler: () => void): void => {
+    if (onCancelledHandlers.includes(handler)) { return; }
+    onCancelledHandlers.push(handler);
+  }
+
+  const trigger = useBound<(...args: GetParametersOfDelegate<DelegateType>) => ReturnType<DelegateType>>((...args) => {
+    cancel();
+    updateState({ isBusy: true });
+    const state: UseAsyncState = {
+      hasBeenCancelled: () => isCancelled,
+      onCancelled: addHandler,
+    };
+
+    request = delegate(state, ...args) as ReturnType<DelegateType>;
+    request.then(reset);
+    return request;
+  }) as UseAsyncTrigger<DelegateType>;
+
+  return [trigger, response, isBusy, cancel, addHandler];
 }

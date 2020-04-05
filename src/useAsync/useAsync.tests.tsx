@@ -1,99 +1,122 @@
-// import React, { ReactElement, memo } from 'react';
-// import { mount } from 'enzyme';
-// import { AnyObject } from 'anux-common';
-// import { useAsync, UseAsyncOptions, UseAsyncResultType } from './useAsync';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ReactElement, ComponentProps } from 'react';
+import { mount, ReactWrapper } from 'enzyme';
+import { AnyObject, PromiseMaybe } from 'anux-common';
+import { useAsync, UseAsyncOptions, UseAsyncResult, AsyncDelegate, UseAsyncState } from './useAsync';
+import { anuxPureFC } from '../anuxComponents';
+import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
-// interface IProps {
-//   data: any;
-//   options: UseAsyncOptions;
-//   children(state: UseAsyncResultType): ReactElement;
-//   onCancelled?(): void;
-// }
+interface State {
+  triggeredCount: number;
+  renderCount: number;
+  resultsUpdated: number;
+  isLoading: boolean;
+  component: ReactWrapper;
+  hasBeenCancelled: boolean;
+  clock: SinonFakeTimers;
+  response: string[] | undefined;
+  onCancelled(): void;
+  trigger(): Promise<string[]>;
+  dispose(): void;
+}
 
-// const AsyncTestComponent = memo<IProps>(({ children, data, options, onCancelled }) => {
-//   const state = useAsync(hasBeenCancelled => async () => {
-//     await Promise.delay(1);
-//     if (hasBeenCancelled()) { onCancelled?.(); }
-//     return data;
-//   }, options);
+interface Props {
+  children(state: UseAsyncResult<AsyncDelegate<string[]>>): ReactElement | null;
+}
 
-//   return children(state);
-// });
+describe('useAsync', () => {
 
-// const SyncTestComponent = memo<IProps>(({ children, data, options }) => {
-//   const state = useAsync(() => () => {
-//     return data;
-//   }, options);
-//   return children(state);
-// });
+  function using(delegate: (state: State) => PromiseMaybe<void>): () => Promise<void> {
+    return async () => {
+      let hasDisposed = false;
+      const state: State = {
+        triggeredCount: 0,
+        renderCount: 0,
+        resultsUpdated: 0,
+        isLoading: false,
+        component: undefined as unknown as ReactWrapper,
+        hasBeenCancelled: false,
+        clock: useFakeTimers(),
+        response: undefined,
+        onCancelled: () => void 0,
+        trigger: () => Promise.resolve([]),
+        dispose: () => void 0,
+      };
+      const TestComponent = anuxPureFC<Props>('AsyncTestComponent', ({ children }) => {
+        state.renderCount++;
+        const result = useAsync(async ({ hasBeenCancelled, onCancelled }) => {
+          state.triggeredCount++;
+          state.hasBeenCancelled = hasBeenCancelled()
+          onCancelled(state.onCancelled);
+          await Promise.delay(5);
+          return ['hey'];
+        });
+        return children(result);
+      });
+      state.component = mount(
+        <TestComponent>
+          {([trigger, response, isLoading]) => {
+            state.resultsUpdated++;
+            state.trigger = trigger;
+            state.isLoading = isLoading;
+            state.response = response;
+            return null;
+          }}
+        </TestComponent>
+      );
+      state.dispose = () => {
+        if (hasDisposed) return;
+        hasDisposed = true;
+        state.component.unmount();
+      }
+      await delegate(state);
+      state.dispose();
+      state.clock.restore();
+    };
+  }
 
-// function setupTest({ data, options, onCancelled, isAsync = true }: { data?: AnyObject; options?: UseAsyncOptions; onCancelled?: () => void; isAsync?: boolean } = {}) {
-//   const state = {
-//     renderCount: 0,
-//     result: undefined as UseAsyncResultType,
-//     dispose() {
-//       // eslint-disable-next-line @typescript-eslint/no-use-before-define
-//       component.unmount();
-//     },
-//   };
+  it('returns everything it is supposed to do correctly', using(state => {
+    expect(state.renderCount).to.eq(1);
+    expect(state.triggeredCount).to.eq(0);
+    expect(state.resultsUpdated).to.eq(1);
+    expect(state.trigger).to.be.a('function');
+    expect(state.isLoading).to.be.false;
+    expect(state.response).to.be.undefined;
+    expect(state.component).not.to.be.undefined;
+    expect(state.hasBeenCancelled).to.be.false;
+    expect(state.onCancelled).to.be.a('function');
+    expect(state.trigger).to.be.a('function');
+  }));
 
-//   const TestComponent = isAsync ? AsyncTestComponent : SyncTestComponent;
+  it('can call an async function', using(async state => {
+    expect(state.renderCount).to.eq(1);
+    expect(state.triggeredCount).to.eq(0);
+    const promise = state.trigger();
+    expect(state.triggeredCount).to.eq(1);
+    expect(state.hasBeenCancelled).to.be.false;
+    state.clock.tick(2);
+    expect(state.renderCount).to.eq(2);
+    expect(state.isLoading).to.be.true;
+    expect(state.response).to.be.undefined;
+    state.clock.tick(4);
+    const result = await promise;
+    expect(result).to.eql(['hey']);
+    expect(state.response).to.eql(['hey']);
+    state.clock.tick(1);
+    expect(state.renderCount).to.eq(3);
+    expect(state.isLoading).to.be.false;
+  }));
 
-//   const component = mount((
-//     <TestComponent data={data} options={options} onCancelled={onCancelled}>
-//       {result => {
-//         state.renderCount++;
-//         state.result = result;
-//         return null;
-//       }}
-//     </TestComponent>
-//   ));
+  it('will not update if returned after unmounted', using(state => {
+    expect(state.renderCount).to.eq(1);
+    let onCancelledCalled = false;
+    state.onCancelled = () => { onCancelledCalled = true; };
+    state.trigger();
+    state.dispose();
+    expect(onCancelledCalled).to.be.true;
+    state.clock.tick(10);
+    expect(state.isLoading).to.be.true; // this will still be true because after disposing, the state does not get updated again
+    expect(state.response).to.be.undefined;
+  }));
 
-//   return state;
-// }
-
-// describe.only('useAsync', () => {
-
-//   it('returns everything it is supposed to do correctly', async () => {
-//     const { renderCount, result: [trigger, isBusy, cancelAll], dispose } = setupTest();
-
-//     expect(trigger).to.be('function');
-//     expect(isBusy).to.eq(false);
-//     expect(cancelAll).to.be('function');
-//     expect(renderCount).to.eq(1);
-
-//     dispose();
-//   });
-
-//   // it('can call an async function', async () => {
-//   //   const test = setupTest({ test: 1 });
-//   //   expect(test.renderCount).to.eq(1);
-
-//   //   await Promise.delay(10);
-
-//   //   expect(test.renderCount).to.eq(2);
-//   //   expect(test.result).to.eql({ test: 1 });
-
-//   //   test.dispose();
-//   // });
-
-//   // it('will not update if returned after unmounted', async () => {
-//   //   const test = setupTest({ test: 1 });
-//   //   expect(test.renderCount).to.eq(1);
-
-//   //   test.dispose();
-
-//   //   await Promise.delay(10);
-
-//   //   expect(test.renderCount).to.eq(1);
-//   //   expect(test.result).to.undefined;
-//   // });
-
-//   // it('works even when the return value is not a promise', async () => {
-//   //   const test = setupTest({ test: 1 }, false);
-//   //   expect(test.renderCount).to.eq(2); // the useEffect is synchronous so it actually happens before we get the component back
-//   //   expect(test.result).to.eql({ test: 1 });
-//   //   expect(test.isBusy).to.be.false;
-//   // });
-
-// });
+});

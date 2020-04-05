@@ -1,83 +1,93 @@
-import { FC } from 'react';
 import { mount } from 'enzyme';
 import { useInterval } from './useInterval';
+import { anuxFC } from '../anuxComponents';
+import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
 describe('useInterval', () => {
 
-  function createComponent(interval: number, options?: Parameters<typeof useInterval>[2]) {
-    const result = {
-      refreshCount: 0,
-      cancel: undefined as VoidFunction,
-      intervalTriggerCount: 0,
-      dispose: undefined as VoidFunction,
-    };
-
-    const Component: FC = () => {
-
-      result.refreshCount++;
-
-      result.cancel = useInterval(() => {
-        result.intervalTriggerCount++;
-      }, interval, options);
-
-      return null;
-    };
-
-    const component = mount(<Component />);
-
-    result.dispose = () => {
-      component.unmount();
-    };
-
-    return result;
+  interface Props {
+    refreshCount: number;
+    cancel: VoidFunction;
+    intervalTriggerCount: number;
+    clock: SinonFakeTimers;
+    dispose: VoidFunction;
   }
 
-  it('can create an interval', async () => {
-    const result = createComponent(5);
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.intervalTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.intervalTriggerCount).to.eq(2);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
+  function test(description: string, interval: number, options: Parameters<typeof useInterval>[2], delegate: (props: Props) => Promise<void>): void {
+    it(description, async () => {
+      const props: Props = {
+        refreshCount: 0,
+        cancel: undefined as unknown as VoidFunction,
+        intervalTriggerCount: 0,
+        clock: useFakeTimers(),
+        dispose: undefined as unknown as VoidFunction,
+      };
+      let hasUnmountBeenCalled = false;
+
+      const Component = anuxFC('Component', () => {
+        props.refreshCount++;
+        props.cancel = useInterval(() => {
+          props.intervalTriggerCount++;
+        }, interval, options);
+        return (<div></div>);
+      });
+
+      const component = mount(<Component />);
+
+      props.dispose = () => {
+        if (hasUnmountBeenCalled) { return; }
+        hasUnmountBeenCalled = true;
+        component.unmount();
+      };
+
+      await delegate(props);
+
+      props.clock.restore();
+      props.dispose();
+    });
+  }
+
+  test('can create an interval', 5, {}, async props => {
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.intervalTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.intervalTriggerCount).to.eq(2);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('interval is not called if component is disposed before being triggered', async () => {
-    const result = createComponent(5);
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
-    await Promise.delay(6);
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
+  test('interval is not called if component is disposed before being triggered', 5, {}, async props => {
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
+    props.clock.tick(6);
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('can be triggered on unmount if required', async () => {
-    const result = createComponent(5, { triggerOnUnmount: true });
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
-    expect(result.intervalTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.intervalTriggerCount).to.eq(1);
-    expect(result.refreshCount).to.eq(1);
+  test('can be triggered on unmount if required', 5, { triggerOnUnmount: true }, async props => {
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
+    expect(props.intervalTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.intervalTriggerCount).to.eq(1);
+    expect(props.refreshCount).to.eq(1);
   });
 
-  it('can be manually cancelled', async () => {
-    const result = createComponent(5, { triggerOnUnmount: true });
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.cancel();
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    await Promise.delay(6);
-    expect(result.intervalTriggerCount).to.eq(0);
-    expect(result.refreshCount).to.eq(1);
-    result.dispose();
+  test('can be manually cancelled', 5, { triggerOnUnmount: true }, async props => {
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.cancel();
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.clock.tick(6);
+    expect(props.intervalTriggerCount).to.eq(0);
+    expect(props.refreshCount).to.eq(1);
+    props.dispose();
   });
 
 });
