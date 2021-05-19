@@ -1,4 +1,3 @@
-import './typeOf';
 import './extensions';
 
 export * from './areEqual';
@@ -20,3 +19,6 @@ export * from './useOnChange';
 export * from './useDOMRef';
 export * from './useCallbackFor';
 export * from './useLocalStorage';
+export * from './useSubscription';
+export * from './events';
+export * from './errors';

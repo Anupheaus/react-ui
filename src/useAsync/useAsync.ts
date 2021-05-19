@@ -16,7 +16,13 @@ export type UseAsyncTrigger<DelegateType extends AsyncDelegate> = (...args: GetP
 export type UseAsyncResponse<T> = T extends (...args: unknown[]) => Promise<infer R> ? R : never;
 export type UseAsyncCancel = () => Promise<void>;
 export type UseAsyncOnCancelled = (handler: () => void) => void;
-export type UseAsyncResult<DelegateType extends AsyncDelegate> = [UseAsyncTrigger<DelegateType>, UseAsyncResponse<DelegateType>, boolean, UseAsyncCancel, UseAsyncOnCancelled];
+export interface UseAsyncResult<DelegateType extends AsyncDelegate> {
+  response: UseAsyncResponse<DelegateType>;
+  isBusy: boolean;
+  trigger: UseAsyncTrigger<DelegateType>;
+  cancel: UseAsyncCancel;
+  onCancelled: UseAsyncOnCancelled;
+}
 
 export interface UseAsyncOptions {
   cancelCurrentRequestOnInvocation?: 'never' | 'whenSameParamsAreUsed' | 'always';
@@ -61,17 +67,17 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
     return result;
   };
 
-  const addHandler = (handler: () => void): void => {
+  const onCancelled = (handler: () => void): void => {
     if (onCancelledHandlers.includes(handler)) { return; }
     onCancelledHandlers.push(handler);
-  }
+  };
 
-  const trigger = useBound<(...args: GetParametersOfDelegate<DelegateType>) => ReturnType<DelegateType>>((...args) => {
+  const trigger = useBound<UseAsyncTrigger<DelegateType>>((...args) => {
     cancel();
     updateState({ isBusy: true });
     const state: UseAsyncState = {
       hasBeenCancelled: () => isCancelled,
-      onCancelled: addHandler,
+      onCancelled,
     };
 
     request = delegate(state, ...args) as ReturnType<DelegateType>;
@@ -79,5 +85,5 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
     return request;
   }) as UseAsyncTrigger<DelegateType>;
 
-  return [trigger, response, isBusy, cancel, addHandler];
+  return { trigger, response, isBusy, cancel, onCancelled };
 }

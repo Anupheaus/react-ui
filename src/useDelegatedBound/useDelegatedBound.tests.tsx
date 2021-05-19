@@ -4,7 +4,7 @@ import { anuxFC } from '../anuxComponents';
 
 interface Props {
   value: number;
-  onGetValue(getValue: (key: string | number, provided: string) => () => [number, string]): void;
+  onGetValue(getValue: (provided: string) => () => [number, string]): void;
   onRendered(): void;
 }
 
@@ -25,7 +25,7 @@ const TestComponent = anuxFC<Props>('TestComponent', ({
 interface TestProps {
   renderCount: number;
   setValue(value: number): void;
-  getValue(key: string | number, provided: string): () => [number, string];
+  getValue(provided: string): () => [number, string];
   unmount(): void;
 }
 
@@ -51,26 +51,33 @@ function test(name: string, delegate: (props: TestProps) => void): void {
 describe('useDelegatedBound', () => {
 
   test('returns the same function every time the same key is used but is different when a different key is used', props => {
-    const firstGetFunc = props.getValue(0, 'hey');
+    const firstGetFunc = props.getValue('hey');
     expect(firstGetFunc()).to.eql([0, 'hey']);
     expect(props.renderCount).to.eq(1);
     props.setValue(1);
 
-    const secondGetFunc = props.getValue(0, 'there');
-    expect(secondGetFunc()).to.eql([1, 'there']);
+    const secondGetFunc = props.getValue('hey');
+    expect(secondGetFunc()).to.eql([1, 'hey']);
     expect(props.renderCount).to.eq(2);
     expect(secondGetFunc).to.eq(firstGetFunc);
 
-    const thirdGetFunc = props.getValue(1, 'boo');
+    const thirdGetFunc = props.getValue('boo');
     expect(thirdGetFunc()).to.eql([1, 'boo']);
     expect(props.renderCount).to.eq(2);
     expect(thirdGetFunc).not.to.eq(firstGetFunc);
   });
 
-  // test('continues to work even after unmounted by default', props => {
-  //   props.setValue(100);
-  //   props.unmount();
-  //   expect(props.getValue()).to.eq(100);
-  // });
+  it('can use react and circular referenced objects as arguments', () => {
+    let savedElement: HTMLElement | null = null;
+
+    const CircularTestComponent = anuxFC<{ onBound(element: HTMLElement | null): void }>('CircularTestComponent', ({ onBound }) => {
+      const bound = useDelegatedBound((element: HTMLElement | null) => () => onBound(element));
+      return (<div ref={element => bound(element)()}></div>);
+    });
+
+    mount(<CircularTestComponent onBound={element => { savedElement = element; }} />);
+
+    expect(savedElement).not.to.null;
+  })
 
 });

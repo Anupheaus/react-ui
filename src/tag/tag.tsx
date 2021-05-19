@@ -1,5 +1,6 @@
 import { createElement, useCallback } from 'react';
 import { anuxPureFC } from '../anuxComponents';
+import { AnyObject } from 'anux-common';
 
 interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref'> {
   name: string;
@@ -11,10 +12,13 @@ export const Tag = anuxPureFC<Props>('Tag', ({ name, children, ...rest }, passed
     is: 'custom-element',
     ...rest,
   };
-  delete rest.className;
+  delete props.className;
+  delete (props as AnyObject)['classname'];
 
   const ref = useCallback((element?: HTMLElement) => {
-    element?.attributes.removeNamedItem('is');
+    if (element) {
+      if (element.attributes.getNamedItem('is') != null) element.attributes.removeNamedItem('is');
+    }
     passedRef?.(element ?? null);
   }, [passedRef]);
 

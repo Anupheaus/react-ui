@@ -35,16 +35,36 @@ class HTMLElementExtensions {
     };
   }
 
-  public pageCoordinates(): ICoordinates;
-  public pageCoordinates(this: HTMLElement): ICoordinates {
-    const scrollLeft = (windowObj ? windowObj.pageXOffset : undefined) ?? document.documentElement.scrollLeft;
-    const scrollTop = (windowObj ? windowObj.pageYOffset : undefined) ?? document.documentElement.scrollTop;
-    const screenCoordinates = this.screenCoordinates();
+  public parentElements(): HTMLElement[];
+  public parentElements(untilElement: HTMLElement): HTMLElement[];
+  public parentElements(this: HTMLElement, untilElement?: HTMLElement): HTMLElement[] {
+    let element = this.parentElement;
+    const elements: HTMLElement[] = [];
+    while (element != null && element !== untilElement) {
+      elements.push(element);
+      element = element.parentElement instanceof HTMLElement ? element.parentElement : null;
+    }
+    return elements;
+  }
 
-    return {
-      x: screenCoordinates.x + scrollLeft,
-      y: screenCoordinates.y + scrollTop,
-    };
+  public parentNodes(): Node[];
+  public parentNodes(untilNode: Node): Node[];
+  public parentNodes(this: Node, untilNode?: Node): Node[] {
+    let node = this.parentNode;
+    const nodes: Node[] = [];
+    while (node != null && node !== untilNode) {
+      nodes.push(node);
+      node = node.parentNode;
+    }
+    return nodes;
+  }
+
+  public pageCoordinates(): ICoordinates;
+  public pageCoordinates(relativeTo: HTMLElement): ICoordinates;
+  public pageCoordinates(this: HTMLElement, relativeTo?: HTMLElement): ICoordinates {
+    return [this].concat(relativeTo ? this.parentElements(relativeTo) : this.parentElements())
+      .reduce(({ x, y }, { clientLeft, scrollLeft, offsetLeft, clientTop, scrollTop, offsetTop }) =>
+        ({ x: x + clientLeft + offsetLeft - scrollLeft, y: y + clientTop + offsetTop - scrollTop }), { x: 0, y: 0 });
   }
 
   public coordinates(): ICoordinates;
@@ -125,7 +145,7 @@ class HTMLElementExtensions {
   public geometry(this: HTMLElement): IGeometry {
     const { width, height } = this.dimensions({ excludingMargin: true });
     return {
-      ...this.screenCoordinates(),
+      ...this.pageCoordinates(),
       width,
       height,
     };

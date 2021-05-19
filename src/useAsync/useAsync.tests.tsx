@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ReactElement, ComponentProps } from 'react';
+import { ReactElement } from 'react';
 import { mount, ReactWrapper } from 'enzyme';
-import { AnyObject, PromiseMaybe } from 'anux-common';
-import { useAsync, UseAsyncOptions, UseAsyncResult, AsyncDelegate, UseAsyncState } from './useAsync';
+import { PromiseMaybe } from 'anux-common';
+import { useAsync, UseAsyncResult, AsyncDelegate } from './useAsync';
 import { anuxPureFC } from '../anuxComponents';
 import { useFakeTimers, SinonFakeTimers } from 'sinon';
 
@@ -46,7 +46,7 @@ describe('useAsync', () => {
         state.renderCount++;
         const result = useAsync(async ({ hasBeenCancelled, onCancelled }) => {
           state.triggeredCount++;
-          state.hasBeenCancelled = hasBeenCancelled()
+          state.hasBeenCancelled = hasBeenCancelled();
           onCancelled(state.onCancelled);
           await Promise.delay(5);
           return ['hey'];
@@ -55,10 +55,10 @@ describe('useAsync', () => {
       });
       state.component = mount(
         <TestComponent>
-          {([trigger, response, isLoading]) => {
+          {({ trigger, response, isBusy }) => {
             state.resultsUpdated++;
             state.trigger = trigger;
-            state.isLoading = isLoading;
+            state.isLoading = isBusy;
             state.response = response;
             return null;
           }}
@@ -68,7 +68,7 @@ describe('useAsync', () => {
         if (hasDisposed) return;
         hasDisposed = true;
         state.component.unmount();
-      }
+      };
       await delegate(state);
       state.dispose();
       state.clock.restore();

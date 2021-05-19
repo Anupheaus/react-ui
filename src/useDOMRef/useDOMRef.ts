@@ -2,6 +2,8 @@ import { useRef, RefObject } from 'react';
 import { is } from 'anux-common';
 import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
+import { useId } from '../useId';
+import { useDelegatedBound } from '../useDelegatedBound';
 
 export interface HTMLTargetDelegate {
   (element: HTMLElement | null): void;
@@ -22,7 +24,9 @@ export function useDOMRef(forceRefreshOrConfig?: UseDOMConfig | boolean): unknow
   const config = is.plainObject(forceRefreshOrConfig) ? forceRefreshOrConfig : undefined;
   const forceRefresh = is.boolean(forceRefreshOrConfig) ? forceRefreshOrConfig : false;
 
-  const updateElement = (element: HTMLElement) => {
+  const updateElement = (element: HTMLElement | null | undefined) => {
+    if (element === null) element = undefined;
+    if (elementRef.current === element) return;
     if (config) {
       if (element != null) {
         elementRef.current = element;
@@ -32,23 +36,20 @@ export function useDOMRef(forceRefreshOrConfig?: UseDOMConfig | boolean): unknow
         elementRef.current = undefined;
       }
     } else {
-      if (elementRef.current === element) return;
-      elementRef.current = element ?? undefined;
+      elementRef.current = element;
       if (forceRefresh) { forceUpdate(); }
     }
   };
 
-  const delegate = useBound((elementOrDelegate: HTMLElement | ((newElement: HTMLElement) => HTMLElement)) => {
-    if (is.function(elementOrDelegate)) {
-      return (element: HTMLElement) => {
-        updateElement(element);
-        elementOrDelegate(element);
-      };
-    } else {
-      updateElement(elementOrDelegate);
-    }
+  const subDelegate = useDelegatedBound((handler: (element: HTMLElement | null) => void) => (element: HTMLElement | null) => {
+    updateElement(element);
+    handler(element);
+  });
+
+  const delegate = useBound((elementOrDelegate: HTMLElement | null | ((newElement: HTMLElement | null) => HTMLElement | null)) => {
+    if (is.function(elementOrDelegate)) { return subDelegate(elementOrDelegate); }
+    updateElement(elementOrDelegate);
   }) as HTMLTargetDelegate;
 
   return config ? delegate : [elementRef, delegate];
-
 }

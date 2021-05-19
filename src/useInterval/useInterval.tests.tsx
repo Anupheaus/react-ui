@@ -62,7 +62,6 @@ describe('useInterval', () => {
     expect(props.intervalTriggerCount).to.eq(0);
     expect(props.refreshCount).to.eq(1);
     props.dispose();
-    props.clock.tick(6);
     expect(props.intervalTriggerCount).to.eq(0);
     expect(props.refreshCount).to.eq(1);
   });

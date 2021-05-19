@@ -1,27 +1,31 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { is } from 'anux-common';
+import { stringify } from 'flatted';
 import { useRef } from 'react';
-import { MapOf } from 'anux-common';
 
 type DelegatedBoundFunc = (...args: any[]) => (...innerArgs: any[]) => any;
-
-type AnonymousFunction = (...args: any[]) => any;
-type AddKeyToDelegatedBoundFunc<TFunc extends AnonymousFunction> = (key: string | number, ...args: Parameters<TFunc>) => ReturnType<TFunc>;
 
 interface LoopBoundCachedItemType {
   cachedFunc: Function;
   func: Function;
 }
 
-export function useDelegatedBound<TFunc extends DelegatedBoundFunc>(delegate: TFunc): AddKeyToDelegatedBoundFunc<TFunc> {
-  const cache = useRef<MapOf<LoopBoundCachedItemType>>({});
+const replacer = (key: string, value: unknown) => is.function(value) ? value.toString() : value;
 
-  return ((providedKey, ...args) => {
-    const key = `delegated-bound-${providedKey}`;
-    const currentCache = cache.current[key] = cache.current[key] ?? {
-      cachedFunc: (...innerArgs: any[]) => cache.current[key].func(...innerArgs),
-      func: undefined,
-    };
-    currentCache.func = delegate(...args);
-    return currentCache.cachedFunc;
-  }) as AddKeyToDelegatedBoundFunc<TFunc>;
+export function useDelegatedBound<TFunc extends DelegatedBoundFunc>(delegate: TFunc): TFunc {
+  const cache = useRef<Map<string, LoopBoundCachedItemType>>(new Map()).current;
+
+  return ((...args) => {
+    const key = args.map(arg => stringify(arg, replacer)).join('|').hash(40);
+    let data = cache.get(key);
+    if (!data) {
+      data = {
+        cachedFunc: (...innerArgs: unknown[]) => cache.get(key)?.func(...innerArgs),
+        func: undefined as unknown as Function,
+      };
+      cache.set(key, data);
+    }
+    data.func = delegate(...args);
+    return data.cachedFunc;
+  }) as TFunc;
 }
