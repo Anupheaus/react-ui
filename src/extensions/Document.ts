@@ -1,4 +1,4 @@
-// tslint:disable: interface-name
+import 'anux-common'; // required to ensure extendPrototype is available
 
 class DocumentExtensions {
 

@@ -1,8 +1,9 @@
+import { AnuxEvent } from './AnuxEvent';
 import { OnEventType } from './models';
 
-export interface ContextProps {
+export interface ContextProps<T extends AnuxEvent = AnuxEvent> {
   isParentAvailable: boolean;
-  trigger: OnEventType;
-  registerListener(onEvent: OnEventType): () => void;
+  trigger: OnEventType<T>;
+  registerListener(onEvent: OnEventType<T>): () => void;
 }
 

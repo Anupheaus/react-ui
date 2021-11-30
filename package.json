@@ -1,12 +1,13 @@
 {
   "name": "anux-react-utils",
-  "version": "1.0.66",
+  "version": "1.0.84",
   "main": "./dist/index.js",
   "repository": "https://github.com/Anupheaus/anux-react-utils.git",
   "author": "Anupheaus",
   "license": "Apache-2.0",
   "private": false,
   "scripts": {
+    "start": "start-storybook -p 9091 -c storybook",
     "build": "anux build",
     "build:dev": "anux build dev",
     "build:harness": "anux harness",
@@ -20,18 +21,27 @@
     "flatted": "^3.1.1"
   },
   "peerDependencies": {
-    "anux-common": "^1.0.87",
+    "anux-common": "^1.0.100",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "@material-ui/core": "^4.12.1",
+    "@material-ui/styles": "^4.11.4"
   },
   "devDependencies": {
     "@types/react": "^17.0.6",
     "@types/react-dom": "^17.0.5",
     "@types/resize-observer-browser": "^0.1.5",
-    "anux-common": "^1.0.87",
+    "@material-ui/core": "^4.12.1",
+    "@material-ui/styles": "^4.11.4",
+    "@storybook/builder-webpack5": "^6.3.8",
+    "@storybook/manager-webpack5": "^6.3.8",
+    "@storybook/react": "^6.3.8",
+    "@storybook/addon-docs": "^6.3.8",
+    "@storybook/addon-essentials": "^6.3.8",
+    "anux-common": "^1.0.100",
     "anux-package": "^1.0.60",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "typescript": "^4.2.4"
+    "typescript": "^4.3.2"
   }
 }

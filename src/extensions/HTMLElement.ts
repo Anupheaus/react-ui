@@ -1,4 +1,3 @@
-// tslint:disable: interface-name
 import './Document';
 import { ICoordinates, IDimensions, IGeometry } from 'anux-common';
 

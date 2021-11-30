@@ -11,6 +11,10 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "lib": [
+      "DOM",
+      "ES2020"
+    ],
     "target": "es6",
     "sourceMap": true,
     "jsx": "react",

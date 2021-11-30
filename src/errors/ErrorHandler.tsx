@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren, ReactNode, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { memo, PropsWithChildren, ReactNode, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { Context, ContextProps, OptionalOnErrorHandler } from './context';
 import { AnuxError } from './types';
 import { ErrorHandlerProps } from './models';
@@ -25,7 +25,7 @@ export const AnuxErrorHandler = memo<PropsWithChildren<Props>>(({
   const { isParentAvailable, bubbleError: bubbleErrorToParent, tryRenderingError: tryRenderingErrorInParent, resetError: resetParentError,
     registerOnReset: registerOnResetWithParent } = useContext(Context);
   const errorRef = useRef<AnuxError>();
-  const [renderedError, setRenderedError] = useState<ReactNode>(null);
+  const renderedError = useRef<ReactNode>(null);
   const isUnmountedRef = useRef(false);
 
   useEffect(() => () => { isUnmountedRef.current = true; }, []);
@@ -39,7 +39,7 @@ export const AnuxErrorHandler = memo<PropsWithChildren<Props>>(({
 
   const clearError = useBound(() => {
     if (isUnmountedRef.current) return;
-    if (renderedError != null) setRenderedError(undefined);
+    if (renderedError.current != null) renderedError.current = null;
     if (errorRef.current != null) {
       errorRef.current = undefined;
       onErrorCallbacks.forEach(callback => callback());
@@ -84,7 +84,7 @@ export const AnuxErrorHandler = memo<PropsWithChildren<Props>>(({
         const newRenderedError = onRender({ error, children });
         if (newRenderedError == null) return;
         error.markAsHandled();
-        setRenderedError(newRenderedError);
+        renderedError.current = newRenderedError;
         return;
       }
     }
@@ -114,7 +114,7 @@ export const AnuxErrorHandler = memo<PropsWithChildren<Props>>(({
 
   return (
     <Context.Provider value={context}>
-      {renderedError ?? children ?? null}
+      {renderedError.current ?? children ?? null}
     </Context.Provider>
   );
 });
