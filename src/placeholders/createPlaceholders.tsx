@@ -1,17 +1,17 @@
 import { AnyObject } from 'anux-common';
 import { useContext } from 'react';
-import { AnuxFunctionComponent, anuxPureFC } from '../anuxComponents';
+import { AnuxFC, anuxPureFC } from '../anuxComponents';
 import { useId } from '../useId';
 import { AnuxPlaceholderContext } from './context';
 
 const PlaceholderComponentSymbol = Symbol('PlaceholderComponent');
 
-export type AnuxPlaceholderComponent<Props = {}> = AnuxFunctionComponent<Props> & { [PlaceholderComponentSymbol]: true; };
+export type AnuxPlaceholderComponent<Props = {}> = AnuxFC<Props> & { [PlaceholderComponentSymbol]: true; };
 
-type AnuxPlaceholderComponentOf<T extends AnuxFunctionComponent> = T extends AnuxFunctionComponent<infer P> ? AnuxPlaceholderComponent<P> : never;
+type AnuxPlaceholderComponentOf<T extends AnuxFC> = T extends AnuxFC<infer P> ? AnuxPlaceholderComponent<P> : never;
 
 interface AnuxPlaceholderTagDefinitions {
-  [key: string]: AnuxFunctionComponent;
+  [key: string]: AnuxFC;
 }
 
 type AnuxPlaceholderComponents<T extends AnuxPlaceholderTagDefinitions> = {

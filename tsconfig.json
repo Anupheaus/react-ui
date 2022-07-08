@@ -7,9 +7,10 @@
     "importHelpers": false,
     "noEmit": true,
     "removeComments": true,
-    "module": "commonjs",
+    "module": "CommonJS",
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "incremental": true,
     "moduleResolution": "node",
     "lib": [
       "DOM",
@@ -17,11 +18,7 @@
     ],
     "target": "es6",
     "sourceMap": true,
-    "jsx": "react",
-    "typeRoots": [
-      "./node_modules/@types",
-      "./node_modules/anux-package/typings"
-    ]
+    "jsx": "react-jsx"
   },
   "exclude": [
     "dist"

@@ -1,28 +1,28 @@
 import { AnyObject } from 'anux-common';
 import { useEffect, useMemo, useRef } from 'react';
-import { AnuxFunctionComponent, anuxPureFC } from '../anuxComponents';
+import { AnuxFC, anuxPureFC } from '../anuxComponents';
 import { AnuxPlaceholderContext, AnuxPlaceholderContextProps } from './context';
 import { AnuxPlaceholderComponent } from './createPlaceholders';
 import { useEnsureRefresh } from './useEnsureRefresh';
 
-type ComponentPropsOf<T> = T extends AnuxFunctionComponent<infer P> ? P : never;
+type ComponentPropsOf<T> = T extends AnuxFC<infer P> ? P : never;
 
 interface ExtractPlaceholderDefinitions {
   [key: string]: AnuxPlaceholderComponent;
 }
 
-interface PlaceholdersFor<T extends AnuxFunctionComponent> {
+interface PlaceholdersFor<T extends AnuxFC> {
   Component: T;
   props: ComponentPropsOf<T>;
 }
 
 type UsePlaceholdersApi<T extends ExtractPlaceholderDefinitions> = {
   [K in keyof T]: PlaceholdersFor<T[K]>[];
-} & { ExtractPlaceholders: AnuxFunctionComponent; };
+} & { ExtractPlaceholders: AnuxFC; };
 
 interface PlaceholderData {
   type: AnuxPlaceholderComponent;
-  definition: AnuxFunctionComponent;
+  definition: AnuxFC;
   props: AnyObject;
 }
 

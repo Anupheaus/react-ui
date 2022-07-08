@@ -1,11 +1,11 @@
 import { AnyObject } from 'anux-common';
 import { createContext } from 'react';
-import { AnuxFunctionComponent } from '../anuxComponents';
+import { AnuxFC } from '../anuxComponents';
 import { AnuxPlaceholderComponent } from './createPlaceholders';
 
 export interface AnuxPlaceholderContextProps {
   isValid: boolean;
-  usePlaceholder(id: string, type: AnuxPlaceholderComponent, content: AnuxFunctionComponent, props: AnyObject): void;
+  usePlaceholder(id: string, type: AnuxPlaceholderComponent, content: AnuxFC, props: AnyObject): void;
 }
 
 export const AnuxPlaceholderContext = createContext<AnuxPlaceholderContextProps>({

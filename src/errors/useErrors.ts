@@ -20,7 +20,7 @@ export function useErrors() {
         return result;
       }
     } catch (err) {
-      captureError(err, isAsync);
+      captureError(err as Error, isAsync);
       return undefined as unknown as T;
     }
   };

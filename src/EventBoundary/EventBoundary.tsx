@@ -1,14 +1,8 @@
 import { SyntheticEvent } from 'react';
-import { styles } from '../styles';
 import { anuxPureFC } from '../anuxComponents';
-import { Tag } from '../Tag';
 import { useDelegatedBound } from '../useDelegatedBound';
+import { Flex } from '../components';
 
-const useStyles = styles.make({
-  eventBoundary: {
-    ...styles.flexAuto,
-  },
-});
 
 type EventSettings = boolean;
 
@@ -31,16 +25,14 @@ export const EventBoundary = anuxPureFC<Props>('EventBoundary', ({
   className,
   children = null,
 }) => {
-  const classes = useStyles();
-
   const handleEvent = useDelegatedBound((eventName: string, ...settings: EventSettings[]) => (event: SyntheticEvent) => settings.forEach(setting => {
     if (setting === true) event.stopPropagation();
   }));
 
   return (
-    <Tag
-      name="event-boundary"
-      className={classes.join(className, classes.eventBoundary)}
+    <Flex
+      tagName="event-boundary"
+      className={className}
       onMouseDown={handleEvent('down', allMouseEvents, initialMouseEvents)}
       onMouseUp={handleEvent('up', allMouseEvents)}
       onMouseMove={handleEvent('move', allMouseEvents)}
@@ -55,6 +47,6 @@ export const EventBoundary = anuxPureFC<Props>('EventBoundary', ({
       onBlur={handleEvent('blur', allFocusEvents)}
     >
       {children}
-    </Tag>
+    </Flex>
   );
 });

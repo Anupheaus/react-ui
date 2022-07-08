@@ -1,6 +1,6 @@
 import { useBound } from '../useBound';
 import { useMemo, useRef } from 'react';
-import { DialogContent, DialogActions } from '@material-ui/core';
+import { DialogContent, DialogActions } from '@mui/material';
 import { Dialog as DialogComponent, DialogProps, DialogState } from './Dialog';
 import { anuxPureFC } from '../anuxComponents';
 

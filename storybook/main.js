@@ -4,4 +4,26 @@ module.exports = {
   addons: [
     '@storybook/addon-essentials',
   ],
+  webpackFinal: async config => {
+    return {
+      ...config,
+      module: {
+        ...config.module,
+        rules: [{
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
+        }, {
+          test: /\.tsx?$/i,
+          loader: 'ts-loader',
+          options: {
+            onlyCompileBundledFiles: true,
+            transpileOnly: true,
+            compilerOptions: {
+              noEmit: false,
+            },
+          },
+        }],
+      },
+    };
+  },
 };

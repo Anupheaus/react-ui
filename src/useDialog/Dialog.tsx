@@ -1,5 +1,5 @@
 import { MutableRefObject, ReactNode, useMemo } from 'react';
-import { Dialog as MuiDialog, DialogTitle, DialogProps as MuiDialogProps } from '@material-ui/core';
+import { Dialog as MuiDialog, DialogTitle, DialogProps as MuiDialogProps } from '@mui/material';
 import { anuxPureFC } from '../anuxComponents';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';

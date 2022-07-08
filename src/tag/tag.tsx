@@ -6,7 +6,7 @@ interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDi
   name: string;
 }
 
-export const Tag = anuxPureFC<Props>('Tag', ({ name, children, ...rest }, passedRef) => {
+export const Tag = anuxPureFC<Props>('Tag', ({ name, children, logging, enableLogging, ...rest }, passedRef) => {
   const props = {
     class: rest.className,
     is: 'custom-element',
