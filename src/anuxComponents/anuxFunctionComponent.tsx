@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { AnyObject } from 'anux-common';
+import { AnyObject, is } from 'anux-common';
 import { ForwardRefRenderFunction, forwardRef, PropsWithChildren, ReactElement, RefObject, FunctionComponent, RefAttributes, memo, isValidElement, ReactNode } from 'react';
-import { areDeepEqual, areShallowEqual } from '../areEqual';
+import { useInternalErrors } from '../errors/useInternalErrors';
 
 const isInDevelopmentMode = process.env.NODE_ENV === 'development';
 
@@ -11,7 +11,7 @@ export interface IAnuxRef<T> extends RefObject<T> {
 
 type AddDefaultChildren<Props> = Props extends { children: unknown; } ? Props : PropsWithChildren<Props>;
 
-interface LoggingProps {
+export interface LoggingProps {
   /** Enable logging */
   enableLogging?: boolean | 'log' | 'verbose' | 'warn' | 'error';
 }
@@ -54,10 +54,10 @@ function compareChildren(name: string, prevChildren: ReactNode, nextChildren: Re
 
 function compareProps(name: string) {
   return ({ children: prevChildren, ...prevProps }: AnyObject, { children: nextChildren, ...nextProps }: AnyObject): boolean => {
-    if (!areShallowEqual(prevProps, nextProps)) {
+    if (!is.shallowEqual(prevProps, nextProps)) {
       if (!isInDevelopmentMode) return false;
-      if (!areDeepEqual(prevProps, nextProps)) return false;
-      const changedProps = Object.keys(nextProps).filter(key => nextProps[key] !== prevProps[key] && areDeepEqual(nextProps[key], prevProps[key]));
+      if (!is.deepEqual(prevProps, nextProps)) return false;
+      const changedProps = Object.keys(nextProps).filter(key => nextProps[key] !== prevProps[key] && is.deepEqual(nextProps[key], prevProps[key]));
       if (changedProps.length > 0) {
         console.warn(`WARNING: Unnecessary render of "${name}" due to the following properties:`, changedProps);
       }
@@ -97,7 +97,15 @@ function addLoggingToProps<TProps extends {} = {}>(props: PropsWithChildren<TPro
 
 function anuxBaseFunctionComponent<TProps extends {} = {}, TRef = HTMLElement>(isPure: boolean, name: string,
   component: IAnuxRefForwardingComponent<TProps & LoggingApi, TRef>): AnuxFC<TProps & LoggingProps & RefAttributes<TRef>> {
-  let result = forwardRef<TRef, TProps & LoggingProps>((props, ref) => component(addLoggingToProps(props, name), ref as IAnuxRef<TRef>));
+  let result = forwardRef<TRef, TProps & LoggingProps>((props, ref) => {
+    const { recordError } = useInternalErrors();
+    try {
+      return component(addLoggingToProps(props, name), ref as IAnuxRef<TRef>);
+    } catch (error) {
+      recordError(error);
+      return null;
+    }
+  });
   if (isPure) { result = memo(result, compareProps(name)) as unknown as typeof result; }
   result.displayName = name;
   return result as unknown as AnuxFC<TProps & RefAttributes<TRef>>;
@@ -113,5 +121,6 @@ export function anuxPureFC<Props extends {} = {}, TRef = HTMLElement>(name: stri
 
 export function anuxGenericPureFC<PropsType extends {} = {}, RefType = HTMLElement>(name: string, props: AddDefaultChildren<PropsType & RefAttributes<RefType>>,
   component: IAnuxRefForwardingComponent<PropsType, RefType>) {
-  return anuxPureFC(name, component)(props);
+  const Component = anuxPureFC(name, component);
+  return <Component {...props} />;
 }

@@ -2,7 +2,6 @@
 import { createMakeStyles } from 'tss-react';
 import { ThemeStyles, ThemeUsing, ThemeValues } from './themeModels';
 import { predefinedStyles as ownPredefinedStyles, PredefinedStyles } from './predefinedStyles';
-import { is } from 'anux-common';
 
 type ConvertToClasses<T> = { [K in keyof T as T[K] extends string | number ? never : K]: string & ConvertToClasses<T[K]> };
 
@@ -15,14 +14,9 @@ export function createStyles<TValues extends ThemeValues = {}, TStyles extends T
       const actualPredefinedStyles = predefinedStyles(values);
       const actualStyles = typeof stylesOrDelegate === 'function' ? stylesOrDelegate({ values, predefinedStyles: { ...ownPredefinedStyles, ...actualPredefinedStyles } }, params as TParams)
         : stylesOrDelegate;
-      const classes = (makeStyles()({ ...ownPredefinedStyles, ...actualPredefinedStyles, ...actualStyles })()
-        .classes) as ConvertToClasses<PredefinedStyles & TNewStyles & TStyles>;
-
-      const join = (...names: (string | false | undefined)[]): string | undefined => {
-        const validNames = names.filter(is.not.empty).cast<string>();
-        if (validNames.length === 0) return undefined;
-        return validNames.join(' ');
-      };
+      const result = (makeStyles()({ ...ownPredefinedStyles, ...actualPredefinedStyles, ...actualStyles })());
+      const classes = result.classes as ConvertToClasses<PredefinedStyles & TNewStyles & TStyles>;
+      const join = (...names: (string | false | undefined)[]): string | undefined => result.cx(...names);
 
       return {
         classes,

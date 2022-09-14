@@ -5,7 +5,7 @@
     "noUnusedParameters": false,
     "experimentalDecorators": true,
     "importHelpers": false,
-    "noEmit": true,
+    "noEmit": false,
     "removeComments": true,
     "module": "CommonJS",
     "resolveJsonModule": true,

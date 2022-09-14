@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { useOnUnmount } from '../useOnUnmount';
 
 export function useForceUpdate(): () => void {

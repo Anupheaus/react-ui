@@ -2,7 +2,7 @@ import { AnyObject } from 'anux-common';
 import { ReactNode } from 'react';
 
 interface Props {
-  error?: Error;
+  error?: unknown;
   message?: ReactNode;
   title?: ReactNode;
   meta?: AnyObject;
@@ -14,12 +14,15 @@ export class AnuxError extends Error {
     super('');
     Object.setPrototypeOf(this, new.target.prototype);
     if (error != null) {
-      message = error.message;
-      title = error.name;
-      this.stack = error.stack;
+      if (error instanceof Error) {
+        message = error.message;
+        title = error.name;
+        this.stack = error.stack;
+      }
     }
     this.name = new.target.name;
     this.#message = message ?? null;
+    Reflect.defineProperty(this, 'message', { get: () => this.#message, configurable: true, enumerable: true });
     this.#title = title ?? null;
     this.#hasBeenHandled = false;
     this.#meta = meta;
@@ -32,9 +35,6 @@ export class AnuxError extends Error {
   #meta: AnyObject | undefined;
   #isAsync: boolean;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  public get message(): ReactNode { return this.#message; }
   public get title() { return this.#title; }
   public get hasBeenHandled() { return this.#hasBeenHandled; }
   public get meta() { return this.#meta; }

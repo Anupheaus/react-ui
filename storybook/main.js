@@ -1,6 +1,7 @@
 module.exports = {
   stories: ['../src/**/*.stories.@(tsx|ts)'],
   core: { builder: 'webpack5' },
+  staticDirs: ['./public'],
   addons: [
     '@storybook/addon-essentials',
   ],

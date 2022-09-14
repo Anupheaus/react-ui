@@ -2,14 +2,20 @@ import { createTheme as createMuiTheme } from '@mui/material/styles';
 import { createStyledTag } from './createStyledTag';
 import { createStyles as internalCreateStyles } from './createStyles';
 import { ThemeStyles, ThemeValues } from './themeModels';
+import { createKeyFrameFactory } from './createKeyFrames';
+import { createGlobalStylesComponent } from './createGlobal';
 
 export function createTheme<TValues extends ThemeValues = {}, TStyles extends ThemeStyles = {}>(values: TValues = {} as TValues,
   predefinedStyles: (values: TValues) => TStyles = () => ({}) as TStyles) {
   const createStyles = internalCreateStyles<TValues, TStyles>(values, predefinedStyles);
+  const createKeyFrame = createKeyFrameFactory();
+
   const originalTheme = createMuiTheme();
   return {
     createStyles,
     createStyledTag: createStyledTag<TValues, TStyles>(createStyles),
+    createKeyFrame,
+    createGlobalStyles: createGlobalStylesComponent,
     ...(originalTheme as unknown as {}),
   };
 }

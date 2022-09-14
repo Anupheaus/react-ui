@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useBatchUpdates } from '../useBatchUpdates';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { useForceUpdate } from '../useForceUpdate';
 
 export interface ReadOnlyObservable<T> {

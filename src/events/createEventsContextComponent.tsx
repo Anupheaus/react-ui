@@ -1,6 +1,6 @@
 import { Context, useContext, useEffect, useMemo, useRef } from 'react';
 import { anuxPureFC } from '../anuxComponents';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { AnuxEvent } from './AnuxEvent';
 import { OnEventType } from './models';
 import { ContextProps } from './context';

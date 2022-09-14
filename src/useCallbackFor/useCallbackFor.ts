@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentProps, JSXElementConstructor } from 'react';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 
 type OnlyFunctionsOf<T> = Pick<T, { [K in keyof T]: T[K] extends Function ? K : never; }[keyof T]>;
 
-type ReplaceFunctionsWithHandlers<T extends { [key: string]: (...args: any[]) => any }> = {
+type ReplaceFunctionsWithHandlers<T extends { [key: string]: (...args: any[]) => any; }> = {
   [K in keyof T]: (handler: (...args: Parameters<T[K]>) => ReturnType<T[K]>) => ((...args: Parameters<T[K]>) => ReturnType<T[K]>);
 };
 

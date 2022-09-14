@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from 'react';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { useDistributedState } from '../DistributedState';
 import { anuxPureFC } from '../anuxComponents';
 import { theme } from '../theme';

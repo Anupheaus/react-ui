@@ -1,6 +1,6 @@
 import { createContext, useContext as useReactContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { anuxPureFC } from '../anuxComponents';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { useForceUpdate } from '../useForceUpdate';
 
 interface AnuxContext<T> {

@@ -1,35 +1,26 @@
-import { IconType as RIIconType } from 'react-icons/lib';
-import * as icons from 'react-icons/all';
 import { anuxPureFC } from '../../anuxComponents';
-import { theme } from '../../theme';
-import { MapOf } from 'anux-common';
-import { Flex } from '../Flex/Flex';
+import { IconDefinition, IconType, Theme } from '../../providers/ThemeProvider';
+import { Tag } from '../Tag';
+import { IconTheme } from './IconTheme';
 
-const useStyles = theme.createStyles({
-  icon: {
-    opacity: 0.7,
-    minWidth: 16,
-    minHeight: 16,
-    padding: 1,
-  },
-});
-
-export type IconNameType = keyof typeof icons;
+export { IconType };
 
 interface Props {
-  name: IconNameType;
   className?: string;
   size?: 'normal' | 'small' | 'large' | number;
+  theme?: typeof IconTheme;
+  children: IconType | undefined;
 }
 
 export const Icon = anuxPureFC<Props>('Icon', ({
-  name,
   className,
   size = 'normal',
-}) => {
-  const { classes, join } = useStyles();
+  theme,
+  children,
+}, ref) => {
+  const { classes, join } = useTheme(theme);
+  const renderIcon = children as unknown as IconDefinition;
 
-  const IconComponent: RIIconType = (icons as unknown as MapOf<RIIconType>)[name as string];
   const sizeAmount = (() => {
     if (typeof (size) === 'number') return size;
     switch (size) {
@@ -40,8 +31,21 @@ export const Icon = anuxPureFC<Props>('Icon', ({
   })();
 
   return (
-    <Flex tagName="Icon" className={join(classes.icon, className)} alignCentrally fixedSize>
-      <IconComponent size={sizeAmount} />
-    </Flex>
+    <Tag name="Icon" ref={ref} className={join(classes.icon, className)}>
+      {renderIcon({ size: sizeAmount })}
+    </Tag>
   );
 });
+
+const useTheme = Theme.createThemeUsing(IconTheme, styles => ({
+  icon: {
+    display: 'flex',
+    opacity: styles.opacity,
+    minWidth: 16,
+    minHeight: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+}));

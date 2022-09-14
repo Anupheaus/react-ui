@@ -1,6 +1,6 @@
 import { ComponentProps, useMemo } from 'react';
 import { anuxPureFC } from '../anuxComponents';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { useDistributedState } from '../DistributedState';
 import { DistributedDrawerState } from './DistributedDrawerState';
 import { Drawer as DrawerComponent } from './Drawer';

@@ -1,5 +1,5 @@
 import { is } from 'anux-common';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 
 export function useLocalStorage<T = unknown>(key: string): [T | undefined, (value: T | null) => void];
 export function useLocalStorage<T>(key: string, defaultValue: () => T): [T, (value: T | null) => void];

@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useOnUnmount } from '../useOnUnmount';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 
 interface IOptions {
   triggerOnUnmount?: boolean;

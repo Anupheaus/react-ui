@@ -1,6 +1,6 @@
 import { SyntheticEvent } from 'react';
 import { anuxPureFC } from '../anuxComponents';
-import { useDelegatedBound } from '../useDelegatedBound';
+import { useDelegatedBound } from '../hooks/useBound';
 import { Flex } from '../components';
 
 

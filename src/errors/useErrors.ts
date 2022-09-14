@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
-import { Context } from './context';
+import { Context } from './ErrorContexts';
 import { OnErrorProps } from './models';
 
 export function useErrors() {

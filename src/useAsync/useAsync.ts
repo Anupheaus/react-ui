@@ -1,89 +1,100 @@
-import { useState } from 'react';
-import { useBound } from '../useBound';
+import { NotPromise, PromiseMaybe, Unsubscribe } from 'anux-common';
+import { useMemo, useRef } from 'react';
+import { useBound } from '../hooks/useBound';
+import { useForceUpdate } from '../useForceUpdate';
 import { useOnUnmount } from '../useOnUnmount';
 
 export interface UseAsyncState {
-  onCancelled(delegate: () => void): void;
+  requestId: string;
+  onCancelled(delegate: Unsubscribe): void;
   hasBeenCancelled(): boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AsyncDelegate<ResultType = any> = (state: UseAsyncState, ...args: any[]) => Promise<ResultType>;
+export type AsyncDelegate<ResultType = any> = (state: UseAsyncState, ...args: any[]) => PromiseMaybe<ResultType>;
 
-type GetParametersOfDelegate<T> = T extends (state: UseAsyncState, ...args: infer R) => unknown ? R : never;
+// type GetParametersOfDelegate<T> = T extends (state: UseAsyncState, ...args: infer R) => unknown ? R : never;
 
-export type UseAsyncTrigger<DelegateType extends AsyncDelegate> = (...args: GetParametersOfDelegate<DelegateType>) => ReturnType<DelegateType>;
-export type UseAsyncResponse<T> = T extends (...args: unknown[]) => Promise<infer R> ? R : never;
-export type UseAsyncCancel = () => Promise<void>;
-export type UseAsyncOnCancelled = (handler: () => void) => void;
+export type UseAsyncTrigger<DelegateType extends AsyncDelegate> = (...args: Parameters<DelegateType>) => ReturnType<DelegateType>;
+export type UseAsyncResponse<T extends AsyncDelegate> = NotPromise<ReturnType<T>>;
+export type UseAsyncCancel = () => void;
+export type UseAsyncCancelDelegate = (props: { requestId: string; }) => void;
+export type UseAsyncOnCancelled = (handler: UseAsyncCancelDelegate) => void;
 export interface UseAsyncResult<DelegateType extends AsyncDelegate> {
-  response: UseAsyncResponse<DelegateType>;
-  isBusy: boolean;
+  response: UseAsyncResponse<DelegateType> | undefined;
+  isLoading: boolean;
   trigger: UseAsyncTrigger<DelegateType>;
   cancel: UseAsyncCancel;
   onCancelled: UseAsyncOnCancelled;
+}
+
+interface Props {
+  manuallyTriggered?: boolean;
 }
 
 export interface UseAsyncOptions {
   cancelCurrentRequestOnInvocation?: 'never' | 'whenSameParamsAreUsed' | 'always';
 }
 
-interface InternalState {
-  isBusy: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  response: any;
-}
+export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateType, dependencies: unknown[] = [], { manuallyTriggered = false }: Props = {}): UseAsyncResult<DelegateType> {
+  const responseRef = useRef<NotPromise<ReturnType<DelegateType>>>();
+  const lastRequestRef = useRef<string>('');
+  const onLocalCancelledCallbacks = useRef(new Set<Unsubscribe>()).current;
+  const onGlobalCancelledCallbacks = useRef(new Set<UseAsyncCancelDelegate>()).current;
+  const isLoadingRef = useRef(false);
+  const update = useForceUpdate();
 
-export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateType): UseAsyncResult<DelegateType> {
-  let request: ReturnType<DelegateType> | undefined;
-  let isCancelled = false;
-  const onCancelledHandlers: (() => void)[] = [];
-  const [{ isBusy, response }, setState] = useState<InternalState>({ isBusy: false, response: undefined });
-
-  const cancel = async () => {
-    if (!request) return;
-    isCancelled = true;
-    const tempRequest = request;
-    onCancelledHandlers.forEach(handler => handler());
-    onCancelledHandlers.clear();
-    request = undefined;
-    await tempRequest;
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    updateState({ isBusy: false });
-  };
-
-  const isUnmounted = useOnUnmount(() => {
+  const hasUnmountedRef = useOnUnmount(() => {
     cancel();
   });
 
-  const updateState = (state: Partial<InternalState>): void => {
-    if (isUnmounted.current) { return; } // no need to update the busy flag as we are unmounting.
-    setState(s => ({ ...s, ...state }));
-  };
+  const cancel = useBound(() => {
+    if (lastRequestRef.current === '') return;
+    onLocalCancelledCallbacks.forEach(cb => cb());
+    onGlobalCancelledCallbacks.forEach(cb => cb({ requestId: lastRequestRef.current }));
+    onLocalCancelledCallbacks.clear();
+    lastRequestRef.current = '';
+  });
 
-  const reset = (result: unknown) => {
-    request = undefined;
-    updateState({ isBusy: false, response: result });
-    return result;
-  };
-
-  const onCancelled = (handler: () => void): void => {
-    if (onCancelledHandlers.includes(handler)) { return; }
-    onCancelledHandlers.push(handler);
-  };
+  const onCancelled = (onCancelledDelegate: UseAsyncCancelDelegate) => onGlobalCancelledCallbacks.add(onCancelledDelegate);
 
   const trigger = useBound<UseAsyncTrigger<DelegateType>>((...args) => {
     cancel();
-    updateState({ isBusy: true });
+    const requestId = lastRequestRef.current = Math.uniqueId();
+    let hasBeenCancelled = false;
+    onLocalCancelledCallbacks.add(() => { hasBeenCancelled = true; });
     const state: UseAsyncState = {
-      hasBeenCancelled: () => isCancelled,
-      onCancelled,
+      requestId,
+      onCancelled: cancelledDelegate => onLocalCancelledCallbacks.add(cancelledDelegate),
+      hasBeenCancelled: () => requestId !== lastRequestRef.current || hasBeenCancelled,
     };
+    const result = delegate(state, ...args);
+    if (result instanceof Promise) {
+      isLoadingRef.current = true;
+      result.then(value => {
+        if (requestId !== lastRequestRef.current || hasUnmountedRef.current) return;
+        isLoadingRef.current = false;
+        if (hasBeenCancelled) return;
+        responseRef.current = value;
+        update();
+      });
+    } else {
+      responseRef.current = result;
+      isLoadingRef.current = false;
+    }
+    return result;
+  });
 
-    request = delegate(state, ...args) as ReturnType<DelegateType>;
-    request.then(reset);
-    return request;
-  }) as UseAsyncTrigger<DelegateType>;
+  useMemo(() => {
+    if (manuallyTriggered || trigger.length !== 0) return;
+    trigger(...[] as any);
+  }, dependencies);
 
-  return { trigger, response, isBusy, cancel, onCancelled };
+  return {
+    trigger,
+    get response() { return responseRef.current; },
+    get isLoading() { return isLoadingRef.current; },
+    cancel,
+    onCancelled,
+  };
 }

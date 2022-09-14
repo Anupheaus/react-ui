@@ -1,6 +1,6 @@
 import { is } from 'anux-common';
 import { useRef } from 'react';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 
 interface PromiseData {
   promise: Promise<unknown>;

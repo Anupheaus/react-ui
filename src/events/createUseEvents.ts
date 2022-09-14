@@ -1,6 +1,6 @@
 import { ConstructorOf, is } from 'anux-common';
 import { Context, useContext, useEffect } from 'react';
-import { useBound } from '../useBound';
+import { useBound } from '../hooks/useBound';
 import { AnuxEvent } from './AnuxEvent';
 import { ContextProps } from './context';
 import { OnEventType } from './models';

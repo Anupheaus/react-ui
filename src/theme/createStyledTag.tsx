@@ -2,7 +2,7 @@ import { is } from 'anux-common';
 import { ComponentProps } from 'react';
 import { CSSObject } from 'tss-react';
 import { anuxPureFC } from '../anuxComponents';
-import { Tag } from '../Tag';
+import { Tag } from '../components/Tag';
 import { CreateStyles } from './createStyles';
 import { CreateStylesApi, ThemeStyles, ThemeUsing, ThemeValues } from './themeModels';
 

@@ -25,115 +25,115 @@ interface Props {
   children?(testTarget: HTMLTargetDelegate): ReactElement;
 }
 
-function testWithConfig(name: string, delegate: (testProps: TestPropsWithConfig) => void): void {
-  it(name, () => {
-    const testProps: TestPropsWithConfig = {
-      element: undefined,
-      oldElement: undefined,
-      connectedCallCount: 0,
-      disconnectedCallCount: 0,
-      component: undefined as unknown as ReactWrapper,
-      innerRenderCount: 0,
-      renderCount: 0,
-    };
+// function testWithConfig(name: string, delegate: (testProps: TestPropsWithConfig) => void): void {
+//   it(name, () => {
+//     const testProps: TestPropsWithConfig = {
+//       element: undefined,
+//       oldElement: undefined,
+//       connectedCallCount: 0,
+//       disconnectedCallCount: 0,
+//       component: undefined as unknown as ReactWrapper,
+//       innerRenderCount: 0,
+//       renderCount: 0,
+//     };
 
-    const Component = anuxFC<Props>('Component', ({ children }) => {
-      testProps.renderCount++;
-      const testTarget = useDOMRef({
-        connected: element => { testProps.element = element; testProps.oldElement = undefined; testProps.connectedCallCount++; },
-        disconnected: oldElement => { testProps.element = undefined; testProps.oldElement = oldElement; testProps.disconnectedCallCount++; },
-      });
-      return children?.(testTarget) ?? (<div></div>);
-    });
+//     const Component = anuxFC<Props>('Component', ({ children }) => {
+//       testProps.renderCount++;
+//       const testTarget = useDOMRef({
+//         connected: element => { testProps.element = element; testProps.oldElement = undefined; testProps.connectedCallCount++; },
+//         disconnected: oldElement => { testProps.element = undefined; testProps.oldElement = oldElement; testProps.disconnectedCallCount++; },
+//       });
+//       return children?.(testTarget) ?? (<div></div>);
+//     });
 
-    const component = mount((
-      <Component>
-        {target => {
-          testProps.innerRenderCount++;
-          return (
-            <div ref={target}></div>
-          );
-        }}
-      </Component>
-    ));
-    testProps.component = component;
-    delegate(testProps as TestPropsWithConfig);
-    component.unmount();
-  });
-}
+//     const component = mount((
+//       <Component>
+//         {target => {
+//           testProps.innerRenderCount++;
+//           return (
+//             <div ref={target}></div>
+//           );
+//         }}
+//       </Component>
+//     ));
+//     testProps.component = component;
+//     delegate(testProps as TestPropsWithConfig);
+//     component.unmount();
+//   });
+// }
 
-function testWithoutConfig(name: string, delegate: (testProps: TestPropsWithoutConfig) => void): void {
-  it(name, () => {
-    const testProps: TestPropsWithoutConfig = {
-      element: undefined,
-      component: undefined as unknown as ReactWrapper,
-      innerRenderCount: 0,
-      renderCount: 0,
-    };
+// function testWithoutConfig(name: string, delegate: (testProps: TestPropsWithoutConfig) => void): void {
+//   it(name, () => {
+//     const testProps: TestPropsWithoutConfig = {
+//       element: undefined,
+//       component: undefined as unknown as ReactWrapper,
+//       innerRenderCount: 0,
+//       renderCount: 0,
+//     };
 
-    const Component = anuxFC<Props>('Component', ({ children }) => {
-      const [element, target] = useDOMRef();
-      testProps.renderCount++;
-      testProps.element = element;
-      return children?.(target) ?? (<div></div>);
-    });
+//     const Component = anuxFC<Props>('Component', ({ children }) => {
+//       const [element, target] = useDOMRef();
+//       testProps.renderCount++;
+//       testProps.element = element;
+//       return children?.(target) ?? (<div></div>);
+//     });
 
-    const component = mount((
-      <Component>
-        {target => {
-          testProps.innerRenderCount++;
-          return (
-            <div ref={target}></div>
-          );
-        }}
-      </Component>
-    ));
-    testProps.component = component;
-    delegate(testProps);
-    component.unmount();
-  });
-}
+//     const component = mount((
+//       <Component>
+//         {target => {
+//           testProps.innerRenderCount++;
+//           return (
+//             <div ref={target}></div>
+//           );
+//         }}
+//       </Component>
+//     ));
+//     testProps.component = component;
+//     delegate(testProps);
+//     component.unmount();
+//   });
+// }
 
-function test(name: string, withConfig: true, delegate: (testProps: TestPropsWithConfig) => void): void;
-function test(name: string, withConfig: false, delegate: (testProps: TestPropsWithoutConfig) => void): void;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function test(name: string, withConfig: boolean, delegate: (testProps: any) => void): void {
-  if (withConfig) { testWithConfig(name, delegate); } else { testWithoutConfig(name, delegate); }
-}
+// function test(name: string, withConfig: true, delegate: (testProps: TestPropsWithConfig) => void): void;
+// function test(name: string, withConfig: false, delegate: (testProps: TestPropsWithoutConfig) => void): void;
+// // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// function test(name: string, withConfig: boolean, delegate: (testProps: any) => void): void {
+//   if (withConfig) { testWithConfig(name, delegate); } else { testWithoutConfig(name, delegate); }
+// }
 
 describe('useDOMRef', () => {
 
   describe('with config', () => {
 
-    test('returns the expected values', true, state => {
-      expect(state.element).not.to.be.undefined;
-      expect(state.oldElement).to.be.undefined;
-      expect(state.connectedCallCount).to.eq(1);
-      expect(state.disconnectedCallCount).to.eq(0);
-      expect(state.innerRenderCount).to.eq(1);
-      expect(state.renderCount).to.eq(1);
-      state.component.setProps({ children: null });
-      expect(state.element).to.be.undefined;
-      expect(state.oldElement).not.to.be.undefined;
-      expect(state.connectedCallCount).to.eq(1);
-      expect(state.disconnectedCallCount).to.eq(1);
-      expect(state.innerRenderCount).to.eq(1);
-      expect(state.renderCount).to.eq(2);
-    });
+    // test('returns the expected values', true, state => {
+    //   expect(state.element).not.to.be.undefined;
+    //   expect(state.oldElement).to.be.undefined;
+    //   expect(state.connectedCallCount).to.eq(1);
+    //   expect(state.disconnectedCallCount).to.eq(0);
+    //   expect(state.innerRenderCount).to.eq(1);
+    //   expect(state.renderCount).to.eq(1);
+    //   state.component.setProps({ children: null });
+    //   expect(state.element).to.be.undefined;
+    //   expect(state.oldElement).not.to.be.undefined;
+    //   expect(state.connectedCallCount).to.eq(1);
+    //   expect(state.disconnectedCallCount).to.eq(1);
+    //   expect(state.innerRenderCount).to.eq(1);
+    //   expect(state.renderCount).to.eq(2);
+    // });
 
   });
 
   describe('without config', () => {
 
-    test('returns the expected values', false, state => {
-      expect(state.element?.current).not.to.be.undefined;
-      expect(state.innerRenderCount).to.eq(1);
-      expect(state.renderCount).to.eq(1);
-      state.component.setProps({ children: null });
-      expect(state.element?.current).to.be.undefined;
-      expect(state.innerRenderCount).to.eq(1);
-      expect(state.renderCount).to.eq(2);
-    });
+    // test('returns the expected values', false, state => {
+    //   expect(state.element?.current).not.to.be.undefined;
+    //   expect(state.innerRenderCount).to.eq(1);
+    //   expect(state.renderCount).to.eq(1);
+    //   state.component.setProps({ children: null });
+    //   expect(state.element?.current).to.be.undefined;
+    //   expect(state.innerRenderCount).to.eq(1);
+    //   expect(state.renderCount).to.eq(2);
+    // });
 
   });
 

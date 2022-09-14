@@ -1,30 +1,42 @@
-import { PureComponent } from 'react';
-import { AnuxErrorHandler } from './ErrorHandler';
-import { ErrorHandlerProps } from './models';
+import { memo, PropsWithChildren, useMemo, useRef } from 'react';
+import { ErrorContexts, RecordErrorsContextProps } from './ErrorContexts';
+import { AnuxError } from './types';
+import { useBound } from '../hooks/useBound';
+import { useOnUnmount } from '../useOnUnmount';
 
-interface Props extends ErrorHandlerProps { }
-
-interface State {
-  error: Error | undefined;
+interface Props {
+  onError?(error: AnuxError): void;
 }
 
-export class AnuxErrorBoundary extends PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { error: undefined };
-    this.clearError = this.clearError.bind(this);
-  }
+const boundErrorsToHandler = new WeakMap<AnuxError, string>();
 
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
-  }
+export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
+  children = null,
+  onError,
+}) => {
+  const isUnmounted = useOnUnmount();
+  const hasErrorRef = useRef(false);
 
-  public render() {
-    return (<AnuxErrorHandler {...this.props} error={this.state.error} onClearError={this.clearError} />);
-  }
+  const recordError = useBound((rawError: unknown) => {
+    const error = rawError instanceof AnuxError ? rawError : new AnuxError({ error: rawError });
+    hasErrorRef.current = true;
+    setTimeout(() => { // get around setting any state during rendering
+      if (isUnmounted()) return;
+      onError?.(error);
+    }, 0);
+  });
 
-  private clearError() {
-    this.setState({ error: undefined });
-  }
+  const recordErrorsContext = useMemo<RecordErrorsContextProps>(() => ({
+    recordError,
+  }), []);
 
-}
+  if (hasErrorRef.current) return null;
+
+  return (
+    <ErrorContexts.recordErrors.Provider value={recordErrorsContext}>
+      {children}
+    </ErrorContexts.recordErrors.Provider>
+  );
+});
+
+ErrorBoundary.displayName = 'ErrorHandler';

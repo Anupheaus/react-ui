@@ -1,26 +1,40 @@
 import { ArgTypes } from '@storybook/react';
 import { FunctionComponent, ReactNode, useMemo } from 'react';
 import { theme } from '../theme';
-import { AnyObject, MapOf, PromiseMaybe } from 'anux-common';
+import { AnyObject, Event, MapOf, PromiseMaybe } from 'anux-common';
 import { within, userEvent } from '@storybook/testing-library';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
 import { StorybookComponent } from './StorybookComponent';
 import { ThemeProvider, Typography } from '@mui/material';
 import { AnuxFC } from '../anuxComponents';
+import { TestHookOnRenderProps } from './StorybookModels';
+
+const GlobalStyles = theme.createGlobalStyles({
+  '@font-face': {
+    fontFamily: 'Mulish',
+    src: 'url(/font/Mulish-Regular.ttf)',
+  },
+  'html, body': {
+    height: '100%',
+    padding: 0,
+    margin: 0,
+    fontFamily: 'Mulish',
+    fontSize: 16,
+  },
+  'input, button': {
+    color: 'unset',
+    cursor: 'unset',
+    fontSize: 'inherit',
+    fontWeight: 'inherit',
+    fontFamily: 'inherit',
+    backgroundColor: 'inherit',
+  },
+  'div#root': {
+    height: '100%',
+  },
+});
 
 const useStyles = theme.createStyles({
-  '@global': {
-    'html, body': {
-      height: '100%',
-      padding: 0,
-      margin: 0,
-      fontFamily: 'Mulish',
-      fontSize: 16,
-    },
-    'div#root': {
-      height: '100%',
-    },
-  },
   stories: {
     display: 'flex',
     flex: 'auto',
@@ -29,28 +43,33 @@ const useStyles = theme.createStyles({
   },
 });
 
-function setupFont() {
-  for (const item of Array.from(document.head.children)) {
-    if (item instanceof HTMLLinkElement && item.href.includes('Mulish')) return;
-  }
-  const link = document.createElement('link');
-  link.href = 'https://fonts.googleapis.com/css?family=Mulish:300,400,500,600,700&display=swap';
-  link.rel = 'stylesheet';
-  document.head.append(link);
-}
-
 function isStoryConfig(value: unknown): value is StoryConfig {
   return typeof value === 'object' && value !== null && 'component' in value;
 }
 
-function addAdditionalHelpers(element: HTMLElement) {
+function addAdditionalHelpers(element: HTMLElement, hookExecutor: (delegate: (renderCount: number) => void) => void) {
   const getByAttribute = (name: string, value: string) => {
     const result = element.querySelector(`[${name}*="${value}"]`);
     if (!result) throw new Error(`Unable to find an element for this test that contains an attribute named "${name}" and contains "${value}" in the value.`);
     return result;
   };
+
+  async function testHook<T>(delegate: (renderCount: number) => T) {
+    const results = new Set<T>();
+    const onRender = Event.create<(props: TestHookOnRenderProps<T>) => void>({ raisePreviousEventsOnNewSubscribers: true });
+    hookExecutor(renderCount => {
+      results.add(JSON.parse(JSON.stringify(delegate(renderCount))));
+      Event.raise(onRender, { results, renderCount });
+    });
+    return {
+      results,
+      onRender,
+    };
+  }
+
   return {
     getByAttribute,
+    testHook,
   };
 }
 
@@ -95,6 +114,8 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
     let delaySnapshot: number | undefined;
     let diffThreshold: number | undefined;
     let wrapInStorybookComponent = true;
+    let hookExecutor: (delegate: (renderCount: number) => void) => void = () => void 0;
+
     if (typeof value === 'function') {
       InternalComponent = value as unknown as AnuxFC<T>;
       (value as any).storyName = storyName;
@@ -116,9 +137,11 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
         const { classes } = useStyles();
         const context = useMemo<StorybookContextProps>(() => ({
           isTestBorderVisible,
+          registerHookExecutor: executor => { hookExecutor = executor; },
         }), [isTestBorderVisible]);
         if (InternalComponent == null) return null;
-        return (
+        return (<>
+          <GlobalStyles />
           <ThemeProvider theme={theme}>
             <StorybookContext.Provider value={context}>
               <div className={classes.stories}>
@@ -139,7 +162,7 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
               </div>
             </StorybookContext.Provider>
           </ThemeProvider>
-        );
+        </>);
       };
       (Component as any).parameters = {
         chromatic: {
@@ -151,7 +174,7 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
       module.exports[storyId] = Component;
       if (test != null) {
         (Component as any).play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {
-          await test?.({ ...within(canvasElement), ...userEvent, ...addAdditionalHelpers(canvasElement) });
+          await test?.({ ...within(canvasElement), ...userEvent, ...addAdditionalHelpers(canvasElement, hookExecutor) });
         };
       }
     }
@@ -165,12 +188,9 @@ export function createStories<TProps extends {} = {}>(delegate: (helpers: StoryH
 export function createStories<TProps extends {} = {}>(config: StoriesConfig<TProps>): void;
 export function createStories<TProps extends {} = {}>(delegateOrConfig: ((helpers: StoryHelpers<TProps>) => StoriesConfig<TProps>) | StoriesConfig<TProps>): void {
   const delegate = typeof (delegateOrConfig) === 'function' ? delegateOrConfig : () => delegateOrConfig;
-  const { name, stories, props, module } = delegate({
-    createStory: config => config,
-  });
-  const component: FunctionComponent = () => null;
 
-  setupFont();
+  const { name, stories, props, module } = delegate({ createStory: config => config });
+  const component: FunctionComponent = () => null;
 
   module.exports.default = {
     title: name,

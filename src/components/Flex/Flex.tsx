@@ -1,7 +1,7 @@
 import { to } from 'anux-common';
 import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode } from 'react';
 import { anuxPureFC } from '../../anuxComponents';
-import { Tag } from '../../Tag';
+import { Tag } from '../Tag';
 import { theme } from '../../theme';
 
 type StyleProps = Omit<Props, 'align' | 'valign'> & { align: CSSProperties['justifyContent']; valign: CSSProperties['alignItems']; };
@@ -95,7 +95,7 @@ export const Flex = anuxPureFC<Props>('Flex', ({
   allowFocus,
   children = null,
   ...props
-}) => {
+}, ref) => {
   if (alignCentrally) { providedAlign = providedAlign ?? 'center'; providedVAlign = providedVAlign ?? 'center'; }
   const align = providedAlign != null ? to.switchMap<Required<Props>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
     left: 'flex-start',
@@ -118,6 +118,7 @@ export const Flex = anuxPureFC<Props>('Flex', ({
     <Tag
       name={tagName}
       {...props}
+      ref={ref}
       className={join(
         classes.flex,
         classes.optionalProps,

@@ -1,8 +1,8 @@
-import { useEffect, useRef, RefObject } from 'react';
+import { useEffect, useRef } from 'react';
 
-export function useOnUnmount(): RefObject<boolean>;
-export function useOnUnmount(delegate: () => void): RefObject<boolean>;
-export function useOnUnmount(delegate?: () => void): RefObject<boolean> {
+export function useOnUnmount(): () => boolean;
+export function useOnUnmount(delegate: () => void): () => boolean;
+export function useOnUnmount(delegate?: () => void): () => boolean {
   const hasUnmountedRef = useRef(false);
 
   useEffect(() => () => {
@@ -10,5 +10,5 @@ export function useOnUnmount(delegate?: () => void): RefObject<boolean> {
     if (typeof (delegate) === 'function') { delegate(); }
   }, []);
 
-  return hasUnmountedRef as RefObject<boolean>;
+  return () => hasUnmountedRef.current;
 }
