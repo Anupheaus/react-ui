@@ -1,9 +1,10 @@
 import { CSSProperties, useMemo, useRef } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
-import { useDOMRef } from '../../useDOMRef';
-import { Theme } from '../../providers/ThemeProvider';
+import { useDOMRef } from '../../hooks/useDOMRef';
 import { RippleState } from './RippleModels';
+import { DistributedState, useDistributedState } from '../../hooks';
+import { createAnimationKeyFrame } from '../../theme';
 import { RippleTheme } from './RippleTheme';
 
 function getMarginFrom(element: HTMLElement) {
@@ -35,64 +36,13 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
   return { width: size, height: size, top, left };
 }
 
-interface Props {
-  state: RippleState;
-  theme?: typeof RippleTheme;
-  variant?: 'light' | 'normal';
+export interface RippleProps { }
+
+interface Props extends RippleProps {
+  state: DistributedState<RippleState>;
 }
 
-export const Ripple = anuxPureFC<Props>('Ripple', ({
-  state,
-  theme,
-}) => {
-  const { classes, join } = useTheme(theme);
-  const { isActive, x, y, useCoords } = state;
-  const beenActiveRef = useRef(false);
-  const [element, target] = useDOMRef();
-
-  if (isActive === true) beenActiveRef.current = true;
-
-  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
-    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
-
-  return (
-    <Tag ref={target} name="ui-ripple" className={classes.UIRipple}>
-      <Tag
-        name="ui-ripple-animation"
-        className={join(
-          classes.rippleAnimation,
-          isActive && classes.isActive,
-          !isActive && beenActiveRef.current && classes.isInActive,
-        )}
-        style={rippleStyle}
-      />
-    </Tag>
-  );
-});
-
-const activeKeyFrame = Theme.createAnimationKeyFrame({
-  from: {
-    transform: 'scale(0)',
-    opacity: 1,
-  },
-  to: {
-    transform: 'scale(1)',
-    opacity: 0.5,
-  },
-});
-
-const inactiveKeyFrame = Theme.createAnimationKeyFrame({
-  from: {
-    transform: 'scale(1)',
-    opacity: 0.5,
-  },
-  to: {
-    transform: 'scale(1)',
-    opacity: 0,
-  }
-});
-
-const useTheme = Theme.createThemeUsing(RippleTheme, styles => ({
+export const Ripple = pureFC<Props>()('Ripple', RippleTheme, ({ color }) => ({
   UIRipple: {
     position: 'absolute',
     top: 0,
@@ -109,7 +59,7 @@ const useTheme = Theme.createThemeUsing(RippleTheme, styles => ({
     animationFillMode: 'forwards',
     animationDuration: '800ms',
     animationTimingFunction: 'ease-out',
-    backgroundColor: styles.color,
+    backgroundColor: color,
     pointerEvents: 'none',
   },
   isActive: {
@@ -119,4 +69,56 @@ const useTheme = Theme.createThemeUsing(RippleTheme, styles => ({
     animationDuration: '400ms',
     animationName: inactiveKeyFrame,
   },
-}));
+}), ({
+  state,
+  theme: {
+    css,
+    join,
+  },
+}) => {
+  const { getAndObserve } = useDistributedState(state);
+  const { isActive, x, y, useCoords } = getAndObserve();
+  const beenActiveRef = useRef(false);
+  const [element, target] = useDOMRef();
+
+  if (isActive === true) beenActiveRef.current = true;
+
+  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
+    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+
+  return (
+    <Tag ref={target} name="ui-ripple" className={css.UIRipple}>
+      <Tag
+        name="ui-ripple-animation"
+        className={join(
+          css.rippleAnimation,
+          isActive && css.isActive,
+          !isActive && beenActiveRef.current && css.isInActive,
+        )}
+        style={rippleStyle}
+      />
+    </Tag>
+  );
+});
+
+const activeKeyFrame = createAnimationKeyFrame({
+  from: {
+    transform: 'scale(0)',
+    opacity: 1,
+  },
+  to: {
+    transform: 'scale(1.2)',
+    opacity: 0.5,
+  },
+});
+
+const inactiveKeyFrame = createAnimationKeyFrame({
+  from: {
+    transform: 'scale(1.2)',
+    opacity: 0.5,
+  },
+  to: {
+    transform: 'scale(1.2)',
+    opacity: 0,
+  }
+});

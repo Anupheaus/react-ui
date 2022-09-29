@@ -1,20 +1,26 @@
+/** @jsx jsx */
 import { createElement, CSSProperties, useCallback, useMemo } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { AnyObject } from 'anux-common';
 import { TooltipRenderer } from '../Tooltip/TooltipRenderer';
 
-interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref'> {
+interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref' | 'className'> {
   name: string;
+  className?: string;
   width?: string | number;
 }
 
-export const Tag = anuxPureFC<Props>('Tag', ({ name, children, logging, enableLogging, ...rest }, passedRef) => {
+export const Tag = pureFC<Props>()('Tag', ({
+  name,
+  className,
+  children,
+  ...rest
+}, passedRef) => {
   const { style: providedStyle, width, ...props } = {
-    class: rest.className,
+    class: className,
     is: 'custom-element',
     ...rest,
   };
-  delete props.className;
   delete (props as AnyObject)['classname'];
 
   const ref = useCallback((element?: HTMLElement) => {
@@ -33,15 +39,13 @@ export const Tag = anuxPureFC<Props>('Tag', ({ name, children, logging, enableLo
     return newStyle;
   }, [providedStyle, width]);
 
-  const content = createElement(
-    name,
-    { key: name, ...props, style, ref },
-    children,
-  );
-
   return (
     <TooltipRenderer>
-      {content}
+      {createElement(
+        name,
+        { key: name, ...props, style, ref },
+        children,
+      )}
     </TooltipRenderer>
   );
 });

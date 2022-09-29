@@ -1,30 +1,28 @@
-import { MapOf } from 'anux-common';
+import { AnyObject, DeepPartial, MapOf } from 'anux-common';
+import { ReactNode } from 'react';
 import { CSSObject } from 'tss-react';
-import type { PredefinedStyles } from './predefinedStyles';
 
-type ThemeStructureValue = MapOf<string | number | ThemeStructureValue>;
-
-interface ThemePredefinedStructurePrimarySecondaryValues {
-  textColor?: string;
-  backgroundColor?: string;
+export interface IconTypeProps {
+  size?: 'normal' | 'small' | 'large' | number;
 }
 
-interface ThemePredefinedStructureValues {
-  primary?: ThemePredefinedStructurePrimarySecondaryValues;
-  secondary?: ThemePredefinedStructurePrimarySecondaryValues;
-}
+export type IconType = (props: IconTypeProps) => ReactNode;
 
-export type ThemeValues = ThemePredefinedStructureValues & ThemeStructureValue;
-export type ThemeStyles = MapOf<CSSObject | ThemeStyles>;
-
-export interface ThemeUsing<TValues extends ThemeValues, TStyles extends ThemeStyles> {
-  values: TValues;
-  predefinedStyles: TStyles & PredefinedStyles;
-}
-
-type ConvertToClasses<T> = { [K in keyof T as T[K] extends string | number ? never : K]: string & ConvertToClasses<T[K]> };
-
-export type CreateStylesApi<TStyles extends ThemeStyles, TPredefinedStyles extends ThemeStyles> = () => {
-  classes: ConvertToClasses<PredefinedStyles & TPredefinedStyles & TStyles>;
-  join(...args: (string | false | undefined | {})[]): string | undefined;
+export type ThemeDefinition = AnyObject;
+export type ThemeIcons = {
+  [iconName: string]: IconType;
 };
+export type ThemeStyles = MapOf<CSSObject>;
+
+export interface ThemeConfig<D extends ThemeDefinition, I extends ThemeIcons> {
+  id: string;
+  definition: D;
+  icons?: I;
+}
+
+export type Theme<D extends ThemeDefinition = ThemeDefinition, I extends ThemeIcons = ThemeIcons> = ThemeConfig<D, I> & {
+  createVariant(variant: DeepPartial<ThemeConfig<D, I>>): Theme<D, I>;
+};
+
+export type GetThemeDefinition<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<infer D, ThemeIcons> ? D : never;
+export type GetThemeIcons<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<ThemeDefinition, infer I> ? I : never;

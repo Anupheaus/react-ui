@@ -1,7 +1,7 @@
 import { is } from 'anux-common';
 import { MutableRefObject, useLayoutEffect, useRef } from 'react';
 import { useBound } from '../useBound';
-import { useForceUpdate } from '../../useForceUpdate';
+import { useForceUpdate } from '../useForceUpdate';
 import { useCallbacks } from '../useCallbacks';
 import { DistributedState, DistributedStateApi } from './DistributedStateModels';
 

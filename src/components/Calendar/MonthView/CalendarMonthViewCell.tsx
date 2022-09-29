@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { anuxPureFC } from '../../../anuxComponents';
-import { Theme } from '../../../providers/ThemeProvider';
+import { pureFC } from '../../../anuxComponents';
 import { Tag } from '../../Tag';
 import { CalendarTheme } from '../CalendarTheme';
 import { CalendarUtils } from '../CalendarUtils';
@@ -17,38 +16,9 @@ interface Props {
   dehighlightDate: boolean;
 }
 
-export const CalendarMonthViewCell = anuxPureFC<Props>('CalendarMonthViewCell', ({
-  className,
-  cellDate,
-  dayIndex,
-  entries,
-  dehighlightDate,
-}) => {
-  const { classes, join } = useTheme();
-
-  const renderedEntries = useMemo(() => entries.map(({ renderedOnRow, entry }) => (
-    <CalendarMonthViewCellEntry key={entry.id} entry={entry} cellDate={cellDate} renderedOnRow={renderedOnRow} dayIndex={dayIndex} cellSize={cellSize} />
-  )), [entries, cellDate]);
-
-  return (
-    <Tag
-      name="calendar-month-view-cell"
-      className={join(
-        classes.cell,
-        dehighlightDate && classes.dehighlightCell,
-        CalendarUtils.isOnSameDay(cellDate, new Date()) && classes.isToday,
-        className,
-      )}
-    >
-      <Tag name="calendar-month-view-cell-date" className={join(classes.cellDate, dehighlightDate && classes.dehighlightDate)}>
-        {cellDate.getDate()}
-      </Tag>
-      {renderedEntries}
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
+export const CalendarMonthViewCell = pureFC<Props>()('CalendarMonthViewCell', CalendarTheme, ({
+  monthViewCellDateFontSize, monthViewCellDateFontWeight, monthViewTodayBackgroundColor,
+}) => ({
   cell: {
     position: 'relative',
     width: cellSize,
@@ -60,16 +30,45 @@ const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
     backgroundColor: 'rgba(0 0 0 / 3%)',
   },
   isToday: {
-    backgroundColor: styles.monthViewTodayBackgroundColor,
+    backgroundColor: monthViewTodayBackgroundColor,
   },
   dehighlightDate: {
     opacity: 0.3,
   },
   cellDate: {
     display: 'flex',
-    fontSize: styles.monthViewCellDateFontSize,
-    fontWeight: styles.monthViewCellDateFontWeight,
+    fontSize: monthViewCellDateFontSize,
+    fontWeight: monthViewCellDateFontWeight,
     cursor: 'default',
     justifyContent: 'flex-end',
   },
-}));
+}), ({
+  className,
+  cellDate,
+  dayIndex,
+  entries,
+  dehighlightDate,
+  theme: { css, join },
+}) => {
+
+  const renderedEntries = useMemo(() => entries.map(({ renderedOnRow, entry }) => (
+    <CalendarMonthViewCellEntry key={entry.id} entry={entry} cellDate={cellDate} renderedOnRow={renderedOnRow} dayIndex={dayIndex} cellSize={cellSize} />
+  )), [entries, cellDate]);
+
+  return (
+    <Tag
+      name="calendar-month-view-cell"
+      className={join(
+        css.cell,
+        dehighlightDate && css.dehighlightCell,
+        CalendarUtils.isOnSameDay(cellDate, new Date()) && css.isToday,
+        className,
+      )}
+    >
+      <Tag name="calendar-month-view-cell-date" className={join(css.cellDate, dehighlightDate && css.dehighlightDate)}>
+        {cellDate.getDate()}
+      </Tag>
+      {renderedEntries}
+    </Tag>
+  );
+});

@@ -1,4 +1,4 @@
-import { ListItem } from '../../models';
+import { ListItem, ListItems } from '../../models';
 
 interface DataFilterOperatorListItem extends ListItem {
   operatorSymbol: string;
@@ -58,7 +58,7 @@ export interface DataRequest<T extends {} = {}> {
   pagination?: DataPagination;
 }
 
-export interface DataRequestResult<T extends {} = {}> {
+export interface DataResponse<T extends {} = {}> {
   records: T[];
   totalRecordCount: number;
 }

@@ -1,14 +1,14 @@
-import { ComponentProps } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
+import { PropsOf } from '../../extensions';
 import { createStories, StoryConfig } from '../../Storybook';
 import { StorybookComponent } from '../../Storybook/StorybookComponent';
 import { Flex } from './Flex';
 
-const FixedFlex = anuxPureFC<ComponentProps<typeof Flex>>('FixedFlex', props => (
+const FixedFlex = pureFC<PropsOf<typeof Flex>>()('FixedFlex', props => (
   <Flex {...props} fixedSize />
 ));
 
-const generateSamples = (additionalProps: Partial<ComponentProps<typeof Flex>> = {}): StoryConfig => ({
+const generateSamples = (additionalProps: Partial<PropsOf<typeof Flex>> = {}): StoryConfig => ({
   wrapInStorybookComponent: false,
   component: () => (<>
     <StorybookComponent title="Standard">

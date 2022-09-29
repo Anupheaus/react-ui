@@ -1,7 +1,5 @@
 import { Children, createElement, isValidElement } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
-import { Button } from '../Button';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
 import { ToolbarTheme } from './ToolbarTheme';
 
@@ -11,44 +9,45 @@ interface Props {
   children: React.ReactNode;
 }
 
-export const Toolbar = anuxPureFC<Props>('Toolbar', ({
-  className,
-  theme,
-  children: rawChildren = null,
-}) => {
-  const { classes, join } = useTheme(theme);
-  const children = Children.toArray(rawChildren)
-    .map(child => {
-      if (isValidElement(child) && child.type === Button)
-        return createElement(Button, { ...child.props, className: join(child.props.className, classes.button) });
-    })
-    .removeNull();
-
-  return (
-    <Tag name="toolbar" className={join(classes.toolbar, className)}>
-      {children}
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(ToolbarTheme, styles => ({
+export const Toolbar = pureFC<Props>()('Toolbar', ToolbarTheme, ({ backgroundColor, borderColor, borderRadius }) => ({
   toolbar: {
     display: 'flex',
     flexGrow: 0,
     flexShrink: 0,
-    backgroundColor: styles.backgroundColor,
+    backgroundColor,
     padding: 0,
-    borderColor: styles.borderColor,
+    borderColor,
     borderWidth: 1,
     borderStyle: 'solid',
-    borderRadius: styles.borderRadius,
+    borderRadius,
     minHeight: 34,
     alignItems: 'center',
     boxSizing: 'border-box',
     position: 'relative',
     overflow: 'hidden',
   },
-  button: {
+  toolbarItem: {
     borderRadius: 0,
   },
-}));
+}), ({
+  className,
+  theme: {
+    css,
+    join,
+  },
+  children: rawChildren = null,
+}) => {
+  const children = Children.toArray(rawChildren)
+    .map((child, index) => {
+      if (isValidElement(child)) {
+        return createElement(child.type, { key: `toolbar-item-${index}`, ...child.props, className: join(child.props.className, css.toolbarItem) });
+      }
+    })
+    .removeNull();
+
+  return (
+    <Tag name="toolbar" className={join(css.toolbar, className)}>
+      {children}
+    </Tag>
+  );
+});

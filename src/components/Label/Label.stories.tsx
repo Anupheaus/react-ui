@@ -1,46 +1,49 @@
+import { UIState } from '../../providers';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { createStories, StorybookComponent, StoryConfig } from '../../Storybook';
 import { Label } from './Label';
 
-function generateStories(): StoryConfig<Props> {
+interface StoryProps {
+  isLoading?: boolean;
+}
+
+function generateStories({ isLoading = false }: StoryProps = {}): StoryConfig {
   return {
     wrapInStorybookComponent: false,
-    component: props => (<>
-      <StorybookComponent title="Normal">
-        <Label {...props} />
-      </StorybookComponent>
+    component: () => (
+      <UIState isLoading={isLoading}>
+        <StorybookComponent title="Normal">
+          <Label>Label</Label>
+        </StorybookComponent>
 
-      <StorybookComponent title="No Label">
-        <Label />
-      </StorybookComponent>
+        <StorybookComponent title="No Label">
+          <Label />
+        </StorybookComponent>
 
-      <StorybookComponent title="With Help">
-        <Label {...props} help={<>This is my help</>} />
-      </StorybookComponent>
+        <StorybookComponent title="With Help">
+          <Label help={<>This is my help</>}>Label</Label>
+        </StorybookComponent>
 
-      <StorybookComponent title="Is Optional">
-        <Label {...props} isOptional />
-      </StorybookComponent>
+        <StorybookComponent title="Is Optional">
+          <Label isOptional>Label</Label>
+        </StorybookComponent>
 
-      <StorybookComponent title="With Help and Is Optional">
-        <Label {...props} help={<>This is my help</>} isOptional />
-      </StorybookComponent>
-    </>),
+        <StorybookComponent title="With Help and Is Optional">
+          <Label help={<>This is my help</>} isOptional>Label</Label>
+        </StorybookComponent>
+      </UIState>
+    ),
   };
 }
 
-interface Props {
-  children: string;
-}
+const DemoLabel = () => <Label>Label</Label>;
 
-createStories<Props>(() => ({
+createStories(() => ({
   module,
   name: 'Components/Label',
-  props: {
-    children: { name: 'Value', defaultValue: 'Label', type: 'string' },
-  },
   stories: {
-    ...generateUIStateStories(props => <Label {...props} />),
-    'Tests': generateStories(),
+    ...generateUIStateStories(DemoLabel),
+    'Default': generateStories(),
+    'Loading': generateStories({ isLoading: true }),
   },
 }));

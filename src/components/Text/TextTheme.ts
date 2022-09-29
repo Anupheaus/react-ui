@@ -1,9 +1,5 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { InternalTextTheme } from '../InternalText';
 
-export const TextTheme = Theme.createThemeFor('text', {
-  styles: {
-    backgroundColor: 'transparent',
-    borderColor: '#eee',
-    borderRadius: 4,
-  },
+export const TextTheme = InternalTextTheme.createVariant({
+
 });

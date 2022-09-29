@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { useBound } from '../../hooks/useBound';
 import { ApiProviderContext, ApiProviderContextProps } from './ApiProviderContext';
 
@@ -7,7 +7,7 @@ interface Props {
   token?: string;
 }
 
-export const ApiProvider = anuxPureFC<Props>('ApiProvider', ({
+export const ApiProvider = pureFC<Props>()('ApiProvider', ({
   children = null,
 }) => {
 

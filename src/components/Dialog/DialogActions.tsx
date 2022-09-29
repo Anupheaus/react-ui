@@ -1,26 +1,15 @@
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { Flex } from '../Flex';
-import { DialogTheme } from './DialogTheme';
 
-interface Props {
-
-}
-
-export const DialogActions = anuxPureFC<Props>('DialogActions', ({
-  children = null,
-}) => {
-  const { classes } = useTheme();
-
-  return (
-    <Flex tagName="dialog-actions" className={classes.dialogActions} valign={'center'} align={'right'} gap={12}>
-      {children}
-    </Flex>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(DialogTheme, () => ({
+export const DialogActions = pureFC()('DialogActions', {
   dialogActions: {
     padding: '0px 14px',
   },
-}));
+}, ({
+  theme: { css },
+  children = null,
+}) => (
+  <Flex tagName="dialog-actions" className={css.dialogActions} valign={'center'} align={'right'} gap={12}>
+    {children}
+  </Flex>
+));

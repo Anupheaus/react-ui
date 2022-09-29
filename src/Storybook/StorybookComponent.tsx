@@ -1,15 +1,16 @@
 import { Typography } from '@mui/material';
-import { ReactNode, useContext } from 'react';
-import { anuxPureFC } from '../anuxComponents';
-import { theme } from '../theme';
+import { CSSProperties, ReactNode, useContext, useMemo } from 'react';
+import { pureFC } from '../anuxComponents';
 import { StorybookContext } from './StorybookContext';
 
-interface StyleProps {
-  width: string | number | undefined;
-  height: string | number | undefined;
+interface Props {
+  title: ReactNode;
+  notes?: ReactNode;
+  width?: string | number;
+  height?: string | number;
 }
 
-const useStyles = theme.createStyles((_ignore, { width, height }: StyleProps) => ({
+export const StorybookComponent = pureFC<Props>()('StorybookComponent', {
   storybookComponent: {
     display: 'flex',
     flex: 'auto',
@@ -24,8 +25,6 @@ const useStyles = theme.createStyles((_ignore, { width, height }: StyleProps) =>
   componentTestArea: {
     display: 'flex',
     flex: 'none',
-    width: width ?? 'max-content',
-    height,
     position: 'relative',
   },
   showBorder: {
@@ -59,30 +58,31 @@ const useStyles = theme.createStyles((_ignore, { width, height }: StyleProps) =>
       pointerEvents: 'none',
     }
   },
-}));
-
-interface Props {
-  title: ReactNode;
-  notes?: ReactNode;
-  width?: string | number;
-  height?: string | number;
-}
-
-export const StorybookComponent = anuxPureFC<Props>('StorybookComponent', ({
+}, ({
   title,
   notes,
   width,
   height,
+  theme: {
+    css,
+    join,
+  },
   children = null,
 }) => {
-  const { classes, join } = useStyles({ width, height });
   const { isTestBorderVisible } = useContext(StorybookContext);
+
+  const style = useMemo<CSSProperties>(() => ({
+    width: width ?? 'max-content',
+    height,
+  }), [width, height]);
+
   if (children == null) return null;
+
   return (
-    <div className={classes.storybookComponent}>
-      <Typography className={classes.title} variant={'h5'}>{title}</Typography>
-      {notes != null && <Typography className={classes.notes} variant={'body1'}>{notes}</Typography>}
-      <div className={join(classes.componentTestArea, isTestBorderVisible && classes.showBorder)}>
+    <div className={css.storybookComponent}>
+      <Typography className={css.title} variant={'h5'}>{title}</Typography>
+      {notes != null && <Typography className={css.notes} variant={'body1'}>{notes}</Typography>}
+      <div className={join(css.componentTestArea, isTestBorderVisible && css.showBorder)} style={style}>
         {children}
       </div>
     </div>

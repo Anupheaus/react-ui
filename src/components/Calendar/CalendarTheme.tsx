@@ -1,7 +1,8 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { createTheme } from '../../theme';
 
-export const CalendarTheme = Theme.createThemeFor('calendar', {
-  styles: {
+export const CalendarTheme = createTheme({
+  id: 'CalendarTheme',
+  definition: {
     monthViewCellDateFontSize: 14,
     monthViewCellDateFontWeight: 400,
     monthViewEventFontSize: 12,

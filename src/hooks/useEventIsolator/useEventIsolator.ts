@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 
-const mouseEventNames = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'mouseenter', 'mouseleave', 'mousemove', 'mouseover', 'mouseout', 'wheel'];
+const clickEventNames = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'wheel'];
+const mouseEventNames = ['mouseenter', 'mouseleave', 'mousemove', 'mouseover', 'mouseout', ...clickEventNames];
 const focusEventNames = ['focus', 'focusin', 'focusout', 'blur'];
 
 type EventSetting = boolean | 'propagation' | 'default';
@@ -21,11 +22,12 @@ function addToEvents(events: EventProps[], setting: EventSetting, eventNames: st
 
 interface Props {
   allMouseEvents?: EventSetting;
+  clickEvents?: EventSetting;
   focusEvents?: EventSetting;
   onParentElement?: boolean;
 }
 
-export function useEventIsolator({ allMouseEvents = false, focusEvents = false, onParentElement = false }: Props) {
+export function useEventIsolator({ allMouseEvents = false, clickEvents = false, focusEvents = false, onParentElement = false }: Props) {
   const uninstallRef = useRef<() => void>(() => void 0);
 
   return (element: HTMLElement | null) => {
@@ -36,6 +38,7 @@ export function useEventIsolator({ allMouseEvents = false, focusEvents = false, 
     const uninstallEvents: (() => void)[] = [];
 
     if (allMouseEvents !== false) addToEvents(eventsToCapture, allMouseEvents, mouseEventNames);
+    if (clickEvents !== false) addToEvents(eventsToCapture, clickEvents, clickEventNames);
     if (focusEvents !== false) addToEvents(eventsToCapture, focusEvents, focusEventNames);
 
     eventsToCapture.forEach(([eventName, setting]) => {

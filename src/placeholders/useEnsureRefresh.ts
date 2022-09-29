@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { useForceUpdate } from '../useForceUpdate';
+import { useForceUpdate } from '../hooks/useForceUpdate';
 
 export function useEnsureRefresh() {
   const innerRefresh = useForceUpdate();

@@ -1,7 +1,8 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { createTheme } from '../../theme';
 
-export const ToolbarTheme = Theme.createThemeFor('text', {
-  styles: {
+export const ToolbarTheme = createTheme({
+  id: 'ToolbarTheme',
+  definition: {
     backgroundColor: 'transparent',
     borderColor: '#eee',
     borderRadius: 4,

@@ -2,7 +2,7 @@ import { memo, PropsWithChildren, useMemo, useRef } from 'react';
 import { ErrorContexts, RecordErrorsContextProps } from './ErrorContexts';
 import { AnuxError } from './types';
 import { useBound } from '../hooks/useBound';
-import { useOnUnmount } from '../useOnUnmount';
+import { useOnUnmount } from '../hooks/useOnUnmount';
 
 interface Props {
   onError?(error: AnuxError): void;

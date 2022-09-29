@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
-import { FieldHelp } from '../FieldHelp';
+import { pureFC } from '../../anuxComponents';
+import { HelpInfo } from '../HelpInfo';
+import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
 import { LabelTheme } from './LabelTheme';
@@ -13,35 +13,13 @@ interface Props {
   isOptional?: boolean;
 }
 
-export const Label = anuxPureFC<Props>('Label', ({
-  className,
-  theme,
-  help,
-  isOptional = false,
-  children = null,
-}) => {
-  const { classes, join } = useTheme(theme);
-
-  if (children == null) return null;
-
-  return (
-    <Tag name="label" className={join(classes.label, classes.theme, className)}>
-      {children}
-      {help != null && <FieldHelp>{help}</FieldHelp>}
-      <Tooltip content="This field is optional" showArrow>
-        {isOptional && <Tag name="label-is-optional" className={classes.isOptional}>optional</Tag>}
-      </Tooltip>
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(LabelTheme, styles => ({
+export const Label = pureFC<Props>()('Label', LabelTheme, ({ fontSize, fontWeight }) => ({
   label: {
     display: 'flex',
     flexGrow: 0,
     flexShrink: 0,
-    fontSize: styles.fontSize,
-    fontWeight: styles.fontWeight,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
     gap: 4,
     minHeight: 18,
     alignItems: 'center',
@@ -52,4 +30,31 @@ const useTheme = Theme.createThemeUsing(LabelTheme, styles => ({
     margin: '0 0 1px 4px',
     fontWeight: 400,
   },
-}));
+  isOptionalSkeleton: {
+    maxHeight: 'calc(100% - 12px)',
+    paddingTop: 4,
+    marginBottom: -4,
+    boxSizing: 'border-box',
+  },
+}), ({
+  className,
+  theme: {
+    css,
+    join,
+  },
+  help,
+  isOptional = false,
+  children = null,
+}) => {
+  if (children == null) return null;
+
+  return (
+    <Tag name="label" className={join(css.label, className)}>
+      <Skeleton variant="text">{children}</Skeleton>
+      {help != null && <HelpInfo>{help}</HelpInfo>}
+      <Tooltip content="This field is optional" showArrow>
+        {isOptional && <Skeleton variant="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
+      </Tooltip>
+    </Tag>
+  );
+});

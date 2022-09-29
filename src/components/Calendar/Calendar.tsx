@@ -1,5 +1,4 @@
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme, ThemesProvider } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
 import { CalendarEntryRecord } from './CalendarModels';
 import { CalendarMonthView } from './MonthView';
@@ -12,16 +11,19 @@ interface Props {
   view?: 'month';
   viewingDate?: Date;
   entries?: CalendarEntryRecord[];
-  theme?: typeof CalendarTheme;
 }
 
-export const Calendar = anuxPureFC<Props>('Calendar', ({
+export const Calendar = pureFC<Props>()('Calendar', CalendarTheme, () => ({
+  calendar: {
+  },
+}), ({
   view = 'month',
   viewingDate: rawDate = new Date(),
   entries = Array.empty(),
-  theme,
+  theme: {
+    css,
+  },
 }) => {
-  const { classes, join } = useTheme(theme);
   const viewingDate = CalendarUtils.startOfDay(rawDate);
 
   const renderedView = (() => {
@@ -31,19 +33,12 @@ export const Calendar = anuxPureFC<Props>('Calendar', ({
   })();
 
   return (
-    <ThemesProvider themes={[theme]}>
-      <CalendarEntryHighlightProvider>
-        <CalendarEntrySelectionProvider>
-          <Tag name="calendar" className={join(classes.calendar, classes.theme)}>
-            {renderedView}
-          </Tag>
-        </CalendarEntrySelectionProvider>
-      </CalendarEntryHighlightProvider>
-    </ThemesProvider>
+    <CalendarEntryHighlightProvider>
+      <CalendarEntrySelectionProvider>
+        <Tag name="calendar" className={css.calendar}>
+          {renderedView}
+        </Tag>
+      </CalendarEntrySelectionProvider>
+    </CalendarEntryHighlightProvider>
   );
 });
-
-const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
-  calendar: {
-  },
-}));

@@ -1,6 +1,6 @@
 import { is } from 'anux-common';
 import { Dispatch, SetStateAction, useMemo, useRef } from 'react';
-import { useForceUpdate } from '../../useForceUpdate';
+import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
 
 export function useUpdatableState<T>(delegate: (prevState?: T) => T, dependencies: unknown[]): [T, Dispatch<SetStateAction<T>>] {

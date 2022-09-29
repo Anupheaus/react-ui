@@ -1,15 +1,15 @@
-import { ComponentProps } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { createStories, StorybookComponent, StoryConfig } from '../../Storybook';
 import { Calendar } from './Calendar';
 import { CalendarEntryRecord } from './CalendarModels';
 import { DateTime } from 'luxon';
-import { Theme } from '../../providers/ThemeProvider';
 import { FaUmbrellaBeach, FaBaby } from 'react-icons/fa';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
+import { createThemeIcons } from '../../theme';
+import { PropsOf } from '../../extensions';
 
-const icons = Theme.icons.define({
+const icons = createThemeIcons({
   holiday: ({ size }) => (<FaUmbrellaBeach size={size} />),
   business: ({ size }) => (<MdBusinessCenter size={size} />),
   sick: ({ size }) => (<MdOutlineSick size={size} />),
@@ -24,7 +24,7 @@ const entries: CalendarEntryRecord[] = [
   { id: '5', title: 'Hayden on Paternity Leave', startDate: DateTime.now().minus({ days: 1 }).toJSDate(), endDate: DateTime.now().plus({ days: 1 }).toJSDate(), color: '#FDBCA7', icon: icons.paternity },
 ];
 
-const EditableCalendar = anuxPureFC<ComponentProps<typeof Calendar>>('EditableCalendar', props => {
+const EditableCalendar = pureFC<PropsOf<typeof Calendar>>()('EditableCalendar', () => {
   // const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
 
   return (<Calendar entries={entries} />);

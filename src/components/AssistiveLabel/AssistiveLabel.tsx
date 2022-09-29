@@ -1,29 +1,37 @@
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
 import { AssistiveLabelTheme } from './AssistiveLabelTheme';
 
 interface Props {
-  theme?: typeof AssistiveLabelTheme;
+  isError?: boolean;
 }
 
-export const AssistiveLabel = anuxPureFC<Props>('AssistiveLabel', ({
-  theme,
+export const AssistiveLabel = pureFC<Props>()('AssistiveLabel', AssistiveLabelTheme, ({ errorTextColor, fontSize, fontWeight }) => ({
+  assistiveLabel: {
+    fontSize,
+    fontWeight,
+    cursor: 'default',
+  },
+  isError: {
+    color: errorTextColor,
+  },
+}), ({
+  isError,
   children = null,
+  theme: {
+    css,
+    join,
+  },
 }) => {
-  const { classes, join } = useTheme(theme);
-
   if (children == null) return null;
   return (
-    <Tag name="assistive-label" className={join(classes.assistiveLabel, classes.theme)}>
+    <Tag
+      name="assistive-label"
+      className={join(
+        css.assistiveLabel,
+        isError && css.isError,
+      )}>
       {children}
     </Tag>
   );
 });
-
-const useTheme = Theme.createThemeUsing(AssistiveLabelTheme, styles => ({
-  assistiveLabel: {
-    fontSize: styles.fontSize,
-    fontWeight: styles.fontWeight,
-  },
-}));

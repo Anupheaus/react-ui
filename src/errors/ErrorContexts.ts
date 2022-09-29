@@ -1,11 +1,14 @@
+import { AnyObject } from 'anux-common';
 import { createContext } from 'react';
 
 export interface RecordErrorsContextProps {
-  recordError(error: unknown): void;
+  isValid: boolean;
+  recordError(error: unknown, isAsync: boolean, meta?: AnyObject): void;
 }
 
 export const ErrorContexts = {
   recordErrors: createContext<RecordErrorsContextProps>({
+    isValid: false,
     recordError: () => void 0,
   }),
 };

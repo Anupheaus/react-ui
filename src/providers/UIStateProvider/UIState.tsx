@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { UIStateContexts } from './UIStateContexts';
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
   isCompact?: boolean;
 }
 
-export const UIState = anuxPureFC<Props>('UIState', ({
+export const UIState = pureFC<Props>()('UIState', ({
   isLoading = false,
   isReadOnly,
   isCompact,

@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 interface Props {
   error?: unknown;
+  name?: ReactNode;
   message?: ReactNode;
   title?: ReactNode;
   meta?: AnyObject;
@@ -23,10 +24,11 @@ export class AnuxError extends Error {
     this.name = new.target.name;
     this.#message = message ?? null;
     Reflect.defineProperty(this, 'message', { get: () => this.#message, configurable: true, enumerable: true });
-    this.#title = title ?? null;
+    this.#title = title ?? 'Unexpected Error';
     this.#hasBeenHandled = false;
     this.#meta = meta;
     this.#isAsync = isAsync === true;
+    if (error instanceof AnuxError) return error;
   }
 
   #message: ReactNode;
@@ -55,4 +57,5 @@ export class AnuxError extends Error {
       stack: this.stack,
     };
   }
+
 }

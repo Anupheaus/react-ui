@@ -1,7 +1,8 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { createTheme } from '../../theme';
 
-export const TooltipTheme = Theme.createThemeFor('tooltip', {
-  styles: {
+export const TooltipTheme = createTheme({
+  id: 'TooltipTheme',
+  definition: {
     backgroundColor: '#555',
     textColor: '#fff',
     fontSize: 13,

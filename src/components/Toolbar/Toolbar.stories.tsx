@@ -1,16 +1,16 @@
 import { FiHelpCircle } from 'react-icons/fi';
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { createStories } from '../../Storybook';
+import { createThemeIcons } from '../../theme';
 import { Button } from '../Button';
 import { Toolbar } from './Toolbar';
 
-const icons = Theme.icons.define({
-  help: ({ size }) => (<FiHelpCircle size={size} />),
+const icons = createThemeIcons({
+  help: FiHelpCircle,
 });
 
-const TestToolbar = anuxPureFC('TestToolbar', () => (<Toolbar><Button>Test</Button><Button icon={icons.help} /></Toolbar>));
+const TestToolbar = pureFC()('TestToolbar', () => (<Toolbar><Button>Test</Button><Button icon={icons.help} /></Toolbar>));
 
 createStories(() => ({
   module,

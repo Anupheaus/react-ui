@@ -1,19 +1,14 @@
-import { Theme } from '../../providers/ThemeProvider';
 import { FiX } from 'react-icons/fi';
+import { createTheme } from '../../theme';
 
-export const DialogTheme = Theme.createThemeFor('dialog', {
-  styles: {
+export const DialogTheme = createTheme({
+  id: 'DialogTheme',
+  definition: {
     titleFontSize: 20,
     titleFontWeight: 600,
     titleBackgroundColor: '#eee',
   },
   icons: {
-    close: ({ size }) => <FiX size={size} />
-  },
-});
-
-export const myDialogTheme = DialogTheme.createVariant({
-  styles: {
-
+    close: FiX,
   },
 });

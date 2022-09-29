@@ -1,21 +1,36 @@
 import { Children, ComponentProps, Fragment, ReactElement, useContext, useMemo } from 'react';
 import { Tooltip as MuiTooltip } from '@mui/material';
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { TooltipTheme } from './TooltipTheme';
 import { blankTooltipContext, TooltipContext } from './TooltipContext';
 
-export const TooltipRenderer = anuxPureFC('TooltipRenderer', ({
+export const TooltipRenderer = pureFC()('TooltipRenderer', TooltipTheme, ({ backgroundColor, fontSize, fontWeight, textColor }) => ({
+  tooltip: {},
+  muiPopper: {
+    maxWidth: '60%',
+  },
+  muiTooltip: {
+    cursor: 'default',
+    backgroundColor,
+    color: textColor,
+    fontSize,
+    fontWeight,
+    maxWidth: 'unset',
+  },
+  arrow: {
+    color: backgroundColor,
+  },
+}), ({
+  theme: { css, join },
   children = null,
 }) => {
-  const { classes, join } = useTheme();
   const { content, className, showArrow = false, debug = false } = useContext(TooltipContext);
   const isEmpty = content == null || content === '';
 
   const tooltipClasses = useMemo<ComponentProps<typeof MuiTooltip>['classes']>(() => ({
-    popper: join(classes.muiPopper, className),
-    tooltip: classes.muiTooltip,
-    arrow: classes.arrow,
+    popper: join(css.muiPopper, className),
+    tooltip: css.muiTooltip,
+    arrow: css.arrow,
   }), []);
 
   if (isEmpty) return <>{children}</>;
@@ -41,21 +56,3 @@ export const TooltipRenderer = anuxPureFC('TooltipRenderer', ({
     </TooltipContext.Provider>
   );
 });
-
-const useTheme = Theme.createThemeUsing(TooltipTheme, styles => ({
-  tooltip: {},
-  muiPopper: {
-    maxWidth: '60%',
-  },
-  muiTooltip: {
-    cursor: 'default',
-    backgroundColor: styles.backgroundColor,
-    color: styles.textColor,
-    fontSize: styles.fontSize,
-    fontWeight: styles.fontWeight,
-    maxWidth: 'unset',
-  },
-  arrow: {
-    color: styles.backgroundColor,
-  },
-}));

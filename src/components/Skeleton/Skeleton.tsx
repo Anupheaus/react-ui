@@ -1,9 +1,12 @@
-import { anuxPureFC } from '../../anuxComponents';
+import { useContext } from 'react';
+import { pureFC } from '../../anuxComponents';
 import { useUIState } from '../../providers';
+import { createAnimationKeyFrame } from '../../theme';
 import { Tag } from '../Tag';
-import { theme } from '../../theme';
+import { SkeletonContexts } from './SkeletonContexts';
+import { SkeletonTheme } from './SkeletonTheme';
 
-const animation = theme.createKeyFrame({
+const animation = createAnimationKeyFrame({
   from: {
     opacity: 0.4,
   },
@@ -12,16 +15,17 @@ const animation = theme.createKeyFrame({
   },
 });
 
-const useStyles = theme.createStyles({
+interface Props {
+  className?: string;
+  variant?: 'full' | 'text' | 'circle';
+  isVisible?: boolean;
+}
+
+export const Skeleton = pureFC<Props>()('Skeleton', SkeletonTheme, ({ color }) => ({
   skeleton: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
     visibility: 'hidden',
     pointerEvents: 'none',
-    backgroundColor: 'var(--skeleton-color, rgb(0 0 0 / 7%))',
+    backgroundColor: color,
     animationDuration: '1s',
     animationDirection: 'alternate',
     animationFillMode: 'both',
@@ -29,30 +33,54 @@ const useStyles = theme.createStyles({
     animationIterationCount: 'infinite',
     animationName: animation,
   },
+  absolutePositioning: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  content: {
+    display: 'flex',
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   isVisible: {
     visibility: 'visible',
     animationPlayState: 'running',
   },
+  isHidden: {
+    visibility: 'hidden',
+    pointerEvents: 'none',
+  },
   variant_full: {
 
   },
-});
-
-interface Props {
-  className?: string;
-  variant?: 'full';
-  isVisible?: boolean;
-}
-
-export const Skeleton = anuxPureFC<Props>('Skeleton', ({
+  variant_text: {
+    borderRadius: 4,
+    maxHeight: 'calc(100% - 8px)',
+  },
+  variant_circle: {
+    borderRadius: '50%',
+  },
+}), ({
+  theme: {
+    css,
+    join,
+  },
   className,
   variant = 'full',
   isVisible,
+  children = null,
 }) => {
-  const { classes, join } = useStyles();
   const { isLoading } = useUIState({ isLoading: isVisible });
+  const noSkeletons = useContext(SkeletonContexts.noSkeletons);
+
+  if (!isLoading && children != null) return (<>{children}</>);
 
   return (
-    <Tag name="skeleton" className={join(classes.skeleton, isLoading && classes.isVisible, classes[`variant_${variant}`], className)} />
+    <Tag name="skeleton" className={join(css.skeleton, children == null && css.absolutePositioning, isLoading && !noSkeletons && css.isVisible, css[`variant_${variant}`], className)}>
+      {children != null && <Tag name="skeleton-content" className={join(css.content, isLoading && css.isHidden)}>{children}</Tag>}
+    </Tag>
   );
 });

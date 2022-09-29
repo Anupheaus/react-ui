@@ -1,26 +1,15 @@
-import { anuxPureFC } from '../../anuxComponents';
-import { Theme } from '../../providers/ThemeProvider';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
-import { DialogTheme } from './DialogTheme';
 
-interface Props {
-
-}
-
-export const DialogContent = anuxPureFC<Props>('DialogContent', ({
-  children = null,
-}) => {
-  const { classes } = useTheme();
-
-  return (
-    <Tag name="dialog-content" className={classes.dialogContent}>
-      {children}
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(DialogTheme, () => ({
+export const DialogContent = pureFC()('DialogContent', {
   dialogContent: {
     padding: '0px 24px',
   },
-}));
+}, ({
+  theme: { css },
+  children = null,
+}) => (
+  <Tag name="dialog-content" className={css.dialogContent}>
+    {children}
+  </Tag>
+));

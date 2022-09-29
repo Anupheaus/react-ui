@@ -1,7 +1,7 @@
 import { createContext, useContext as useReactContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { anuxPureFC } from '../anuxComponents';
 import { useBound } from '../hooks/useBound';
-import { useForceUpdate } from '../useForceUpdate';
+import { useForceUpdate } from '../hooks/useForceUpdate';
 
 interface AnuxContext<T> {
   isValid: boolean;

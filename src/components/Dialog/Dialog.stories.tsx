@@ -2,16 +2,15 @@ import { createStories } from '../../Storybook';
 import { useDialog, DialogTheme } from '.';
 import { FiArrowRightCircle } from 'react-icons/fi';
 import { Button } from '../Button';
-import { Theme, ThemesProvider } from '../../providers/ThemeProvider';
-import { PrimaryButtonTheme } from '../Button/Button.stories.utils';
+import { createThemeIcons, ThemesProvider } from '../../theme';
 
-const icons = Theme.icons.define({
-  'close': ({ size }) => (<FiArrowRightCircle size={size} />),
+const icons = createThemeIcons({
+  arrow: FiArrowRightCircle,
 });
 
-const myDialogTheme = DialogTheme.createVariant({
-  styles: {
-    titleBackgroundColor: '#7cd18b', // PrimaryTheme.styles.backgroundColor,
+const MyDialogTheme = DialogTheme.createVariant({
+  definition: {
+    titleBackgroundColor: '#7cd18b',
   },
 });
 
@@ -20,12 +19,13 @@ createStories(() => ({
   name: 'Components/Dialog',
   stories: {
     'Main': () => {
+
       const { Dialog, DialogContent, DialogActions, openDialog, OkButton } = useDialog();
 
       return (<>
-        <ThemesProvider themes={[PrimaryButtonTheme, myDialogTheme]}>
+        <ThemesProvider themes={[MyDialogTheme]}>
           <Button onClick={openDialog}>Test</Button>
-          <Dialog title={'Test Dialog'} icon={icons.close}>
+          <Dialog title={'Test Dialog'} icon={icons.arrow}>
             <DialogContent>
               This is the content of the Dialog
             </DialogContent>

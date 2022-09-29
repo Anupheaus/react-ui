@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { useBound } from '../../hooks/useBound';
-import { useOnUnmount } from '../../useOnUnmount';
+import { useOnUnmount } from '../../hooks/useOnUnmount';
 import { RippleState } from './RippleModels';
 
 export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void) {

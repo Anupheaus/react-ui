@@ -1,10 +1,10 @@
 import { useContext, useState } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { pureFC } from '../../anuxComponents';
 import { DistributedState, useBound, useDistributedState } from '../../hooks';
 
 const Context = DistributedState.createContext<string | undefined>();
 
-export const CalendarEntryHighlightProvider = anuxPureFC('CalendarEntryHighlightProvider', ({
+export const CalendarEntryHighlightProvider = pureFC()('CalendarEntryHighlightProvider', ({
   children = null
 }) => {
   const { state } = useDistributedState<string | undefined>(() => undefined);

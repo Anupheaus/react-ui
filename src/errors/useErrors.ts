@@ -1,42 +1,54 @@
-import { useCallback, useContext, useEffect, useReducer, useRef } from 'react';
-import { Context } from './ErrorContexts';
-import { OnErrorProps } from './models';
+/* eslint-disable no-console */
+import { useContext } from 'react';
+import { ErrorContexts } from './ErrorContexts';
+import { AnuxError } from './types';
+
+interface TryCatchProps<T> {
+  isAsync?: boolean;
+  onError?(error: AnuxError): T;
+}
 
 export function useErrors() {
-  const { captureError, resetError, getError, registerOnError } = useContext(Context);
-  const errorIsRequestedRef = useRef(false);
-  const callbacks = useRef(new Set<(props: OnErrorProps) => void>()).current;
-  const forceUpdate = useReducer(s => 1 - s, 0)[1];
+  const { isValid, recordError } = useContext(ErrorContexts.recordErrors);
+  // const errorIsRequestedRef = useRef(false);
+  // const callbacks = useRef(new Set<(props: OnErrorProps) => void>()).current;
+  // const forceUpdate = useReducer(s => 1 - s, 0)[1];  
 
-  const isUnmountedRef = useRef(false);
-  useEffect(() => () => { isUnmountedRef.current = true; }, []);
+  const handleError = <T>(rawError: unknown, { isAsync = false, onError }: TryCatchProps<T>): T => {
+    const error = new AnuxError({ error: rawError, isAsync });
+    if (onError) return onError(error);
+    if (!isValid) console.error(error, { isAsync });
+    recordError(error, isAsync);
+    return undefined as unknown as T;
+  };
 
-  const tryCatch = <T>(delegate: () => T, isAsync = false) => {
+  const tryCatch = <T>(delegate: () => T, isAsyncOrProps: (boolean | TryCatchProps<T>) = false): T => {
+    const props = (typeof (isAsyncOrProps) === 'boolean' ? { isAsync: isAsyncOrProps } : isAsyncOrProps) ?? {};
     try {
       const result = delegate();
       if (result instanceof Promise) {
-        return result.catch(err => captureError(err, true));
+        return result.catch(err => handleError(err, { ...props, isAsync: true })) as unknown as T;
       } else {
         return result;
       }
     } catch (err) {
-      captureError(err as Error, isAsync);
-      return undefined as unknown as T;
+      return handleError(err as Error, props);
     }
   };
 
-  useEffect(() => registerOnError((props?: OnErrorProps) => {
-    if (isUnmountedRef.current) return;
-    if (props != null) callbacks.forEach(callback => callback(props));
-    if (props?.occurredWithinThisBoundary && errorIsRequestedRef.current) forceUpdate(); // refresh this component if the error has been requested
-  }), []);
+  // useEffect(() => registerOnError((props?: OnErrorProps) => {
+  //   if (isUnmountedRef.current) return;
+  //   if (props != null) callbacks.forEach(callback => callback(props));
+  //   if (props?.occurredWithinThisBoundary && errorIsRequestedRef.current) forceUpdate(); // refresh this component if the error has been requested
+  // }), []);
 
-  const onError = useCallback((handler: (props: OnErrorProps) => void) => callbacks.add(handler), []);
+  // const onError = useCallback((handler: (props: OnErrorProps) => void) => callbacks.add(handler), []);
 
   return {
-    get error() { errorIsRequestedRef.current = true; return getError(); },
-    onError,
-    resetError,
+    // get error() { errorIsRequestedRef.current = true; return getError(); },
+    // onError,
+    // resetError,
+    recordError,
     tryCatch,
   };
 }

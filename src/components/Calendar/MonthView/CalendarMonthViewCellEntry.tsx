@@ -1,6 +1,6 @@
 import { CSSProperties, useMemo } from 'react';
-import { anuxPureFC } from '../../../anuxComponents';
-import { Theme } from '../../../providers/ThemeProvider';
+import { pureFC } from '../../../anuxComponents';
+import { colors } from '../../../theme';
 import { Icon } from '../../Icon';
 import { Tag } from '../../Tag';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
@@ -17,56 +17,9 @@ interface Props {
   dayIndex: number;
 }
 
-export const CalendarMonthViewCellEntry = anuxPureFC<Props>('CalendarMonthViewCellEntry', ({
-  entry,
-  cellDate,
-  cellSize,
-  renderedOnRow,
-  dayIndex,
-}) => {
-  const { classes, join } = useTheme();
-  const { isSelected } = useCalendarEntrySelection(entry.id);
-  const { highlight, dehighlight, isHighlighted, isDehighlighted } = useCalendarEntryHighlighting(entry.id);
-  const daysToEndFromCurrentCell = entry.endDate == null ? 0 : CalendarUtils.daysInBetween(cellDate, entry.endDate);
-  const widthInDays = dayIndex + daysToEndFromCurrentCell > 7 ? 7 - dayIndex : daysToEndFromCurrentCell + 1;
-  const hasStart = CalendarUtils.daysInBetween(entry.startDate, cellDate) <= dayIndex;
-  const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
-  const width = (widthInDays * cellSize) + (widthInDays - 1);
-
-  const style = useMemo<CSSProperties>(() => ({
-    top: renderedOnRow * 20,
-    backgroundColor: Theme.adjustColor(entry.color ?? 'red').lighten(0.15).toString(),
-    borderLeftColor: entry.color ?? 'red',
-    minWidth: width,
-    width,
-  }), [renderedOnRow, entry.color, width]);
-
-
-  return (
-    <Tag
-      name="calendar-month-cell-entry"
-      className={join(
-        classes.cellEntry,
-        hasStart && classes.hasStart,
-        hasEnd && classes.hasEnd,
-        (isSelected || isHighlighted) && classes.isHighlighted,
-        isDehighlighted && classes.isDehighlighted,
-      )}
-      style={style}
-      onMouseEnter={highlight}
-      onMouseLeave={dehighlight}
-      tabIndex={0}
-    >
-      <Icon size={'small'}>{entry.icon}</Icon>
-      <Tag name="calendar-month-cell-entry-title" className={classes.cellEntryTitle}>
-        {!hasStart && '...'}
-        {entry.title}
-      </Tag>
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
+export const CalendarMonthViewCellEntry = pureFC<Props>()('CalendarMonthViewCellEntry', CalendarTheme, ({
+  monthViewEventFontSize, monthViewEventFontWeight,
+}) => ({
   cellEntry: {
     position: 'absolute',
     left: 0,
@@ -100,12 +53,59 @@ const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
     opacity: 0.3,
   },
   cellEntryTitle: {
-    fontSize: styles.monthViewEventFontSize,
-    fontWeight: styles.monthViewEventFontWeight,
+    fontSize: monthViewEventFontSize,
+    fontWeight: monthViewEventFontWeight,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     cursor: 'pointer',
     display: 'block',
   },
-}));
+}), ({
+  entry,
+  cellDate,
+  cellSize,
+  renderedOnRow,
+  dayIndex,
+  theme: { css, join },
+}) => {
+  const { isSelected } = useCalendarEntrySelection(entry.id);
+  const { highlight, dehighlight, isHighlighted, isDehighlighted } = useCalendarEntryHighlighting(entry.id);
+  const daysToEndFromCurrentCell = entry.endDate == null ? 0 : CalendarUtils.daysInBetween(cellDate, entry.endDate);
+  const widthInDays = dayIndex + daysToEndFromCurrentCell > 7 ? 7 - dayIndex : daysToEndFromCurrentCell + 1;
+  const hasStart = CalendarUtils.daysInBetween(entry.startDate, cellDate) <= dayIndex;
+  const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
+  const width = (widthInDays * cellSize) + (widthInDays - 1);
+
+  const style = useMemo<CSSProperties>(() => ({
+    top: renderedOnRow * 20,
+    backgroundColor: colors.lighten(entry.color ?? 'red', 15),
+    borderLeftColor: entry.color ?? 'red',
+    minWidth: width,
+    width,
+  }), [renderedOnRow, entry.color, width]);
+
+
+  return (
+    <Tag
+      name="calendar-month-cell-entry"
+      className={join(
+        css.cellEntry,
+        hasStart && css.hasStart,
+        hasEnd && css.hasEnd,
+        (isSelected || isHighlighted) && css.isHighlighted,
+        isDehighlighted && css.isDehighlighted,
+      )}
+      style={style}
+      onMouseEnter={highlight}
+      onMouseLeave={dehighlight}
+      tabIndex={0}
+    >
+      <Icon size={'small'}>{entry.icon}</Icon>
+      <Tag name="calendar-month-cell-entry-title" className={css.cellEntryTitle}>
+        {!hasStart && '...'}
+        {entry.title}
+      </Tag>
+    </Tag>
+  );
+});

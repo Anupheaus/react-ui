@@ -1,13 +1,13 @@
 import { AnyObject } from 'anux-common';
 import { createContext } from 'react';
-import { DataRequest, DataRequestResult } from '../../../common/data';
+import { DataRequest, DataResponse } from './ApiProviderModels';
 
 export interface ApiProviderContextProps {
   isValid: boolean;
   get<T>(url: string): Promise<T>;
   post<T>(url: string, data?: AnyObject): Promise<T>;
   remove(url: string): Promise<void>;
-  search<T extends {}>(url: string, request: DataRequest<T>): Promise<DataRequestResult<T>>;
+  search<T extends {}>(url: string, request: DataRequest<T>): Promise<DataResponse<T>>;
 }
 
 export const ApiProviderContext = createContext<ApiProviderContextProps>({

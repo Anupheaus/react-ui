@@ -1,45 +1,47 @@
 import { ArgTypes } from '@storybook/react';
 import { FunctionComponent, ReactNode, useMemo } from 'react';
-import { theme } from '../theme';
 import { AnyObject, Event, MapOf, PromiseMaybe } from 'anux-common';
 import { within, userEvent } from '@storybook/testing-library';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
 import { StorybookComponent } from './StorybookComponent';
-import { ThemeProvider, Typography } from '@mui/material';
-import { AnuxFC } from '../anuxComponents';
+import { Typography } from '@mui/material';
+import { PureFC, pureFC } from '../anuxComponents';
 import { TestHookOnRenderProps } from './StorybookModels';
+import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 
-const GlobalStyles = theme.createGlobalStyles({
-  '@font-face': {
-    fontFamily: 'Mulish',
-    src: 'url(/font/Mulish-Regular.ttf)',
-  },
-  'html, body': {
-    height: '100%',
-    padding: 0,
-    margin: 0,
-    fontFamily: 'Mulish',
-    fontSize: 16,
-  },
-  'input, button': {
-    color: 'unset',
-    cursor: 'unset',
-    fontSize: 'inherit',
-    fontWeight: 'inherit',
-    fontFamily: 'inherit',
-    backgroundColor: 'inherit',
-  },
-  'div#root': {
-    height: '100%',
-  },
-});
+if (module.hot) {
+  module.hot.accept(); // already had this init code 
 
-const useStyles = theme.createStyles({
-  stories: {
-    display: 'flex',
-    flex: 'auto',
-    flexDirection: 'column',
-    gap: 12,
+  module.hot.addStatusHandler(status => {
+    // eslint-disable-next-line no-console
+    if (status === 'prepare') console.clear();
+  });
+}
+
+const RootThemeProvider = createRootThemeProvider({
+  globalStyles: {
+    '@font-face': {
+      fontFamily: 'Mulish',
+      src: 'url(/font/Mulish-Regular.ttf)',
+    },
+    'html, body': {
+      height: '100%',
+      padding: 0,
+      margin: 0,
+      fontFamily: 'Mulish',
+      fontSize: 16,
+    },
+    'input, button': {
+      color: 'unset',
+      cursor: 'unset',
+      fontSize: 'inherit',
+      fontWeight: 'inherit',
+      fontFamily: 'inherit',
+      backgroundColor: 'inherit',
+    },
+    'div#root': {
+      height: '100%',
+    },
   },
 });
 
@@ -99,13 +101,13 @@ interface StoriesConfig<TProps extends {} = {}> {
   module: AnyObject;
 }
 
-function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: StoriesConfig<T>['stories'], module: AnyObject) {
+function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: StoriesConfig<T>['stories'], module: AnyObject) {
   Reflect.ownKeys(stories).forEach(key => {
     const value = Reflect.get(stories, key) as Stories[0];
     if (value == null) return;
-    let InternalComponent: AnuxFC<T> | undefined;
+    let InternalComponent: PureFC<{}> | undefined;
     const storyName = path.concat(key).join('.');
-    const storyId = Object.hash({ path: path.concat(key).join('.') });
+    const storyId = path.concat(key).join('.');
     let notes: ReactNode = null;
     let title: ReactNode = path.concat(key).join(' ');
     let test: StoryConfig<T>['test'] | undefined;
@@ -117,10 +119,10 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
     let hookExecutor: (delegate: (renderCount: number) => void) => void = () => void 0;
 
     if (typeof value === 'function') {
-      InternalComponent = value as unknown as AnuxFC<T>;
+      InternalComponent = value;
       (value as any).storyName = storyName;
     } else if (isStoryConfig(value)) {
-      InternalComponent = value.component as unknown as AnuxFC<T>;
+      InternalComponent = value.component;
       notes = value.notes;
       title = value.title ?? title;
       width = value.width;
@@ -133,18 +135,29 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
       walkThroughTheStories(path.concat(key), value, module);
     }
     if (InternalComponent != null) {
-      const Component = ({ isTestBorderVisible, ...props }: any) => {
-        const { classes } = useStyles();
+      const Component = pureFC<{ isTestBorderVisible?: boolean; }>()('StorybookComponent', {
+        stories: {
+          display: 'flex',
+          flex: 'auto',
+          flexDirection: 'column',
+          gap: 12,
+        },
+      }, ({
+        isTestBorderVisible = true,
+        theme: {
+          css,
+        },
+        ...props
+      }) => {
         const context = useMemo<StorybookContextProps>(() => ({
           isTestBorderVisible,
           registerHookExecutor: executor => { hookExecutor = executor; },
         }), [isTestBorderVisible]);
         if (InternalComponent == null) return null;
         return (<>
-          <GlobalStyles />
-          <ThemeProvider theme={theme}>
+          <RootThemeProvider>
             <StorybookContext.Provider value={context}>
-              <div className={classes.stories}>
+              <div className={css.stories}>
                 {(() => {
                   if (!wrapInStorybookComponent) {
                     return (<>
@@ -161,19 +174,23 @@ function walkThroughTheStories<T extends {}>(path: PropertyKey[], stories: Stori
                 })()}
               </div>
             </StorybookContext.Provider>
-          </ThemeProvider>
+          </RootThemeProvider>
         </>);
-      };
-      (Component as any).parameters = {
+      });
+      /* TH: External Component is output using the no React wrapper (memo or forwardRef) as it seems to have an issue with it when I do. */
+      const ExternalComponent = (props: any) => (
+        <Component {...props} />
+      );
+      (ExternalComponent as any).parameters = {
         chromatic: {
           delay: delaySnapshot,
           diffThreshold: diffThreshold ?? 0.08,
         },
       };
-      (Component as any).storyName = path.concat(key).join(' ');
-      module.exports[storyId] = Component;
+      (ExternalComponent as any).storyName = path.concat(key).join(' ');
+      module.exports[storyId] = ExternalComponent;
       if (test != null) {
-        (Component as any).play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {
+        (ExternalComponent as any).play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {
           await test?.({ ...within(canvasElement), ...userEvent, ...addAdditionalHelpers(canvasElement, hookExecutor) });
         };
       }

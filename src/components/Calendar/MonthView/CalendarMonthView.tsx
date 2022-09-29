@@ -1,5 +1,4 @@
-import { anuxPureFC } from '../../../anuxComponents';
-import { Theme } from '../../../providers/ThemeProvider';
+import { pureFC } from '../../../anuxComponents';
 import { Tag } from '../../Tag';
 import { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarTheme } from '../CalendarTheme';
@@ -13,43 +12,9 @@ interface Props {
   entries: readonly CalendarEntryRecord[];
 }
 
-export const CalendarMonthView = anuxPureFC<Props>('CalendarMonthView', ({
-  viewingDate,
-  entries,
-}) => {
-  const { classes, join } = useTheme();
-  const [firstDate, endDate] = CalendarMonthViewUtils.findFirstDateFor(viewingDate);
-  const monthEntries = CalendarMonthViewUtils.createMonthEntries(entries, firstDate, endDate);
-
-  const renderDayName = (dayName: string) => (
-    <Tag name="calendar-month-view-day-name" className={join(classes.cell, classes.dayName)}>{dayName}</Tag>
-  );
-
-  const renderedDayCells = useMemo(() => new Array(35).fill(0).map((_, index) => {
-    const cellDate = DateTime.fromJSDate(firstDate).plus({ days: index }).toJSDate();
-    const dayIndex = index % 7;
-    const entriesForDay = CalendarMonthViewUtils.getEntriesForDate(monthEntries, cellDate, dayIndex);
-    const dehighlightDate = cellDate.getMonth() !== viewingDate.getMonth();
-    return (
-      <CalendarMonthViewCell key={index} className={classes.cell} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} />
-    );
-  }), [firstDate]);
-
-  return (
-    <Tag name="calendar-month-view" className={classes.monthView}>
-      {renderDayName('MON')}
-      {renderDayName('TUE')}
-      {renderDayName('WED')}
-      {renderDayName('THU')}
-      {renderDayName('FRI')}
-      {renderDayName('SAT')}
-      {renderDayName('SUN')}
-      {renderedDayCells}
-    </Tag>
-  );
-});
-
-const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
+export const CalendarMonthView = pureFC<Props>()('CalendarMonthView', CalendarTheme, ({
+  monthViewDayNameFontSize, monthViewDayNameFontWeight,
+}) => ({
   monthView: {
     display: 'grid',
     gridTemplateColumns: 'repeat(7, 1fr)',
@@ -67,7 +32,41 @@ const useTheme = Theme.createThemeUsing(CalendarTheme, styles => ({
     alignItems: 'center',
     justifyContent: 'flex-end',
     padding: '0px 8px 2px',
-    fontSize: styles.monthViewDayNameFontSize,
-    fontWeight: styles.monthViewDayNameFontWeight,
+    fontSize: monthViewDayNameFontSize,
+    fontWeight: monthViewDayNameFontWeight,
   },
-}));
+}), ({
+  viewingDate,
+  entries,
+  theme: { css, join },
+}) => {
+  const [firstDate, endDate] = CalendarMonthViewUtils.findFirstDateFor(viewingDate);
+  const monthEntries = CalendarMonthViewUtils.createMonthEntries(entries, firstDate, endDate);
+
+  const renderDayName = (dayName: string) => (
+    <Tag name="calendar-month-view-day-name" className={join(css.cell, css.dayName)}>{dayName}</Tag>
+  );
+
+  const renderedDayCells = useMemo(() => new Array(35).fill(0).map((_, index) => {
+    const cellDate = DateTime.fromJSDate(firstDate).plus({ days: index }).toJSDate();
+    const dayIndex = index % 7;
+    const entriesForDay = CalendarMonthViewUtils.getEntriesForDate(monthEntries, cellDate, dayIndex);
+    const dehighlightDate = cellDate.getMonth() !== viewingDate.getMonth();
+    return (
+      <CalendarMonthViewCell key={index} className={css.cell} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} />
+    );
+  }), [firstDate]);
+
+  return (
+    <Tag name="calendar-month-view" className={css.monthView}>
+      {renderDayName('MON')}
+      {renderDayName('TUE')}
+      {renderDayName('WED')}
+      {renderDayName('THU')}
+      {renderDayName('FRI')}
+      {renderDayName('SAT')}
+      {renderDayName('SUN')}
+      {renderedDayCells}
+    </Tag>
+  );
+});

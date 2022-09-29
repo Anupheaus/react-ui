@@ -1,55 +1,7 @@
 import { to } from 'anux-common';
-import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode } from 'react';
-import { anuxPureFC } from '../../anuxComponents';
+import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, useMemo } from 'react';
+import { pureFC } from '../../anuxComponents';
 import { Tag } from '../Tag';
-import { theme } from '../../theme';
-
-type StyleProps = Omit<Props, 'align' | 'valign'> & { align: CSSProperties['justifyContent']; valign: CSSProperties['alignItems']; };
-const useStyles = theme.createStyles((_theme, { gap, width, height, isVertical, align, valign }: StyleProps) => ({
-  flex: {
-    position: 'relative',
-    display: 'flex',
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 'auto',
-    overflow: 'hidden',
-  },
-  disableGrow: {
-    flexGrow: 0,
-  },
-  disableShrink: {
-    flexShrink: 0,
-  },
-  isVertical: {
-    flexDirection: 'column',
-  },
-  enableWrap: {
-    flexWrap: 'wrap',
-  },
-  optionalProps: {
-    gap,
-    width,
-    height,
-    ...(isVertical && height != null ? { flexBasis: height } : {}),
-    ...(!isVertical && width != null ? { flexBasis: width } : {}),
-  },
-  align: isVertical ? {
-    alignItems: align,
-  } : {
-    justifyContent: align,
-  },
-  valign: isVertical ? {
-    justifyContent: valign,
-  } : {
-    alignItems: valign,
-  },
-  inline: {
-    display: 'inline-flex',
-  },
-  allowOverflow: {
-    overflow: 'unset',
-  },
-}));
 
 interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivElement> {
   className?: string;
@@ -73,7 +25,34 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   allowFocus?: boolean;
 }
 
-export const Flex = anuxPureFC<Props>('Flex', ({
+export const Flex = pureFC<Props>()('Flex', {
+  flex: {
+    position: 'relative',
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    overflow: 'hidden',
+  },
+  disableGrow: {
+    flexGrow: 0,
+  },
+  disableShrink: {
+    flexShrink: 0,
+  },
+  isVertical: {
+    flexDirection: 'column',
+  },
+  enableWrap: {
+    flexWrap: 'wrap',
+  },
+  inline: {
+    display: 'inline-flex',
+  },
+  allowOverflow: {
+    overflow: 'unset',
+  },
+}, ({
   className,
   tagName = 'div',
   disableGrow = false,
@@ -93,6 +72,8 @@ export const Flex = anuxPureFC<Props>('Flex', ({
   testId,
   tooltip,
   allowFocus,
+  style: providedStyle,
+  theme: { css, join },
   children = null,
   ...props
 }, ref) => {
@@ -110,7 +91,14 @@ export const Flex = anuxPureFC<Props>('Flex', ({
 
   if (size != null) { width = width ?? size; height = height ?? size; }
 
-  const { join, classes } = useStyles({ gap, width, height, align, valign, isVertical });
+  const style = useMemo<CSSProperties>(() => ({
+    gap,
+    width,
+    height,
+    ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
+    ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
+    ...providedStyle,
+  }), [gap, width, height, isVertical, valign, align, providedStyle]);
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }
 
@@ -120,18 +108,16 @@ export const Flex = anuxPureFC<Props>('Flex', ({
       {...props}
       ref={ref}
       className={join(
-        classes.flex,
-        classes.optionalProps,
-        disableGrow && classes.disableGrow,
-        disableShrink && classes.disableShrink,
-        isVertical && classes.isVertical,
-        enableWrap && classes.enableWrap,
-        align != null && classes.align,
-        valign != null && classes.valign,
-        inline && classes.inline,
-        allowOverflow && classes.allowOverflow,
+        css.flex,
+        disableGrow && css.disableGrow,
+        disableShrink && css.disableShrink,
+        isVertical && css.isVertical,
+        enableWrap && css.enableWrap,
+        inline && css.inline,
+        allowOverflow && css.allowOverflow,
         className,
       )}
+      style={style}
       tabIndex={allowFocus === true ? 0 : allowFocus === false ? -1 : undefined}
     >
       {children}

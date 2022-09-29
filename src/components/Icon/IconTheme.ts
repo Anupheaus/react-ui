@@ -1,7 +1,8 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { createTheme } from '../../theme';
 
-export const IconTheme = Theme.createThemeFor('icon', {
-  styles: {
+export const IconTheme = createTheme({
+  id: 'IconTheme',
+  definition: {
     opacity: 0.7,
   },
 });

@@ -1,12 +1,12 @@
 import { useContext, useRef, useState } from 'react';
-import { anuxPureFC } from '../anuxComponents';
+import { pureFC } from '../anuxComponents';
 import { StorybookContext } from './StorybookContext';
 
 interface Props {
   hook(renderCount: number): void;
 }
 
-const StorybookHookExecutor = anuxPureFC<Props>('StorybookHookExecutor', ({
+const StorybookHookExecutor = pureFC<Props>()('StorybookHookExecutor', ({
   hook,
 }) => {
   const renderCount = useRef(0);
@@ -17,7 +17,7 @@ const StorybookHookExecutor = anuxPureFC<Props>('StorybookHookExecutor', ({
   );
 });
 
-export const StorybookHookProfiler = anuxPureFC('StorybookHookProfiler', () => {
+export const StorybookHookProfiler = pureFC()('StorybookHookProfiler', () => {
   const { registerHookExecutor } = useContext(StorybookContext);
   const [delegate, setDelegate] = useState<(renderCount: number) => void>();
   const hasRegisteredExecutorRef = useRef(false);

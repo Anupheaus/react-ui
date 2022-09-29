@@ -1,7 +1,7 @@
 import { AnyObject } from 'anux-common';
 import { useContext } from 'react';
 import { AnuxFC, anuxPureFC } from '../anuxComponents';
-import { useId } from '../useId';
+import { useId } from '../hooks/useId';
 import { AnuxPlaceholderContext } from './context';
 
 const PlaceholderComponentSymbol = Symbol('PlaceholderComponent');

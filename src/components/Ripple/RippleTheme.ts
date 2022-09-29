@@ -1,7 +1,8 @@
-import { Theme } from '../../providers/ThemeProvider';
+import { createTheme } from '../../theme';
 
-export const RippleTheme = Theme.createThemeFor('ripple', {
-  styles: {
+export const RippleTheme = createTheme({
+  id: 'RippleTheme',
+  definition: {
     color: 'rgba(0 0 0 / 10%)',
-  },
+  }
 });

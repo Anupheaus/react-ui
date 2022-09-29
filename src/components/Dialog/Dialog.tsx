@@ -1,14 +1,12 @@
 import { ReactNode, useMemo } from 'react';
 import { Dialog as MuiDialog, DialogTitle, DialogProps as MuiDialogProps } from '@mui/material';
-import { anuxPureFC } from '../../anuxComponents';
-import { useBound } from '../../hooks/useBound';
+import { pureFC } from '../../anuxComponents';
+import { useBinder, useBound } from '../../hooks/useBound';
 import { DistributedState, useDistributedState } from '../../hooks';
 import { Icon, IconType } from '../Icon';
 import { Flex } from '../Flex';
-import { Theme } from '../../providers/ThemeProvider';
 import { DialogTheme } from './DialogTheme';
 import { Button } from '../Button';
-import { ButtonTheme } from '../Button/ButtonTheme';
 
 export interface DialogProps {
   className?: string;
@@ -22,21 +20,40 @@ interface InternalProps extends DialogProps {
   state: DistributedState<boolean>;
 }
 
-export const Dialog = anuxPureFC<InternalProps>('Dialog', ({
+export const Dialog = pureFC<InternalProps>()('Dialog', DialogTheme, ({ titleBackgroundColor, titleFontSize, titleFontWeight }) => ({
+  dialog: {
+    borderRadius: 12,
+    gap: 20,
+    paddingBottom: 14,
+  },
+  dialogTitle: {
+    backgroundColor: titleBackgroundColor,
+    padding: '10px 14px',
+  },
+  dialogHeader: {
+    fontSize: titleFontSize,
+    fontWeight: titleFontWeight,
+  },
+}), ({
   className,
   title,
   state,
   icon,
-  theme,
+  theme: {
+    css,
+    icons,
+    join,
+    ThemedComponent,
+  },
   hideCloseButton = false,
   children = null,
 }) => {
-  const { classes, icons, join } = useTheme(theme);
   const { getAndObserve: isDialogOpen, set } = useDistributedState(state);
   const close = useBound(() => set(false));
+  const bind = useBinder();
 
   const dialogClasses = useMemo<MuiDialogProps['classes']>(() => ({
-    paper: join(classes.dialog, className),
+    paper: join(css.dialog, className),
   }), [className]);
 
   return (
@@ -44,14 +61,20 @@ export const Dialog = anuxPureFC<InternalProps>('Dialog', ({
       open={isDialogOpen()}
       onClose={close}
       classes={dialogClasses}
-      className={classes.theme}
     >
       {title != null && (
-        <DialogTitle className={classes.dialogTitle}>
-          <Flex tagName="dialog-header" className={classes.dialogHeader} gap={12}>
+        <DialogTitle className={css.dialogTitle}>
+          <Flex tagName="dialog-header" className={css.dialogHeader} gap={12}>
             {icon != null && <Icon size={'large'}>{icon}</Icon>}
             <Flex tagName="dialog-header-title">{title}</Flex>
-            {!hideCloseButton && <Button className={classes.closeButton} icon={icons.close} onClick={close} />}
+            {!hideCloseButton && (
+              <ThemedComponent
+                component={Button}
+                themeDefinition={bind(() => ({ backgroundColor: 'transparent', activeBackgroundColor: 'rgba(0 0 0 / 15%)' }))}
+                icon={icons.close}
+                onClick={close}
+              />
+            )}
           </Flex>
         </DialogTitle>
       )}
@@ -59,25 +82,3 @@ export const Dialog = anuxPureFC<InternalProps>('Dialog', ({
     </MuiDialog>
   );
 });
-
-const useTheme = Theme.createThemeUsing(DialogTheme, styles => ({
-  dialog: {
-    borderRadius: 12,
-    gap: 20,
-    paddingBottom: 14,
-  },
-  dialogTitle: {
-    backgroundColor: styles.titleBackgroundColor,
-    padding: '10px 14px',
-  },
-  closeButton: {
-    ...Theme.createInlineStylesVersionOf(ButtonTheme, {
-      backgroundColor: styles.titleBackgroundColor,
-      activeBackgroundColor: 'rgba(0 0 0 / 10%)',
-    }),
-  },
-  dialogHeader: {
-    fontSize: styles.titleFontSize,
-    fontWeight: styles.titleFontWeight,
-  },
-}));

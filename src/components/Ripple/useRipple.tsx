@@ -1,28 +1,18 @@
-import { ComponentProps, useRef } from 'react';
-import { useBound } from '../../hooks/useBound';
+import { useMemo } from 'react';
 import { createRippleEventHandler } from './createRippleEventHandler';
-import { Ripple as UIRippleComponent } from './Ripple';
+import { Ripple as RippleComponent, RippleProps } from './Ripple';
 import { RippleState } from './RippleModels';
-import { is } from 'anux-common';
-import { useCreateHookComponent } from '../../hooks';
+import { useDistributedState } from '../../hooks';
+import { pureFC } from '../../anuxComponents';
 
 export function useRipple() {
-  const stateRef = useRef<RippleState>({ x: 0, y: 0, isActive: false, useCoords: false });
-  const { createComponent, refreshComponent } = useCreateHookComponent();
+  const { state, modify } = useDistributedState<RippleState>(() => ({ x: 0, y: 0, isActive: false, useCoords: false }));
 
-  const setState = useBound((delegate: (currentState: RippleState) => RippleState) => {
-    const existingState = stateRef.current;
-    const newState = delegate(existingState);
-    if (is.deepEqual(newState, existingState)) return;
-    stateRef.current = newState;
-    refreshComponent();
-  });
+  const rippleTarget = createRippleEventHandler(modify);
 
-  const rippleTarget = createRippleEventHandler(setState);
-
-  const UIRipple = createComponent<Omit<ComponentProps<typeof UIRippleComponent>, 'state'>>('UIRipple', props => (
-    <UIRippleComponent {...props} state={stateRef.current} />
-  ));
+  const UIRipple = useMemo(() => pureFC<RippleProps>()('UIRipple', props => (
+    <RippleComponent {...props} state={state} />
+  )), []);
 
   return {
     rippleTarget,
