@@ -22,7 +22,7 @@
     "flatted": "^3.2.5",
     "use-resize-observer": "^9.0.2",
     "color": "^4.2.3",
-    "anux-common": "../anux-common",
+    "@anupheaus/common": "^0.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",
