@@ -11,7 +11,8 @@
     "build": "webpack --mode production",
     "build:dev": "anux build dev",
     "build:harness": "anux harness",
-    "test": "jest -c ./tests/jest/jest.config.js --colors --watchAll --runInBand --coverage=true",
+    "test": "jest --ci -c ./tests/jest/jest.config.js --colors --watchAll --runInBand --coverage=true",
+    "test-ci": "jest --ci -c ./tests/jest/jest.config.js --runInBand --coverage=true",
     "findDeclarationErrors": "tsc --declaration --declarationDir ./dist --emitDeclarationOnly"
   },
   "files": [
