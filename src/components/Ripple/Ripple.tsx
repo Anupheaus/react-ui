@@ -1,5 +1,5 @@
 import { CSSProperties, useMemo, useRef } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { RippleState } from './RippleModels';
@@ -42,63 +42,69 @@ interface Props extends RippleProps {
   state: DistributedState<RippleState>;
 }
 
-export const Ripple = pureFC<Props>()('Ripple', RippleTheme, ({ color }) => ({
-  UIRipple: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-    pointerEvents: 'none',
-  },
-  rippleAnimation: {
-    position: 'absolute',
-    borderRadius: '50%',
-    transform: 'scale(0)',
-    animationFillMode: 'forwards',
-    animationDuration: '800ms',
-    animationTimingFunction: 'ease-out',
-    backgroundColor: color,
-    pointerEvents: 'none',
-  },
-  isActive: {
-    animationName: activeKeyFrame,
-  },
-  isInActive: {
-    animationDuration: '400ms',
-    animationName: inactiveKeyFrame,
-  },
-}), ({
-  state,
-  theme: {
-    css,
-    join,
-  },
-}) => {
-  const { getAndObserve } = useDistributedState(state);
-  const { isActive, x, y, useCoords } = getAndObserve();
-  const beenActiveRef = useRef(false);
-  const [element, target] = useDOMRef();
+export const Ripple = createComponent({
+  id: 'Ripple',
 
-  if (isActive === true) beenActiveRef.current = true;
+  styles: ({ useTheme }) => {
+    const { definition: { color } } = useTheme(RippleTheme);
+    return {
+      styles: {
+        UIRipple: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+        },
+        rippleAnimation: {
+          position: 'absolute',
+          borderRadius: '50%',
+          transform: 'scale(0)',
+          animationFillMode: 'forwards',
+          animationDuration: '800ms',
+          animationTimingFunction: 'ease-out',
+          backgroundColor: color,
+          pointerEvents: 'none',
+        },
+        isActive: {
+          animationName: activeKeyFrame,
+        },
+        isInActive: {
+          animationDuration: '400ms',
+          animationName: inactiveKeyFrame,
+        },
+      },
+    };
+  },
+  render({
+    state,
+  }: Props, { css, join }) {
+    const { getAndObserve } = useDistributedState(state);
+    const { isActive, x, y, useCoords } = getAndObserve();
+    const beenActiveRef = useRef(false);
+    const [element, target] = useDOMRef();
 
-  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
-    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+    if (isActive === true) beenActiveRef.current = true;
 
-  return (
-    <Tag ref={target} name="ui-ripple" className={css.UIRipple}>
-      <Tag
-        name="ui-ripple-animation"
-        className={join(
-          css.rippleAnimation,
-          isActive && css.isActive,
-          !isActive && beenActiveRef.current && css.isInActive,
-        )}
-        style={rippleStyle}
-      />
-    </Tag>
-  );
+    const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
+      [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+
+    return (
+      <Tag ref={target} name="ui-ripple" className={css.UIRipple}>
+        <Tag
+          name="ui-ripple-animation"
+          className={join(
+            css.rippleAnimation,
+            isActive && css.isActive,
+            !isActive && beenActiveRef.current && css.isInActive,
+          )}
+          style={rippleStyle}
+        />
+      </Tag>
+    );
+  },
 });
 
 const activeKeyFrame = createAnimationKeyFrame({

@@ -1,79 +1,95 @@
-import { is } from 'anux-common';
-import { useState } from 'react';
-import { pureFC } from '../../../anuxComponents';
-import { Button, Flex, Icon, useDialog } from '../../../components';
+import { ReactNode } from 'react';
+import { createComponent } from '../../../components/Component';
+import { Button, ButtonTheme, DialogTheme, Flex, Icon, useDialog } from '../../../components';
 import { useBound, useOnResize, useUpdatableState } from '../../../hooks';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { AnuxError } from '../../types';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
+import { ThemesProvider } from '../../../theme';
+import { is } from 'anux-common';
 
 interface Props {
   error?: AnuxError;
+  children?: ReactNode;
 }
 
-export const ErrorPanel = pureFC<Props>()('ErrorPanel', ErrorPanelTheme, ({ backgroundColor }) => ({
-  errorPanel: {
-    border: '#b10000 solid 1px',
-    borderRadius: 4,
-    backgroundColor,
-    padding: 4,
-    color: '#5e0000',
-    cursor: 'pointer',
-  },
-}), ({
-  theme: {
-    css,
-    icons,
-    ThemedComponent,
-  },
-  error: providedError,
-  children = null,
-}) => {
-  const [error, setError] = useUpdatableState<AnuxError | undefined>(() => providedError, [providedError]);
-  const { height, target } = useOnResize();
-  const { Dialog, DialogContent, DialogActions, OkButton, openDialog } = useDialog();
+export const ErrorPanel = createComponent({
+  id: 'ErrorPanel',
 
-  const handleError = useBound((capturedError: AnuxError) => {
-    capturedError.markAsHandled();
-    setError(capturedError);
-  });
+  styles: ({ useTheme, createThemeVariant }) => {
+    const { definition: { backgroundColor }, icons } = useTheme(ErrorPanelTheme);
 
-  const renderError = () => {
-    if (!is.number(height) || height < 30) return (
-      <>
-        <Icon size={'small'}>{icons.error}</Icon>
-        Error
-      </>
+    return {
+      styles: {
+        errorPanel: {
+          border: '#b10000 solid 1px',
+          borderRadius: 4,
+          backgroundColor,
+          color: '#5e0000',
+          cursor: 'pointer',
+        },
+        error: {},
+      },
+      icons,
+      variants: {
+        buttonTheme: createThemeVariant(ButtonTheme, {
+          backgroundColor,
+          activeBackgroundColor: 'rgba(0 0 0 / 10%)',
+        }),
+        dialogTheme: createThemeVariant(DialogTheme, {
+          titleBackgroundColor: backgroundColor,
+        }),
+      },
+    };
+  },
+
+  render({
+    error: providedError,
+    children = null,
+  }: Props, { css, icons, variants, join }) {
+    const [error, setError] = useUpdatableState<AnuxError | undefined>(() => providedError, [providedError]);
+    const { height, target } = useOnResize();
+    const { Dialog, DialogContent, DialogActions, OkButton, openDialog } = useDialog();
+
+    const handleError = useBound((capturedError: AnuxError) => {
+      capturedError.markAsHandled();
+      setError(capturedError);
+    });
+
+    const renderError = () => {
+      if (!is.number(height) || height < 30) return (
+        <>
+          <Icon size={'small'}>{icons.error}</Icon>
+          Error
+        </>
+      );
+    };
+
+    if (error != null) return (
+      <ThemesProvider themes={join(variants.dialogTheme)}>
+        <Flex tagName="error-panel" className={css.errorPanel}>
+          <ThemesProvider themes={join(variants.buttonTheme)}>
+            <Button icon={icons.error} onClick={openDialog}>Error</Button>
+          </ThemesProvider>
+        </Flex>
+        <Flex tagName={'error'} ref={target} className={css.error} gap={4} onClick={openDialog}>
+          {renderError()}
+        </Flex>
+        <Dialog title={`Error: ${error.name}`}>
+          <DialogContent>
+            {error.message}
+          </DialogContent>
+          <DialogActions>
+            <OkButton />
+          </DialogActions>
+        </Dialog>
+      </ThemesProvider>
     );
-  };
 
-  if (error != null) return (<>
-    <Flex tagName="error-panel" className={css.errorPanel}>
-      <ThemedComponent
-        component={Button}
-        themeDefinition={({ backgroundColor }) => ({ backgroundColor, activeBackgroundColor: 'rgba(0 0 0 / 10%)' })}
-        icon={icons.error}
-        onClick={openDialog}
-      >
-        Error
-      </ThemedComponent>
-    </Flex>
-    {/* <Flex tagName={'error'} ref={target} className={classes.error} gap={4} onClick={openDialog}>
-      {renderError()}
-    </Flex> */}
-    <Dialog title={`Error: ${error.name}`}>
-      <DialogContent>
-        {error.message}
-      </DialogContent>
-      <DialogActions>
-        <OkButton />
-      </DialogActions>
-    </Dialog>
-  </>);
-
-  return (
-    <ErrorBoundary onError={handleError}>
-      {children}
-    </ErrorBoundary>
-  );
+    return (
+      <ErrorBoundary onError={handleError}>
+        {children}
+      </ErrorBoundary>
+    );
+  },
 });

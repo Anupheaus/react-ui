@@ -1,10 +1,19 @@
-import { pureFC } from '../../anuxComponents';
+import { ReactNode } from 'react';
+import { createComponent } from '../Component';
 import { SkeletonContexts } from './SkeletonContexts';
 
-export const NoSkeletons = pureFC()('NoSkeletons', ({
-  children = null,
-}) => (
-  <SkeletonContexts.noSkeletons.Provider value={true}>
-    {children}
-  </SkeletonContexts.noSkeletons.Provider>
-));
+interface Props {
+  children?: ReactNode;
+}
+
+export const NoSkeletons = createComponent({
+  id: 'NoSkeletons',
+
+  render: ({
+    children = null,
+  }: Props) => (
+    <SkeletonContexts.noSkeletons.Provider value={true}>
+      {children}
+    </SkeletonContexts.noSkeletons.Provider>
+  ),
+});

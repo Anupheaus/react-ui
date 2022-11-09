@@ -1,14 +1,18 @@
-import { pureFC } from '../../anuxComponents';
+import { createComponent } from '../Component';
 import { useUpdatableState } from '../../hooks/useUpdatableState';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { createStories } from '../../Storybook';
 import { InternalText, InternalTextProps } from './InternalText';
 import { generateInternalTextStories } from './InternalText.stories.utils';
 
-const EditableText = pureFC<InternalTextProps>()('EditableText', props => {
-  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+const EditableText = createComponent({
+  id: 'EditableText',
 
-  return (<InternalText tagName="text" type="text" width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
+  render(props: InternalTextProps) {
+    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+
+    return (<InternalText tagName="text" type="text" width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
+  },
 });
 
 createStories(() => ({

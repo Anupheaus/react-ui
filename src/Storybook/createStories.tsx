@@ -5,9 +5,9 @@ import { within, userEvent } from '@storybook/testing-library';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
 import { StorybookComponent } from './StorybookComponent';
 import { Typography } from '@mui/material';
-import { PureFC, pureFC } from '../anuxComponents';
 import { TestHookOnRenderProps } from './StorybookModels';
 import { createRootThemeProvider } from '../theme/createRootThemeProvider';
+import { Component as ComponentType, createComponent } from '../components/Component';
 
 if (module.hot) {
   module.hot.accept(); // already had this init code 
@@ -44,6 +44,10 @@ const RootThemeProvider = createRootThemeProvider({
     },
   },
 });
+
+interface Props {
+  isTestBorderVisible?: boolean;
+}
 
 function isStoryConfig(value: unknown): value is StoryConfig {
   return typeof value === 'object' && value !== null && 'component' in value;
@@ -105,7 +109,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
   Reflect.ownKeys(stories).forEach(key => {
     const value = Reflect.get(stories, key) as Stories[0];
     if (value == null) return;
-    let InternalComponent: PureFC<{}> | undefined;
+    let InternalComponent: ComponentType<{}> | undefined;
     const storyName = path.concat(key).join('.');
     const storyId = path.concat(key).join('.');
     let notes: ReactNode = null;
@@ -135,47 +139,52 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
       walkThroughTheStories(path.concat(key), value, module);
     }
     if (InternalComponent != null) {
-      const Component = pureFC<{ isTestBorderVisible?: boolean; }>()('StorybookComponent', {
-        stories: {
-          display: 'flex',
-          flex: 'auto',
-          flexDirection: 'column',
-          gap: 12,
-        },
-      }, ({
-        isTestBorderVisible = true,
-        theme: {
-          css,
-        },
-        ...props
-      }) => {
-        const context = useMemo<StorybookContextProps>(() => ({
-          isTestBorderVisible,
-          registerHookExecutor: executor => { hookExecutor = executor; },
-        }), [isTestBorderVisible]);
-        if (InternalComponent == null) return null;
-        return (<>
-          <RootThemeProvider>
-            <StorybookContext.Provider value={context}>
-              <div className={css.stories}>
-                {(() => {
-                  if (!wrapInStorybookComponent) {
-                    return (<>
-                      <Typography variant="h4">{title}</Typography>
-                      <InternalComponent {...props} />
-                    </>);
-                  } else {
-                    return (
-                      <StorybookComponent title={title} notes={notes} width={width} height={height}>
+      const Component = createComponent({
+        id: 'StorybookComponent',
+
+        styles: () => ({
+          styles: {
+            stories: {
+              display: 'flex',
+              flex: 'auto',
+              flexDirection: 'column',
+              gap: 12,
+            },
+          },
+        }),
+
+        render({
+          isTestBorderVisible = true,
+          ...props
+        }: Props, { css }) {
+          const context = useMemo<StorybookContextProps>(() => ({
+            isTestBorderVisible,
+            registerHookExecutor: executor => { hookExecutor = executor; },
+          }), [isTestBorderVisible]);
+          if (InternalComponent == null) return null;
+          return (<>
+            <RootThemeProvider>
+              <StorybookContext.Provider value={context}>
+                <div className={css.stories}>
+                  {(() => {
+                    if (!wrapInStorybookComponent) {
+                      return (<>
+                        <Typography variant="h4">{title}</Typography>
                         <InternalComponent {...props} />
-                      </StorybookComponent>
-                    );
-                  }
-                })()}
-              </div>
-            </StorybookContext.Provider>
-          </RootThemeProvider>
-        </>);
+                      </>);
+                    } else {
+                      return (
+                        <StorybookComponent title={title} notes={notes} width={width} height={height}>
+                          <InternalComponent {...props} />
+                        </StorybookComponent>
+                      );
+                    }
+                  })()}
+                </div>
+              </StorybookContext.Provider>
+            </RootThemeProvider>
+          </>);
+        },
       });
       /* TH: External Component is output using the no React wrapper (memo or forwardRef) as it seems to have an issue with it when I do. */
       const ExternalComponent = (props: any) => (

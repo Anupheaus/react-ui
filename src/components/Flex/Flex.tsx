@@ -1,6 +1,6 @@
 import { to } from 'anux-common';
-import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, useMemo } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref, useMemo } from 'react';
+import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 
 interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivElement> {
@@ -23,104 +23,113 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   testId?: string;
   tooltip?: ReactNode;
   allowFocus?: boolean;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export const Flex = pureFC<Props>()('Flex', {
-  flex: {
-    position: 'relative',
-    display: 'flex',
-    flexGrow: 1,
-    flexShrink: 1,
-    flexBasis: 'auto',
-    overflow: 'hidden',
-  },
-  disableGrow: {
-    flexGrow: 0,
-  },
-  disableShrink: {
-    flexShrink: 0,
-  },
-  isVertical: {
-    flexDirection: 'column',
-  },
-  enableWrap: {
-    flexWrap: 'wrap',
-  },
-  inline: {
-    display: 'inline-flex',
-  },
-  allowOverflow: {
-    overflow: 'unset',
-  },
-}, ({
-  className,
-  tagName = 'div',
-  disableGrow = false,
-  disableShrink = false,
-  fixedSize = false,
-  isVertical = false,
-  enableWrap = false,
-  alignCentrally = false,
-  inline = false,
-  allowOverflow = false,
-  width,
-  height,
-  size,
-  gap,
-  align: providedAlign,
-  valign: providedVAlign,
-  testId,
-  tooltip,
-  allowFocus,
-  style: providedStyle,
-  theme: { css, join },
-  children = null,
-  ...props
-}, ref) => {
-  if (alignCentrally) { providedAlign = providedAlign ?? 'center'; providedVAlign = providedVAlign ?? 'center'; }
-  const align = providedAlign != null ? to.switchMap<Required<Props>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
-    left: 'flex-start',
-    right: 'flex-end',
-    '*': providedAlign,
-  }) : undefined;
-  const valign = providedVAlign != null ? to.switchMap<Required<Props>['valign'], Required<CSSProperties>['alignItems']>(providedVAlign, {
-    top: 'flex-start',
-    bottom: 'flex-end',
-    '*': providedVAlign,
-  }) : undefined;
+export const Flex = createComponent({
+  id: 'Flex',
 
-  if (size != null) { width = width ?? size; height = height ?? size; }
+  styles: () => ({
+    styles: {
+      flex: {
+        position: 'relative',
+        display: 'flex',
+        flexGrow: 1,
+        flexShrink: 1,
+        flexBasis: 'auto',
+        overflow: 'hidden',
+      },
+      disableGrow: {
+        flexGrow: 0,
+      },
+      disableShrink: {
+        flexShrink: 0,
+      },
+      isVertical: {
+        flexDirection: 'column',
+      },
+      enableWrap: {
+        flexWrap: 'wrap',
+      },
+      inline: {
+        display: 'inline-flex',
+      },
+      allowOverflow: {
+        overflow: 'unset',
+      },
+    },
+  }),
 
-  const style = useMemo<CSSProperties>(() => ({
-    gap,
+  render({
+    className,
+    tagName = 'div',
+    disableGrow = false,
+    disableShrink = false,
+    fixedSize = false,
+    isVertical = false,
+    enableWrap = false,
+    alignCentrally = false,
+    inline = false,
+    allowOverflow = false,
     width,
     height,
-    ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
-    ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
-    ...providedStyle,
-  }), [gap, width, height, isVertical, valign, align, providedStyle]);
+    size,
+    gap,
+    align: providedAlign,
+    valign: providedVAlign,
+    testId,
+    tooltip,
+    allowFocus,
+    style: providedStyle,
+    children = null,
+    ref,
+    ...props
+  }: Props, { css, join }) {
+    if (alignCentrally) { providedAlign = providedAlign ?? 'center'; providedVAlign = providedVAlign ?? 'center'; }
+    const align = providedAlign != null ? to.switchMap<Required<Props>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
+      left: 'flex-start',
+      right: 'flex-end',
+      '*': providedAlign,
+    }) : undefined;
+    const valign = providedVAlign != null ? to.switchMap<Required<Props>['valign'], Required<CSSProperties>['alignItems']>(providedVAlign, {
+      top: 'flex-start',
+      bottom: 'flex-end',
+      '*': providedVAlign,
+    }) : undefined;
 
-  if (fixedSize) { disableGrow = true; disableShrink = true; }
+    if (size != null) { width = width ?? size; height = height ?? size; }
 
-  return (
-    <Tag
-      name={tagName}
-      {...props}
-      ref={ref}
-      className={join(
-        css.flex,
-        disableGrow && css.disableGrow,
-        disableShrink && css.disableShrink,
-        isVertical && css.isVertical,
-        enableWrap && css.enableWrap,
-        inline && css.inline,
-        allowOverflow && css.allowOverflow,
-        className,
-      )}
-      style={style}
-      tabIndex={allowFocus === true ? 0 : allowFocus === false ? -1 : undefined}
-    >
-      {children}
-    </Tag>
-  );
+    const style = useMemo<CSSProperties>(() => ({
+      gap,
+      width,
+      height,
+      ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
+      ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
+      ...providedStyle,
+    }), [gap, width, height, isVertical, valign, align, providedStyle]);
+
+    if (fixedSize) { disableGrow = true; disableShrink = true; }
+
+    return (
+      <Tag
+        name={tagName}
+        {...props}
+        ref={ref}
+        className={join(
+          css.flex,
+          disableGrow && css.disableGrow,
+          disableShrink && css.disableShrink,
+          isVertical && css.isVertical,
+          enableWrap && css.enableWrap,
+          inline && css.inline,
+          allowOverflow && css.allowOverflow,
+          className,
+        )}
+        style={style}
+        tabIndex={allowFocus === true ? 0 : allowFocus === false ? -1 : undefined}
+      >
+        {children}
+      </Tag>
+    );
+  },
 });

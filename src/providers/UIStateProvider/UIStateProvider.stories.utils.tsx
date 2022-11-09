@@ -1,9 +1,9 @@
 import { MapOf } from 'anux-common';
-import { PureFC } from '../../anuxComponents';
+import { Component as ComponentType } from '../../components/Component';
 import { StorybookComponent, StoryConfig } from '../../Storybook';
 import { UIState } from './UIState';
 
-export function generateUIStateStories<T extends {}>(Component: PureFC<T>): MapOf<StoryConfig<T>> {
+export function generateUIStateStories<T extends {}>(Component: ComponentType<T>): MapOf<StoryConfig<T>> {
   return {
     'UI States': {
       wrapInStorybookComponent: false,

@@ -16,3 +16,5 @@ export * from './Text';
 export * from './Password';
 export * from './Number';
 export * from './Drawer';
+export * from './Component';
+export * from './Checkbox';

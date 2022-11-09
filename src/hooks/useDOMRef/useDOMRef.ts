@@ -1,10 +1,9 @@
-import { useRef, RefObject } from 'react';
-import { is } from 'anux-common';
+import { useRef, RefObject, Ref } from 'react';
+import { AnyObject, is } from 'anux-common';
 import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
-import { PureRef } from '../../anuxComponents';
 
-type DOMRef = PureRef<unknown> | { current: HTMLElement | null; } | ((instance: HTMLElement | null) => void) | null;
+// type DOMRef = PureRef<unknown> | { current: HTMLElement | null; } | ((instance: HTMLElement | null) => void) | null;
 
 export type HTMLTargetDelegate = (element: HTMLElement | null) => void;
 
@@ -15,14 +14,15 @@ interface UseDOMConfig {
 
 export function useDOMRef(): [RefObject<HTMLElement>, HTMLTargetDelegate];
 export function useDOMRef(forceRefresh: boolean): [RefObject<HTMLElement>, HTMLTargetDelegate];
-export function useDOMRef(refs: DOMRef[]): HTMLTargetDelegate;
+export function useDOMRef(refs: (Ref<any> | undefined)[]): HTMLTargetDelegate;
+export function useDOMRef(refs: (Ref<any> | undefined)[], config: UseDOMConfig): HTMLTargetDelegate;
 export function useDOMRef(config: UseDOMConfig): HTMLTargetDelegate;
-export function useDOMRef(arg?: UseDOMConfig | DOMRef[] | boolean): unknown {
+export function useDOMRef(arg?: UseDOMConfig | (Ref<any> | undefined)[] | boolean, config?: UseDOMConfig): unknown {
   const elementRef = useRef<HTMLElement | undefined>(undefined);
   const forceUpdate = useForceUpdate();
-  const config = is.plainObject<UseDOMConfig>(arg) ? arg : undefined;
+  config = config != null ? config : is.plainObject<UseDOMConfig>(arg) ? arg : undefined;
   const forceRefresh = is.boolean(arg) ? arg : false;
-  const refs = is.array(arg) ? arg : undefined;
+  const refs = is.array(arg) ? arg.removeNull() : undefined;
 
   const setTarget = useBound((element: HTMLElement | null | undefined) => {
     if (element === null) element = undefined;
@@ -35,17 +35,16 @@ export function useDOMRef(arg?: UseDOMConfig | DOMRef[] | boolean): unknown {
         config.disconnected?.(elementRef.current as HTMLElement);
         elementRef.current = undefined;
       }
-    } else {
-      if (refs != null) {
-        refs.forEach(ref => {
-          if (ref == null) return;
-          if (is.function(ref)) ref(element ?? null);
-          else if ('current' in ref) ref.current = element ?? null;
-        });
-      }
-      elementRef.current = element;
-      if (forceRefresh) { forceUpdate(); }
     }
+    if (refs != null) {
+      refs.forEach(ref => {
+        if (ref == null) return;
+        if (is.function(ref)) ref(element ?? null);
+        else if ('current' in ref) (ref as AnyObject).current = element ?? null;
+      });
+    }
+    elementRef.current = element;
+    if (forceRefresh) forceUpdate();
   });
 
   return config != null || refs != null ? setTarget : [elementRef, setTarget];

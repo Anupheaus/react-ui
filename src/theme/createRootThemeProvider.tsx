@@ -1,6 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material';
+import { ReactNode } from 'react';
 import { CSSInterpolation, GlobalStyles } from 'tss-react';
-import { pureFC } from '../anuxComponents';
+import { createComponent } from '../components/Component';
 
 const muiTheme = createTheme();
 
@@ -8,21 +9,29 @@ interface Props {
   globalStyles?: CSSInterpolation;
 }
 
+interface ThemeProviderProps {
+  children?: ReactNode;
+}
+
 export function createRootThemeProvider({ globalStyles }: Props) {
-  return pureFC()('ThemeProvider', ({
-    children = null,
-  }) => {
-    let content = (
-      <ThemeProvider theme={muiTheme}>
-        {children}
-      </ThemeProvider>
-    );
+  return createComponent({
+    id: 'ThemeProvider',
 
-    if (globalStyles != null) content = (<>
-      <GlobalStyles styles={globalStyles} />
-      {content}
-    </>);
+    render({
+      children = null,
+    }: ThemeProviderProps) {
+      let content = (
+        <ThemeProvider theme={muiTheme}>
+          {children}
+        </ThemeProvider>
+      );
 
-    return content;
+      if (globalStyles != null) content = (<>
+        <GlobalStyles styles={globalStyles} />
+        {content}
+      </>);
+
+      return content;
+    },
   });
 }

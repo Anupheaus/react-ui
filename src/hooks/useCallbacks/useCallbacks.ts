@@ -1,13 +1,14 @@
+import { AnyFunction } from 'anux-common';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useBound } from '../useBound';
 
-type CallbackFunction = (...args: unknown[]) => void;
+type CallbackFunction = (...args: any[]) => void;
 
 interface CallbackState {
   isDuringRenderPhase: boolean;
 }
 
-type AddCallbackState<T extends CallbackFunction> = (state: CallbackState, ...args: Parameters<T>) => void;
+type AddCallbackState<T extends AnyFunction> = (state: CallbackState, ...args: Parameters<T>) => void;
 
 export function useCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useRef(new Set<T>()).current;

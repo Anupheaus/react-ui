@@ -1,15 +1,29 @@
-import { pureFC } from '../../anuxComponents';
+import { ReactNode } from 'react';
+import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 
-export const DialogContent = pureFC()('DialogContent', {
-  dialogContent: {
-    padding: '0px 24px',
+interface Props {
+  children?: ReactNode;
+}
+
+export const DialogContent = createComponent({
+  id: 'DialogContent',
+
+  styles: () => ({
+    styles: {
+      dialogContent: {
+        padding: '0px 24px',
+      },
+    },
+  }),
+
+  render({
+    children = null,
+  }: Props, { css }) {
+    return (
+      <Tag name="dialog-content" className={css.dialogContent}>
+        {children}
+      </Tag>
+    );
   },
-}, ({
-  theme: { css },
-  children = null,
-}) => (
-  <Tag name="dialog-content" className={css.dialogContent}>
-    {children}
-  </Tag>
-));
+});

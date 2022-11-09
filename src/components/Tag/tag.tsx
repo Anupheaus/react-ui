@@ -1,51 +1,57 @@
 /** @jsx jsx */
-import { createElement, CSSProperties, useCallback, useMemo } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { createElement, CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref, useMemo } from 'react';
+import { createComponent } from '../Component';
 import { AnyObject } from 'anux-common';
 import { TooltipRenderer } from '../Tooltip/TooltipRenderer';
+import { useDOMRef } from '../../hooks';
 
-interface Props extends Omit<React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref' | 'className'> {
+interface Props extends Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref' | 'className'> {
   name: string;
   className?: string;
   width?: string | number;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export const Tag = pureFC<Props>()('Tag', ({
-  name,
-  className,
-  children,
-  ...rest
-}, passedRef) => {
-  const { style: providedStyle, width, ...props } = {
-    class: className,
-    is: 'custom-element',
-    ...rest,
-  };
-  delete (props as AnyObject)['classname'];
+export const Tag = createComponent({
+  id: 'Tag',
 
-  const ref = useCallback((element?: HTMLElement) => {
-    if (element) {
-      if (element.attributes.getNamedItem('is') != null) element.attributes.removeNamedItem('is');
-    }
-    passedRef?.(element ?? null);
-  }, [passedRef]);
-
-  const style = useMemo(() => {
-    const newStyle: CSSProperties = {
-      ...providedStyle,
-      width: width ?? providedStyle?.width,
+  render({
+    name,
+    className,
+    children,
+    ref: passedRef,
+    ...rest
+  }: Props) {
+    const { style: providedStyle, width, ...props } = {
+      class: className,
+      is: 'custom-element',
+      ...rest,
     };
-    if (Object.keys(newStyle).length === 0) return undefined;
-    return newStyle;
-  }, [providedStyle, width]);
+    delete (props as AnyObject)['classname'];
 
-  return (
-    <TooltipRenderer>
-      {createElement(
-        name,
-        { key: name, ...props, style, ref },
-        children,
-      )}
-    </TooltipRenderer>
-  );
+    const ref = useDOMRef([passedRef], {
+      connected: element => {
+        if (element.attributes.getNamedItem('is') != null) element.attributes.removeNamedItem('is');
+      },
+    });
+
+    const style = useMemo(() => {
+      const newStyle: CSSProperties = {
+        ...providedStyle,
+        width: width ?? providedStyle?.width,
+      };
+      if (Object.keys(newStyle).length === 0) return undefined;
+      return newStyle;
+    }, [providedStyle, width]);
+
+    return (
+      <TooltipRenderer>
+        {createElement(
+          name,
+          { key: name, ...props, style, ref },
+          children,
+        )}
+      </TooltipRenderer>
+    );
+  },
 });

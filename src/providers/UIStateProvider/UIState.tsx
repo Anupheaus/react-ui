@@ -1,44 +1,49 @@
-import { useContext } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { ReactNode, useContext } from 'react';
+import { createComponent } from '../../components/Component';
 import { UIStateContexts } from './UIStateContexts';
 
 interface Props {
   isLoading?: boolean;
   isReadOnly?: boolean;
   isCompact?: boolean;
+  children?: ReactNode;
 }
 
-export const UIState = pureFC<Props>()('UIState', ({
-  isLoading = false,
-  isReadOnly,
-  isCompact,
-  children = null,
-}) => {
-  const isParentLoading = useContext(UIStateContexts.isLoadingContext);
-  const isParentReadOnly = useContext(UIStateContexts.isReadOnlyContext);
-  const isParentCompact = useContext(UIStateContexts.isReadOnlyContext);
+export const UIState = createComponent({
+  id: 'UIState',
 
-  const newIsLoading = isLoading || isParentLoading;
+  render({
+    isLoading = false,
+    isReadOnly,
+    isCompact,
+    children = null,
+  }: Props) {
+    const isParentLoading = useContext(UIStateContexts.isLoadingContext);
+    const isParentReadOnly = useContext(UIStateContexts.isReadOnlyContext);
+    const isParentCompact = useContext(UIStateContexts.isReadOnlyContext);
 
-  let content = <>{children}</>;
+    const newIsLoading = isLoading || isParentLoading;
 
-  if (isParentLoading !== newIsLoading) content = (
-    <UIStateContexts.isLoadingContext.Provider value={newIsLoading}>
-      {content}
-    </UIStateContexts.isLoadingContext.Provider>
-  );
+    let content = <>{children}</>;
 
-  if (isReadOnly != null && isReadOnly !== isParentReadOnly) content = (
-    <UIStateContexts.isReadOnlyContext.Provider value={isReadOnly}>
-      {content}
-    </UIStateContexts.isReadOnlyContext.Provider>
-  );
+    if (isParentLoading !== newIsLoading) content = (
+      <UIStateContexts.isLoadingContext.Provider value={newIsLoading}>
+        {content}
+      </UIStateContexts.isLoadingContext.Provider>
+    );
 
-  if (isCompact != null && isCompact !== isParentCompact) content = (
-    <UIStateContexts.isCompactContext.Provider value={isCompact}>
-      {content}
-    </UIStateContexts.isCompactContext.Provider>
-  );
+    if (isReadOnly != null && isReadOnly !== isParentReadOnly) content = (
+      <UIStateContexts.isReadOnlyContext.Provider value={isReadOnly}>
+        {content}
+      </UIStateContexts.isReadOnlyContext.Provider>
+    );
 
-  return content;
+    if (isCompact != null && isCompact !== isParentCompact) content = (
+      <UIStateContexts.isCompactContext.Provider value={isCompact}>
+        {content}
+      </UIStateContexts.isCompactContext.Provider>
+    );
+
+    return content;
+  },
 });

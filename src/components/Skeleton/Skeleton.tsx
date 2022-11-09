@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { MouseEvent, ReactNode, useContext } from 'react';
+import { createComponent } from '../Component';
 import { useUIState } from '../../providers';
 import { createAnimationKeyFrame } from '../../theme';
 import { Tag } from '../Tag';
@@ -17,70 +17,94 @@ const animation = createAnimationKeyFrame({
 
 interface Props {
   className?: string;
+  contentClassName?: string;
   variant?: 'full' | 'text' | 'circle';
   isVisible?: boolean;
+  children?: ReactNode;
+  onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
 
-export const Skeleton = pureFC<Props>()('Skeleton', SkeletonTheme, ({ color }) => ({
-  skeleton: {
-    visibility: 'hidden',
-    pointerEvents: 'none',
-    backgroundColor: color,
-    animationDuration: '1s',
-    animationDirection: 'alternate',
-    animationFillMode: 'both',
-    animationPlayState: 'paused',
-    animationIterationCount: 'infinite',
-    animationName: animation,
-  },
-  absolutePositioning: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  content: {
-    display: 'flex',
-    flexGrow: 0,
-    flexShrink: 0,
-  },
-  isVisible: {
-    visibility: 'visible',
-    animationPlayState: 'running',
-  },
-  isHidden: {
-    visibility: 'hidden',
-    pointerEvents: 'none',
-  },
-  variant_full: {
+export const Skeleton = createComponent({
+  id: 'Skeleton',
 
-  },
-  variant_text: {
-    borderRadius: 4,
-    maxHeight: 'calc(100% - 8px)',
-  },
-  variant_circle: {
-    borderRadius: '50%',
-  },
-}), ({
-  theme: {
-    css,
-    join,
-  },
-  className,
-  variant = 'full',
-  isVisible,
-  children = null,
-}) => {
-  const { isLoading } = useUIState({ isLoading: isVisible });
-  const noSkeletons = useContext(SkeletonContexts.noSkeletons);
+  styles: ({ useTheme }) => {
+    const { definition: { color } } = useTheme(SkeletonTheme);
+    return {
+      styles: {
+        skeleton: {
+          position: 'relative',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+          backgroundColor: color,
+          animationDuration: '1s',
+          animationDirection: 'alternate',
+          animationFillMode: 'both',
+          animationPlayState: 'paused',
+          animationIterationCount: 'infinite',
+          animationName: animation,
+        },
+        absolutePositioning: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        },
+        content: {
+          display: 'flex',
+          flex: 'auto',
+        },
+        isVisible: {
+          visibility: 'visible',
+          animationPlayState: 'running',
+        },
+        isHidden: {
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        },
 
-  if (!isLoading && children != null) return (<>{children}</>);
+        variant_full: {
 
-  return (
-    <Tag name="skeleton" className={join(css.skeleton, children == null && css.absolutePositioning, isLoading && !noSkeletons && css.isVisible, css[`variant_${variant}`], className)}>
-      {children != null && <Tag name="skeleton-content" className={join(css.content, isLoading && css.isHidden)}>{children}</Tag>}
-    </Tag>
-  );
+        },
+        variant_content_full: {
+
+        },
+
+        variant_text: {
+          borderRadius: 4,
+          margin: '4px 0',
+        },
+        variant_content_text: {
+          margin: '-4px 0',
+        },
+
+        variant_circle: {
+          borderRadius: '50%',
+        },
+        variant_content_circle: {
+        },
+      },
+    };
+  },
+
+  render({
+    className,
+    contentClassName,
+    variant = 'full',
+    isVisible,
+    children = null,
+    onClick,
+  }: Props, { css, join }) {
+    const { isLoading } = useUIState({ isLoading: isVisible });
+    const noSkeletons = useContext(SkeletonContexts.noSkeletons);
+
+    if (!isLoading && children != null) return (<>{children}</>);
+
+    return (
+      <Tag name="skeleton" className={join(css.skeleton, children == null && css.absolutePositioning, isLoading && !noSkeletons && css.isVisible, css[`variant_${variant}`], className)}>
+        {children != null && <Tag name="skeleton-content" className={join(css.content, css[`variant_content_${variant}`], isLoading && css.isHidden, contentClassName)} onClick={onClick}>{children}</Tag>}
+      </Tag>
+    );
+  },
+
 });

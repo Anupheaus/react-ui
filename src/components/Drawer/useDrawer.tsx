@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { createComponent } from '../Component';
 import { useDistributedState } from '../../hooks';
 import { useBound } from '../../hooks/useBound';
 import { Drawer as DrawerComponent, DrawerProps } from './Drawer';
@@ -7,9 +7,13 @@ import { Drawer as DrawerComponent, DrawerProps } from './Drawer';
 export function useDrawer() {
   const { state, set: changeOpenState } = useDistributedState(() => false);
 
-  const Drawer = useMemo(() => pureFC<DrawerProps>()('Drawer', props => (
-    <DrawerComponent {...props} state={state} />
-  )), []);
+  const Drawer = useMemo(() => createComponent({
+    id: 'Drawer',
+
+    render: (props: DrawerProps) => (
+      <DrawerComponent {...props} state={state} />
+    ),
+  }), []);
 
   return {
     openDrawer: useBound(() => changeOpenState(true)),

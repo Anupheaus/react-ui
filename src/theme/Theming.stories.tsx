@@ -1,4 +1,5 @@
-import { pureFC } from '../anuxComponents';
+import { ThemesProvider } from '..';
+import { createComponent } from '../components/Component';
 import { createStories, StorybookComponent } from '../Storybook';
 import { createTheme } from './createTheme';
 
@@ -12,34 +13,40 @@ const ComponentTheme = createTheme({
   }
 });
 
-interface ComponentProps {
+interface Props {
   className?: string;
-  somethingElse?: string;
 }
 
-const Component = pureFC<ComponentProps>()('Component', ComponentTheme, ({ backgroundColor, textColor, height, width }) => ({
-  component: {
-    backgroundColor,
-    color: textColor,
+const Component = createComponent({
+  id: 'Component',
+
+  styles: ({ useTheme }) => {
+    const { definition: { backgroundColor, textColor, height, width } } = useTheme(ComponentTheme);
+    return {
+      styles: {
+        component: {
+          backgroundColor,
+          color: textColor,
+        },
+        width: {
+          width,
+        },
+        height: {
+          height,
+        },
+      },
+    };
   },
-  width: {
-    width,
+
+  render({
+    className,
+  }: Props, { css, join }) {
+    return (
+      <div className={join(css.component, css.width, css.height, className)}>
+        supposed to be blue with white text
+      </div>
+    );
   },
-  height: {
-    height,
-  },
-}), ({
-  className,
-  theme: {
-    css,
-    join,
-  },
-}) => {
-  return (
-    <div className={join(css.component, css.width, css.height, className)}>
-      supposed to be blue with white text
-    </div>
-  );
 });
 
 const HigherComponentTheme = createTheme({
@@ -50,20 +57,27 @@ const HigherComponentTheme = createTheme({
   },
 });
 
-interface HigherComponentProps { }
+const HigherComponent = createComponent({
+  id: 'HigherComponent',
 
-const HigherComponent = pureFC<HigherComponentProps>()('HigherComponent', HigherComponentTheme, ({ backgroundColor }) => ({
-  component: {
-    backgroundColor,
+  styles: ({ useTheme, createThemeVariant }) => {
+    const { definition: { backgroundColor, color } } = useTheme(HigherComponentTheme);
+
+    return {
+      variants: {
+        componentTheme: createThemeVariant(ComponentTheme, {
+          backgroundColor,
+          textColor: color,
+        }),
+      },
+    };
   },
-}), ({
-  theme: {
-    ThemedComponent,
-  },
-}) => {
-  return (
-    <ThemedComponent component={Component} themeDefinition={({ backgroundColor, color }) => ({ backgroundColor, textColor: color })} />
-  );
+
+  render: (_, { variants, join }) => (
+    <ThemesProvider themes={join(variants.componentTheme)}>
+      <Component />
+    </ThemesProvider>
+  ),
 });
 
 createStories(() => ({

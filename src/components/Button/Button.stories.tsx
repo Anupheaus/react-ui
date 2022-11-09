@@ -3,19 +3,21 @@ import { Button } from './Button';
 import { FiArrowRightCircle } from 'react-icons/fi';
 // import { PrimaryButtonTheme } from './Button.stories.utils';
 import { createThemeIcons } from '../../theme';
-import { PropsOf } from '../../extensions';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
+import { ComponentProps } from 'react';
 
 const icons = createThemeIcons({
   'close': ({ size }) => (<FiArrowRightCircle size={size} />),
 });
 
-function generateButtonStories(props: Partial<PropsOf<typeof Button>> = {}): StoryConfig {
+const RaiseError = () => { throw new Error('Testing my error!'); };
+
+function generateButtonStories(props: Partial<ComponentProps<typeof Button>> = {}): StoryConfig {
   return {
     wrapInStorybookComponent: false,
     component: () => (<>
       <StorybookComponent title="With Error">
-        <Button {...props} icon={() => { throw new Error('Testing my error!'); }}>Test</Button>
+        <Button {...props} icon={icons.close}><RaiseError /></Button>
       </StorybookComponent>
 
       <StorybookComponent title="With Icon">

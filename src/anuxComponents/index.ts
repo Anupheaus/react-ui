@@ -1,2 +1,2 @@
 // export * from './anuxFunctionComponent';
-export * from './pureFC';
+// export * from './pureFC';

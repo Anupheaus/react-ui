@@ -1,15 +1,20 @@
-import { pureFC } from '../../anuxComponents';
-import { PropsOf } from '../../extensions';
+import { createComponent } from '../Component';
 import { useUpdatableState } from '../../hooks/useUpdatableState';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { createStories } from '../../Storybook';
 import { generateInternalTextStories } from '../InternalText/InternalText.stories.utils';
 import { Password } from './Password';
+import { ComponentProps } from 'react';
 
-const EditablePassword = pureFC<PropsOf<typeof Password>>()('EditablePassword', props => {
-  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+interface Props extends ComponentProps<typeof Password> { }
 
-  return (<Password width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
+const EditablePassword = createComponent({
+  id: 'EditablePassword',
+  render(props: Props) {
+    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+
+    return (<Password width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
+  },
 });
 
 createStories(() => ({

@@ -1,33 +1,52 @@
-import { createContext, useContext } from 'react';
-import { pureFC } from '../anuxComponents';
-import { GetThemeDefinition, Theme, ThemeDefinition, ThemeIcons } from './themeModels';
+import { DeepPartial } from 'anux-common';
+import { ReactNode } from 'react';
+import { createComponent } from '../components/Component';
+import { useBound, useForceUpdate } from '../hooks';
+import { RecordsProvider, useRecordsProvider } from '../providers/RecordsProvider';
+import { GetThemeDefinition, Theme } from './themeModels';
 
-type ThemeContextProps = Theme<ThemeDefinition, ThemeIcons>[];
-
-const ThemeContext = createContext<ThemeContextProps>([]);
+const themeRecordTypeId = 'themes_644bdf94-ef9e-473f-91de-aec066d93897';
 
 interface Props {
-  themes: ThemeContextProps;
+  themes: Theme[];
+  children?: ReactNode;
 }
 
-export const ThemesProvider = pureFC<Props>()('ThemesProvider', ({
-  themes,
-  children = null,
-}) => {
-  return (
-    <ThemeContext.Provider value={themes}>
-      {children}
-    </ThemeContext.Provider>
-  );
+export const ThemesProvider = createComponent({
+  id: 'ThemesProvider',
+
+  render({
+    themes,
+    children = null,
+  }: Props) {
+    return (
+      <RecordsProvider typeId={themeRecordTypeId} records={themes} inherit>
+        {children}
+      </RecordsProvider>
+    );
+  },
 });
 
-export function useThemeFromThemesProvider<TTheme extends Theme<ThemeDefinition, ThemeIcons>>(theme: TTheme | undefined,
-  providedThemeDefinition?: Partial<GetThemeDefinition<TTheme>>): TTheme | undefined {
-  const allContextThemes = useContext(ThemeContext);
-  if (theme == null) return;
-  if (providedThemeDefinition != null) return Object.merge({}, theme, { definition: providedThemeDefinition });
-  if (allContextThemes.length === 0) return theme;
+export function useThemesProvider() {
+  const { records, onChanged } = useRecordsProvider<Theme>(themeRecordTypeId);
+  const observedThemes = new Set<string>();
+  const update = useForceUpdate();
 
-  const matchingContextThemes = allContextThemes.filter(item => item.id === theme.id);
-  return (matchingContextThemes.last() ?? theme) as TTheme;
+  onChanged(record => observedThemes.has(record.id) ? update() : void 0);
+
+  const useTheme = useBound(<TTheme extends Theme>(theme: TTheme): TTheme => {
+    if (!records.has(theme.id)) return theme;
+    observedThemes.add(theme.id);
+    return (records.get(theme.id) ?? theme) as TTheme;
+  });
+
+  const createThemeVariant = useBound(<TTheme extends Theme>(theme: TTheme, variant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme => {
+    const providedTheme = useTheme(theme);
+    return { ...theme, ...providedTheme, definition: { ...providedTheme.definition, ...variant } };
+  });
+
+  return {
+    useTheme,
+    createThemeVariant,
+  };
 }

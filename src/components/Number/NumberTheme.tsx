@@ -1,6 +1,6 @@
-import { InternalTextTheme } from '../InternalText';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import { createTheme } from '../../theme';
+import { InternalTextTheme } from '../InternalText';
 
 export const NumberTheme = createTheme({
   id: 'NumberTheme',

@@ -1,23 +1,33 @@
-import { useContext, useState } from 'react';
-import { pureFC } from '../../anuxComponents';
+import { ReactNode, useContext, useState } from 'react';
+import { createComponent } from '../Component';
 import { DistributedState, useBound, useDistributedState } from '../../hooks';
 
 const Context = DistributedState.createContext<string | undefined>();
 
-export const CalendarEntryHighlightProvider = pureFC()('CalendarEntryHighlightProvider', ({
-  children = null
-}) => {
-  const { state } = useDistributedState<string | undefined>(() => undefined);
+interface Props {
+  children?: ReactNode;
+}
 
-  return (
-    <Context.Provider value={state}>
-      {children}
-    </Context.Provider>
-  );
+export const CalendarEntryHighlightProvider = createComponent({
+  id: 'CalendarEntryHighlightProvider',
+
+  render({
+    children = null
+  }: Props) {
+    const { state } = useDistributedState<string | undefined>(() => undefined);
+
+    return (
+      <Context.Provider value={state}>
+        {children}
+      </Context.Provider>
+    );
+  },
 });
 
 export function useCalendarEntryHighlighting(id: string) {
-  const { modify, onChange } = useDistributedState(useContext(Context));
+  const state = useContext(Context);
+  if (state == null) throw new Error('No CalendarEntryHighlightProvider context found');
+  const { modify, onChange } = useDistributedState(state);
   const [isHighlighted, setIsHighlighted] = useState<boolean>(false);
   const [isDehighlighted, setIsDehighlighted] = useState<boolean>(false);
 

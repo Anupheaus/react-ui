@@ -1,7 +1,9 @@
-import { InternalTextTheme } from '../InternalText';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { createTheme } from '../../theme';
 
-export const PasswordTheme = InternalTextTheme.createVariant({
+export const PasswordTheme = createTheme({
+  id: 'PasswordTheme',
+  definition: {},
   icons: {
     showPassword: FiEye,
     hidePassword: FiEyeOff,

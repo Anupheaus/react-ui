@@ -8,8 +8,6 @@ interface Props {
   onError?(error: AnuxError): void;
 }
 
-const boundErrorsToHandler = new WeakMap<AnuxError, string>();
-
 export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
   children = null,
   onError,
@@ -27,6 +25,7 @@ export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
   });
 
   const recordErrorsContext = useMemo<RecordErrorsContextProps>(() => ({
+    isValid: true,
     recordError,
   }), []);
 

@@ -1,16 +1,22 @@
-import { TooltipTheme } from './TooltipTheme';
-import { pureFC } from '../../anuxComponents';
+import { ReactNode } from 'react';
+import { createComponent } from '../Component';
 import { TooltipContext, TooltipContextProps } from './TooltipContext';
 
-interface Props extends TooltipContextProps { }
+interface Props extends TooltipContextProps {
+  children?: ReactNode;
+}
 
-export const Tooltip = pureFC<Props>()('Tooltip', TooltipTheme, () => ({}), ({
-  children = null,
-  ...props
-}) => {
-  return (
-    <TooltipContext.Provider value={props}>
-      {children}
-    </TooltipContext.Provider>
-  );
+export const Tooltip = createComponent({
+  id: 'Tooltip',
+
+  render({
+    children = null,
+    ...props
+  }: Props) {
+    return (
+      <TooltipContext.Provider value={props}>
+        {children}
+      </TooltipContext.Provider>
+    );
+  },
 });

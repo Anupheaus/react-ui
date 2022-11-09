@@ -13,13 +13,9 @@ interface InternalState<T> {
   [Callbacks]: ReturnType<typeof useCallbacks>;
 }
 
-interface CreateDistributedStateApi<T> extends DistributedStateApi<T> {
-  state: DistributedState<T>;
-}
-
-export function useDistributedState<T>(state: () => T, dependencies?: unknown[]): CreateDistributedStateApi<T>;
+export function useDistributedState<T>(state: () => T, dependencies?: unknown[]): DistributedStateApi<T>;
 export function useDistributedState<T>(state: DistributedState<T>): DistributedStateApi<T>;
-export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dependencies: unknown[] = []): CreateDistributedStateApi<T> {
+export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dependencies: unknown[] = []): DistributedStateApi<T> {
   const createState = is.function(arg) ? arg : undefined;
   const state = (createState ? useRef<any>({ [State]: createState(), [Callbacks]: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
   const update = useForceUpdate();

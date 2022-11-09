@@ -7,11 +7,12 @@ export interface DistributedState<T> {
 
 export namespace DistributedState {
   export function createContext<T>() {
-    return reactCreateContext<DistributedState<T>>(undefined as unknown as DistributedState<T>);
+    return reactCreateContext<DistributedState<T> | undefined>(undefined);
   }
 }
 
 export interface DistributedStateApi<T> {
+  state: DistributedState<T>;
   get(): T;
   getAndObserve(): T;
   observe(): void;
