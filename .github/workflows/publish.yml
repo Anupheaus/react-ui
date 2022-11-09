@@ -8,16 +8,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install and test
+      - name: Downloading the latest version
+        uses: actions/checkout@v2
+      - name: Setup Environment
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
+      - name: Configuring npm
+        run: npm config set //npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}
       - name: Installing Dependencies
         run: npm ci
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      - run: npm test
+      - name: Running Tests
+        run: npm test
       - name: Perform Version Bump
         uses: "phips28/gh-action-bump-version@master"
         env:
