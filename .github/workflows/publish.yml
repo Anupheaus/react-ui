@@ -13,7 +13,10 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
-      - run: npm ci
+      - name: Installing Dependencies
+        run: npm ci
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
       - run: npm test
       - name: Perform Version Bump
         uses: "phips28/gh-action-bump-version@master"
