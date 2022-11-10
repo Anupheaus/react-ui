@@ -1,4 +1,4 @@
-import { to } from 'anux-common';
+import { to } from '@anupheaus/common';
 import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';

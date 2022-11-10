@@ -1,4 +1,4 @@
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { ReactNode } from 'react';
 
 interface Props {

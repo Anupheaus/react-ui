@@ -1,4 +1,4 @@
-import { MapOf } from 'anux-common';
+import { MapOf } from '@anupheaus/common';
 import { Component as ComponentType } from '../../components/Component';
 import { StorybookComponent, StoryConfig } from '../../Storybook';
 import { UIState } from './UIState';

@@ -1,4 +1,4 @@
-import { is, MapOf } from 'anux-common';
+import { is, MapOf } from '@anupheaus/common';
 import { createMakeStyles, CSSObject } from 'tss-react';
 import { GetThemeDefinition, Theme } from './themeModels';
 import { useThemesProvider } from './ThemesProvider';

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { AnyObject, is, MapOf } from 'anux-common';
+import { AnyObject, is, MapOf } from '@anupheaus/common';
 import { forwardRef, FunctionComponent, memo, ReactElement, RefAttributes, RefObject } from 'react';
 import { CSSObject, createMakeStyles } from 'tss-react';
 import type { GetThemeDefinition, GetThemeIcons, Theme, ThemeDefinition, ThemeIcons, ThemeStyles } from '../theme';

@@ -1,4 +1,4 @@
-import { ConstructorOf } from 'anux-common';
+import { ConstructorOf } from '@anupheaus/common';
 import { Component } from 'react';
 
 type ComponentType = ConstructorOf<Component<unknown, unknown>> & Function;

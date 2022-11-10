@@ -1,22 +1,22 @@
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
+import { createComponent } from '../../components';
 import { useOnUnmount } from './useOnUnmount';
-import { anuxFC } from '../../anuxComponents';
 
 describe('useOnUnmount', () => {
 
-  interface IProps {
+  interface Props {
     value?: unknown;
     onUnmounted(): void;
     onAfterTimeout?(hasUnmounted: boolean): void;
   }
 
-  const TestComponent = anuxFC<IProps>('TestComponent', ({ onUnmounted, onAfterTimeout }) => {
-
-    const isUnmounted = useOnUnmount(onUnmounted);
-
-    setTimeout(() => onAfterTimeout && onAfterTimeout(isUnmounted()), 5);
-
-    return (<div></div>);
+  const TestComponent = createComponent({
+    id: 'TestComponent',
+    render({ onUnmounted, onAfterTimeout }: Props) {
+      const isUnmounted = useOnUnmount(onUnmounted);
+      setTimeout(() => onAfterTimeout && onAfterTimeout(isUnmounted()), 5);
+      return (<div></div>);
+    },
   });
 
   it('calls the method when unmounted', async () => {
@@ -30,17 +30,17 @@ describe('useOnUnmount', () => {
       hasUnmounted = hasUnmountedValue;
     };
 
-    const component = mount((
+    const component = render((
       <TestComponent onUnmounted={handleUnmounted} onAfterTimeout={handleAfterTimeout} />
     ));
 
-    expect(hasUnmountedBeenCalled).to.be.false;
-    expect(hasUnmounted).to.be.false;
+    expect(hasUnmountedBeenCalled).toBeFalsy();
+    expect(hasUnmounted).toBeFalsy();
     component.unmount();
-    expect(hasUnmountedBeenCalled).to.be.true;
-    expect(hasUnmounted).to.be.false;
+    expect(hasUnmountedBeenCalled).toBeTruthy();
+    expect(hasUnmounted).toBeFalsy();
     await Promise.delay(10);
-    expect(hasUnmounted).to.be.true;
+    expect(hasUnmounted).toBeTruthy();
   });
 
   it('does not call the method when props change', async () => {
@@ -50,16 +50,16 @@ describe('useOnUnmount', () => {
       hasUnmountedBeenCalled = true;
     };
 
-    const component = mount((
+    const { rerender, unmount } = render((
       <TestComponent onUnmounted={handleUnmounted} />
     ));
 
-    expect(hasUnmountedBeenCalled).to.be.false;
-    component.setProps({ value: 'something' });
+    expect(hasUnmountedBeenCalled).toBeFalsy();
+    rerender(<TestComponent onUnmounted={handleUnmounted} value={'something'} />);
     await Promise.delay(0);
-    expect(hasUnmountedBeenCalled).to.be.false;
-    component.unmount();
-    expect(hasUnmountedBeenCalled).to.be.true;
+    expect(hasUnmountedBeenCalled).toBeFalsy();
+    unmount();
+    expect(hasUnmountedBeenCalled).toBeTruthy();
   });
 
 });

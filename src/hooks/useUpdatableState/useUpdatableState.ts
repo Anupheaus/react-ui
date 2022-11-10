@@ -1,4 +1,4 @@
-import { is } from 'anux-common';
+import { is } from '@anupheaus/common';
 import { Dispatch, SetStateAction, useMemo, useRef } from 'react';
 import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';

@@ -1,4 +1,4 @@
-import { DeepPartial } from 'anux-common';
+import { DeepPartial } from '@anupheaus/common';
 import type { Theme, ThemeConfig, ThemeDefinition, ThemeIcons } from './themeModels';
 
 export function createTheme<D extends ThemeDefinition, I extends ThemeIcons>(config: ThemeConfig<D, I>): Theme<D, I> {

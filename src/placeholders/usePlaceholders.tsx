@@ -1,4 +1,4 @@
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { useEffect, useMemo, useRef } from 'react';
 import { AnuxFC, anuxPureFC } from '../anuxComponents';
 import { AnuxPlaceholderContext, AnuxPlaceholderContextProps } from './context';

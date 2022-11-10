@@ -1,4 +1,4 @@
-import { is, Record } from 'anux-common';
+import { is, Record } from '@anupheaus/common';
 import { useContext, useRef } from 'react';
 import { useForceUpdate } from '../../hooks';
 import { createRecordsProviderContextEntry, RecordsProviderContext, RecordsProviderContextProps } from './RecordsProviderContext';

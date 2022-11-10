@@ -1,6 +1,6 @@
 // // tslint:disable:no-console
-// import 'anux-common';
-// import { AnyObject } from 'anux-common';
+// import '@anupheaus/common';
+// import { AnyObject } from '@anupheaus/common';
 // import moment from 'moment';
 
 // const styles = {

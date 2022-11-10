@@ -1,4 +1,4 @@
-import { AnyFunction } from 'anux-common';
+import { AnyFunction } from '@anupheaus/common';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useBound } from '../useBound';
 

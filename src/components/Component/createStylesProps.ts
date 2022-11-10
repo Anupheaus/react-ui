@@ -1,4 +1,4 @@
-import { is, MapOf } from 'anux-common';
+import { is, MapOf } from '@anupheaus/common';
 import { createMakeStyles } from 'tss-react';
 import { IconType, Theme, ThemeDefinition } from '../../theme';
 import { ComponentRenderStyles, ComponentStyles, ComponentStylesConfig, ComponentStylesUtils } from './ComponentModels';

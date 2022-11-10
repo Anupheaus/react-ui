@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { IMap, ConstructorOf } from 'anux-common';
+import { IMap, ConstructorOf } from '@anupheaus/common';
 
 export function separate<M extends IMap<ConstructorOf<React.Component<any, any>> & Function>, K extends keyof M>(children: React.ReactNode, map: M):
-Record<K, React.ReactElement<M[K]['prototype']['props']>[]> & { others: React.ReactNode } {
+  Record<K, React.ReactElement<M[K]['prototype']['props']>[]> & { others: React.ReactNode; } {
   const values = Object.values(map);
   const keys = Object.keys(map);
   const result: any = keys

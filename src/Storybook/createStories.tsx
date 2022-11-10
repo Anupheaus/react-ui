@@ -1,6 +1,6 @@
 import { ArgTypes } from '@storybook/react';
 import { FunctionComponent, ReactNode, useMemo } from 'react';
-import { AnyObject, Event, MapOf, PromiseMaybe } from 'anux-common';
+import { AnyObject, Event, MapOf, PromiseMaybe } from '@anupheaus/common';
 import { within, userEvent } from '@storybook/testing-library';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
 import { StorybookComponent } from './StorybookComponent';

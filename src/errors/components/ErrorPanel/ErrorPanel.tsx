@@ -6,7 +6,7 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { AnuxError } from '../../types';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
 import { ThemesProvider } from '../../../theme';
-import { is } from 'anux-common';
+import { is } from '@anupheaus/common';
 
 interface Props {
   error?: AnuxError;

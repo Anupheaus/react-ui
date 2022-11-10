@@ -1,4 +1,4 @@
-// import { is } from 'anux-common';
+// import { is } from '@anupheaus/common';
 // import { useRef } from 'react';
 // import { useBound } from '../useBound';
 

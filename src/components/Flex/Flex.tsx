@@ -1,4 +1,4 @@
-import { to } from 'anux-common';
+import { to } from '@anupheaus/common';
 import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';

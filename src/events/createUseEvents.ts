@@ -1,4 +1,4 @@
-import { ConstructorOf, is } from 'anux-common';
+import { ConstructorOf, is } from '@anupheaus/common';
 import { Context, useContext, useEffect } from 'react';
 import { useBound } from '../hooks/useBound';
 import { AnuxEvent } from './AnuxEvent';

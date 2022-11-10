@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { is } from 'anux-common';
+import { is } from '@anupheaus/common';
 import { stringify } from 'flatted';
 import { useRef } from 'react';
 

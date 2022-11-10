@@ -1,4 +1,4 @@
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { useState } from 'react';
 import useOriginalResizeObserver from 'use-resize-observer/polyfilled';
 import { useBound } from '../useBound';

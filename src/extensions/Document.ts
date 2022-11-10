@@ -1,4 +1,4 @@
-import 'anux-common'; // required to ensure extendPrototype is available
+import '@anupheaus/common'; // required to ensure extendPrototype is available
 
 class DocumentExtensions {
 

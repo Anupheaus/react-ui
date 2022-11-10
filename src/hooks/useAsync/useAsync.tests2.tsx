@@ -1,7 +1,7 @@
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { ReactElement } from 'react';
 // import { mount, ReactWrapper } from 'enzyme';
-// import { PromiseMaybe } from 'anux-common';
+// import { PromiseMaybe } from '@anupheaus/common';
 // import { useAsync, UseAsyncResult, AsyncDelegate } from './useAsync';
 // import { anuxPureFC } from '../../anuxComponents';
 // import { useFakeTimers, SinonFakeTimers } from 'sinon';

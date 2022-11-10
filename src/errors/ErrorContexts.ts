@@ -1,4 +1,4 @@
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { createContext } from 'react';
 
 export interface RecordErrorsContextProps {

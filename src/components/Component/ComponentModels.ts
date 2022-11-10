@@ -1,4 +1,4 @@
-import { DeepPartial, MapOf } from 'anux-common';
+import { DeepPartial, MapOf } from '@anupheaus/common';
 import { CSSObject } from 'tss-react';
 import { GetThemeDefinition, IconType, Theme } from '../../theme';
 

@@ -1,4 +1,4 @@
-import { AnyObject, DeepPartial, MapOf } from 'anux-common';
+import { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
 import { ReactNode } from 'react';
 import { CSSObject } from 'tss-react';
 

@@ -2,7 +2,7 @@ import { forwardRef, Ref } from 'react';
 import { Component, ComponentRenderStyles, ComponentStyles, ComponentStylesConfig, ComponentSymbol } from './ComponentModels';
 import { AnuxError } from '../../errors/types/AnuxError';
 import { createStylesProps } from './createStylesProps';
-import { AnyFunction } from 'anux-common';
+import { AnyFunction } from '@anupheaus/common';
 import { LocalErrorBoundary } from './LocalErrorBoundary';
 import { useBound } from '../../hooks';
 

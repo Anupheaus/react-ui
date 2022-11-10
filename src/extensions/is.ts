@@ -1,4 +1,4 @@
-import { is } from 'anux-common';
+import { is } from '@anupheaus/common';
 import { isValidElement, Component, ReactElement } from 'react';
 import { Component as AnuxComponent, ComponentSymbol } from '../components/Component';
 import type { Theme } from '../theme';

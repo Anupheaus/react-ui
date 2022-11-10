@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import { createElement, CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { TooltipRenderer } from '../Tooltip/TooltipRenderer';
 import { useDOMRef } from '../../hooks';
 

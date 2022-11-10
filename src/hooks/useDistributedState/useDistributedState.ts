@@ -1,4 +1,4 @@
-import { is } from 'anux-common';
+import { is } from '@anupheaus/common';
 import { MutableRefObject, useLayoutEffect, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';

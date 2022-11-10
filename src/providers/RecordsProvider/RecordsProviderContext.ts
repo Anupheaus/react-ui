@@ -1,4 +1,4 @@
-import { Record, Upsertable } from 'anux-common';
+import { Record, Upsertable } from '@anupheaus/common';
 import { createContext } from 'react';
 
 export interface RecordsProviderContextEntry<T extends Record = Record> {

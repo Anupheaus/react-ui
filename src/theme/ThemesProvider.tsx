@@ -1,4 +1,4 @@
-import { DeepPartial } from 'anux-common';
+import { DeepPartial } from '@anupheaus/common';
 import { ReactNode } from 'react';
 import { createComponent } from '../components/Component';
 import { useBound, useForceUpdate } from '../hooks';

@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { AnyObject, is } from 'anux-common';
+import { AnyObject, is } from '@anupheaus/common';
 import { isValidElement, ReactElement, ReactNode } from 'react';
 
 const isInDevelopmentMode = process.env.NODE_ENV === 'development';

@@ -1,4 +1,4 @@
-import { AnyObject } from 'anux-common';
+import { AnyObject } from '@anupheaus/common';
 import { useContext } from 'react';
 import { AnuxFC, anuxPureFC } from '../anuxComponents';
 import { useId } from '../hooks/useId';

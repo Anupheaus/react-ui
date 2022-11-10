@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { AnyObject, is } from 'anux-common';
+import { AnyObject, is } from '@anupheaus/common';
 import { ForwardRefRenderFunction, forwardRef, PropsWithChildren, ReactElement, RefObject, FunctionComponent, RefAttributes, memo, isValidElement, ReactNode } from 'react';
 import { useInternalErrors } from '../errors/useInternalErrors';
 import { FCTheme, Theme, ThemeStyles, ThemeTypes } from '../theme';

@@ -1,5 +1,5 @@
 import { useRef, RefObject, Ref } from 'react';
-import { AnyObject, is } from 'anux-common';
+import { AnyObject, is } from '@anupheaus/common';
 import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
 

@@ -1,5 +1,5 @@
 import './Document';
-import { ICoordinates, IDimensions, IGeometry } from 'anux-common';
+import { ICoordinates, IDimensions, IGeometry } from '@anupheaus/common';
 
 interface IDimensionOptions {
   excludingPadding?: boolean;

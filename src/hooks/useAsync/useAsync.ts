@@ -1,4 +1,4 @@
-import { NotPromise, PromiseMaybe, Unsubscribe } from 'anux-common';
+import { NotPromise, PromiseMaybe, Unsubscribe } from '@anupheaus/common';
 import { useMemo, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';

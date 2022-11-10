@@ -1,4 +1,4 @@
-import { is, Record } from 'anux-common';
+import { is, Record } from '@anupheaus/common';
 import { ReactNode, useContext, useMemo } from 'react';
 import { createComponent } from '../../components/Component';
 import { useBound, useCallbacks, useOnChange } from '../../hooks';

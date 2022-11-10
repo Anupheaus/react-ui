@@ -1,4 +1,4 @@
-import { MapOf } from 'anux-common';
+import { MapOf } from '@anupheaus/common';
 import { FiHelpCircle } from 'react-icons/fi';
 import { PureFC } from '../../anuxComponents';
 import { useUpdatableState } from '../../hooks/useUpdatableState';
