@@ -5,5 +5,4 @@ export * from './createThemeIcons';
 export * from './createAnimationKeyFrame';
 export { ThemesProvider } from './ThemesProvider';
 export * from './createRootThemeProvider';
-export * from './createStyles';
 export * from './themes';

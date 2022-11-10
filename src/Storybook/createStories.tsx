@@ -109,7 +109,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
   Reflect.ownKeys(stories).forEach(key => {
     const value = Reflect.get(stories, key) as Stories[0];
     if (value == null) return;
-    let InternalComponent: ComponentType<{}> | undefined;
+    let InternalComponent: ComponentType | undefined;
     const storyName = path.concat(key).join('.');
     const storyId = path.concat(key).join('.');
     let notes: ReactNode = null;
@@ -123,10 +123,10 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
     let hookExecutor: (delegate: (renderCount: number) => void) => void = () => void 0;
 
     if (typeof value === 'function') {
-      InternalComponent = value;
+      InternalComponent = value as ComponentType;
       (value as any).storyName = storyName;
     } else if (isStoryConfig(value)) {
-      InternalComponent = value.component;
+      InternalComponent = value.component as ComponentType;
       notes = value.notes;
       title = value.title ?? title;
       width = value.width;

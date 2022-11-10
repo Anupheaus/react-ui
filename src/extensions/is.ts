@@ -3,7 +3,7 @@ import { isValidElement, Component, ReactElement } from 'react';
 import { Component as AnuxComponent, ComponentSymbol } from '../components/Component';
 import type { Theme } from '../theme';
 
-declare module 'anux-common' {
+declare module '@anupheaus/common' {
   export interface Is {
     reactElement(value: unknown): value is ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
     reactComponent(value: unknown): value is Component;
