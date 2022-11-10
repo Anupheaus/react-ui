@@ -18,3 +18,4 @@ export * from './Number';
 export * from './Drawer';
 export * from './Component';
 export * from './Checkbox';
+export * from './SplashScreen';

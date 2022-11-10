@@ -1,7 +1,6 @@
 import { createStories, StorybookHookProfiler } from '../../Storybook';
 import { useAsync } from './useAsync';
 import '@anupheaus/common';
-import expect from 'expect.js';
 import { useEffect, useState } from 'react';
 
 createStories(({ createStory }) => ({
