@@ -1,11 +1,19 @@
+import { AnyObject } from '@anupheaus/common';
 import { ListItem, ListItems } from '../../models';
 
-interface DataFilterOperatorListItem extends ListItem {
+export interface Api {
+  get<T>(url: string): Promise<T>;
+  post<T, D extends AnyObject = AnyObject>(url: string, data?: D): Promise<T>;
+  remove(url: string): Promise<void>;
+  query<T extends {}>(url: string, request: ApiRequest<T>): Promise<ApiResponse<T>>;
+}
+
+interface ApiFilterOperatorListItem extends ListItem {
   operatorSymbol: string;
   valueModification(value: unknown): unknown;
 }
 
-const { ids: filterOperatorIds, pairs: DataFilterOperatorPairs } = ListItems.as<DataFilterOperatorListItem>().create([
+const { ids: filterOperatorIds, pairs: ApiFilterOperatorPairs } = ListItems.as<ApiFilterOperatorListItem>().create([
   { id: 'equals', text: 'is equal to', operatorSymbol: '=', valueModification: v => v },
   { id: 'notEquals', text: 'is not equal to', operatorSymbol: '!=', valueModification: v => v },
   { id: 'greaterThan', text: 'is greater than', operatorSymbol: '>', valueModification: v => v },
@@ -15,50 +23,50 @@ const { ids: filterOperatorIds, pairs: DataFilterOperatorPairs } = ListItems.as<
   { id: 'contains', text: 'contains', operatorSymbol: 'LIKE', valueModification: v => `%${v}%` },
 ] as const);
 
-const DataFilterOperators = DataFilterOperatorPairs as (typeof DataFilterOperatorPairs & {
-  getSymbolFor(operator: DataFilterOperator): string | undefined;
-  applyValueModificationUsing(operator: DataFilterOperator, value: unknown): unknown;
+const ApiFilterOperators = ApiFilterOperatorPairs as (typeof ApiFilterOperatorPairs & {
+  getSymbolFor(operator: ApiFilterOperator): string | undefined;
+  applyValueModificationUsing(operator: ApiFilterOperator, value: unknown): unknown;
 });
-DataFilterOperators.getSymbolFor = operator => DataFilterOperators.find(item => item.id === operator)?.operatorSymbol;
-DataFilterOperators.applyValueModificationUsing = (operator, value) => DataFilterOperators.find(item => item.id === operator)?.valueModification(value) ?? value;
+ApiFilterOperators.getSymbolFor = operator => ApiFilterOperators.find(item => item.id === operator)?.operatorSymbol;
+ApiFilterOperators.applyValueModificationUsing = (operator, value) => ApiFilterOperators.find(item => item.id === operator)?.valueModification(value) ?? value;
 
-export type DataFilterOperator = typeof filterOperatorIds;
-export { DataFilterOperators };
+export type ApiFilterOperator = typeof filterOperatorIds;
+export { ApiFilterOperators };
 
-export interface DataFilterFull<T extends {} = {}, K extends keyof T = keyof T> {
+export interface ApiFilterFull<T extends {} = {}, K extends keyof T = keyof T> {
   field: K;
-  operator: DataFilterOperator;
+  operator: ApiFilterOperator;
   value: T[K];
 }
 
-export type DataFilter<T extends {} = {}> = {
-  [K in keyof T]?: T[K] | { operator: DataFilterOperator; value: T[K]; };
-} | DataFilterFull<T, keyof T>;
+export type ApiFilter<T extends {} = {}> = {
+  [K in keyof T]?: T[K] | { operator: ApiFilterOperator; value: T[K]; };
+} | ApiFilterFull<T, keyof T>;
 
-export type DataFilterGroupCondition = 'AND' | 'OR';
+export type ApiFilterGroupCondition = 'AND' | 'OR';
 
-export interface DataFilterGroup<T extends {} = {}> {
-  condition?: DataFilterGroupCondition;
-  subFilters?: DataFilters<T>[];
-  filters?: DataFilter<T>[];
+export interface ApiFilterGroup<T extends {} = {}> {
+  condition?: ApiFilterGroupCondition;
+  subFilters?: ApiFilters<T>[];
+  filters?: ApiFilter<T>[];
 }
 
-export type DataFilters<T extends {}> = DataFilter<T> | DataFilter<T>[] | DataFilterGroup<T>;
+export type ApiFilters<T extends {}> = ApiFilter<T> | ApiFilter<T>[] | ApiFilterGroup<T>;
 
-export type DataSorts<T> = [keyof T, 'ASC' | 'DESC'][];
+export type ApiSorts<T> = [keyof T, 'ASC' | 'DESC'][];
 
-export interface DataPagination {
+export interface ApiPagination {
   offset?: number;
   limit: number;
 }
 
-export interface DataRequest<T extends {} = {}> {
-  filters?: DataFilters<T>;
-  sorts?: DataSorts<T>;
-  pagination?: DataPagination;
+export interface ApiRequest<T extends {} = {}> {
+  filters?: ApiFilters<T>;
+  sorts?: ApiSorts<T>;
+  pagination?: ApiPagination;
 }
 
-export interface DataResponse<T extends {} = {}> {
+export interface ApiResponse<T extends {} = {}> {
   records: T[];
   totalRecordCount: number;
 }

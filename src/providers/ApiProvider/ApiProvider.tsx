@@ -33,7 +33,7 @@ export const ApiProvider = createComponent({
       return await response.json();
     });
 
-    const search = useBound<ApiProviderContextProps['search']>(async (url, request) => {
+    const query = useBound<ApiProviderContextProps['query']>(async (url, request) => {
       const response = await fetch(url, { method: 'SEARCH', headers, body: JSON.stringify(request) });
       return await response.json();
     });
@@ -43,7 +43,7 @@ export const ApiProvider = createComponent({
       get,
       post,
       remove,
-      search,
+      query,
     }), []);
 
     return (
