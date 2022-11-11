@@ -25,7 +25,7 @@ export function createStylesProps<TProps extends {}, TStyles extends ComponentSt
   });
 
   return (props: TProps) => {
-    const utils = require('../../theme/ThemesProvider').useThemesProvider();
+    const utils = require('../../theme/useThemesProvider').useThemesProvider();
     const variants = {} as ComponentRenderStyles<TStyles>['variants'];
     const icons = {} as ComponentRenderStyles<TStyles>['icons'];
     const { classes: css, cx } = useStyles({ ...utils, variants, icons, props });
