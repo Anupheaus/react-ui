@@ -28,7 +28,11 @@ export function useDialog(): UseDialogApi {
     onClick?.();
   });
 
-  const OkButton = useMemo(() => createComponent({ id: 'OkButton', render: (props: ComponentProps<typeof Button>) => (<Button {...props} onClick={handleClick('Ok', props.onClick)}>Okay</Button>) }), []);
+  const OkButton = useMemo(() => createComponent({
+    id: 'OkButton', render: (props: ComponentProps<typeof Button>) => (
+      <Button {...props} onClick={handleClick('Ok', props.onClick)}>{props.children ?? 'Okay'}</Button>
+    )
+  }), []);
 
   return {
     openDialog,
