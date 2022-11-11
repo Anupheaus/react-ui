@@ -10,6 +10,8 @@ import { Button, ButtonTheme } from '../Button';
 import { Theme, ThemesProvider } from '../../theme';
 import { FiX } from 'react-icons/fi';
 
+export type DialogCloseReasons = Parameters<Required<MuiDialogProps>['onClose']>[1];
+
 export interface DialogProps {
   className?: string;
   title?: ReactNode;
@@ -17,6 +19,7 @@ export interface DialogProps {
   theme?: typeof DialogTheme;
   hideCloseButton?: boolean;
   closeIcon?: IconType;
+  onClose?(reason: DialogCloseReasons): boolean | void;
   children?: ReactNode;
 }
 
@@ -62,10 +65,15 @@ export const Dialog = createComponent({
     icon,
     hideCloseButton = false,
     closeIcon = FiX,
+    onClose,
     children = null,
   }: InternalProps, { css, variants, join }) {
     const { getAndObserve: isDialogOpen, set } = useDistributedState(state);
-    const close = useBound(() => set(false));
+    const handleDialogClose = useBound<Required<MuiDialogProps>['onClose']>((event, reason) => {
+      if (onClose?.(reason) === false) return;
+      set(false);
+    });
+    const handleButtonClose = useBound(() => set(false));
 
     const dialogClasses = useMemo<MuiDialogProps['classes']>(() => ({
       paper: join(css.dialog, className),
@@ -74,7 +82,7 @@ export const Dialog = createComponent({
     return (
       <MuiDialog
         open={isDialogOpen()}
-        onClose={close}
+        onClose={handleDialogClose}
         classes={dialogClasses}
       >
         {title != null && (
@@ -86,7 +94,7 @@ export const Dialog = createComponent({
                 <ThemesProvider themes={join(variants.buttonTheme)}>
                   <Button
                     icon={closeIcon}
-                    onClick={close}
+                    onClick={handleButtonClose}
                   />
                 </ThemesProvider>
               )}

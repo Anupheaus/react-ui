@@ -7,7 +7,7 @@ import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { IconType, TransitionTheme } from '../../theme';
 import { ButtonTheme } from './ButtonTheme';
-import { ReactNode, Ref } from 'react';
+import { MouseEvent, ReactNode, Ref } from 'react';
 import { Tag } from '../Tag';
 import { Icon } from '../Icon';
 
@@ -15,7 +15,7 @@ interface Props {
   className?: string;
   ref?: Ref<HTMLButtonElement>;
   icon?: IconType;
-  onClick?(): void;
+  onClick?(event: MouseEvent): void;
   children?: ReactNode;
 }
 
@@ -87,7 +87,7 @@ export const Button = createComponent({
     const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
     const isIconOnly = icon != null && children == null;
 
-    const handleClick = useBound(() => onClick?.());
+    const handleClick = useBound((event: MouseEvent) => onClick?.(event));
 
     return (
       <Tag

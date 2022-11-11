@@ -23,7 +23,7 @@ export function useDialog(): UseDialogApi {
   const openDialog = useBound(() => set(true));
   const closeDialog = useBound(() => set(false));
 
-  const handleClick = useDelegatedBound((buttonId: string, onClick?: () => void) => () => {
+  const handleClick = useDelegatedBound((buttonId: string, onClick?: (...args: any[]) => void) => () => {
     closeDialog();
     onClick?.();
   });
