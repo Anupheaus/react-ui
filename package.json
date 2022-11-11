@@ -67,6 +67,7 @@
     "webpack": "^5.75.0",
     "webpack-cli": "^4.10.0",
     "webpack-node-externals": "^3.0.0",
-    "terser-webpack-plugin": "^5.3.6"
+    "terser-webpack-plugin": "^5.3.6",
+    "circular-dependency-plugin": "^5.2.2"
   }
 }

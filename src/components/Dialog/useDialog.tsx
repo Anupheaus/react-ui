@@ -4,9 +4,18 @@ import { useDistributedState, useBound, useDelegatedBound } from '../../hooks';
 import { Button } from '../Button';
 import { DialogContent } from './DialogContent';
 import { DialogActions } from './DialogActions';
-import { createComponent } from '../Component';
+import { Component, createComponent } from '../Component';
 
-export function useDialog() {
+export interface UseDialogApi {
+  openDialog(): void;
+  closeDialog(): void;
+  Dialog: Component<DialogProps>;
+  DialogContent: typeof DialogContent;
+  DialogActions: typeof DialogActions;
+  OkButton: typeof Button;
+}
+
+export function useDialog(): UseDialogApi {
   const { state, set } = useDistributedState(() => false);
 
   const Dialog = useMemo(() => createComponent({ id: 'Dialog', render: (props: DialogProps) => (<DialogComponent state={state} {...props} />) }), []);

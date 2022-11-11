@@ -1,5 +1,5 @@
 import { MapOf } from '@anupheaus/common';
-import { Component as ComponentType } from '../../components/Component';
+import { FunctionComponent as ComponentType } from 'react';
 import { StorybookComponent, StoryConfig } from '../../Storybook';
 import { UIState } from './UIState';
 

@@ -1,7 +1,9 @@
 import { is, Record } from '@anupheaus/common';
 import { ReactNode, useContext, useMemo } from 'react';
-import { createComponent } from '../../components/Component';
-import { useBound, useCallbacks, useOnChange } from '../../hooks';
+import { createComponent } from '../../components/Component/createComponent';
+import { useOnChange } from '../../hooks/useOnChange';
+import { useCallbacks } from '../../hooks/useCallbacks';
+import { useBound } from '../../hooks/useBound';
 import { createRecordsProviderContextEntry, RecordsProviderContext, RecordsProviderContextEntry, RecordsProviderContextProps } from './RecordsProviderContext';
 
 interface Props<T> {

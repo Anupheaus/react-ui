@@ -1,7 +1,7 @@
 import { is, MapOf } from '@anupheaus/common';
 import { createMakeStyles } from 'tss-react';
-import { IconType, Theme, ThemeDefinition } from '../../theme';
-import { ComponentRenderStyles, ComponentStyles, ComponentStylesConfig, ComponentStylesUtils } from './ComponentModels';
+import type { IconType, Theme, ThemeDefinition } from '../../theme/themeModels';
+import type { ComponentRenderStyles, ComponentStyles, ComponentStylesConfig, ComponentStylesUtils } from './ComponentModels';
 
 function filterClassNames(value: string | boolean | Theme | undefined): boolean {
   if (typeof (value) === 'string') return value.trim().length > 0;

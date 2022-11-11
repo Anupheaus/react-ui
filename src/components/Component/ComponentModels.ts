@@ -1,6 +1,6 @@
 import { DeepPartial, MapOf } from '@anupheaus/common';
 import { CSSObject } from 'tss-react';
-import { GetThemeDefinition, IconType, Theme } from '../../theme';
+import type { GetThemeDefinition, IconType, Theme } from '../../theme/themeModels';
 
 export const ComponentSymbol = Symbol('AnuxComponent');
 

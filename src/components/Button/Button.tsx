@@ -7,7 +7,6 @@ import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { IconType, TransitionTheme } from '../../theme';
 import { ButtonTheme } from './ButtonTheme';
-import { ErrorPanel } from '../../errors/components';
 import { ReactNode, Ref } from 'react';
 import { Tag } from '../Tag';
 import { Icon } from '../Icon';
@@ -112,5 +111,4 @@ export const Button = createComponent({
     );
   },
 
-  onError: error => <ErrorPanel error={error} />,
 });

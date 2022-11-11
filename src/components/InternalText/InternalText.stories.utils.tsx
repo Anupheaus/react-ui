@@ -1,6 +1,6 @@
 import { MapOf } from '@anupheaus/common';
+import { FunctionComponent } from 'react';
 import { FiHelpCircle } from 'react-icons/fi';
-import { PureFC } from '../../anuxComponents';
 import { useUpdatableState } from '../../hooks/useUpdatableState';
 import { StorybookComponent, StoryConfig } from '../../Storybook';
 import { createThemeIcons } from '../../theme';
@@ -12,7 +12,7 @@ const icons = createThemeIcons({
 });
 
 interface Props<T = InternalTextProps> extends Partial<InternalTextProps> {
-  component: PureFC<T>;
+  component: FunctionComponent<T>;
   additionalProps: Partial<T>;
 }
 
@@ -22,7 +22,7 @@ function EditableComponent<T extends InternalTextProps>({ component: Component, 
   return (<Component width={150} label={'Label'} {...additionalProps} {...otherProps} value={value} onChange={setValue} {...{} as any} />);
 }
 
-export function generateInternalTextStories<T>(component: PureFC<T>, additionalProps: Partial<T> = {}): MapOf<StoryConfig> {
+export function generateInternalTextStories<T extends InternalTextProps>(component: FunctionComponent<T>, additionalProps: Partial<T> = {}): MapOf<StoryConfig> {
   return {
     'Standard Props': {
       wrapInStorybookComponent: false,

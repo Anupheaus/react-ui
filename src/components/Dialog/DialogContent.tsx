@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { createComponent } from '../Component';
+import { createComponent } from '../Component/createComponent';
 import { Tag } from '../Tag';
 
 interface Props {

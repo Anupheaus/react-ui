@@ -1,7 +1,7 @@
 import { Ref } from 'react';
 import { createComponent } from '../Component';
-import { ErrorIcon } from '../../errors/components/ErrorIcon';
-import { IconType } from '../../theme';
+// import { ErrorIcon } from '../../errors/components/ErrorIcon';
+import type { IconType } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { IconTheme } from './IconTheme';
@@ -60,5 +60,5 @@ export const Icon = createComponent({
     );
   },
 
-  onError: (error, { size }) => <ErrorIcon size={size} error={error} />,
+  // onError: (error, { size }) => <ErrorIcon size={size} error={error} />,
 });

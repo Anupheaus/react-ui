@@ -10,7 +10,7 @@ import { AssistiveLabel } from '../AssistiveLabel';
 import { useUIState } from '../../providers';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 
-export interface InternalTextProps<TValue = string> {
+export interface InternalTextProps<TValue = unknown> {
   className?: string;
   label?: ReactNode;
   value?: TValue;
@@ -24,14 +24,14 @@ export interface InternalTextProps<TValue = string> {
   onChange?(value: TValue): void;
 }
 
-interface Props<TValue = string> extends InternalTextProps<TValue> {
+interface Props<TValue = unknown> extends InternalTextProps<TValue> {
   tagName: string;
   inputClassName?: string;
   type: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
   startAdornments?: ReactElement[];
 }
 
-type InternalGenericTextComponent = <TValue = string>(props: Props<TValue>) => JSX.Element | null;
+type InternalGenericTextComponent = <TValue = unknown>(props: Props<TValue>) => JSX.Element | null;
 
 export const InternalText = createComponent({
   id: 'InternalText',

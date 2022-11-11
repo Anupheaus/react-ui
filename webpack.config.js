@@ -1,6 +1,9 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const TerserPlugin = require('terser-webpack-plugin');
+// const TerserPlugin = require('terser-webpack-plugin');
+const CircularDependencyPlugin = require('circular-dependency-plugin');
+
+const circularDeps = new Map();
 
 module.exports = {
   entry: { index: './src/index.ts' },
@@ -42,6 +45,29 @@ module.exports = {
   //     }*/),
   //   ],
   // },
+  plugins: [
+    new CircularDependencyPlugin({
+      exclude: /node_modules/,
+      failOnError: false,
+      onDetected({ paths }) {
+        console.log({ paths });
+        paths.forEach((pathValue, index) => {
+          if (pathValue.endsWith('index.ts') && index < paths.length - 1) {
+            const nextPath = paths[index + 1];
+            circularDeps.set(nextPath, (circularDeps.get(nextPath) ?? 0) + 1);
+          }
+        });
+        // compilation.errors.push(new Error(paths.join('->')))
+      },
+      onEnd() {
+        const entries = Array.from(circularDeps.entries());
+        circularDeps.clear();
+        entries.sort(([, count1], [, count2]) => count1 > count2 ? -1 : 1);
+        console.log(entries.slice(0, 20).map(([pathValue, count]) => `${pathValue} ${count}`));
+        console.log(`Found ${entries.length} circular dependencies`);
+      },
+    }),
+  ],
   externals: [
     nodeExternals(),
   ],

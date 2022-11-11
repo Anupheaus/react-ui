@@ -1,12 +1,17 @@
 import { ReactNode } from 'react';
 import { createComponent } from '../../../components/Component';
-import { Button, ButtonTheme, DialogTheme, Flex, Icon, useDialog } from '../../../components';
 import { useBound, useOnResize, useUpdatableState } from '../../../hooks';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { AnuxError } from '../../types';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
 import { ThemesProvider } from '../../../theme';
 import { is } from '@anupheaus/common';
+import { ButtonTheme } from '../../../components/Button/ButtonTheme';
+import { DialogTheme } from '../../../components/Dialog/DialogTheme';
+import { useDialog } from '../../../components/Dialog/useDialog';
+import { Icon } from '../../../components/Icon';
+import { Flex } from '../../../components/Flex';
+import { Button } from '../../../components/Button';
 
 interface Props {
   error?: AnuxError;

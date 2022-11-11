@@ -4,7 +4,7 @@ import { AnuxError } from '../../errors/types/AnuxError';
 import { createStylesProps } from './createStylesProps';
 import { AnyFunction } from '@anupheaus/common';
 import { LocalErrorBoundary } from './LocalErrorBoundary';
-import { useBound } from '../../hooks';
+import { useBound } from '../../hooks/useBound';
 
 type OnErrorFunc<TProps extends {}> = (error: AnuxError, props: TProps) => JSX.Element | null;
 
