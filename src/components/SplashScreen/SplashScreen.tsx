@@ -15,7 +15,7 @@ export const SplashScreen = createComponent({
   id: 'SplashScreen',
 
   styles: ({ useTheme }) => {
-    const { definition: { backgroundColor } } = useTheme(SplashScreenTheme);
+    const { definition: { backgroundColor, textColor } } = useTheme(SplashScreenTheme);
 
     return {
       styles: {
@@ -31,6 +31,7 @@ export const SplashScreen = createComponent({
           position: 'absolute',
           inset: 0,
           backgroundColor,
+          color: textColor,
           opacity: 0,
           zIndex: 1000,
           pointerEvents: 'none',

@@ -84,7 +84,7 @@ export const RecordsProvider = createComponent({
       });
     }, [inherit]);
 
-    const onChanged = useBound<RecordsProviderContextEntry<T>['onChanged']>(delegate => registerChangedCallback((_state, newRecord, reason) => delegate(newRecord, reason)));
+    const onChanged = useBound<RecordsProviderContextEntry<T>['onChanged']>(delegate => registerChangedCallback((newRecord, reason) => delegate(newRecord, reason)));
 
     const upsert = useBound<RecordsProviderContextEntry<T>['upsert']>(newRecord => {
       const record = { id: Math.uniqueId(), ...records.get(newRecord.id ?? ''), ...newRecord } as T;

@@ -8,7 +8,7 @@ interface CallbackState {
   isDuringRenderPhase: boolean;
 }
 
-type AddCallbackState<T extends AnyFunction> = (state: CallbackState, ...args: Parameters<T>) => void;
+type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
 export function useCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useRef(new Set<T>()).current;
@@ -16,7 +16,7 @@ export function useCallbacks<T extends CallbackFunction = () => void>() {
   const register = (delegate: AddCallbackState<T>) => {
     const isDuringRenderPhaseRef = useRef(true);
     isDuringRenderPhaseRef.current = true;
-    const boundDelegate = useBound(((...args: Parameters<T>) => delegate({ isDuringRenderPhase: isDuringRenderPhaseRef.current }, ...args)) as T);
+    const boundDelegate = useBound(((...args: Parameters<T>) => delegate.bind({ isDuringRenderPhase: isDuringRenderPhaseRef.current })(...args)) as T);
     callbacks.add(boundDelegate);
     useLayoutEffect(() => { isDuringRenderPhaseRef.current = false; });
     useEffect(() => () => { callbacks.delete(boundDelegate); }, []);

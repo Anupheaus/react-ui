@@ -4,10 +4,11 @@ import { createComponent } from '../components/Component';
 import { StorybookContext } from './StorybookContext';
 
 interface Props {
-  title: ReactNode;
+  title?: ReactNode;
   notes?: ReactNode;
   width?: string | number;
   height?: string | number;
+  isVertical?: boolean;
   children?: ReactNode;
 }
 
@@ -63,6 +64,9 @@ export const StorybookComponent = createComponent({
           pointerEvents: 'none',
         }
       },
+      isVertical: {
+        flexDirection: 'column',
+      },
     },
   }),
 
@@ -71,6 +75,7 @@ export const StorybookComponent = createComponent({
     notes,
     width,
     height,
+    isVertical = false,
     children = null,
   }: Props, { css, join }) {
     const { isTestBorderVisible } = useContext(StorybookContext);
@@ -84,9 +89,9 @@ export const StorybookComponent = createComponent({
 
     return (
       <div className={css.storybookComponent}>
-        <Typography className={css.title} variant={'h5'}>{title}</Typography>
+        {title != null && <Typography className={css.title} variant={'h5'}>{title}</Typography>}
         {notes != null && <Typography className={css.notes} variant={'body1'}>{notes}</Typography>}
-        <div className={join(css.componentTestArea, isTestBorderVisible && css.showBorder)} style={style}>
+        <div className={join(css.componentTestArea, isTestBorderVisible && css.showBorder, isVertical && css.isVertical)} style={style}>
           {children}
         </div>
       </div>

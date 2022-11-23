@@ -14,6 +14,9 @@ export const DialogContent = createComponent({
   styles: () => ({
     styles: {
       dialogContent: {
+        display: 'flex',
+        flex: 'auto',
+        flexDirection: 'column',
         padding: '0px 24px',
       },
     },

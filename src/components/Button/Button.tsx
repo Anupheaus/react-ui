@@ -10,21 +10,25 @@ import { ButtonTheme } from './ButtonTheme';
 import { MouseEvent, ReactNode, Ref } from 'react';
 import { Tag } from '../Tag';
 import { Icon } from '../Icon';
+import { IconButtonTheme } from './IconButtonTheme';
 
 interface Props {
   className?: string;
   ref?: Ref<HTMLButtonElement>;
   icon?: IconType;
   onClick?(event: MouseEvent): void;
+  size?: 'default' | 'small' | 'large';
   children?: ReactNode;
 }
 
 export const Button = createComponent({
   id: 'Button',
 
-  styles: ({ useTheme }) => {
+  styles: ({ useTheme }, { icon, children }: Props) => {
+    const isIconOnly = icon != null && children == null;
     const { definition: transitionSettings } = useTheme(TransitionTheme);
-    const { definition: { backgroundColor, activeBackgroundColor, activeTextColor, borderColor, borderRadius, fontSize, fontWeight, textColor } } = useTheme(ButtonTheme);
+    const { definition: { backgroundColor, activeBackgroundColor, activeTextColor, borderColor, borderRadius, fontSize, fontWeight, textColor } } = useTheme(isIconOnly ? IconButtonTheme : ButtonTheme);
+
     return {
       styles: {
         button: {
@@ -34,7 +38,6 @@ export const Button = createComponent({
           borderColor: borderColor,
           backgroundColor: backgroundColor,
           borderStyle: 'solid',
-          padding: '4px 8px 6px',
           color: textColor,
           fontSize: fontSize,
           fontWeight: fontWeight,
@@ -49,7 +52,7 @@ export const Button = createComponent({
           ...transitionSettings,
           boxSizing: 'border-box',
           outline: 'none',
-          minHeight: 34,
+
 
           '&:hover, &:active, &:focus, &:focus-visible': {
             backgroundColor: activeBackgroundColor,
@@ -62,13 +65,16 @@ export const Button = createComponent({
           visibility: 'hidden',
           borderWidth: 0,
         },
-        iconOnly: {
-          borderRadius: '50%',
-          width: 34,
-          height: 34,
-          padding: 0,
-          justifyContent: 'center',
-          gap: 0,
+        size_variant_default: {
+          minHeight: 34,
+          padding: '4px 8px 6px',
+        },
+        size_variant_small: {
+          padding: '1px 2px',
+        },
+        size_variant_large: {
+          minHeight: 34,
+          padding: '8px 16px 12px',
         },
       },
     };
@@ -78,6 +84,7 @@ export const Button = createComponent({
     className,
     children = null,
     ref,
+    size = 'default',
     icon,
     onClick,
   }: Props, { css, join }) {
@@ -85,8 +92,6 @@ export const Button = createComponent({
     const { UIRipple, rippleTarget } = useRipple();
     const eventsIsolator = useEventIsolator({ clickEvents: 'propagation', focusEvents: 'propagation', onParentElement: true });
     const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
-    const isIconOnly = icon != null && children == null;
-
     const handleClick = useBound((event: MouseEvent) => onClick?.(event));
 
     return (
@@ -96,7 +101,7 @@ export const Button = createComponent({
         className={join(
           css.button,
           isLoading && css.isLoading,
-          isIconOnly && css.iconOnly,
+          css[`size_variant_${size}`],
           className,
         )}
         onClickCapture={handleClick}

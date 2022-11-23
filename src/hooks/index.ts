@@ -17,3 +17,4 @@ export * from './useOnMount';
 export * from './useTimeout';
 export * from './useId';
 export * from './useStorage';
+export * from './useDrag';

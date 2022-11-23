@@ -4,6 +4,6 @@ export const SplashScreenTheme = createTheme({
   id: 'SplashScreenTheme',
   definition: {
     backgroundColor: '#eee',
-
+    textColor: '#000',
   },
 });

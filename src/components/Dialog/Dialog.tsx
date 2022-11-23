@@ -6,7 +6,7 @@ import { DistributedState, useDistributedState } from '../../hooks';
 import { Icon, IconType } from '../Icon';
 import { Flex } from '../Flex';
 import { DialogTheme } from './DialogTheme';
-import { Button, ButtonTheme } from '../Button';
+import { Button, IconButtonTheme } from '../Button';
 import { Theme, ThemesProvider } from '../../theme';
 import { FiX } from 'react-icons/fi';
 
@@ -50,7 +50,7 @@ export const Dialog = createComponent({
       },
 
       variants: {
-        buttonTheme: createThemeVariant(ButtonTheme, {
+        iconButtonTheme: createThemeVariant(IconButtonTheme, {
           backgroundColor: 'transparent',
           activeBackgroundColor: 'rgba(0 0 0 / 15%)'
         }) as Theme,
@@ -91,7 +91,7 @@ export const Dialog = createComponent({
               {icon != null && <Icon size={'large'}>{icon}</Icon>}
               <Flex tagName="dialog-header-title">{title}</Flex>
               {!hideCloseButton && (
-                <ThemesProvider themes={join(variants.buttonTheme)}>
+                <ThemesProvider themes={join(variants.iconButtonTheme)}>
                   <Button
                     icon={closeIcon}
                     onClick={handleButtonClose}

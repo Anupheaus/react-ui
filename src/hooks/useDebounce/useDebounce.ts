@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
 
 export function useDebounce<TFunc extends Function>(delegate: TFunc, ms: number): TFunc {
@@ -6,11 +7,10 @@ export function useDebounce<TFunc extends Function>(delegate: TFunc, ms: number)
   const timeoutToken = useRef<any>();
 
   useOnUnmount(() => clearTimeout(timeoutToken.current));
+  const wrappedDelegate = useBound(delegate);
 
   return ((...args: unknown[]) => {
     clearTimeout(timeoutToken.current);
-    timeoutToken.current = setTimeout(() => {
-      delegate(...args);
-    }, ms);
+    timeoutToken.current = setTimeout(() => wrappedDelegate(...args), ms);
   }) as unknown as TFunc;
 }

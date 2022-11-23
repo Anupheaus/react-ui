@@ -53,6 +53,8 @@ export const Icon = createComponent({
       }
     })();
 
+    if (children == null) return null;
+
     return (
       <Tag name="Icon" ref={ref} className={join(css.icon, className)} data-icon-type={renderIcon.name}>
         <Skeleton variant="circle">{renderIcon({ size: sizeAmount })}</Skeleton>
