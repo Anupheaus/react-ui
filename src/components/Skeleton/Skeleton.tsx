@@ -28,11 +28,12 @@ export const Skeleton = createComponent({
   id: 'Skeleton',
 
   styles: ({ useTheme }) => {
-    const { definition: { color } } = useTheme(SkeletonTheme);
+    const { color } = useTheme(SkeletonTheme);
     return {
       styles: {
         skeleton: {
           position: 'relative',
+          display: 'flex',
           visibility: 'hidden',
           pointerEvents: 'none',
           backgroundColor: color,
@@ -102,7 +103,15 @@ export const Skeleton = createComponent({
 
     return (
       <Tag name="skeleton" className={join(css.skeleton, children == null && css.absolutePositioning, isLoading && !noSkeletons && css.isVisible, css[`variant_${variant}`], className)}>
-        {children != null && <Tag name="skeleton-content" className={join(css.content, css[`variant_content_${variant}`], isLoading && css.isHidden, contentClassName)} onClick={onClick}>{children}</Tag>}
+        {children != null && (
+          <Tag
+            name="skeleton-content"
+            className={join(css.content, css[`variant_content_${variant}`], isLoading && css.isHidden, contentClassName)}
+            onClick={onClick}
+          >
+            {children}
+          </Tag>
+        )}
       </Tag>
     );
   },

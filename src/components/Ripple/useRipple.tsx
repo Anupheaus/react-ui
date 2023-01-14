@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { createRippleEventHandler } from './createRippleEventHandler';
-import { Ripple as RippleComponent } from './Ripple';
+import { Ripple as RippleComponent, RippleProps } from './Ripple';
 import { RippleState } from './RippleModels';
 import { useDistributedState } from '../../hooks';
 import { createComponent } from '../Component';
@@ -12,7 +12,7 @@ export function useRipple() {
 
   const UIRipple = useMemo(() => createComponent({
     id: 'UIRipple',
-    render: props => (<RippleComponent {...props} state={state} />),
+    render: (props: RippleProps) => (<RippleComponent {...props} state={state} />),
   }), []);
 
   return {

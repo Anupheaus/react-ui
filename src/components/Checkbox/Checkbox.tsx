@@ -1,4 +1,4 @@
-import { ChangeEvent, ComponentProps, ReactNode } from 'react';
+import { ChangeEvent, ComponentProps, MouseEvent, ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { ErrorIcon } from '../../errors';
 import { Label } from '../Label';
@@ -21,9 +21,9 @@ interface Props extends ComponentProps<typeof Label> {
 export const Checkbox = createComponent({
   id: 'Checkbox',
 
-  styles: ({ useTheme }) => {
-    const { definition: transitionSettings } = useTheme(TransitionTheme);
-    const { definition: { backgroundColor, uncheckedColor, checkedColor } } = useTheme(CheckboxTheme);
+  styles: ({ activePseudoClasses, useTheme }) => {
+    const transitionSettings = useTheme(TransitionTheme);
+    const { backgroundColor, uncheckedColor, checkedColor, activeColor } = useTheme(CheckboxTheme);
     return {
       styles: {
         checkbox: {
@@ -33,17 +33,30 @@ export const Checkbox = createComponent({
           justifyContent: 'center',
           alignItems: 'flex-start',
           flexDirection: 'column',
+          '--checkbox-color': uncheckedColor,
+
+          [activePseudoClasses]: {
+            '--checkbox-color': activeColor,
+          },
+        },
+        checkboxIsChecked: {
+          '--checkbox-color': checkedColor,
+
+          [activePseudoClasses]: {
+            '--checkbox-color': activeColor,
+          },
         },
         checkboxContainer: {
           display: 'flex',
           flex: 'none',
           gap: 8,
+          cursor: 'default',
         },
         checkboxArea: {
           display: 'flex',
           flex: 'none',
           backgroundColor,
-          borderColor: uncheckedColor,
+          borderColor: 'var(--checkbox-color)',
           borderStyle: 'solid',
           borderWidth: 2,
           borderRadius: 4,
@@ -55,9 +68,6 @@ export const Checkbox = createComponent({
         },
         assistiveText: {
           alignSelf: 'flex-start',
-        },
-        checkboxAreaIsChecked: {
-          borderColor: checkedColor,
         },
         inputCheckbox: {
           opacity: 0,
@@ -73,11 +83,10 @@ export const Checkbox = createComponent({
           opacity: 0,
           transitionProperty: 'opacity, background-color',
           ...transitionSettings,
-          backgroundColor: uncheckedColor,
+          backgroundColor: 'var(--checkbox-color)',
           borderRadius: 2,
         },
         checkboxAreaCheckedIsChecked: {
-          backgroundColor: checkedColor,
           opacity: 1,
         },
         skeleton: {
@@ -109,7 +118,6 @@ export const Checkbox = createComponent({
     };
   },
 
-  //render: function <T>(props: Props<T>) {
   render({
     className,
     value,
@@ -122,15 +130,19 @@ export const Checkbox = createComponent({
     onChange,
   }: Props, { css, join }) {
     const handleValueChanged = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.checked));
+    const toggleValue = useBound((event: MouseEvent) => {
+      event.stopPropagation();
+      onChange?.(!value);
+    });
 
-    const toggleValue = useBound(() => onChange?.(!value));
+    const preventPropagation = useBound((event: MouseEvent) => event.stopPropagation());
 
     return (
-      <Tag name="checkbox" className={join(css.checkbox, css[`label_position_${labelPosition}`], className)}>
-        <Tag name="checkbox-container" className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`])}>
+      <Tag name="checkbox" className={join(css.checkbox, value === true && css.checkboxIsChecked, css[`label_position_${labelPosition}`], className)}>
+        <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`])}>
           <Skeleton className={css.skeleton}>
-            <Tag name="checkbox-area" className={join(css.checkboxArea, value === true && css.checkboxAreaIsChecked, className)}>
-              <input type="checkbox" className={css.inputCheckbox} checked={value} onChange={handleValueChanged} />
+            <Tag name="checkbox-area" className={join(css.checkboxArea, className)} onClick={toggleValue}>
+              <input type="checkbox" className={css.inputCheckbox} checked={value ?? false} onChange={handleValueChanged} />
               <Tag name="checkbox-area-checked" className={join(css.checkboxAreaChecked, value === true && css.checkboxAreaCheckedIsChecked)} />
             </Tag>
           </Skeleton>

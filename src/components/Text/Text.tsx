@@ -9,7 +9,7 @@ export const Text = createComponent({
   id: 'Text',
 
   styles: ({ useTheme, createThemeVariant }) => {
-    const { definition } = useTheme(TextTheme);
+    const definition = useTheme(TextTheme);
     return {
       variants: {
         internalTextTheme: createThemeVariant(InternalTextTheme, definition),

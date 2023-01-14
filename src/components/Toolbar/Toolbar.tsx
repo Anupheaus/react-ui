@@ -1,4 +1,6 @@
 import { Children, createElement, isValidElement, ReactNode } from 'react';
+import { ThemesProvider } from '../../theme';
+import { ButtonTheme, IconButtonTheme } from '../Button';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { ToolbarTheme } from './ToolbarTheme';
@@ -12,8 +14,8 @@ interface Props {
 export const Toolbar = createComponent({
   id: 'Toolbar',
 
-  styles: ({ useTheme }) => {
-    const { definition: { backgroundColor, borderColor, borderRadius } } = useTheme(ToolbarTheme);
+  styles: ({ useTheme, createThemeVariant }) => {
+    const { backgroundColor, borderColor, borderRadius, textColor } = useTheme(ToolbarTheme);
     return {
       styles: {
         toolbar: {
@@ -36,13 +38,27 @@ export const Toolbar = createComponent({
           borderRadius: 0,
         },
       },
+      variants: {
+        iconButtonTheme: createThemeVariant(IconButtonTheme, {
+          backgroundColor,
+          borderColor,
+          borderRadius: 0,
+          textColor,
+        }),
+        buttonTheme: createThemeVariant(ButtonTheme, {
+          backgroundColor,
+          borderColor,
+          borderRadius: 0,
+          textColor,
+        }),
+      },
     };
   },
 
   render({
     className,
     children: rawChildren = null,
-  }: Props, { css, join }) {
+  }: Props, { css, variants, join }) {
     const children = Children.toArray(rawChildren)
       .map((child, index) => {
         if (isValidElement(child)) {
@@ -53,7 +69,9 @@ export const Toolbar = createComponent({
 
     return (
       <Tag name="toolbar" className={join(css.toolbar, className)}>
-        {children}
+        <ThemesProvider themes={join(variants.iconButtonTheme, variants.buttonTheme)}>
+          {children}
+        </ThemesProvider>
       </Tag>
     );
   },

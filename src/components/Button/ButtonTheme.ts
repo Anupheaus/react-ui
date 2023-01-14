@@ -1,15 +1,16 @@
-import { createTheme } from '../../theme';
+import { createTheme, DefaultTheme } from '../../theme';
 
 export const ButtonTheme = createTheme({
   id: 'ButtonTheme',
   definition: {
-    backgroundColor: '#eee',
-    activeBackgroundColor: '#ddd',
-    textColor: '#000',
-    activeTextColor: '#000',
+    backgroundColor: DefaultTheme.action.default.backgroundColor,
+    activeBackgroundColor: DefaultTheme.action.active.backgroundColor,
+    textColor: DefaultTheme.action.default.textColor,
+    activeTextColor: DefaultTheme.action.active.textColor,
+    borderColor: DefaultTheme.action.default.borderColor,
+    activeBorderColor: DefaultTheme.action.active.borderColor,
     borderRadius: 4 as string | number,
-    borderColor: 'transparent',
-    fontSize: 14,
-    fontWeight: 400,
-  }
+    fontSize: DefaultTheme.action.default.fontSize,
+    fontWeight: DefaultTheme.action.default.fontWeight,
+  },
 });

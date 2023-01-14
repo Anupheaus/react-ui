@@ -21,7 +21,7 @@ const Component = createComponent({
   id: 'Component',
 
   styles: ({ useTheme }) => {
-    const { definition: { backgroundColor, textColor, height, width } } = useTheme(ComponentTheme);
+    const { backgroundColor, textColor, height, width } = useTheme(ComponentTheme);
     return {
       styles: {
         component: {
@@ -61,7 +61,7 @@ const HigherComponent = createComponent({
   id: 'HigherComponent',
 
   styles: ({ useTheme, createThemeVariant }) => {
-    const { definition: { backgroundColor, color } } = useTheme(HigherComponentTheme);
+    const { backgroundColor, color } = useTheme(HigherComponentTheme);
 
     return {
       variants: {

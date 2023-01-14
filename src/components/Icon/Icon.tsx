@@ -1,25 +1,27 @@
-import { Ref } from 'react';
+import { Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
 // import { ErrorIcon } from '../../errors/components/ErrorIcon';
 import type { IconType } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { IconTheme } from './IconTheme';
+import { IconDefinitions, IconName } from './Icons';
+import { is } from '@anupheaus/common';
 
 export { IconType };
 
 interface Props {
+  name: IconName;
   className?: string;
   size?: 'normal' | 'small' | 'large' | number;
   ref?: Ref<HTMLDivElement>;
-  children: IconType | undefined;
 }
 
 export const Icon = createComponent({
   id: 'Icon',
 
   styles: ({ useTheme }) => {
-    const { definition: { opacity } } = useTheme(IconTheme);
+    const { opacity } = useTheme(IconTheme);
     return {
       styles: {
         icon: {
@@ -37,13 +39,11 @@ export const Icon = createComponent({
   },
 
   render({
+    name,
     className,
     size = 'normal',
     ref,
-    children,
   }: Props, { css, join }) {
-    const renderIcon = children as unknown as IconType;
-
     const sizeAmount = (() => {
       if (typeof (size) === 'number') return size;
       switch (size) {
@@ -53,11 +53,15 @@ export const Icon = createComponent({
       }
     })();
 
-    if (children == null) return null;
+    const icon = useMemo(() => {
+      let iconFunc = IconDefinitions[name];
+      if (!is.function(iconFunc)) iconFunc = IconDefinitions['no-image'];
+      return iconFunc({ size: sizeAmount });
+    }, [name, sizeAmount]);
 
     return (
-      <Tag name="Icon" ref={ref} className={join(css.icon, className)} data-icon-type={renderIcon.name}>
-        <Skeleton variant="circle">{renderIcon({ size: sizeAmount })}</Skeleton>
+      <Tag name="Icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
+        <Skeleton variant="circle">{icon}</Skeleton>
       </Tag>
     );
   },

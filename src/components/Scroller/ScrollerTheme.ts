@@ -4,8 +4,8 @@ export const ScrollerTheme = createTheme({
   id: 'Scroller',
 
   definition: {
-    shadow: '0 0 8px 4px rgba(0 0 0 / 50%)',
-    scrollbarColor: 'rgba(0 0 0 / 30%)',
+    shadow: '0 0 8px 0px #000',
+    scrollbarColor: 'rgba(0 0 0 / 20%)',
     width: 16,
     offsets: {
       top: 0,

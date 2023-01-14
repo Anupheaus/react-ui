@@ -13,7 +13,8 @@ export const Number = createComponent({
   id: 'Number',
 
   styles: ({ useTheme, createThemeVariant }) => {
-    const { definition, icons } = useTheme(NumberTheme);
+    const numberTheme = useTheme(NumberTheme);
+    const { backgroundColor } = numberTheme;
 
     return {
       styles: {
@@ -27,25 +28,24 @@ export const Number = createComponent({
       },
       variants: {
         buttonTheme: createThemeVariant(ButtonTheme, {
-          backgroundColor: definition.backgroundColor,
+          backgroundColor,
         }),
-        internalTextTheme: createThemeVariant(InternalTextTheme, definition),
+        internalTextTheme: createThemeVariant(InternalTextTheme, numberTheme),
       },
-      icons,
     };
   },
 
   render({
     endAdornments: providedEndAdornments,
     ...props
-  }: Props, { css, variants, icons, join }) {
+  }: Props, { css, variants, join }) {
     const increase = useBound(() => props.onChange?.(to.number(props.value, 0) + 1));
     const decrease = useBound(() => props.onChange?.(to.number(props.value, 0) - 1));
 
     const buttons = useMemo(() => [
       <Button
         key="increase"
-        icon={icons.increase}
+        icon={'number-increase'}
         onClick={increase}
       />,
       ...(providedEndAdornments ?? []),
@@ -54,7 +54,7 @@ export const Number = createComponent({
     const startButtons = useMemo(() => [
       <Button
         key="decrease"
-        icon={icons.decrease}
+        icon={'number-decrease'}
         onClick={decrease}
       />,
     ], []);

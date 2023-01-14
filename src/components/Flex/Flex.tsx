@@ -16,7 +16,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   size?: number | string;
   inline?: boolean;
   alignCentrally?: boolean;
-  allowOverflow?: boolean;
+  disableOverflow?: boolean;
   align?: 'left' | 'center' | 'right' | 'space-around' | 'space-between' | 'space-evenly';
   valign?: 'top' | 'center' | 'bottom' | 'space-around' | 'space-between' | 'space-evenly';
   gap?: number;
@@ -37,7 +37,6 @@ export const Flex = createComponent({
         flexGrow: 1,
         flexShrink: 1,
         flexBasis: 'auto',
-        overflow: 'hidden',
       },
       disableGrow: {
         flexGrow: 0,
@@ -54,8 +53,8 @@ export const Flex = createComponent({
       inline: {
         display: 'inline-flex',
       },
-      allowOverflow: {
-        overflow: 'unset',
+      disableOverflow: {
+        overflow: 'hidden',
       },
     },
   }),
@@ -70,7 +69,7 @@ export const Flex = createComponent({
     enableWrap = false,
     alignCentrally = false,
     inline = false,
-    allowOverflow = false,
+    disableOverflow = false,
     width,
     height,
     size,
@@ -122,7 +121,7 @@ export const Flex = createComponent({
           isVertical && css.isVertical,
           enableWrap && css.enableWrap,
           inline && css.inline,
-          allowOverflow && css.allowOverflow,
+          disableOverflow && css.disableOverflow,
           className,
         )}
         style={style}

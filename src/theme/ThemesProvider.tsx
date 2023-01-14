@@ -17,7 +17,11 @@ export const ThemesProvider = createComponent({
     children = null,
   }: Props) {
     return (
-      <RecordsProvider typeId={ThemeRecordTypeId} records={themes} inherit>
+      <RecordsProvider
+        typeId={ThemeRecordTypeId}
+        records={themes}
+        inherit
+      >
         {children}
       </RecordsProvider>
     );

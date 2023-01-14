@@ -30,6 +30,8 @@ const RootThemeProvider = createRootThemeProvider({
       margin: 0,
       fontFamily: 'Mulish',
       fontSize: 16,
+      overflow: 'hidden',
+      userSelect: 'none',
     },
     'input, button': {
       color: 'unset',
@@ -41,6 +43,7 @@ const RootThemeProvider = createRootThemeProvider({
     },
     'div#root': {
       height: '100%',
+      overflow: 'auto',
     },
   },
 });
@@ -149,6 +152,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
               flex: 'auto',
               flexDirection: 'column',
               gap: 12,
+              paddingBottom: 16,
             },
           },
         }),

@@ -38,8 +38,9 @@ interface Props extends WindowProps {
 export const WindowRenderer = createComponent({
   id: 'WindowRenderer',
 
-  styles: ({ useTheme, createThemeVariant }, { minWidth, minHeight }: Props) => {
-    const { definition: { backgroundColor, textColor, fontSize, titleBar }, icons } = useTheme(WindowTheme);
+  styles: ({ useTheme, useThemeIcons, createThemeVariant }, { minWidth, minHeight }: Props) => {
+    const { backgroundColor, textColor, fontSize, titleBar } = useTheme(WindowTheme);
+    const icons = useThemeIcons(WindowTheme);
     return {
       styles: {
         window: {

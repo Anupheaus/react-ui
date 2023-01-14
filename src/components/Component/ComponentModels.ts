@@ -1,6 +1,6 @@
 import { DeepPartial, MapOf } from '@anupheaus/common';
 import { CSSObject } from 'tss-react';
-import type { GetThemeDefinition, IconType, Theme } from '../../theme/themeModels';
+import type { GetThemeDefinition, GetThemeIcons, IconType, Theme } from '../../theme/themeModels';
 
 export const ComponentSymbol = Symbol('AnuxComponent');
 
@@ -17,13 +17,13 @@ export type ComponentStylesConfig = {
   icons?: MapOf<IconType>;
 };
 
-type GetUseTheme<TTheme extends Theme> = {
-  definition: Required<TTheme>['definition'];
-  icons: Required<TTheme>['icons'];
-};
+export type UseTheme = <TTheme extends Theme>(theme: TTheme) => GetThemeDefinition<TTheme>;
+export type UseThemeIcons = <TTheme extends Theme>(theme: TTheme) => GetThemeIcons<TTheme>;
 
 export interface ComponentStylesUtils {
-  useTheme<TTheme extends Theme>(theme: TTheme): GetUseTheme<TTheme>;
+  activePseudoClasses: string;
+  useTheme: UseTheme;
+  useThemeIcons: UseThemeIcons;
   createThemeVariant<TTheme extends Theme>(theme: TTheme, themeVariant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme;
 }
 

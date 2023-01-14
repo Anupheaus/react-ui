@@ -42,7 +42,7 @@ export function useOnResize({ isEnabled = true, observeHeightOnly = false, obser
     setTimeout(checkDimensions, 1);
     setTimeout(checkDimensions, 10);
     setTimeout(checkDimensions, 100);
-  }, []);
+  });
 
   const hasDimensions = width != null && height != null;
 

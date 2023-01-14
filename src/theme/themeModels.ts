@@ -26,3 +26,5 @@ export type Theme<D extends ThemeDefinition = ThemeDefinition, I extends ThemeIc
 
 export type GetThemeDefinition<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<infer D, ThemeIcons> ? D : never;
 export type GetThemeIcons<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<ThemeDefinition, infer I> ? I : never;
+
+export { UseTheme } from './useThemesProvider';

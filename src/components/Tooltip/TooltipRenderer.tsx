@@ -12,7 +12,7 @@ export const TooltipRenderer = createComponent({
   id: 'TooltipRenderer',
 
   styles: ({ useTheme }) => {
-    const { definition: { backgroundColor, fontSize, fontWeight, textColor } } = useTheme(TooltipTheme);
+    const { backgroundColor, fontSize, fontWeight, textColor } = useTheme(TooltipTheme);
     return {
       styles: {
         tooltip: {},

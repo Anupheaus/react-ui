@@ -7,6 +7,7 @@ export interface ListItem {
   iconName?: string;
   tooltip?: ReactNode;
   isDisabled?: boolean;
+  ordinal?: number;
 }
 
 export namespace ListItems {

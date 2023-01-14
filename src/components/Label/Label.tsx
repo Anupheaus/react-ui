@@ -1,4 +1,5 @@
 import { MouseEvent, ReactNode } from 'react';
+import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { HelpInfo } from '../HelpInfo';
 import { Skeleton } from '../Skeleton';
@@ -18,12 +19,12 @@ export const Label = createComponent({
   id: 'Label',
 
   styles: ({ useTheme }) => {
-    const { definition: { fontSize, fontWeight } } = useTheme(LabelTheme);
+    const { fontSize, fontWeight } = useTheme(LabelTheme);
     return {
       styles: {
         label: {
           display: 'flex',
-          flex: 'auto',
+          flex: 'none',
           fontSize: fontSize,
           fontWeight: fontWeight,
           alignItems: 'center',
@@ -67,11 +68,18 @@ export const Label = createComponent({
   }: Props, { css, join }) {
     if (children == null) return null;
 
+    const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
+
     return (
       <Tag name="label" className={join(css.label, className)}>
         <Tag name="label-content" className={join(css.labelContent)}>
           <Skeleton variant="text">
-            <Tag name="label-text" className={join(css.labelText, onClick != null && css.isClickable)} onClick={onClick}>
+            <Tag
+              name="label-text"
+              className={join(css.labelText, onClick != null && css.isClickable)}
+              onMouseDown={onClick != null ? stopPropagation : undefined}
+              onClick={onClick}
+            >
               {children}
             </Tag>
           </Skeleton>

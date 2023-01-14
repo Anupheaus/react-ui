@@ -5,9 +5,9 @@ export const GridTheme = createTheme({
 
   definition: {
     headers: {
-      backgroundColor: '#F0F0F0',
+      backgroundColor: '#1e88e5' as string | undefined,
       fontSize: 13,
-      fontColor: 'rgba(0 0 0 / 60%)',
+      fontColor: 'white' as string | undefined, // 'rgba(0 0 0 / 60%)',
     },
     borders: {
       color: '#F0F0F0',

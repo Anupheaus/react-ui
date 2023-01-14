@@ -36,8 +36,8 @@ type InternalGenericTextComponent = <TValue = unknown>(props: Props<TValue>) => 
 export const InternalText = createComponent({
   id: 'InternalText',
 
-  styles: ({ useTheme }) => {
-    const { definition: { backgroundColor, borderColor, activeBorderColor, borderRadius } } = useTheme(InternalTextTheme);
+  styles: ({ activePseudoClasses, useTheme }) => {
+    const { backgroundColor, activeBackgroundColor, textColor, activeTextColor, borderColor, activeBorderColor, borderRadius } = useTheme(InternalTextTheme);
 
     return {
       styles: {
@@ -54,6 +54,7 @@ export const InternalText = createComponent({
           flexGrow: 0,
           flexShrink: 0,
           backgroundColor,
+          color: textColor,
           padding: '0 12px',
           boxShadow: `0 0 0 1px ${borderColor}`,
           borderRadius,
@@ -64,8 +65,10 @@ export const InternalText = createComponent({
           overflow: 'hidden',
           transition: 'box-shadow 0.4s ease',
 
-          '&:active, &:focus, &:focus-within': {
+          [activePseudoClasses]: {
             boxShadow: `0 0 0 1px ${activeBorderColor}`,
+            backgroundColor: activeBackgroundColor,
+            color: activeTextColor,
           },
         },
         input: {

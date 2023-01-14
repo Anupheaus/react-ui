@@ -36,7 +36,9 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
   return { width: size, height: size, top, left };
 }
 
-export interface RippleProps { }
+export interface RippleProps {
+  className?: string;
+}
 
 interface Props extends RippleProps {
   state: DistributedState<RippleState>;
@@ -46,7 +48,7 @@ export const Ripple = createComponent({
   id: 'Ripple',
 
   styles: ({ useTheme }) => {
-    const { definition: { color } } = useTheme(RippleTheme);
+    const { color } = useTheme(RippleTheme);
     return {
       styles: {
         UIRipple: {
@@ -79,6 +81,7 @@ export const Ripple = createComponent({
     };
   },
   render({
+    className,
     state,
   }: Props, { css, join }) {
     const { getAndObserve } = useDistributedState(state);
@@ -92,7 +95,7 @@ export const Ripple = createComponent({
       [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
 
     return (
-      <Tag ref={target} name="ui-ripple" className={css.UIRipple}>
+      <Tag ref={target} name="ui-ripple" className={join(css.UIRipple, className)}>
         <Tag
           name="ui-ripple-animation"
           className={join(

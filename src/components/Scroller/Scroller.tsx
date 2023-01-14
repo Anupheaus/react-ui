@@ -18,8 +18,8 @@ export const Scroller = createComponent({
   id: 'Scroller',
 
   styles: ({ useTheme }, { offsetTop }: Props) => {
-    const { definition: transitionSettings } = useTheme(TransitionTheme);
-    const { definition: { shadow, scrollbarColor, offsets, width } } = useTheme(ScrollerTheme);
+    const transitionSettings = useTheme(TransitionTheme);
+    const { shadow, scrollbarColor, offsets, width } = useTheme(ScrollerTheme);
     return {
       styles: {
         scroller: {
@@ -49,13 +49,13 @@ export const Scroller = createComponent({
           '&::-webkit-scrollbar-track-piece:vertical:start': {
             marginTop: offsetTop ?? offsets.top,
           },
-          '&::-webkit-scrollbar-track-piece:vertical:end': {
+          '&::-webkit-scrollbar-track-piece:vertical:corner-present:end': {
             marginBottom: offsets.bottom,
           },
           '&::-webkit-scrollbar-track-piece:horizontal:start': {
             marginLeft: offsets.left,
           },
-          '&::-webkit-scrollbar-track-piece:horizontal:end': {
+          '&::-webkit-scrollbar-track-piece:horizontal:corner-present:end': {
             marginRight: offsets.right,
           },
           '&::-webkit-scrollbar-corner': {
@@ -115,6 +115,7 @@ export const Scroller = createComponent({
           pointerEvents: 'none',
           transitionProperty: 'opacity',
           ...transitionSettings,
+          zIndex: 1000,
         },
         scrollerShadowTop: {
           top: -2,

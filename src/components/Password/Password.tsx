@@ -13,8 +13,9 @@ interface Props extends InternalTextProps {
 export const Password = createComponent({
   id: 'Password',
 
-  styles: ({ useTheme, createThemeVariant }) => {
-    const { definition, icons } = useTheme(PasswordTheme);
+  styles: ({ useTheme, useThemeIcons, createThemeVariant }) => {
+    const definition = useTheme(PasswordTheme);
+    const icons = useThemeIcons(PasswordTheme);
     return {
       variants: {
         internalTextTheme: createThemeVariant(InternalTextTheme, definition),

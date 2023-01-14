@@ -59,11 +59,12 @@ class HTMLElementExtensions {
   }
 
   public pageCoordinates(): ICoordinates;
-  public pageCoordinates(relativeTo: HTMLElement): ICoordinates;
-  public pageCoordinates(this: HTMLElement, relativeTo?: HTMLElement): ICoordinates {
-    return [this].concat(relativeTo ? this.parentElements(relativeTo) : this.parentElements())
-      .reduce(({ x, y }, { clientLeft, scrollLeft, offsetLeft, clientTop, scrollTop, offsetTop }) =>
-        ({ x: x + clientLeft + offsetLeft - scrollLeft, y: y + clientTop + offsetTop - scrollTop }), { x: 0, y: 0 });
+  public pageCoordinates(this: HTMLElement): ICoordinates {
+    const { left, top } = this.getBoundingClientRect();
+    return {
+      x: left + window.scrollX,
+      y: top + window.scrollY,
+    };
   }
 
   public coordinates(): ICoordinates;

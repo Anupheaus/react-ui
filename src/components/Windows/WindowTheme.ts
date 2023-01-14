@@ -1,18 +1,20 @@
 import { FiMaximize, FiMinimize, FiX } from 'react-icons/fi';
-import { createTheme } from '../../theme';
+import { createTheme, DefaultTheme } from '../../theme';
 
 export const WindowTheme = createTheme({
   id: 'WindowTheme',
 
   definition: {
-    backgroundColor: 'white',
-    textColor: 'black',
-    fontSize: 12,
+    backgroundColor: DefaultTheme.surface.asAContainer.backgroundColor,
+    textColor: DefaultTheme.surface.asAContainer.textColor,
+    fontSize: DefaultTheme.surface.asAContainer.fontSize,
+    fontWeight: DefaultTheme.surface.asAContainer.fontWeight,
 
     titleBar: {
-      backgroundColor: '#eee',
-      textColor: 'black',
-      fontSize: 16,
+      backgroundColor: DefaultTheme.surface.titleArea.backgroundColor,
+      textColor: DefaultTheme.surface.titleArea.textColor,
+      fontSize: DefaultTheme.surface.titleArea.fontSize,
+      fontWeight: DefaultTheme.surface.titleArea.fontWeight,
     },
   },
   icons: {

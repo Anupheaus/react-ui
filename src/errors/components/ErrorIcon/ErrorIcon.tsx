@@ -5,7 +5,7 @@ import { AnuxError } from '../../types';
 import { ErrorTooltip } from '../ErrorTooltip';
 import { ErrorIconTheme } from './ErrorIconTheme';
 
-interface Props extends Omit<ComponentProps<typeof Icon>, 'children'> {
+interface Props extends Omit<ComponentProps<typeof Icon>, 'name'> {
   error: AnuxError;
 }
 
@@ -13,25 +13,24 @@ export const ErrorIcon = createComponent({
   id: 'ErrorIcon',
 
   styles: ({ useTheme }) => {
-    const { definition: { iconColor }, icons } = useTheme(ErrorIconTheme);
+    const { iconColor } = useTheme(ErrorIconTheme);
     return {
       styles: {
         icon: {
           color: iconColor,
         },
       },
-      icons,
     };
   },
 
   render({
     error,
     ...props
-  }: Props, { css, join, icons }) {
+  }: Props, { css, join }) {
     const IconComponent = useMemo(() => require('../../../components/Icon').Icon as typeof Icon, []);
     return (
       <ErrorTooltip error={error}>
-        <IconComponent {...props} className={join(props.className, css.icon)}>{icons.error}</IconComponent>
+        <IconComponent {...props} name={'error'} className={join(props.className, css.icon)} />
       </ErrorTooltip>
     );
   },

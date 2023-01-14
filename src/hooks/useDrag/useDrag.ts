@@ -1,9 +1,11 @@
 import { to } from '@anupheaus/common';
-import { useRef } from 'react';
-import { useBound, useOnChange } from '..';
+import { DOMAttributes } from 'react';
+import { useMemo, useRef } from 'react';
+import { useBound, useDOMRef, useOnChange } from '..';
 
 interface DragData {
-  element: HTMLElement;
+  initiatorElement: HTMLElement;
+  movableElement: HTMLElement;
   mouseStartingX: number;
   mouseStartingY: number;
   originalTop: number;
@@ -18,27 +20,27 @@ export interface UseDragEvent extends DragData {
 }
 
 interface Props {
-  isEnabled: boolean;
-  onDragStart?(): void;
+  isEnabled?: boolean;
+  onDragStart?(props: UseDragEvent): void;
   onDragEnd?(props: UseDragEvent): void;
   onDragging?(props: UseDragEvent): void;
 }
 
-export function useDrag({ isEnabled, onDragStart, onDragEnd, onDragging }: Props) {
+export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }: Props = {}) {
   const unhookFromElementRef = useRef<() => void>(() => void 0);
   const unhookFromDocumentRef = useRef<() => void>(() => void 0);
-  const movableRef = useRef<HTMLElement | null>(null);
+  const [movableRef, dragMovable] = useDOMRef();
 
   const hookToDocument = useBound((data: DragData) => {
     const { mouseStartingX, mouseStartingY } = data;
     const onMouseMove = (event: MouseEvent) => {
-      event.stopImmediatePropagation();
+      // event.stopPropagation();
       const diffX = event.pageX - mouseStartingX;
       const diffY = event.pageY - mouseStartingY;
       onDragging?.({ ...data, diffX, diffY });
     };
     const onMouseUp = (event: MouseEvent) => {
-      event.stopImmediatePropagation();
+      // event.stopPropagation();
       if (event.button !== 0) return;
       unhookFromDocumentRef.current();
       const diffX = event.pageX - mouseStartingX;
@@ -55,34 +57,49 @@ export function useDrag({ isEnabled, onDragStart, onDragEnd, onDragging }: Props
     };
   });
 
-  const hookToElement = useBound((element: HTMLElement) => {
+  const hookToElement = useBound((targetElement: HTMLElement) => {
     const onMouseDown = (event: MouseEvent) => {
-      event.stopImmediatePropagation();
+      // event.stopPropagation();
       if (event.button !== 0) return;
-      const { top: startY, left: startX, width, height } = window.getComputedStyle(movableRef.current ?? element);
-      onDragStart?.();
-      hookToDocument({
-        element: movableRef.current ?? element,
-        mouseStartingX: event.pageX,
-        mouseStartingY: event.pageY,
-        originalTop: to.number(startY, 0),
-        originalLeft: to.number(startX, 0),
-        originalWidth: to.number(width, 0),
-        originalHeight: to.number(height, 0),
-      });
+      const { top: startY, left: startX, width, height } = window.getComputedStyle(movableRef.current ?? targetElement);
+      const originalTop = to.number(startY, 0);
+      const originalLeft = to.number(startX, 0);
+      const originalWidth = to.number(width, 0);
+      const originalHeight = to.number(height, 0);
+      const mouseStartingX = event.pageX;
+      const mouseStartingY = event.pageY;
+      const initiatorElement = targetElement;
+      const movableElement = movableRef.current ?? targetElement;
+      const data: DragData = { initiatorElement, movableElement, mouseStartingX, mouseStartingY, originalTop, originalLeft, originalWidth, originalHeight };
+      onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
+      hookToDocument(data);
     };
 
-    element.addEventListener('mousedown', onMouseDown);
+    targetElement.addEventListener('mousedown', onMouseDown);
 
     unhookFromElementRef.current = () => {
-      element.removeEventListener('mousedown', onMouseDown);
+      targetElement.removeEventListener('mousedown', onMouseDown);
     };
   });
 
-  const dragInitiator = useBound((element: HTMLDivElement | null) => {
-    if (element == null || !isEnabled) { unhookFromElementRef.current(); return; }
-    hookToElement(element);
-  });
+  const draggableProps = useMemo<Partial<DOMAttributes<HTMLElement>>>(() => ({
+    onMouseDown: event => {
+      event.stopPropagation();
+      if (event.button !== 0) return;
+      const targetElement = event.currentTarget as HTMLElement;
+      const { top: startY, left: startX, width, height } = window.getComputedStyle(movableRef.current ?? targetElement);
+      const originalTop = to.number(startY, 0);
+      const originalLeft = to.number(startX, 0);
+      const originalWidth = to.number(width, 0);
+      const originalHeight = to.number(height, 0);
+      const mouseStartingX = event.pageX;
+      const mouseStartingY = event.pageY;
+      const movableElement = (movableRef.current ?? event.target) as HTMLElement;
+      const data: DragData = { initiatorElement: targetElement, movableElement, mouseStartingX, mouseStartingY, originalTop, originalLeft, originalWidth, originalHeight };
+      onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
+      hookToDocument(data);
+    },
+  }), []);
 
   useOnChange(() => {
     if (!isEnabled) {
@@ -94,7 +111,7 @@ export function useDrag({ isEnabled, onDragStart, onDragEnd, onDragging }: Props
   }, [isEnabled]);
 
   return {
-    dragInitiator,
-    dragMovable: movableRef,
+    draggableProps,
+    dragMovable,
   };
 }

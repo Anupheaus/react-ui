@@ -1,13 +1,14 @@
 import { useContext, useLayoutEffect } from 'react';
 import { useOnResize } from '../../hooks';
 import { createComponent } from '../Component';
+import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { GridContexts } from './GridContexts';
-import { GridColumnType } from './GridModels';
+import { GridColumn } from './GridModels';
 import { GridTheme } from './GridTheme';
 
 interface Props {
-  column: GridColumnType;
+  column: GridColumn;
   columnIndex: number;
   // onChange(column: GridColumnType): void;
 }
@@ -16,7 +17,8 @@ export const GridHeaderCell = createComponent({
   id: 'GridHeaderCell',
 
   styles: ({ useTheme }) => {
-    const { definition: { headers: { backgroundColor, fontSize, fontColor } } } = useTheme(GridTheme);
+    const { headers: { backgroundColor, fontColor: color, fontSize } } = useTheme(GridTheme);
+
     return {
       styles: {
         gridHeaderCell: {
@@ -30,8 +32,9 @@ export const GridHeaderCell = createComponent({
           fontSize,
           userSelect: 'none',
           cursor: 'default',
-          color: fontColor,
+          color,
           alignItems: 'center',
+          zIndex: 1,
         },
       },
     };
@@ -45,12 +48,13 @@ export const GridHeaderCell = createComponent({
     const setHeaderHeight = useContext(GridContexts.setHeaderHeight);
 
     useLayoutEffect(() => {
+
       if (height != null && columnIndex === 0) setHeaderHeight(height);
     }, [height, columnIndex]);
 
     return (
       <Tag ref={target} name="grid-header-cell" className={css.gridHeaderCell}>
-        {column.label}
+        <Skeleton variant="text">{column.label}</Skeleton>
       </Tag>
     );
   },

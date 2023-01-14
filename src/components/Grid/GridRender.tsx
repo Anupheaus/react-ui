@@ -1,53 +1,112 @@
-import { is } from '@anupheaus/common';
-import { useMemo } from 'react';
-import { useRecordsProvider } from '../../providers';
+import { AnyObject } from '@anupheaus/common';
+import { CSSProperties, useMemo, useState } from 'react';
+import { useUIState } from '../../providers';
+import { TransitionTheme } from '../../theme';
 import { createComponent } from '../Component';
+import { Scroller } from '../Scroller';
 import { Tag } from '../Tag';
 import { GridCell } from './GridCell';
+import { GridContexts } from './GridContexts';
 import { GridHeaderCell } from './GridHeaderCell';
-import { GridColumnType } from './GridModels';
+import { GridTheme } from './GridTheme';
+import { GridActionsRenderer } from './providers/actions/GridActions/GridActionsRenderer';
+import { useGridColumns } from './providers/columns/GridColumns/useGridColumns';
+import { useGridRecords } from './providers/records/GridRecords/useGridRecords';
 
-interface Props<T = unknown> {
-  columns: GridColumnType[];
-  records?: T[];
+interface Props {
+  isActionsVisible: boolean;
 }
 
 export const GridRender = createComponent({
   id: 'GridRender',
 
-  styles: (_, { columns }: Props) => {
+  styles: ({ useTheme }) => {
+    const { borders: { radius: borderRadius }, headers: { backgroundColor } } = useTheme(GridTheme);
+    const transitionSettings = useTheme(TransitionTheme);
 
     return {
       styles: {
+        gridContainer: {
+          display: 'flex',
+          flex: 'auto',
+          borderRadius,
+          position: 'relative',
+          overflow: 'hidden',
+          transitionProperty: 'border-top-right-radius',
+          ...transitionSettings,
+        },
+        squareCorner: {
+          borderTopRightRadius: 0,
+        },
+        gridHeaderBackground: {
+          position: 'absolute',
+          inset: 0,
+          bottom: 'unset',
+          backgroundColor,
+          height: 'var(--header-height)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        },
+        gridInsetShadow: {
+          position: 'absolute',
+          inset: 0,
+          top: 'var(--header-height)',
+          boxShadow: 'inset 0 0 6px rgba(0 0 0 / 24%)',
+          pointerEvents: 'none',
+        },
         gridRender: {
           display: 'grid',
-          gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
+          gridTemplateColumns: 'repeat(var(--column-count), 1fr)',
         },
       },
     };
   },
 
-  render: ({
-    columns,
-    records: propsRecords,
-  }: Props, { css }) => {
-    const { records: providedRecords } = useRecordsProvider('grid');
-    const records = useMemo(() => is.array(propsRecords) ? propsRecords : providedRecords.toValuesArray(), [propsRecords, providedRecords.size]);
+  render({
+    isActionsVisible,
+  }: Props, { css, join }) {
+    const { isLoading } = useUIState();
+    const { visibleColumns } = useGridColumns();
+    const { records } = useGridRecords();
+    const [headerHeight, setHeaderHeight] = useState<number>();
 
-    const headerCells = useMemo(() => columns.map((column, index) => (<GridHeaderCell key={column.id} column={column} columnIndex={index} />)), [columns]);
-    const rowCells = useMemo(() => records
-      .map((record, rowIndex, recordsArray) => columns
-        .map((column, columnIndex) => (
-          <GridCell key={`${column.id}-${rowIndex}`} column={column} isLastRow={rowIndex === recordsArray.length - 1}>
-            {column.renderValue?.({ ...column, rowIndex, columnIndex, record }) ?? null}
-          </GridCell>
-        ))).flatten(), [columns, records]);
+    const style = useMemo<CSSProperties & AnyObject>(() => ({
+      '--column-count': visibleColumns.length,
+      '--header-height': `${headerHeight ?? 0}px`,
+    }), [visibleColumns.length, headerHeight]);
 
-    return (
-      <Tag name="grid-render" className={css.gridRender}>
-        {headerCells}
-        {rowCells}
+    const headerCells = useMemo(() => visibleColumns.map((column, index) => (
+      <GridHeaderCell
+        key={column.id}
+        column={column}
+        columnIndex={index}
+      />
+    )), [visibleColumns]);
+    const rowCells = useMemo(() => {
+      const recordsToRender = isLoading ? records.length > 0 ? records : Array.ofSize(10) : records;
+      return recordsToRender
+        .map((record, rowIndex, recordsArray) => visibleColumns
+          .map((column, columnIndex) => (
+            <GridCell key={`${column.id}-${record.id}`} column={column} isLastRow={rowIndex === recordsArray.length - 1}>
+              {column.renderValue?.({ ...column, rowIndex, columnIndex, record }) ?? null}
+            </GridCell>
+          ))).flatten();
+    }, [visibleColumns, records]);
+
+    return (<>
+      <Tag name="grid-container" className={join(css.gridContainer, isActionsVisible && css.squareCorner)} style={style}>
+        <GridContexts.setHeaderHeight.Provider value={setHeaderHeight}>
+          <Tag name="grid-header-background" className={css.gridHeaderBackground} />
+          <Scroller disableShadows offsetTop={headerHeight}>
+            <Tag name="grid-render" className={css.gridRender} style={style}>
+              {headerCells}
+              {rowCells}
+            </Tag>
+          </Scroller>
+          <Tag name="grid-inset-shadow" className={css.gridInsetShadow} />
+        </GridContexts.setHeaderHeight.Provider>
       </Tag>
-    );
+      <GridActionsRenderer isVisible={isActionsVisible} />
+    </>);
   },
 });

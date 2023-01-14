@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { GridColumnType } from './GridModels';
+import { GridColumn } from './GridModels';
 import { GridTheme } from './GridTheme';
 
 interface Props {
-  column: GridColumnType;
+  column: GridColumn;
   isLastRow?: boolean;
   children: ReactNode;
 }
@@ -14,10 +14,11 @@ export const GridCell = createComponent({
   id: 'GridCell',
 
   styles: ({ useTheme }, { isLastRow = false }: Props) => {
-    const { definition: { borders: { color: borderColor }, rows: { fontSize } } } = useTheme(GridTheme);
+    const { borders: { color: borderColor }, rows: { fontSize } } = useTheme(GridTheme);
     return {
       styles: {
         gridCell: {
+          display: 'flex',
           borderColor,
           borderWidth: 0,
           borderBottomWidth: isLastRow ? 0 : 1,
