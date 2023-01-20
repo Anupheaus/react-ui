@@ -13,6 +13,7 @@ interface UseStylesApi<TStyles extends MapOf<CSSObject>, TVariants extends MapOf
 type UseTheme = <TTheme extends Theme>(theme: TTheme) => GetThemeDefinition<TTheme>;
 
 interface UseStylesUtils {
+  activePseudoClasses: string,
   useTheme: UseTheme;
   createThemeVariant<TTheme extends Theme>(theme: TTheme, themeVariant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme;
 }
