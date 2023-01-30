@@ -1,3 +1,4 @@
+import { createStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -9,36 +10,32 @@ interface Props {
   isLastRow?: boolean;
   children: ReactNode;
 }
-
-export const GridCell = createComponent({
-  id: 'GridCell',
-
-  styles: ({ useTheme }, { isLastRow = false }: Props) => {
-    const { borders: { color: borderColor }, rows: { fontSize } } = useTheme(GridTheme);
-    return {
-      styles: {
-        gridCell: {
-          display: 'flex',
-          borderColor,
-          borderWidth: 0,
-          borderBottomWidth: isLastRow ? 0 : 1,
-          borderStyle: 'solid',
-          padding: '4px 8px',
-          fontSize,
-          cursor: 'default',
-        },
+const useStyles = createStyles(({ useTheme }, { isLastRow = false }: Props) => {
+  const { borders: { color: borderColor }, rows: { fontSize } } = useTheme(GridTheme);
+  return {
+    styles: {
+      gridCell: {
+        display: 'flex',
+        borderColor,
+        borderWidth: 0,
+        borderBottomWidth: isLastRow ? 0 : 1,
+        borderStyle: 'solid',
+        padding: '4px 8px',
+        fontSize,
+        cursor: 'default',
       },
-    };
-  },
+    },
+  };
+});
 
-  render({
-    // column,
-    children,
-  }: Props, { css }) {
-    return (
-      <Tag name="grid-cell" className={css.gridCell}>
-        {children}
-      </Tag>
-    );
-  },
+export const GridCell = createComponent('GridCell', ({
+  // column,
+  children,
+}: Props) => {
+  const { css } = useStyles();
+  return (
+    <Tag name="grid-cell" className={css.gridCell}>
+      {children}
+    </Tag>
+  );
 });

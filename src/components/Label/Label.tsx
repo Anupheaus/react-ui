@@ -1,3 +1,4 @@
+import { createStyles } from '../../theme/createStyles';
 import { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
@@ -14,81 +15,77 @@ interface Props {
   children?: ReactNode;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
-
-export const Label = createComponent({
-  id: 'Label',
-
-  styles: ({ useTheme }) => {
-    const { fontSize, fontWeight } = useTheme(LabelTheme);
-    return {
-      styles: {
-        label: {
-          display: 'flex',
-          flex: 'none',
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          alignItems: 'center',
-        },
-        labelContent: {
-          display: 'flex',
-          flex: 'none',
-          gap: 4,
-          minHeight: 18,
-          cursor: 'default',
-          position: 'relative',
-        },
-        labelText: {
-          display: 'flex',
-          flex: 'none',
-          alignItems: 'center',
-        },
-        isClickable: {
-          cursor: 'pointer',
-        },
-        isOptional: {
-          fontSize: '0.8em',
-          alignSelf: 'flex-end',
-          margin: '0 0 1px 4px',
-          fontWeight: 400,
-        },
-        isOptionalSkeleton: {
-          maxHeight: 8,
-          alignSelf: 'flex-end',
-        },
+const useStyles = createStyles(({ useTheme }) => {
+  const { fontSize, fontWeight } = useTheme(LabelTheme);
+  return {
+    styles: {
+      label: {
+        display: 'flex',
+        flex: 'none',
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        alignItems: 'center',
       },
-    };
-  },
+      labelContent: {
+        display: 'flex',
+        flex: 'none',
+        gap: 4,
+        minHeight: 18,
+        cursor: 'default',
+        position: 'relative',
+      },
+      labelText: {
+        display: 'flex',
+        flex: 'none',
+        alignItems: 'center',
+      },
+      isClickable: {
+        cursor: 'pointer',
+      },
+      isOptional: {
+        fontSize: '0.8em',
+        alignSelf: 'flex-end',
+        margin: '0 0 1px 4px',
+        fontWeight: 400,
+      },
+      isOptionalSkeleton: {
+        maxHeight: 8,
+        alignSelf: 'flex-end',
+      },
+    },
+  };
+});
 
-  render({
-    className,
-    help,
-    isOptional = false,
-    children = null,
-    onClick,
-  }: Props, { css, join }) {
-    if (children == null) return null;
+export const Label = createComponent('Label', ({
+  className,
+  help,
+  isOptional = false,
+  children = null,
+  onClick,
+}: Props) => {
+  const { css, join } = useStyles();
+  if (children == null) return null;
 
-    const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
+  const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
 
-    return (
-      <Tag name="label" className={join(css.label, className)}>
-        <Tag name="label-content" className={join(css.labelContent)}>
-          <Skeleton variant="text">
-            <Tag
-              name="label-text"
-              className={join(css.labelText, onClick != null && css.isClickable)}
-              onMouseDown={onClick != null ? stopPropagation : undefined}
-              onClick={onClick}
-            >
-              {children}
-            </Tag>
-          </Skeleton>
-          {help != null && <HelpInfo>{help}</HelpInfo>}
-          <Tooltip content="This field is optional" showArrow>
-            {isOptional && <Skeleton variant="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
-          </Tooltip>
-        </Tag>
+  return (
+    <Tag name="label" className={join(css.label, className)}>
+      <Tag name="label-content" className={join(css.labelContent)}>
+        <Skeleton variant="text">
+          <Tag
+            name="label-text"
+            className={join(css.labelText, onClick != null && css.isClickable)}
+            onMouseDown={onClick != null ? stopPropagation : undefined}
+            onClick={onClick}
+          >
+            {children}
+          </Tag>
+        </Skeleton>
+        {help != null && <HelpInfo>{help}</HelpInfo>}
+        <Tooltip content="This field is optional" showArrow>
+          {isOptional && <Skeleton variant="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
+        </Tooltip>
       </Tag>
-    );
-  },
+    </Tag>
+  );
 });

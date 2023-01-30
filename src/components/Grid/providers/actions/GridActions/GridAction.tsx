@@ -8,22 +8,17 @@ interface Props {
   children: ReactNode;
 }
 
-export const GridAction = createComponent({
-  id: 'GridAction',
+export const GridAction = createComponent('GridAction', ({
+  id,
+  ordinal,
+  children,
+}: Props) => {
+  const { actions } = useContext(GridActionsContext);
 
-  render({
-    id,
-    ordinal,
-    children,
-  }: Props) {
-    const { actions } = useContext(GridActionsContext);
+  useLayoutEffect(() => {
+    actions.upsert({ id, text: id, label: children, ordinal });
+    return () => actions.remove(id);
+  }, [id, children]);
 
-    useLayoutEffect(() => {
-      actions.upsert({ id, text: id, label: children, ordinal });
-      return () => actions.remove(id);
-    }, [id, children]);
-
-    return null;
-  },
-
+  return null;
 });

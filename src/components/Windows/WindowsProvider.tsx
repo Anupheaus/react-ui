@@ -10,39 +10,35 @@ interface Props {
   children: ReactNode;
 }
 
-export const WindowsProvider = createComponent({
-  id: 'WindowsProvider',
+export const WindowsProvider = createComponent('WindowsProvider', ({
+  state: providedState,
+  onSaveState,
+  children,
+}: Props) => {
+  const state = useMemo(() => providedState ?? [], [providedState]);
+  const [windows, setWindows] = useState<ReactNode[]>([]);
 
-  render({
-    state: providedState,
-    onSaveState,
-    children,
-  }: Props) {
-    const state = useMemo(() => providedState ?? [], [providedState]);
-    const [windows, setWindows] = useState<ReactNode[]>([]);
+  const addWindow = useBound(async (window: ReactNode): Promise<WindowApi> => new Promise(resolve => setWindows(currentWindows => [...currentWindows, (
+    <WindowsContexts.registerApi.Provider key={Math.uniqueId()} value={resolve}>
+      {window}
+    </WindowsContexts.registerApi.Provider>
+  )])));
 
-    const addWindow = useBound(async (window: ReactNode): Promise<WindowApi> => new Promise(resolve => setWindows(currentWindows => [...currentWindows, (
-      <WindowsContexts.registerApi.Provider key={Math.uniqueId()} value={resolve}>
-        {window}
-      </WindowsContexts.registerApi.Provider>
-    )])));
+  const useWindowsContext = useMemo<WindowsContextsUseWindowApi>(() => ({
+    addWindow,
+  }), []);
 
-    const useWindowsContext = useMemo<WindowsContextsUseWindowApi>(() => ({
-      addWindow,
-    }), []);
+  const windowStateUpdatesContext = useBound<WindowsContextsUpdateStates>(updates => onSaveState?.(updates));
 
-    const windowStateUpdatesContext = useBound<WindowsContextsUpdateStates>(updates => onSaveState?.(updates));
-
-    return (
-      <WindowsContexts.useWindows.Provider value={useWindowsContext}>
-        <WindowsContexts.windows.Provider value={windows}>
-          <WindowsContexts.stateUpdates.Provider value={windowStateUpdatesContext}>
-            <WindowsContexts.initialStates.Provider value={state}>
-              {children}
-            </WindowsContexts.initialStates.Provider>
-          </WindowsContexts.stateUpdates.Provider>
-        </WindowsContexts.windows.Provider>
-      </WindowsContexts.useWindows.Provider>
-    );
-  },
+  return (
+    <WindowsContexts.useWindows.Provider value={useWindowsContext}>
+      <WindowsContexts.windows.Provider value={windows}>
+        <WindowsContexts.stateUpdates.Provider value={windowStateUpdatesContext}>
+          <WindowsContexts.initialStates.Provider value={state}>
+            {children}
+          </WindowsContexts.initialStates.Provider>
+        </WindowsContexts.stateUpdates.Provider>
+      </WindowsContexts.windows.Provider>
+    </WindowsContexts.useWindows.Provider>
+  );
 });

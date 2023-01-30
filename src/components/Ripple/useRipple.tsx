@@ -10,10 +10,7 @@ export function useRipple() {
 
   const rippleTarget = createRippleEventHandler(modify);
 
-  const UIRipple = useMemo(() => createComponent({
-    id: 'UIRipple',
-    render: (props: RippleProps) => (<RippleComponent {...props} state={state} />),
-  }), []);
+  const UIRipple = useMemo(() => createComponent('UIRipple', (props: RippleProps) => (<RippleComponent {...props} state={state} />)), []);
 
   return {
     rippleTarget,

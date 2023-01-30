@@ -1,5 +1,6 @@
 import { AnyObject, DeepPartial, is, MapOf } from '@anupheaus/common';
 import { createMakeStyles, CSSObject } from 'tss-react';
+import { internalThemes } from './internalThemes';
 import { GetThemeDefinition, Theme } from './themeModels';
 // import { useThemesProvider } from './useThemesProvider';
 
@@ -20,8 +21,8 @@ interface UseStylesUtils {
 
 type UseStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>> = (props?: AnyObject) => UseStylesApi<TStyles, TVariants>;
 
-type UseStylesDelegate<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>> = (utils: UseStylesUtils, props: AnyObject) => {
-  styles: TStyles;
+type UseStylesDelegate<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject> = (utils: UseStylesUtils, props: TProps) => {
+  styles?: TStyles;
   variants?: TVariants;
 };
 
@@ -36,19 +37,26 @@ function filterClassNames(value: string | boolean | Theme | undefined): boolean 
   return false;
 }
 
-export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>>(delegate: UseStylesDelegate<TStyles, TVariants>): UseStyles<TStyles, TVariants>;
+// eslint-disable-next-line max-len
+export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(delegate: UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants>;
 export function createStyles<TStyles extends MapOf<CSSObject>>(styles: TStyles): UseStyles<TStyles, {}>;
-export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants>): UseStyles<TStyles, TVariants> {
+// eslint-disable-next-line max-len
+export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants> {
   const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
   const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'anux' })((_theme, { props, variants, ...utils }) => {
-    const renderedStyles = ((is.function(stylesOrDelegate) ? stylesOrDelegate(utils, props) : stylesOrDelegate) ?? {}) as ReturnType<UseStylesDelegate<TStyles, TVariants>>;
-    Object.assign(variants, renderedStyles.variants ?? {});
-    return renderedStyles.styles ?? {};
+    if (is.function(stylesOrDelegate)) {
+      const renderedStyles = stylesOrDelegate(utils, props as TProps);
+      Object.assign(variants, renderedStyles.variants ?? {});
+      return renderedStyles.styles ?? {};
+    } else {
+      return stylesOrDelegate;
+    }
   });
 
-  function useStyles(props: AnyObject = {}) {
+  function useStyles() {
     const utils = require('./useThemesProvider').useThemesProvider();
     const variants = {} as TVariants;
+    const props = internalThemes.styles.synchronousProps;
     const { classes: css, cx } = useStylesInnerFunc({ ...utils, variants, props });
     const join = (...classNames: (string | boolean | undefined | Theme)[]) => {
       classNames = classNames.filter(filterClassNames);

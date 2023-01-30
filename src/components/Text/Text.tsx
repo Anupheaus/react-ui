@@ -1,31 +1,28 @@
 import { createComponent } from '../Component';
-import { ThemesProvider } from '../../theme';
+import { createStyles, ThemesProvider } from '../../theme';
 import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
 import { TextTheme } from './TextTheme';
 
 interface Props extends InternalTextProps<string> { }
 
-export const Text = createComponent({
-  id: 'Text',
+const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+  const definition = useTheme(TextTheme);
+  return {
+    variants: {
+      internalTextTheme: createThemeVariant(InternalTextTheme, definition),
+    },
+  };
+});
 
-  styles: ({ useTheme, createThemeVariant }) => {
-    const definition = useTheme(TextTheme);
-    return {
-      variants: {
-        internalTextTheme: createThemeVariant(InternalTextTheme, definition),
-      },
-    };
-  },
-
-  render(props: Props, { join, variants }) {
-    return (
-      <ThemesProvider themes={join(variants.internalTextTheme)}>
-        <InternalText
-          {...props}
-          type={'text'}
-          tagName={'text'}
-        />
-      </ThemesProvider>
-    );
-  },
+export const Text = createComponent('Text', (props: Props) => {
+  const { join, variants } = useStyles();
+  return (
+    <ThemesProvider themes={join(variants.internalTextTheme)}>
+      <InternalText
+        {...props}
+        type={'text'}
+        tagName={'text'}
+      />
+    </ThemesProvider>
+  );
 });

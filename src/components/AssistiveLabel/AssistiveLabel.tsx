@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { createStyles } from '../../theme';
-import { createComponent2 } from '../Component';
+import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { AssistiveLabelTheme } from './AssistiveLabelTheme';
 
@@ -26,7 +26,7 @@ const useStyles = createStyles(({ useTheme }) => {
   };
 });
 
-export const AssistiveLabel = createComponent2('AssistiveLabel', ({
+export const AssistiveLabel = createComponent('AssistiveLabel', ({
   className,
   isError,
   children = null,

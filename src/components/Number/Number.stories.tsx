@@ -8,14 +8,10 @@ import { ComponentProps } from 'react';
 
 interface Props extends ComponentProps<typeof Number> { }
 
-const EditableNumber = createComponent({
-  id: 'EditableNumber',
+export const EditableNumber = createComponent('EditableNumber', (props: Props) => {
+  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
 
-  render(props: Props) {
-    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
-    return (<Number width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
-  },
+  return (<Number width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
 });
 
 createStories(() => ({

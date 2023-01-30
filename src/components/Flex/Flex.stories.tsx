@@ -6,13 +6,9 @@ import { ComponentProps } from 'react';
 
 interface Props extends ComponentProps<typeof Flex> { }
 
-const FixedFlex = createComponent({
-  id: 'FixedFlex',
-
-  render: (props: Props) => (
-    <Flex {...props} fixedSize />
-  ),
-});
+export const FixedFlex = createComponent('FixedFlex', (props: Props) => (
+  <Flex {...props} fixedSize />
+));
 
 const generateSamples = (additionalProps: Partial<Props> = {}): StoryConfig => ({
   wrapInStorybookComponent: false,

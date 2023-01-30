@@ -1,12 +1,11 @@
 import { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
-import { ReactNode } from 'react';
 import { CSSObject } from 'tss-react';
 
 export interface IconTypeProps {
   size?: 'normal' | 'small' | 'large' | number;
 }
 
-export type IconType = (props: IconTypeProps) => ReactNode;
+export type IconType = (props: IconTypeProps) => JSX.Element | null;
 
 export type ThemeDefinition = AnyObject;
 export type ThemeIcons = {
@@ -26,5 +25,3 @@ export type Theme<D extends ThemeDefinition = ThemeDefinition, I extends ThemeIc
 
 export type GetThemeDefinition<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<infer D, ThemeIcons> ? D : never;
 export type GetThemeIcons<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<ThemeDefinition, infer I> ? I : never;
-
-export { UseTheme } from './useThemesProvider';

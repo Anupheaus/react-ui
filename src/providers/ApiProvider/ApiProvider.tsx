@@ -17,38 +17,34 @@ async function invokeApiCall<T>(delegate: () => Promise<Response>): Promise<T> {
   throw new Error(`Unexpected response status: ${response.status}`);
 }
 
-export const ApiProvider = createComponent({
-  id: 'ApiProvider',
+export const ApiProvider = createComponent('ApiProvider', ({
+  headers: providedHeaders,
+  children = null,
+}: Props) => {
 
-  render({
-    headers: providedHeaders,
-    children = null,
-  }: Props) {
+  const headers = useMemo<RequestInit['headers']>(() => ({
+    ...providedHeaders,
+    'Content-Type': 'application/json',
+  }), [providedHeaders]);
 
-    const headers = useMemo<RequestInit['headers']>(() => ({
-      ...providedHeaders,
-      'Content-Type': 'application/json',
-    }), [providedHeaders]);
+  const get = useBound<ApiProviderContextProps['get']>(async url => invokeApiCall(() => fetch(url, { method: 'GET', headers })));
 
-    const get = useBound<ApiProviderContextProps['get']>(async url => invokeApiCall(() => fetch(url, { method: 'GET', headers })));
+  const post = useBound<ApiProviderContextProps['post']>(async (url, data) => invokeApiCall(() => fetch(url, { method: 'POST', headers, body: JSON.stringify(data) })));
 
-    const post = useBound<ApiProviderContextProps['post']>(async (url, data) => invokeApiCall(() => fetch(url, { method: 'POST', headers, body: JSON.stringify(data) })));
+  const remove = useBound<ApiProviderContextProps['remove']>(async url => invokeApiCall(() => fetch(url, { method: 'DELETE', headers })));
 
-    const remove = useBound<ApiProviderContextProps['remove']>(async url => invokeApiCall(() => fetch(url, { method: 'DELETE', headers })));
+  const query = useBound<ApiProviderContextProps['query']>(async (url, request) => invokeApiCall(() => fetch(url, { method: 'SEARCH', headers, body: JSON.stringify(request) })));
 
-    const query = useBound<ApiProviderContextProps['query']>(async (url, request) => invokeApiCall(() => fetch(url, { method: 'SEARCH', headers, body: JSON.stringify(request) })));
+  const context = useMemo<ApiProviderContextProps>(() => ({
+    isValid: true,
+    get,
+    post,
+    remove,
+    query,
+  }), []);
 
-    const context = useMemo<ApiProviderContextProps>(() => ({
-      isValid: true,
-      get,
-      post,
-      remove,
-      query,
-    }), []);
-
-    return (
-      <ApiProviderContext.Provider value={context}>
-        {children}
-      </ApiProviderContext.Provider>);
-  },
+  return (
+    <ApiProviderContext.Provider value={context}>
+      {children}
+    </ApiProviderContext.Provider>);
 });

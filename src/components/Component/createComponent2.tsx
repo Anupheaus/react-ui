@@ -1,11 +1,12 @@
 import { is } from '@anupheaus/common';
 import { forwardRef, FunctionComponent, isValidElement, memo, Ref } from 'react';
 import { AnuxError } from '../../errors/types/AnuxError';
+import { internalThemes } from '../../theme/internalThemes';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
   onCompareProps?(prevProps: Parameters<TFunc>[0], newProps: Parameters<TFunc>[0]): boolean;
-  onError?: (error: Error, props: Parameters<TFunc>[0]) => JSX.Element | null;
+  onError?(error: AnuxError, props: Parameters<TFunc>[0]): JSX.Element | null;
 }
 
 function defaultCompareProps(prevProps: any, newProps: any): boolean {
@@ -33,11 +34,12 @@ function setName(func: FunctionComponent<{}>, name: string) {
   func.displayName = name;
 }
 
-export function createComponent2<TFunc extends (props: any) => JSX.Element | null>(name: string, render: TFunc, {
+export function createComponent<TFunc extends (props: any) => JSX.Element | null>(name: string, render: TFunc, {
   disableMemoisation = true, onCompareProps = defaultCompareProps, onError }: Config<TFunc> = {}): TFunc {
   let componentFunc = forwardRef<any, any>((props: {}, ref: Ref<HTMLElement>) => {
     const fullProps = { ...props, ref };
     try {
+      internalThemes.styles.synchronousProps = fullProps;
       return render(fullProps);
     } catch (error) {
       if (onError != null) return onError(new AnuxError({ error }), fullProps);

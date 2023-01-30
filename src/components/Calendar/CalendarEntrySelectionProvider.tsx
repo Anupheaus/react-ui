@@ -8,20 +8,16 @@ interface Props {
   children: ReactNode;
 }
 
-export const CalendarEntrySelectionProvider = createComponent({
-  id: 'CalendarEntrySelectionProvider',
+export const CalendarEntrySelectionProvider = createComponent('CalendarEntrySelectionProvider', ({
+  children = null
+}: Props) => {
+  const { state } = useDistributedState<string | undefined>(() => undefined);
 
-  render({
-    children = null
-  }: Props) {
-    const { state } = useDistributedState<string | undefined>(() => undefined);
-
-    return (
-      <Context.Provider value={state}>
-        {children}
-      </Context.Provider>
-    );
-  },
+  return (
+    <Context.Provider value={state}>
+      {children}
+    </Context.Provider>
+  );
 });
 
 export function useCalendarEntrySelection(id: string) {

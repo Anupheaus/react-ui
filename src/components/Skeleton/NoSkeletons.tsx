@@ -6,14 +6,10 @@ interface Props {
   children?: ReactNode;
 }
 
-export const NoSkeletons = createComponent({
-  id: 'NoSkeletons',
-
-  render: ({
-    children = null,
-  }: Props) => (
-    <SkeletonContexts.noSkeletons.Provider value={true}>
-      {children}
-    </SkeletonContexts.noSkeletons.Provider>
-  ),
-});
+export const NoSkeletons = createComponent('NoSkeletons', ({
+  children = null,
+}: Props) => (
+  <SkeletonContexts.noSkeletons.Provider value={true}>
+    {children}
+  </SkeletonContexts.noSkeletons.Provider>
+));

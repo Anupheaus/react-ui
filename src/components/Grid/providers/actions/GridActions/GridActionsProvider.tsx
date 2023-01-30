@@ -8,22 +8,17 @@ interface Props {
   children: ReactNode;
 }
 
-export const GridActionsProvider = createComponent({
-  id: 'GridActionsProvider',
+export const GridActionsProvider = createComponent('GridActionsProvider', ({
+  children,
+}: Props) => {
 
-  render({
-    children,
-  }: Props) {
+  const context = useMemo<GridActionsContextProps>(() => ({
+    actions: new Records<ListItem>(),
+  }), []);
 
-    const context = useMemo<GridActionsContextProps>(() => ({
-      actions: new Records<ListItem>(),
-    }), []);
-
-    return (
-      <GridActionsContext.Provider value={context}>
-        {children}
-      </GridActionsContext.Provider>
-    );
-  },
-
+  return (
+    <GridActionsContext.Provider value={context}>
+      {children}
+    </GridActionsContext.Provider>
+  );
 });

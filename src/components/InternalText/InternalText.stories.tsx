@@ -5,14 +5,10 @@ import { createStories } from '../../Storybook';
 import { InternalText, InternalTextProps } from './InternalText';
 import { generateInternalTextStories } from './InternalText.stories.utils';
 
-const EditableText = createComponent({
-  id: 'EditableText',
+export const EditableText = createComponent('EditableText', (props: InternalTextProps) => {
+  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
 
-  render(props: InternalTextProps) {
-    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
-    return (<InternalText tagName="text" type="text" width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
-  },
+  return (<InternalText tagName="text" type="text" width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
 });
 
 createStories(() => ({

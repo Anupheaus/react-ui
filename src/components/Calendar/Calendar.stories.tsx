@@ -5,35 +5,32 @@ import { CalendarEntryRecord } from './CalendarModels';
 import { DateTime } from 'luxon';
 import { FaUmbrellaBeach, FaBaby } from 'react-icons/fa';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
-import { createThemeIcons } from '../../theme';
 import { ComponentProps } from 'react';
 import { createComponent } from '../Component';
+import { configureIcons } from '../Icon';
 
-const icons = createThemeIcons({
+configureIcons({
   holiday: ({ size }) => (<FaUmbrellaBeach size={size} />),
   business: ({ size }) => (<MdBusinessCenter size={size} />),
   sick: ({ size }) => (<MdOutlineSick size={size} />),
   paternity: ({ size }) => (<FaBaby size={size} />),
 });
 
-const entries: CalendarEntryRecord[] = [
-  { id: '1', title: 'Tony on Holiday', startDate: DateTime.now().minus({ days: 12 }).toJSDate(), endDate: DateTime.now().plus({ days: 6 }).toJSDate(), color: '#9ADDFB', icon: icons.holiday },
-  { id: '2', title: 'Jodie on Business Conference', startDate: DateTime.now().minus({ days: 6 }).toJSDate(), endDate: DateTime.now().plus({ days: 9 }).toJSDate(), color: '#99D5CF', icon: icons.business },
-  { id: '3', title: 'Harrison on Sick Leave', startDate: DateTime.now().minus({ days: 11 }).toJSDate(), endDate: DateTime.now().minus({ days: 6 }).toJSDate(), color: '#FDE69C', icon: icons.sick },
-  { id: '4', title: 'Lucas on Holiday', startDate: DateTime.now().plus({ days: 2 }).toJSDate(), endDate: DateTime.now().plus({ days: 3 }).toJSDate(), color: '#C2B0E2', icon: icons.holiday },
-  { id: '5', title: 'Hayden on Paternity Leave', startDate: DateTime.now().minus({ days: 1 }).toJSDate(), endDate: DateTime.now().plus({ days: 1 }).toJSDate(), color: '#FDBCA7', icon: icons.paternity },
-];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+type ModifiedCalendarEntryRecord = Omit<CalendarEntryRecord, 'icon'> & { icon: string; };
+
+const entries = ([
+  { id: '1', title: 'Tony on Holiday', startDate: DateTime.now().minus({ days: 12 }).toJSDate(), endDate: DateTime.now().plus({ days: 6 }).toJSDate(), color: '#9ADDFB', icon: 'holiday' },
+  { id: '2', title: 'Jodie on Business Conference', startDate: DateTime.now().minus({ days: 6 }).toJSDate(), endDate: DateTime.now().plus({ days: 9 }).toJSDate(), color: '#99D5CF', icon: 'business' },
+  { id: '3', title: 'Harrison on Sick Leave', startDate: DateTime.now().minus({ days: 11 }).toJSDate(), endDate: DateTime.now().minus({ days: 6 }).toJSDate(), color: '#FDE69C', icon: 'sick' },
+  { id: '4', title: 'Lucas on Holiday', startDate: DateTime.now().plus({ days: 2 }).toJSDate(), endDate: DateTime.now().plus({ days: 3 }).toJSDate(), color: '#C2B0E2', icon: 'holiday' },
+  { id: '5', title: 'Hayden on Paternity Leave', startDate: DateTime.now().minus({ days: 1 }).toJSDate(), endDate: DateTime.now().plus({ days: 1 }).toJSDate(), color: '#FDBCA7', icon: 'paternity' },
+]satisfies ModifiedCalendarEntryRecord[]) as CalendarEntryRecord[];
 
 interface Props extends ComponentProps<typeof Calendar> { }
 
-const EditableCalendar = createComponent({
-  id: 'EditableCalendar',
-
-  render(props: Props) {
-    // const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
-    return (<Calendar {...props} entries={entries} />);
-  },
+const EditableCalendar = createComponent('EditableCalendar', (props: Props) => {
+  return (<Calendar {...props} entries={entries} />);
 });
 
 function generateStories(): StoryConfig {

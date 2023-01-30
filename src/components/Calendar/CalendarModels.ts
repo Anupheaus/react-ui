@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { IconType } from '../Icon';
+import { IconName } from '../Icon';
 
 export interface CalendarEntryRecord {
   id: string;
@@ -9,5 +9,5 @@ export interface CalendarEntryRecord {
   title: ReactNode;
   description?: ReactNode;
   color?: string;
-  icon?: IconType;
+  icon?: IconName;
 }

@@ -1,3 +1,4 @@
+import { createStyles } from '../../theme/createStyles';
 import { ReactElement, ReactNode, Ref } from 'react';
 import { createComponent } from '../Component';
 import { useBinder } from '../../hooks';
@@ -31,118 +32,112 @@ interface Props<TValue = unknown> extends InternalTextProps<TValue> {
   startAdornments?: ReactElement[];
 }
 
-type InternalGenericTextComponent = <TValue = unknown>(props: Props<TValue>) => JSX.Element | null;
+const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
+  const { backgroundColor, activeBackgroundColor, textColor, activeTextColor, borderColor, activeBorderColor, borderRadius } = useTheme(InternalTextTheme);
 
-export const InternalText = createComponent({
-  id: 'InternalText',
+  return {
+    styles: {
+      text: {
+        display: 'flex',
+        flexGrow: 1,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        minWidth: 50,
+        gap: 4,
+      },
+      textInput: {
+        display: 'flex',
+        flexGrow: 0,
+        flexShrink: 0,
+        backgroundColor,
+        color: textColor,
+        padding: '0 12px',
+        boxShadow: `0 0 0 1px ${borderColor}`,
+        borderRadius,
+        minHeight: 34,
+        alignItems: 'center',
+        boxSizing: 'border-box',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'box-shadow 0.4s ease',
 
-  styles: ({ activePseudoClasses, useTheme }) => {
-    const { backgroundColor, activeBackgroundColor, textColor, activeTextColor, borderColor, activeBorderColor, borderRadius } = useTheme(InternalTextTheme);
-
-    return {
-      styles: {
-        text: {
-          display: 'flex',
-          flexGrow: 1,
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          minWidth: 50,
-          gap: 4,
-        },
-        textInput: {
-          display: 'flex',
-          flexGrow: 0,
-          flexShrink: 0,
-          backgroundColor,
-          color: textColor,
-          padding: '0 12px',
-          boxShadow: `0 0 0 1px ${borderColor}`,
-          borderRadius,
-          minHeight: 34,
-          alignItems: 'center',
-          boxSizing: 'border-box',
-          position: 'relative',
-          overflow: 'hidden',
-          transition: 'box-shadow 0.4s ease',
-
-          [activePseudoClasses]: {
-            boxShadow: `0 0 0 1px ${activeBorderColor}`,
-            backgroundColor: activeBackgroundColor,
-            color: activeTextColor,
-          },
-        },
-        input: {
-          outline: 'none',
-          appearance: 'textfield',
-          border: 0,
-          padding: 0,
-          width: 0,
-          flexGrow: 1,
-          textOverflow: 'ellipsis',
-        },
-        isLoading: {
-          visibility: 'hidden',
-        },
-        toolbarAtEnd: {
-          borderRadius: 0,
-          borderWidth: 0,
-          borderLeftWidth: 1,
-          marginRight: -12,
-          marginLeft: 12,
-        },
-        toolbarAtStart: {
-          borderRadius: 0,
-          borderWidth: 0,
-          borderRightWidth: 1,
-          marginLeft: -12,
-          marginRight: 12,
+        [activePseudoClasses]: {
+          boxShadow: `0 0 0 1px ${activeBorderColor}`,
+          backgroundColor: activeBackgroundColor,
+          color: activeTextColor,
         },
       },
-    };
-  },
+      input: {
+        outline: 'none',
+        appearance: 'textfield',
+        border: 0,
+        padding: 0,
+        width: 0,
+        flexGrow: 1,
+        textOverflow: 'ellipsis',
+      },
+      isLoading: {
+        visibility: 'hidden',
+      },
+      toolbarAtEnd: {
+        borderRadius: 0,
+        borderWidth: 0,
+        borderLeftWidth: 1,
+        marginRight: -12,
+        marginLeft: 12,
+      },
+      toolbarAtStart: {
+        borderRadius: 0,
+        borderWidth: 0,
+        borderRightWidth: 1,
+        marginLeft: -12,
+        marginRight: 12,
+      },
+    },
+  };
+});
 
-  render: (({
-    tagName,
-    type,
-    className,
-    inputClassName,
-    label,
-    value,
-    width,
-    endAdornments,
-    startAdornments,
-    isOptional,
-    help,
-    assistiveHelp,
-    error,
-    ref: innerRef,
-    onChange
-  }: Props<unknown>, { css, join }) => {
-    const { UIRipple, rippleTarget } = useRipple();
-    const { isLoading } = useUIState();
-    const bind = useBinder();
+export const InternalText = createComponent('InternalText', function <T = unknown>({
+  tagName,
+  type,
+  className,
+  inputClassName,
+  label,
+  value,
+  width,
+  endAdornments,
+  startAdornments,
+  isOptional,
+  help,
+  assistiveHelp,
+  error,
+  ref: innerRef,
+  onChange
+}: Props<T>) {
+  const { css, join } = useStyles();
+  const { UIRipple, rippleTarget } = useRipple();
+  const { isLoading } = useUIState();
+  const bind = useBinder();
 
-    return (
-      <Tag name={tagName} className={join(css.text, className)} width={width}>
-        <Label isOptional={isOptional} help={help}>{label}</Label>
-        <Tag name={`${tagName}-input`} ref={rippleTarget} className={join(css.textInput, isLoading && css.isLoading)}>
-          <UIRipple />
-          <NoSkeletons>
-            {startAdornments instanceof Array && <Toolbar className={css.toolbarAtStart}>{startAdornments}</Toolbar>}
-            <input
-              ref={innerRef}
-              type={type}
-              className={join(css.input, inputClassName)}
-              value={(value ?? '') as any}
-              onChange={bind(event => onChange?.(event.target.value as any))}
-            />
-            {endAdornments instanceof Array && <Toolbar className={css.toolbarAtEnd}>{endAdornments}</Toolbar>}
-          </NoSkeletons>
-          <Skeleton />
-        </Tag>
-        <AssistiveLabel isError={error != null}>{error ?? assistiveHelp}</AssistiveLabel>
+  return (
+    <Tag name={tagName} className={join(css.text, className)} width={width}>
+      <Label isOptional={isOptional} help={help}>{label}</Label>
+      <Tag name={`${tagName}-input`} ref={rippleTarget} className={join(css.textInput, isLoading && css.isLoading)}>
+        <UIRipple />
+        <NoSkeletons>
+          {startAdornments instanceof Array && <Toolbar className={css.toolbarAtStart}>{startAdornments}</Toolbar>}
+          <input
+            ref={innerRef}
+            type={type}
+            className={join(css.input, inputClassName)}
+            value={(value ?? '') as any}
+            onChange={bind(event => onChange?.(event.target.value as any))}
+          />
+          {endAdornments instanceof Array && <Toolbar className={css.toolbarAtEnd}>{endAdornments}</Toolbar>}
+        </NoSkeletons>
+        <Skeleton />
       </Tag>
-    );
-  })
-
-}) as InternalGenericTextComponent;
+      <AssistiveLabel isError={error != null}>{error ?? assistiveHelp}</AssistiveLabel>
+    </Tag>
+  );
+});

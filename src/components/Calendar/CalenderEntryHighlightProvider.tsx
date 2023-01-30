@@ -8,20 +8,16 @@ interface Props {
   children?: ReactNode;
 }
 
-export const CalendarEntryHighlightProvider = createComponent({
-  id: 'CalendarEntryHighlightProvider',
+export const CalendarEntryHighlightProvider = createComponent('CalendarEntryHighlightProvider', ({
+  children = null
+}: Props) => {
+  const { state } = useDistributedState<string | undefined>(() => undefined);
 
-  render({
-    children = null
-  }: Props) {
-    const { state } = useDistributedState<string | undefined>(() => undefined);
-
-    return (
-      <Context.Provider value={state}>
-        {children}
-      </Context.Provider>
-    );
-  },
+  return (
+    <Context.Provider value={state}>
+      {children}
+    </Context.Provider>
+  );
 });
 
 export function useCalendarEntryHighlighting(id: string) {

@@ -50,7 +50,6 @@ module.exports = {
       exclude: /node_modules/,
       failOnError: false,
       onDetected({ paths }) {
-        console.log({ paths });
         paths.forEach((pathValue, index) => {
           if (pathValue.endsWith('index.ts') && index < paths.length - 1) {
             const nextPath = paths[index + 1];

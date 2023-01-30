@@ -48,6 +48,7 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
       onDragEnd?.({ ...data, diffX, diffY });
     };
 
+    unhookFromDocumentRef.current(); // unhook first, just in case
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
 
@@ -57,33 +58,9 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
     };
   });
 
-  const hookToElement = useBound((targetElement: HTMLElement) => {
-    const onMouseDown = (event: MouseEvent) => {
-      // event.stopPropagation();
-      if (event.button !== 0) return;
-      const { top: startY, left: startX, width, height } = window.getComputedStyle(movableRef.current ?? targetElement);
-      const originalTop = to.number(startY, 0);
-      const originalLeft = to.number(startX, 0);
-      const originalWidth = to.number(width, 0);
-      const originalHeight = to.number(height, 0);
-      const mouseStartingX = event.pageX;
-      const mouseStartingY = event.pageY;
-      const initiatorElement = targetElement;
-      const movableElement = movableRef.current ?? targetElement;
-      const data: DragData = { initiatorElement, movableElement, mouseStartingX, mouseStartingY, originalTop, originalLeft, originalWidth, originalHeight };
-      onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
-      hookToDocument(data);
-    };
-
-    targetElement.addEventListener('mousedown', onMouseDown);
-
-    unhookFromElementRef.current = () => {
-      targetElement.removeEventListener('mousedown', onMouseDown);
-    };
-  });
-
   const draggableProps = useMemo<Partial<DOMAttributes<HTMLElement>>>(() => ({
     onMouseDown: event => {
+      if (!isEnabled) return;
       event.stopPropagation();
       if (event.button !== 0) return;
       const targetElement = event.currentTarget as HTMLElement;
@@ -102,12 +79,9 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
   }), []);
 
   useOnChange(() => {
-    if (!isEnabled) {
-      unhookFromElementRef.current();
-      unhookFromDocumentRef.current();
-    } else if (movableRef.current) {
-      hookToElement(movableRef.current);
-    }
+    if (isEnabled) return;
+    unhookFromElementRef.current();
+    unhookFromDocumentRef.current();
   }, [isEnabled]);
 
   return {

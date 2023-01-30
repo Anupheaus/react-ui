@@ -10,28 +10,24 @@ import { Flex } from '../Flex';
 import { WindowState } from './WindowsModels';
 import { useRef } from 'react';
 
-const WindowsController = createComponent({
-  id: 'WindowsController',
+const WindowsController = createComponent('WindowsController', () => {
+  const { addWindow } = useWindows();
+  const windowCounterRef = useRef(0);
 
-  render() {
-    const { addWindow } = useWindows();
-    const windowCounterRef = useRef(0);
-
-    const handleAddWindow = useBound(() => {
-      windowCounterRef.current += 1;
-      addWindow(
-        <Window id={`window_${windowCounterRef.current}`} title="My Test Window">
-          This is the content of the window.
-        </Window>
-      );
-    });
-
-    return (
-      <Flex fixedSize>
-        <Button onClick={handleAddWindow}>Add Window</Button>
-      </Flex>
+  const handleAddWindow = useBound(() => {
+    windowCounterRef.current += 1;
+    addWindow(
+      <Window id={`window_${windowCounterRef.current}`} title="My Test Window">
+        This is the content of the window.
+      </Window>
     );
-  },
+  });
+
+  return (
+    <Flex fixedSize>
+      <Button onClick={handleAddWindow}>Add Window</Button>
+    </Flex>
+  );
 });
 
 interface Props {

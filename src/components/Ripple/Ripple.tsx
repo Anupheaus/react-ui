@@ -4,7 +4,7 @@ import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { RippleState } from './RippleModels';
 import { DistributedState, useDistributedState } from '../../hooks';
-import { createAnimationKeyFrame } from '../../theme';
+import { createStyles, createAnimationKeyFrame } from '../../theme';
 import { RippleTheme } from './RippleTheme';
 
 function getMarginFrom(element: HTMLElement) {
@@ -44,70 +44,68 @@ interface Props extends RippleProps {
   state: DistributedState<RippleState>;
 }
 
-export const Ripple = createComponent({
-  id: 'Ripple',
-
-  styles: ({ useTheme }) => {
-    const { color } = useTheme(RippleTheme);
-    return {
-      styles: {
-        UIRipple: {
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-        },
-        rippleAnimation: {
-          position: 'absolute',
-          borderRadius: '50%',
-          transform: 'scale(0)',
-          animationFillMode: 'forwards',
-          animationDuration: '800ms',
-          animationTimingFunction: 'ease-out',
-          backgroundColor: color,
-          pointerEvents: 'none',
-        },
-        isActive: {
-          animationName: activeKeyFrame,
-        },
-        isInActive: {
-          animationDuration: '400ms',
-          animationName: inactiveKeyFrame,
-        },
+const useStyles = createStyles(({ useTheme }) => {
+  const { color } = useTheme(RippleTheme);
+  return {
+    styles: {
+      UIRipple: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
       },
-    };
-  },
-  render({
-    className,
-    state,
-  }: Props, { css, join }) {
-    const { getAndObserve } = useDistributedState(state);
-    const { isActive, x, y, useCoords } = getAndObserve();
-    const beenActiveRef = useRef(false);
-    const [element, target] = useDOMRef();
+      rippleAnimation: {
+        position: 'absolute',
+        borderRadius: '50%',
+        transform: 'scale(0)',
+        animationFillMode: 'forwards',
+        animationDuration: '800ms',
+        animationTimingFunction: 'ease-out',
+        backgroundColor: color,
+        pointerEvents: 'none',
+      },
+      isActive: {
+        animationName: activeKeyFrame,
+      },
+      isInActive: {
+        animationDuration: '400ms',
+        animationName: inactiveKeyFrame,
+      },
+    },
+  };
+});
 
-    if (isActive === true) beenActiveRef.current = true;
+export const Ripple = createComponent('Ripple', ({
+  className,
+  state,
+}: Props) => {
+  const { css, join } = useStyles();
+  const { getAndObserve } = useDistributedState(state);
+  const { isActive, x, y, useCoords } = getAndObserve();
+  const beenActiveRef = useRef(false);
+  const [element, target] = useDOMRef();
 
-    const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
-      [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+  if (isActive === true) beenActiveRef.current = true;
 
-    return (
-      <Tag ref={target} name="ui-ripple" className={join(css.UIRipple, className)}>
-        <Tag
-          name="ui-ripple-animation"
-          className={join(
-            css.rippleAnimation,
-            isActive && css.isActive,
-            !isActive && beenActiveRef.current && css.isInActive,
-          )}
-          style={rippleStyle}
-        />
-      </Tag>
-    );
-  },
+  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
+    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+
+  return (
+    <Tag ref={target} name="ui-ripple" className={join(css.UIRipple, className)}>
+      <Tag
+        name="ui-ripple-animation"
+        className={join(
+          css.rippleAnimation,
+          isActive && css.isActive,
+          !isActive && beenActiveRef.current && css.isInActive,
+        )}
+        style={rippleStyle}
+      />
+    </Tag>
+  );
 });
 
 const activeKeyFrame = createAnimationKeyFrame({

@@ -9,22 +9,18 @@ interface Props {
   onMouseMove?(event: MouseMoveEvent): void;
 }
 
-export const InteractionProvider = createComponent({
-  id: 'InteractionProvider',
+export const InteractionProvider = createComponent('InteractionProvider', ({
+  onMouseMove,
+  children,
+}: Props) => {
 
-  render({
-    onMouseMove,
-    children,
-  }: Props) {
+  const context = useBound((event: Event) => {
+    if (event.type === 'mousemove') onMouseMove?.(event as MouseMoveEvent);
+  });
 
-    const context = useBound((event: Event) => {
-      if (event.type === 'mousemove') onMouseMove?.(event as MouseMoveEvent);
-    });
-
-    return (
-      <InteractionContext.Provider value={context}>
-        {children}
-      </InteractionContext.Provider>
-    );
-  },
+  return (
+    <InteractionContext.Provider value={context}>
+      {children}
+    </InteractionContext.Provider>
+  );
 });

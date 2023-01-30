@@ -6,15 +6,11 @@ import { WindowsContexts } from './WindowsContexts';
 
 interface Props extends Omit<WindowProps, 'id'> { id?: string; }
 
-export const Window = createComponent({
-  id: 'Window',
+export const Window = createComponent('Window', (props: Props) => {
+  const id = useId();
+  const registerApi = useContext(WindowsContexts.registerApi);
+  const registerWindow = useContext(WindowsContexts.registerWindow);
 
-  render(props: Props) {
-    const id = useId();
-    const registerApi = useContext(WindowsContexts.registerApi);
-    const registerWindow = useContext(WindowsContexts.registerWindow);
-
-    useLayoutEffect(() => registerWindow({ id, ...props }, registerApi), [props]);
-    return null;
-  },
+  useLayoutEffect(() => registerWindow({ id, ...props }, registerApi), [props]);
+  return null;
 });

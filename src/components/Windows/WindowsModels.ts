@@ -14,3 +14,5 @@ export interface WindowApi {
   maximizeWindow(): void;
   focus(): void;
 }
+
+export type InitialWindowPosition = 'center';

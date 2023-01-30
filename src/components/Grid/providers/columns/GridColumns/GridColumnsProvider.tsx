@@ -8,22 +8,17 @@ interface Props {
   children: ReactNode;
 }
 
-export const GridColumnsProvider = createComponent({
-  id: 'GridColumnsProvider',
+export const GridColumnsProvider = createComponent('GridColumnsProvider', ({
+  children,
+}: Props) => {
 
-  render({
-    children,
-  }: Props) {
+  const context = useMemo<GridColumnsContextProps>(() => ({
+    columns: new Records<GridColumn>(),
+  }), []);
 
-    const context = useMemo<GridColumnsContextProps>(() => ({
-      columns: new Records<GridColumn>(),
-    }), []);
-
-    return (
-      <GridColumnsContext.Provider value={context}>
-        {children}
-      </GridColumnsContext.Provider>
-    );
-  },
-
+  return (
+    <GridColumnsContext.Provider value={context}>
+      {children}
+    </GridColumnsContext.Provider>
+  );
 });

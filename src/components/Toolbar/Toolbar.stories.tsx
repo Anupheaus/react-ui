@@ -1,16 +1,12 @@
 import { FiHelpCircle } from 'react-icons/fi';
 import { createComponent } from '../Component';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { createStories } from '../../Storybook';
-import { createThemeIcons } from '../../theme';
 import { Button } from '../Button';
 import { Toolbar } from './Toolbar';
+import { createStories } from '../../Storybook';
+import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 
-const icons = createThemeIcons({
-  help: FiHelpCircle,
-});
+export const TestToolbar = createComponent('TestToolbar', () => (<Toolbar><Button>Test</Button><Button icon={<FiHelpCircle />} /></Toolbar>));
 
-const TestToolbar = createComponent({ id: 'TestToolbar', render: () => (<Toolbar><Button>Test</Button><Button icon={icons.help} /></Toolbar>) });
 
 createStories(() => ({
   module,

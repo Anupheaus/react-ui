@@ -10,14 +10,12 @@ describe('useOnUnmount', () => {
     onAfterTimeout?(hasUnmounted: boolean): void;
   }
 
-  const TestComponent = createComponent({
-    id: 'TestComponent',
-    render({ onUnmounted, onAfterTimeout }: Props) {
-      const isUnmounted = useOnUnmount(onUnmounted);
-      setTimeout(() => onAfterTimeout && onAfterTimeout(isUnmounted()), 5);
-      return (<div></div>);
-    },
+  const TestComponent = createComponent('TestComponent', ({ onUnmounted, onAfterTimeout }: Props) => {
+    const isUnmounted = useOnUnmount(onUnmounted);
+    setTimeout(() => onAfterTimeout && onAfterTimeout(isUnmounted()), 5);
+    return (<div></div>);
   });
+
 
   it('calls the method when unmounted', async () => {
     let hasUnmountedBeenCalled = false;

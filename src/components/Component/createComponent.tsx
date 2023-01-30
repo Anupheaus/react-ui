@@ -35,7 +35,7 @@ function wrapInLocalErrorBoundaryIfRequired<TProps extends {}>(InnerComponent: C
   return addIdToComponentFunc(wrappingFunc, `ErrorBoundaryFor${InnerComponent.displayName}`);
 }
 
-export function createComponent<TProps extends {}, TStyles extends ComponentStylesConfig>({ id, styles, render, onError }: ComponentConfig<TProps, TStyles>): Component<TProps> {
+export function createComponent3<TProps extends {}, TStyles extends ComponentStylesConfig>({ id, styles, render, onError }: ComponentConfig<TProps, TStyles>): Component<TProps> {
   const createStylesPropsFunc = createStylesProps<TProps, TStyles>(styles);
   const componentFunc = (forwardRef<any, any>((props: TProps, ref: Ref<HTMLElement>) => {
     try {

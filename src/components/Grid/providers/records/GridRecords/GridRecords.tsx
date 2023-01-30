@@ -11,26 +11,21 @@ interface Props {
   onRefresh?(): void;
 }
 
-export const GridRecords = createComponent({
-  id: 'GridRecords',
+export const GridRecords = createComponent('GridRecords', ({
+  records: propsRecords,
+  recordsProviderId,
+  onRefresh,
+}: Props) => {
+  const { upsert, remove } = useGridRecords();
+  const { records: providedRecords } = is.string(recordsProviderId) ? useRecordsProvider(recordsProviderId) : useMemo(() => ({ records: new Map<string, Record>() }), []);
+  const records = useMemo(() => is.array(propsRecords) ? propsRecords : providedRecords.toValuesArray(), [propsRecords, providedRecords.size]);
 
-  render({
-    records: propsRecords,
-    recordsProviderId,
-    onRefresh,
-  }: Props) {
-    const { upsert, remove } = useGridRecords();
-    const { records: providedRecords } = is.string(recordsProviderId) ? useRecordsProvider(recordsProviderId) : useMemo(() => ({ records: new Map<string, Record>() }), []);
-    const records = useMemo(() => is.array(propsRecords) ? propsRecords : providedRecords.toValuesArray(), [propsRecords, providedRecords.size]);
+  useLayoutEffect(() => {
+    upsert(records);
+    return () => remove(records);
+  }, [records]);
 
-    useLayoutEffect(() => {
-      upsert(records);
-      return () => remove(records);
-    }, [records]);
-
-    return (<>
-      {onRefresh && <GridRefreshAction onRefresh={onRefresh} />}
-    </>);
-  },
-
+  return (<>
+    {onRefresh && <GridRefreshAction onRefresh={onRefresh} />}
+  </>);
 });

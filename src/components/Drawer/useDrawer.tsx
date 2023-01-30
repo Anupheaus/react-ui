@@ -7,13 +7,9 @@ import { Drawer as DrawerComponent, DrawerProps } from './Drawer';
 export function useDrawer() {
   const { state, set: changeOpenState } = useDistributedState(() => false);
 
-  const Drawer = useMemo(() => createComponent({
-    id: 'Drawer',
-
-    render: (props: DrawerProps) => (
-      <DrawerComponent {...props} state={state} />
-    ),
-  }), []);
+  const Drawer = useMemo(() => createComponent('Drawer', (props: DrawerProps) => (
+    <DrawerComponent {...props} state={state} />
+  )), []);
 
   return {
     openDrawer: useBound(() => changeOpenState(true)),

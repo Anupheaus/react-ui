@@ -7,21 +7,16 @@ interface Props {
   children: ReactNode;
 }
 
-export const GridRecordsProvider = createComponent({
-  id: 'GridRecordsProvider',
+export const GridRecordsProvider = createComponent('GridRecordsProvider', ({
+  children,
+}: Props) => {
+  const context = useMemo<GridRecordsContextProps>(() => ({
+    records: new Records<Record>(),
+  }), []);
 
-  render({
-    children,
-  }: Props) {
-    const context = useMemo<GridRecordsContextProps>(() => ({
-      records: new Records<Record>(),
-    }), []);
-
-    return (
-      <GridRecordsContext.Provider value={context}>
-        {children}
-      </GridRecordsContext.Provider>
-    );
-  },
-
+  return (
+    <GridRecordsContext.Provider value={context}>
+      {children}
+    </GridRecordsContext.Provider>
+  );
 });

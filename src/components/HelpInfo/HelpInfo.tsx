@@ -1,41 +1,37 @@
+import { createStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
-import { FiHelpCircle } from 'react-icons/fi';
 import { createComponent } from '../Component';
-import { Icon, IconType } from '../Icon';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
+import { Icon } from '../Icon';
 
 interface Props {
   className?: string;
-  icon?: IconType;
+  icon?: ReactNode;
   children?: ReactNode;
 }
-
-export const HelpInfo = createComponent({
-  id: 'HelpInfo',
-
-  styles: () => ({
-    styles: {
-      fieldHelp: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
+const useStyles = createStyles(() => ({
+  styles: {
+    fieldHelp: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-  }),
-
-  render({
-    className,
-    icon = FiHelpCircle,
-    children = null,
-  }: Props, { css, join }) {
-    if (children == null) return null;
-    return (
-      <Tag name="field-help" className={join(css.fieldHelp, className)}>
-        <Tooltip content={children} showArrow>
-          <Icon size={'small'}>{icon}</Icon>
-        </Tooltip>
-      </Tag>
-    );
   },
+}));
+
+export const HelpInfo = createComponent('HelpInfo', ({
+  className,
+  icon = <Icon name={'help'} size={'small'} />,
+  children = null,
+}: Props) => {
+  const { css, join } = useStyles();
+  if (children == null) return null;
+  return (
+    <Tag name="field-help" className={join(css.fieldHelp, className)}>
+      <Tooltip content={children} showArrow>
+        {icon}
+      </Tooltip>
+    </Tag>
+  );
 });

@@ -1,3 +1,4 @@
+import { createStyles } from './createStyles';
 import { ThemesProvider } from '..';
 import { createComponent } from '../components/Component';
 import { createStories, StorybookComponent } from '../Storybook';
@@ -17,38 +18,6 @@ interface Props {
   className?: string;
 }
 
-const Component = createComponent({
-  id: 'Component',
-
-  styles: ({ useTheme }) => {
-    const { backgroundColor, textColor, height, width } = useTheme(ComponentTheme);
-    return {
-      styles: {
-        component: {
-          backgroundColor,
-          color: textColor,
-        },
-        width: {
-          width,
-        },
-        height: {
-          height,
-        },
-      },
-    };
-  },
-
-  render({
-    className,
-  }: Props, { css, join }) {
-    return (
-      <div className={join(css.component, css.width, css.height, className)}>
-        supposed to be blue with white text
-      </div>
-    );
-  },
-});
-
 const HigherComponentTheme = createTheme({
   id: 'HigherComponentTheme',
   definition: {
@@ -57,27 +26,54 @@ const HigherComponentTheme = createTheme({
   },
 });
 
-const HigherComponent = createComponent({
-  id: 'HigherComponent',
-
-  styles: ({ useTheme, createThemeVariant }) => {
-    const { backgroundColor, color } = useTheme(HigherComponentTheme);
-
-    return {
-      variants: {
-        componentTheme: createThemeVariant(ComponentTheme, {
-          backgroundColor,
-          textColor: color,
-        }),
+const useStyles = createStyles(({ useTheme }) => {
+  const { backgroundColor, textColor, height, width } = useTheme(ComponentTheme);
+  return {
+    styles: {
+      component: {
+        backgroundColor,
+        color: textColor,
       },
-    };
-  },
+      width: {
+        width,
+      },
+      height: {
+        height,
+      },
+    },
+  };
+});
 
-  render: (_, { variants, join }) => (
+const Component = createComponent('Component', ({
+  className,
+}: Props) => {
+  const { css, join } = useStyles();
+  return (
+    <div className={join(css.component, css.width, css.height, className)}>
+      supposed to be blue with white text
+    </div>
+  );
+});
+
+const useHigherStyles = createStyles(({ useTheme, createThemeVariant }) => {
+  const { backgroundColor, color } = useTheme(HigherComponentTheme);
+  return {
+    variants: {
+      componentTheme: createThemeVariant(ComponentTheme, {
+        backgroundColor,
+        textColor: color,
+      }),
+    },
+  };
+});
+
+export const HigherComponent = createComponent('HigherComponent', () => {
+  const { variants, join } = useHigherStyles();
+  return (
     <ThemesProvider themes={join(variants.componentTheme)}>
       <Component />
     </ThemesProvider>
-  ),
+  );
 });
 
 createStories(() => ({
@@ -91,6 +87,6 @@ createStories(() => ({
           <HigherComponent />
         </StorybookComponent>
       </>),
-    }
+    },
   },
 }));

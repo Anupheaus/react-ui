@@ -1,52 +1,55 @@
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
-import { ThemesProvider } from '../../theme';
+import { createStyles, ThemesProvider } from '../../theme';
 import { Button } from '../Button';
 import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
 import { PasswordTheme } from './PasswordTheme';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 interface Props extends InternalTextProps {
-  theme?: typeof PasswordTheme;
+  passwordShowIcon?: ReactNode;
+  passwordHideIcon?: ReactNode;
 }
 
-export const Password = createComponent({
-  id: 'Password',
+const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+  const definition = useTheme(PasswordTheme);
+  return {
+    styles: {},
+    variants: {
+      internalTextTheme: createThemeVariant(InternalTextTheme, definition),
+    },
+  };
+});
 
-  styles: ({ useTheme, useThemeIcons, createThemeVariant }) => {
-    const definition = useTheme(PasswordTheme);
-    const icons = useThemeIcons(PasswordTheme);
-    return {
-      variants: {
-        internalTextTheme: createThemeVariant(InternalTextTheme, definition),
-      },
-      icons,
-    };
-  },
+export const Password = createComponent('Password', ({
+  endAdornments: providedButtons,
+  passwordHideIcon = <FiEyeOff />,
+  passwordShowIcon = <FiEye />,
+  ...props
+}: Props) => {
+  const { variants, join } = useStyles();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const handleShowPasswordClick = useBound(() => setIsPasswordVisible(!isPasswordVisible));
 
-  render: ({ endAdornments: providedButtons, ...props }: Props, { variants, icons, join }) => {
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const handleShowPasswordClick = useBound(() => setIsPasswordVisible(!isPasswordVisible));
+  const buttons = useMemo(() => [
+    <Button
+      key="showPassword"
+      icon={isPasswordVisible ? passwordHideIcon : passwordShowIcon}
+      onClick={handleShowPasswordClick}
+    />,
+    ...(providedButtons ?? [])
+  ], [providedButtons, isPasswordVisible]);
 
-    const buttons = useMemo(() => [
-      <Button
-        key="showPassword"
-        icon={isPasswordVisible ? icons.hidePassword : icons.showPassword}
-        onClick={handleShowPasswordClick}
-      />,
-      ...(providedButtons ?? [])
-    ], [providedButtons, isPasswordVisible]);
+  return (
+    <ThemesProvider themes={join(variants.internalTextTheme)}>
+      <InternalText
+        {...props}
+        tagName={'password'}
+        type={isPasswordVisible ? 'text' : 'password'}
+        endAdornments={buttons}
 
-    return (
-      <ThemesProvider themes={join(variants.internalTextTheme)}>
-        <InternalText
-          {...props}
-          tagName={'password'}
-          type={isPasswordVisible ? 'text' : 'password'}
-          endAdornments={buttons}
-
-        />
-      </ThemesProvider>
-    );
-  },
+      />
+    </ThemesProvider>
+  );
 });

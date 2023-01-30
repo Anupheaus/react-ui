@@ -5,26 +5,21 @@ import { useGridColumns } from '../../columns/GridColumns/useGridColumns';
 import { GridAction } from '../GridActions';
 import { GridColumnsActionDrawer, GridColumnsActionDrawerActions } from './GridColumnsActionDrawer';
 
-export const GridColumnsAction = createComponent({
-  id: 'GridColumnsAction',
+export const GridColumnsAction = createComponent('GridColumnsAction', () => {
+  const { columns, upsert, reorder } = useGridColumns();
+  const [localColumns, setLocalColumns] = useUpdatableState(() => columns, [columns]);
+  const { setActions: drawerActions, openDrawer, closeDrawer } = useActions<GridColumnsActionDrawerActions>();
 
-  render() {
-    const { columns, upsert, reorder } = useGridColumns();
-    const [localColumns, setLocalColumns] = useUpdatableState(() => columns, [columns]);
-    const { setActions: drawerActions, openDrawer, closeDrawer } = useActions<GridColumnsActionDrawerActions>();
+  const handleApply = useBound(() => {
+    upsert(localColumns);
+    reorder(localColumns.map(({ id }) => id));
+    closeDrawer();
+  });
 
-    const handleApply = useBound(() => {
-      upsert(localColumns);
-      reorder(localColumns.map(({ id }) => id));
-      closeDrawer();
-    });
-
-    return (<>
-      <GridAction id={'grid-columns-action'} ordinal={9000}>
-        <Button icon={'grid-column-selection'} size={'small'} onClick={openDrawer} />
-      </GridAction>
-      <GridColumnsActionDrawer columns={localColumns} actions={drawerActions} onChange={setLocalColumns} onApply={handleApply} />
-    </>);
-  },
-
+  return (<>
+    <GridAction id={'grid-columns-action'} ordinal={9000}>
+      <Button icon={'grid-column-selection'} size={'small'} onClick={openDrawer} />
+    </GridAction>
+    <GridColumnsActionDrawer columns={localColumns} actions={drawerActions} onChange={setLocalColumns} onApply={handleApply} />
+  </>);
 });

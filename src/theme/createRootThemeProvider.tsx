@@ -14,24 +14,20 @@ interface ThemeProviderProps {
 }
 
 export function createRootThemeProvider({ globalStyles }: Props) {
-  return createComponent({
-    id: 'ThemeProvider',
+  return createComponent('ThemeProvider', ({
+    children = null,
+  }: ThemeProviderProps) => {
+    let content = (
+      <ThemeProvider theme={muiTheme}>
+        {children}
+      </ThemeProvider>
+    );
 
-    render({
-      children = null,
-    }: ThemeProviderProps) {
-      let content = (
-        <ThemeProvider theme={muiTheme}>
-          {children}
-        </ThemeProvider>
-      );
+    if (globalStyles != null) content = (<>
+      <GlobalStyles styles={globalStyles} />
+      {content}
+    </>);
 
-      if (globalStyles != null) content = (<>
-        <GlobalStyles styles={globalStyles} />
-        {content}
-      </>);
-
-      return content;
-    },
+    return content;
   });
 }

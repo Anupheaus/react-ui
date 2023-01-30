@@ -1,8 +1,8 @@
 import { Record } from '@anupheaus/common';
 import { ReactNode, useRef, useState } from 'react';
 import { useBinder } from '../../hooks';
-import { TransitionTheme } from '../../theme';
-import { ComponentRenderStyles, ComponentStylesConfig, ComponentStylesUtils, createComponent } from '../Component';
+import { createStyles, TransitionTheme } from '../../theme';
+import { ComponentStylesConfig, createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
 import { DraggedItem } from './DragAndDropModels';
@@ -20,7 +20,7 @@ interface Props<T extends Record = Record> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function styles({ useTheme }: ComponentStylesUtils, _: Props) {
+const useStyles = createStyles(({ useTheme }) => {
   const { validOverlayColor, invalidOverlayColor } = useTheme(DragAndDropTheme);
   const transitionSettings = useTheme(TransitionTheme);
   return {
@@ -49,80 +49,74 @@ function styles({ useTheme }: ComponentStylesUtils, _: Props) {
       },
     },
   } satisfies ComponentStylesConfig;
-}
+});
 
-export const DropArea = createComponent({
-  id: 'DropArea',
+export const DropArea = createComponent('DropArea', function <T extends Record>({
+  overlayClassName,
+  disableOverlay = false,
+  children,
+  onDroppedItems,
+  onValidateDraggedItems,
+  onDraggingOverItem,
+  onDraggedOut,
+}: Props<T>) {
+  const { css, join } = useStyles();
+  const [draggedItemsAreValid, setDraggedItemsAreValid] = useState<boolean>();
+  const lastItemIdsRef = useRef<string[]>();
+  const bind = useBinder();
 
-  styles,
-
-  render<T extends Record = Record>({
-    overlayClassName,
-    disableOverlay = false,
-    children,
-    onDroppedItems,
-    onValidateDraggedItems,
-    onDraggingOverItem,
-    onDraggedOut,
-  }: Props<T>, { css, join }: ComponentRenderStyles<ReturnType<typeof styles>>) {
-    const [draggedItemsAreValid, setDraggedItemsAreValid] = useState<boolean>();
-    const lastItemIdsRef = useRef<string[]>();
-    const bind = useBinder();
-
-    const validateDraggedItems = () => {
-      if (DragAndDropData.isEmpty) {
-        setDraggedItemsAreValid(undefined);
+  const validateDraggedItems = () => {
+    if (DragAndDropData.isEmpty) {
+      setDraggedItemsAreValid(undefined);
+    } else {
+      if (onValidateDraggedItems != null) {
+        const itemIds = DragAndDropData.ids();
+        if (Reflect.areDeepEqual(itemIds, lastItemIdsRef.current)) return;
+        lastItemIdsRef.current = itemIds;
+        setDraggedItemsAreValid(onValidateDraggedItems(DragAndDropData.toArray()) ?? true);
       } else {
-        if (onValidateDraggedItems != null) {
-          const itemIds = DragAndDropData.ids();
-          if (Reflect.areDeepEqual(itemIds, lastItemIdsRef.current)) return;
-          lastItemIdsRef.current = itemIds;
-          setDraggedItemsAreValid(onValidateDraggedItems(DragAndDropData.toArray()) ?? true);
-        } else {
-          setDraggedItemsAreValid(true);
-        }
+        setDraggedItemsAreValid(true);
       }
-    };
+    }
+  };
 
-    const target = useInteractionEvents({
-      onMouseMove: bind(() => {
-        validateDraggedItems();
-      }),
-      onMouseLeave: bind(event => {
-        lastItemIdsRef.current = undefined;
-        setDraggedItemsAreValid(undefined);
-        onDraggedOut?.(DragAndDropData.toArray() as T[], event);
-      }),
-      onMouseUp: bind(() => {
-        if (draggedItemsAreValid) onDroppedItems?.(DragAndDropData.toArray() as DraggedItem<T>[]);
-        lastItemIdsRef.current = undefined;
-        setDraggedItemsAreValid(undefined);
-      }),
-    });
+  const target = useInteractionEvents({
+    onMouseMove: bind(() => {
+      validateDraggedItems();
+    }),
+    onMouseLeave: bind(event => {
+      lastItemIdsRef.current = undefined;
+      setDraggedItemsAreValid(undefined);
+      onDraggedOut?.(DragAndDropData.toArray() as T[], event);
+    }),
+    onMouseUp: bind(() => {
+      if (draggedItemsAreValid) onDroppedItems?.(DragAndDropData.toArray() as DraggedItem<T>[]);
+      lastItemIdsRef.current = undefined;
+      setDraggedItemsAreValid(undefined);
+    }),
+  });
 
-    const handleMouseMoveInteraction = bind((event: MouseMoveEvent<DraggedItem<T>>) => {
-      if (draggedItemsAreValid !== true || event.data == null) return;
-      onDraggingOverItem?.(event.data, DragAndDropData.toArray() as T[], event);
-    });
+  const handleMouseMoveInteraction = bind((event: MouseMoveEvent<DraggedItem<T>>) => {
+    if (draggedItemsAreValid !== true || event.data == null) return;
+    onDraggingOverItem?.(event.data, DragAndDropData.toArray() as T[], event);
+  });
 
-    return (
-      <InteractionProvider onMouseMove={handleMouseMoveInteraction}>
-        <Tag name="drop-area" ref={target} className={css.dropArea}>
-          {children}
-          {!disableOverlay && (
-            <Tag
-              name="drop-area-overlay"
-              className={join(
-                css.dropAreaOverlay,
-                draggedItemsAreValid === true && css.draggedItemsAreValid,
-                draggedItemsAreValid === false && css.draggedItemsAreInvalid,
-                overlayClassName,
-              )}
-            />
-          )}
-        </Tag>
-      </InteractionProvider>
-    );
-  },
-
+  return (
+    <InteractionProvider onMouseMove={handleMouseMoveInteraction}>
+      <Tag name="drop-area" ref={target} className={css.dropArea}>
+        {children}
+        {!disableOverlay && (
+          <Tag
+            name="drop-area-overlay"
+            className={join(
+              css.dropAreaOverlay,
+              draggedItemsAreValid === true && css.draggedItemsAreValid,
+              draggedItemsAreValid === false && css.draggedItemsAreInvalid,
+              overlayClassName,
+            )}
+          />
+        )}
+      </Tag>
+    </InteractionProvider>
+  );
 });
