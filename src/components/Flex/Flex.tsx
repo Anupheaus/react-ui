@@ -34,6 +34,7 @@ const useStyles = createStyles(() => ({
       flexGrow: 1,
       flexShrink: 1,
       flexBasis: 'auto',
+      outline: 'none',
     },
     disableGrow: {
       flexGrow: 0,

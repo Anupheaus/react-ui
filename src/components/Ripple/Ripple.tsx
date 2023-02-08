@@ -38,6 +38,7 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
 
 export interface RippleProps {
   className?: string;
+  stayWithinContainer?: boolean;
 }
 
 interface Props extends RippleProps {
@@ -48,7 +49,7 @@ const useStyles = createStyles(({ useTheme }) => {
   const { color } = useTheme(RippleTheme);
   return {
     styles: {
-      UIRipple: {
+      Ripple: {
         position: 'absolute',
         top: 0,
         left: 0,
@@ -56,6 +57,9 @@ const useStyles = createStyles(({ useTheme }) => {
         bottom: 0,
         zIndex: 0,
         pointerEvents: 'none',
+      },
+      stayWithinContainer: {
+        overflow: 'hidden',
       },
       rippleAnimation: {
         position: 'absolute',
@@ -80,6 +84,7 @@ const useStyles = createStyles(({ useTheme }) => {
 
 export const Ripple = createComponent('Ripple', ({
   className,
+  stayWithinContainer = false,
   state,
 }: Props) => {
   const { css, join } = useStyles();
@@ -94,7 +99,7 @@ export const Ripple = createComponent('Ripple', ({
     [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
 
   return (
-    <Tag ref={target} name="ui-ripple" className={join(css.UIRipple, className)}>
+    <Tag ref={target} name="ui-ripple" className={join(css.Ripple, stayWithinContainer && css.stayWithinContainer, className)}>
       <Tag
         name="ui-ripple-animation"
         className={join(

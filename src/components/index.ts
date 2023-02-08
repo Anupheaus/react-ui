@@ -21,3 +21,4 @@ export * from './Checkbox';
 export * from './SplashScreen';
 export * from './Windows';
 export * from './Scroller';
+export * from './Menu';

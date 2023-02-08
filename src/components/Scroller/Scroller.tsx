@@ -24,12 +24,14 @@ const useStyles = createStyles(({ useTheme }, { offsetTop }: Props) => {
         overflow: 'hidden',
         flex: 'auto',
         position: 'relative',
+        flexDirection: 'inherit',
       },
       scrollerContainer: {
         display: 'flex',
         overflow: 'overlay',
         flex: 'auto',
         position: 'relative',
+        flexDirection: 'inherit',
         transitionProperty: 'background-color',
         ...transitionSettings,
         backgroundColor: 'rgba(0 0 0 / 0%)',
@@ -76,6 +78,7 @@ const useStyles = createStyles(({ useTheme }, { offsetTop }: Props) => {
         position: 'relative',
         flex: 'auto',
         height: 'fit-content',
+        flexDirection: 'inherit',
       },
       scrollerContentEdge: {
         position: 'absolute',

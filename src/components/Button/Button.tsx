@@ -97,7 +97,7 @@ export const Button = createComponent('Button', ({
 }: ButtonProps) => {
   const { css, join } = useStyles();
   const { isLoading } = useUIState();
-  const { UIRipple, rippleTarget } = useRipple();
+  const { Ripple, rippleTarget } = useRipple();
   const eventsIsolator = useEventIsolator({ clickEvents: 'propagation', focusEvents: 'propagation', onParentElement: true });
   const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
   const handleClick = useBound((event: MouseEvent) => onClick?.(event));
@@ -114,7 +114,7 @@ export const Button = createComponent('Button', ({
       )}
       onClickCapture={handleClick}
     >
-      <UIRipple />
+      <Ripple />
       <NoSkeletons>
         {children}
       </NoSkeletons>
