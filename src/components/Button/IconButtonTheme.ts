@@ -1,5 +1,5 @@
 import { createTheme } from '../../theme';
-import { ButtonTheme } from '../Button';
+import { ButtonTheme } from './ButtonTheme';
 
 export const IconButtonTheme = createTheme({
   id: 'IconButtonTheme',
