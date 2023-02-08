@@ -5,7 +5,7 @@ import { createStyles, ThemesProvider } from '../../theme';
 import { Button } from '../Button';
 import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
 import { PasswordTheme } from './PasswordTheme';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { Icon } from '../Icon';
 
 interface Props extends InternalTextProps {
   passwordShowIcon?: ReactNode;
@@ -24,8 +24,6 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
 
 export const Password = createComponent('Password', ({
   endAdornments: providedButtons,
-  passwordHideIcon = <FiEyeOff />,
-  passwordShowIcon = <FiEye />,
   ...props
 }: Props) => {
   const { variants, join } = useStyles();
@@ -35,9 +33,10 @@ export const Password = createComponent('Password', ({
   const buttons = useMemo(() => [
     <Button
       key="showPassword"
-      icon={isPasswordVisible ? passwordHideIcon : passwordShowIcon}
       onClick={handleShowPasswordClick}
-    />,
+    >
+      <Icon name={isPasswordVisible ? 'password-hide' : 'password-show'} size="small" />
+    </Button>,
     ...(providedButtons ?? [])
   ], [providedButtons, isPasswordVisible]);
 

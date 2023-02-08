@@ -12,6 +12,7 @@ import { useDialog } from '../../../components/Dialog/useDialog';
 import { Flex } from '../../../components/Flex';
 import { Button } from '../../../components/Button';
 import { FiXCircle } from 'react-icons/fi';
+import { Icon } from '../../../components/Icon';
 
 interface Props {
   error?: AnuxError;
@@ -73,10 +74,10 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
     <ThemesProvider themes={join(variants.dialogTheme)}>
       <Flex tagName="error-panel" className={css.errorPanel}>
         <ThemesProvider themes={join(variants.buttonTheme)}>
-          <Button icon={icon} onClick={openDialog}>Error</Button>
+          <Button onClick={openDialog}><Icon name="error" size="small" />Error</Button>
         </ThemesProvider>
       </Flex>
-      <Flex tagName={'error'} ref={target} className={css.error} gap={4} onClick={openDialog}>
+      <Flex tagName="error" ref={target} className={css.error} gap={4} onClick={openDialog}>
         {renderError()}
       </Flex>
       <Dialog title={`Error: ${error.name}`}>

@@ -115,7 +115,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   onChange
 }: Props<T>) {
   const { css, join } = useStyles();
-  const { UIRipple, rippleTarget } = useRipple();
+  const { Ripple, rippleTarget } = useRipple();
   const { isLoading } = useUIState();
   const bind = useBinder();
 
@@ -123,7 +123,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     <Tag name={tagName} className={join(css.text, className)} width={width}>
       <Label isOptional={isOptional} help={help}>{label}</Label>
       <Tag name={`${tagName}-input`} ref={rippleTarget} className={join(css.textInput, isLoading && css.isLoading)}>
-        <UIRipple />
+        <Ripple />
         <NoSkeletons>
           {startAdornments instanceof Array && <Toolbar className={css.toolbarAtStart}>{startAdornments}</Toolbar>}
           <input

@@ -6,6 +6,7 @@ import { createStyles, ThemesProvider } from '../../theme';
 import { Button, ButtonTheme } from '../Button';
 import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
 import { NumberTheme } from './NumberTheme';
+import { Icon } from '../Icon';
 
 interface Props extends InternalTextProps<number> { }
 
@@ -43,18 +44,20 @@ export const Number = createComponent('Number', ({
   const buttons = useMemo(() => [
     <Button
       key="increase"
-      icon={'number-increase'}
       onClick={increase}
-    />,
+    >
+      <Icon name="number-increase" size="small" />
+    </Button>,
     ...(providedEndAdornments ?? []),
   ], [providedEndAdornments]);
 
   const startButtons = useMemo(() => [
     <Button
       key="decrease"
-      icon={'number-decrease'}
       onClick={decrease}
-    />,
+    >
+      <Icon name="number-decrease" size="small" />
+    </Button>,
   ], []);
 
   return (

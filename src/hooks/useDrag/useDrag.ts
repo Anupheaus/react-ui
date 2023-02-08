@@ -1,7 +1,9 @@
 import { to } from '@anupheaus/common';
 import { DOMAttributes } from 'react';
 import { useMemo, useRef } from 'react';
-import { useBound, useDOMRef, useOnChange } from '..';
+import { useBound } from '../useBound';
+import { useDOMRef } from '../useDOMRef';
+import { useOnChange } from '../useOnChange';
 
 interface DragData {
   initiatorElement: HTMLElement;

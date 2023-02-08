@@ -7,6 +7,7 @@ import { DrawerTheme } from './DrawerTheme';
 import { Button, IconButtonTheme } from '../Button';
 import { Flex } from '../Flex';
 import { createStyles, ThemesProvider } from '../../theme';
+import { Icon } from '../Icon';
 
 type DrawerCloseReasons = Parameters<Required<ModalProps>['onClose']>[1] | 'drawerClosed';
 
@@ -97,7 +98,7 @@ export const Drawer = createComponent('Drawer', ({
       <AppBar position="static">
         <Toolbar className={css.drawerTitle}>
           <ThemesProvider themes={join(variants.iconButtons)}>
-            <Button icon={'drawer-close'} onClick={close} />
+            <Button onClick={close}><Icon name="drawer-close" /></Button>
           </ThemesProvider>
           <Flex tagName="drawer-title-text" className={css.drawerTitleText}>
             {title}

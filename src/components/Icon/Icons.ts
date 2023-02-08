@@ -1,4 +1,7 @@
-import { FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX } from 'react-icons/fi';
+import {
+  FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
+  FiEye, FiEyeOff,
+} from 'react-icons/fi';
 import { IconType } from '../../theme';
 
 export const IconDefinitions = {
@@ -16,6 +19,9 @@ export const IconDefinitions = {
   'number-increase': FiPlus,
   'number-decrease': FiMinus,
   'sub-menu': FiChevronRight,
+  'password-show': FiEye,
+  'password-hide': FiEyeOff,
+
 } satisfies { [key: string]: IconType; };
 
 export type IconName = keyof typeof IconDefinitions;
