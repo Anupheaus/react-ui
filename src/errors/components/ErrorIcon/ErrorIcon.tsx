@@ -2,13 +2,14 @@ import { createStyles } from '../../../theme/createStyles';
 import { ComponentProps, useMemo } from 'react';
 import { createComponent } from '../../../components/Component';
 import type { Icon } from '../../../components/Icon';
-import { AnuxError } from '../../types';
 import { ErrorTooltip } from '../ErrorTooltip';
 import { ErrorIconTheme } from './ErrorIconTheme';
+import { Error } from '@anupheaus/common';
 
 interface Props extends Omit<ComponentProps<typeof Icon>, 'name'> {
-  error: AnuxError;
+  error: Error;
 }
+
 const useStyles = createStyles(({ useTheme }) => {
   const { iconColor } = useTheme(ErrorIconTheme);
   return {

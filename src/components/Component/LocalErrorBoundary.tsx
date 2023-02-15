@@ -1,13 +1,13 @@
+import { Error as CommonError } from '@anupheaus/common';
 import { Component, ReactNode } from 'react';
-import { AnuxError } from '../../errors/types/AnuxError';
 
 interface Props {
-  onError(error: AnuxError): JSX.Element | null;
+  onError(error: CommonError): JSX.Element | null;
   children?: ReactNode;
 }
 
 interface State {
-  error: AnuxError | undefined;
+  error: CommonError | undefined;
 }
 
 export class LocalErrorBoundary extends Component<Props, State> {
@@ -18,7 +18,7 @@ export class LocalErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { error: new AnuxError({ error }) };
+    return { error: new CommonError({ error }) };
   }
 
   public render() {

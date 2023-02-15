@@ -1,12 +1,11 @@
-import { is } from '@anupheaus/common';
+import { Error, is } from '@anupheaus/common';
 import { forwardRef, FunctionComponent, isValidElement, memo, Ref } from 'react';
-import { AnuxError } from '../../errors/types/AnuxError';
 import { internalThemes } from '../../theme/internalThemes';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
   onCompareProps?(prevProps: Parameters<TFunc>[0], newProps: Parameters<TFunc>[0]): boolean;
-  onError?(error: AnuxError, props: Parameters<TFunc>[0]): JSX.Element | null;
+  onError?(error: Error, props: Parameters<TFunc>[0]): JSX.Element | null;
 }
 
 function defaultCompareProps(prevProps: any, newProps: any): boolean {
@@ -42,7 +41,7 @@ export function createComponent<TFunc extends (props: any) => JSX.Element | null
       internalThemes.styles.synchronousProps = fullProps;
       return render(fullProps);
     } catch (error) {
-      if (onError != null) return onError(new AnuxError({ error }), fullProps);
+      if (onError != null) return onError(new Error({ error }), fullProps);
       throw error;
     }
   }) as unknown as TFunc;

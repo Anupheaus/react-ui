@@ -1,12 +1,11 @@
 import { forwardRef, Ref } from 'react';
 import { Component, ComponentRenderStyles, ComponentStyles, ComponentStylesConfig, ComponentSymbol } from './ComponentModels';
-import { AnuxError } from '../../errors/types/AnuxError';
 import { createStylesProps } from './createStylesProps';
-import { AnyFunction } from '@anupheaus/common';
+import { AnyFunction, Error } from '@anupheaus/common';
 import { LocalErrorBoundary } from './LocalErrorBoundary';
 import { useBound } from '../../hooks/useBound';
 
-type OnErrorFunc<TProps extends {}> = (error: AnuxError, props: TProps) => JSX.Element | null;
+type OnErrorFunc<TProps extends {}> = (error: Error, props: TProps) => JSX.Element | null;
 
 interface ComponentConfig<TProps extends {}, TStyles extends ComponentStylesConfig> {
   id: string;
@@ -25,7 +24,7 @@ function addIdToComponentFunc<TProps extends {}>(componentFunc: AnyFunction, id:
 function wrapInLocalErrorBoundaryIfRequired<TProps extends {}>(InnerComponent: Component<TProps>, onError: OnErrorFunc<TProps> | undefined): Component<TProps> {
   if (onError == null) return InnerComponent;
   const wrappingFunc = forwardRef((props: TProps, ref: Ref<HTMLElement>) => {
-    const handleOnError = useBound((error: AnuxError) => onError(error, props));
+    const handleOnError = useBound((error: Error) => onError(error, props));
     return (
       <LocalErrorBoundary onError={handleOnError}>
         <InnerComponent {...props} ref={ref} />
@@ -42,7 +41,7 @@ export function createComponent3<TProps extends {}, TStyles extends ComponentSty
       const stylesProps = createStylesPropsFunc(props);
       return render({ ...props, ref }, stylesProps);
     } catch (error) {
-      if (onError != null) return onError(new AnuxError({ error }), props);
+      if (onError != null) return onError(new Error({ error }), props);
       throw error;
     }
   }));

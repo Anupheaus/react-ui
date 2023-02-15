@@ -1,15 +1,15 @@
+import { Error } from '@anupheaus/common';
 import { ReactNode } from 'react';
-import { AnuxError } from './types';
 
 export interface OnRenderProps {
-  error: AnuxError;
+  error: Error;
   children: ReactNode;
 }
 
 export interface OnErrorProps {
-  error: AnuxError;
+  error: Error;
   occurredWithinThisBoundary: boolean;
-  handleInThisBoundary(error: AnuxError): void;
+  handleInThisBoundary(error: Error): void;
 }
 export interface ErrorHandlerProps {
   onError?(props: OnErrorProps): void;

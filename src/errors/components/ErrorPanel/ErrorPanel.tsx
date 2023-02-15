@@ -2,10 +2,9 @@ import { ReactNode } from 'react';
 import { createComponent } from '../../../components/Component';
 import { useBound, useOnResize, useUpdatableState } from '../../../hooks';
 import { ErrorBoundary } from '../../ErrorBoundary';
-import { AnuxError } from '../../types';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
 import { createStyles, ThemesProvider } from '../../../theme';
-import { is } from '@anupheaus/common';
+import { Error, is } from '@anupheaus/common';
 import { ButtonTheme } from '../../../components/Button/ButtonTheme';
 import { DialogTheme } from '../../../components/Dialog/DialogTheme';
 import { useDialog } from '../../../components/Dialog/useDialog';
@@ -15,7 +14,7 @@ import { FiXCircle } from 'react-icons/fi';
 import { Icon } from '../../../components/Icon';
 
 interface Props {
-  error?: AnuxError;
+  error?: Error;
   icon?: ReactNode;
   children?: ReactNode;
 }
@@ -52,11 +51,11 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
   children = null,
 }: Props) => {
   const { css, variants, join } = useStyles();
-  const [error, setError] = useUpdatableState<AnuxError | undefined>(() => providedError, [providedError]);
+  const [error, setError] = useUpdatableState<Error | undefined>(() => providedError, [providedError]);
   const { height, target } = useOnResize();
   const { Dialog, DialogContent, DialogActions, OkButton, openDialog } = useDialog();
 
-  const handleError = useBound((capturedError: AnuxError) => {
+  const handleError = useBound((capturedError: Error) => {
     capturedError.markAsHandled();
     setError(capturedError);
   });

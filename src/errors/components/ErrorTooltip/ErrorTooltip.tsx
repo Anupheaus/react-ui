@@ -2,12 +2,12 @@ import { ReactNode } from 'react';
 import { Tooltip, TooltipTheme } from '../../../components/Tooltip';
 import { createComponent } from '../../../components/Component';
 import { createStyles, ThemesProvider } from '../../../theme';
-import { AnuxError } from '../../types';
 import { ErrorTooltipTheme } from './ErrorTooltipTheme';
 import { Flex } from '../../../components/Flex';
+import { Error } from '@anupheaus/common';
 
 interface Props {
-  error: AnuxError;
+  error: Error;
   children?: ReactNode;
 }
 

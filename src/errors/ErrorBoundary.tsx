@@ -1,11 +1,11 @@
 import { memo, PropsWithChildren, useMemo, useRef } from 'react';
 import { ErrorContexts, RecordErrorsContextProps } from './ErrorContexts';
-import { AnuxError } from './types';
 import { useBound } from '../hooks/useBound';
 import { useOnUnmount } from '../hooks/useOnUnmount';
+import { Error } from '@anupheaus/common';
 
 interface Props {
-  onError?(error: AnuxError): void;
+  onError?(error: Error): void;
 }
 
 export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
@@ -16,7 +16,7 @@ export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
   const hasErrorRef = useRef(false);
 
   const recordError = useBound((rawError: unknown) => {
-    const error = rawError instanceof AnuxError ? rawError : new AnuxError({ error: rawError });
+    const error = rawError instanceof Error ? rawError : new Error({ error: rawError });
     hasErrorRef.current = true;
     setTimeout(() => { // get around setting any state during rendering
       if (isUnmounted()) return;

@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
+import { Error } from '@anupheaus/common';
 import { useContext } from 'react';
 import { ErrorContexts } from './ErrorContexts';
-import { AnuxError } from './types';
 
 interface TryCatchProps<T> {
   isAsync?: boolean;
-  onError?(error: AnuxError): T;
+  onError?(error: Error): T;
 }
 
 export function useErrors() {
@@ -15,7 +15,7 @@ export function useErrors() {
   // const forceUpdate = useReducer(s => 1 - s, 0)[1];  
 
   const handleError = <T>(rawError: unknown, { isAsync = false, onError }: TryCatchProps<T>): T => {
-    const error = new AnuxError({ error: rawError, isAsync });
+    const error = new Error({ error: rawError, isAsync });
     if (onError) return onError(error);
     if (!isValid) console.error(error, { isAsync });
     recordError(error, isAsync);
