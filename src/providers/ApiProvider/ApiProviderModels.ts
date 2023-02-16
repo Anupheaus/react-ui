@@ -6,6 +6,9 @@ export interface Api {
   post<T, D extends AnyObject = AnyObject>(url: string, data?: D): Promise<T>;
   remove(url: string): Promise<void>;
   query<T extends {}>(url: string, request: ApiRequest<T>): Promise<ApiResponse<T>>;
+  addToHeaders(key: string, value: string): void;
+  removeFromHeaders(key: string): void;
+  getHeaders(): Record<string, string>;
 }
 
 interface ApiFilterOperatorListItem extends ListItem {

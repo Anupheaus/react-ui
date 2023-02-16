@@ -1,5 +1,5 @@
 import { is } from '@anupheaus/common';
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useRef } from 'react';
 import { createComponent } from '../../components/Component';
 import { useBound } from '../../hooks/useBound';
 import { ApiProviderContext, ApiProviderContextProps } from './ApiProviderContext';
@@ -21,19 +21,27 @@ export const ApiProvider = createComponent('ApiProvider', ({
   headers: providedHeaders,
   children = null,
 }: Props) => {
+  const contextProvidedHeaders = useRef(new Map<string, string>()).current;
 
-  const headers = useMemo<RequestInit['headers']>(() => ({
-    ...providedHeaders,
+  const generateHeaders = useBound(() => ({
     'Content-Type': 'application/json',
-  }), [providedHeaders]);
+    ...providedHeaders,
+    ...Object.fromEntries(contextProvidedHeaders),
+  }));
 
-  const get = useBound<ApiProviderContextProps['get']>(async url => invokeApiCall(() => fetch(url, { method: 'GET', headers })));
+  const get = useBound<ApiProviderContextProps['get']>(async url => invokeApiCall(() => fetch(url, { method: 'GET', headers: generateHeaders() })));
 
-  const post = useBound<ApiProviderContextProps['post']>(async (url, data) => invokeApiCall(() => fetch(url, { method: 'POST', headers, body: JSON.stringify(data) })));
+  const post = useBound<ApiProviderContextProps['post']>(async (url, data) => invokeApiCall(() => fetch(url, { method: 'POST', headers: generateHeaders(), body: JSON.stringify(data) })));
 
-  const remove = useBound<ApiProviderContextProps['remove']>(async url => invokeApiCall(() => fetch(url, { method: 'DELETE', headers })));
+  const remove = useBound<ApiProviderContextProps['remove']>(async url => invokeApiCall(() => fetch(url, { method: 'DELETE', headers: generateHeaders() })));
 
-  const query = useBound<ApiProviderContextProps['query']>(async (url, request) => invokeApiCall(() => fetch(url, { method: 'SEARCH', headers, body: JSON.stringify(request) })));
+  const query = useBound<ApiProviderContextProps['query']>(async (url, request) => invokeApiCall(() => fetch(url, { method: 'SEARCH', headers: generateHeaders(), body: JSON.stringify(request) })));
+
+  const addToHeaders = useBound<ApiProviderContextProps['addToHeaders']>((key, value) => contextProvidedHeaders.set(key, value));
+
+  const removeFromHeaders = useBound<ApiProviderContextProps['removeFromHeaders']>(key => contextProvidedHeaders.delete(key));
+
+  const getHeaders = useBound<ApiProviderContextProps['getHeaders']>(() => Object.fromEntries(contextProvidedHeaders));
 
   const context = useMemo<ApiProviderContextProps>(() => ({
     isValid: true,
@@ -41,6 +49,9 @@ export const ApiProvider = createComponent('ApiProvider', ({
     post,
     remove,
     query,
+    addToHeaders,
+    removeFromHeaders,
+    getHeaders
   }), []);
 
   return (
