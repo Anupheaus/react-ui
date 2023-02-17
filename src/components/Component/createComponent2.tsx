@@ -1,3 +1,4 @@
+import '../../extensions/is';
 import { Error, is } from '@anupheaus/common';
 import { forwardRef, FunctionComponent, isValidElement, memo, Ref } from 'react';
 import { internalThemes } from '../../theme/internalThemes';
