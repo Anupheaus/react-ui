@@ -35,7 +35,8 @@ function setName(func: FunctionComponent<{}>, name: string) {
 
 export function createComponent<TFunc extends (props: any) => JSX.Element | null>(name: string, render: TFunc, {
   disableMemoisation = true, onCompareProps = defaultCompareProps, onError }: Config<TFunc> = {}): TFunc {
-  let componentFunc = forwardRef<any, any>((props: {}, ref: Ref<HTMLElement>) => {
+  let componentFunc = forwardRef<any, any>((props: {}, providedRef: Ref<HTMLElement>) => {
+    const ref = is.function(providedRef) || is.reactRef(providedRef) ? providedRef : undefined;
     const fullProps = { ...props, ref };
     try {
       internalThemes.styles.synchronousProps = fullProps;

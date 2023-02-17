@@ -10,6 +10,9 @@ const useStyles = createStyles({
     padding: 16,
     backgroundColor: DefaultTheme.action.default.backgroundColor,
   },
+  wideButton: {
+    width: 300,
+  }
 });
 
 // const RaiseError = () => { throw new Error('Testing my error!'); };
@@ -28,8 +31,16 @@ function generateButtonStories(props: Partial<ComponentProps<typeof Button>> = {
           <Button {...props}>Test</Button>
         </StorybookComponent>
 
+        <StorybookComponent title="Wide">
+          <Button {...props} className={css.wideButton}>Test</Button>
+        </StorybookComponent>
+
         <StorybookComponent title="With Icon">
           <Button {...props}><Icon name="drawer-close" />Test</Button>
+        </StorybookComponent>
+
+        <StorybookComponent title="Wide With Icon">
+          <Button {...props} className={css.wideButton}><Icon name="drawer-close" />Test</Button>
         </StorybookComponent>
 
         <StorybookComponent title="Icon Only" className={css.iconOnly}>

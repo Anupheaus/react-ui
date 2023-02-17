@@ -6,7 +6,7 @@ import { AssistiveLabelTheme } from './AssistiveLabelTheme';
 
 interface Props {
   className?: string;
-  isError?: boolean;
+  error?: ReactNode | Error;
   children?: ReactNode;
 }
 
@@ -28,17 +28,20 @@ const useStyles = createStyles(({ useTheme }) => {
 
 export const AssistiveLabel = createComponent('AssistiveLabel', ({
   className,
-  isError,
+  error,
   children = null,
 }: Props) => {
   const { css, join } = useStyles();
-  if (children == null) return null;
+  if (children == null) {
+    if (error == null) return null;
+    children = error instanceof Error ? error.message : error;
+  }
   return (
     <Tag
       name="assistive-label"
       className={join(
         css.assistiveLabel,
-        isError && css.isError,
+        error != null && css.isError,
         className,
       )}>
       {children}

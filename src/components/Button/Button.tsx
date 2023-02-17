@@ -47,6 +47,7 @@ const useStyles = createStyles(({ useTheme }, { children }: ButtonProps) => {
         flex: 'none',
         gap: 4,
         alignItems: 'center',
+        justifyContent: 'center',
         transitionProperty: 'background-color, color',
         ...transitionSettings,
         boxSizing: 'border-box',

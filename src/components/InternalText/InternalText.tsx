@@ -75,6 +75,7 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
         width: 0,
         flexGrow: 1,
         textOverflow: 'ellipsis',
+        backgroundColor: 'transparent',
       },
       isLoading: {
         visibility: 'hidden',
@@ -137,7 +138,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
         </NoSkeletons>
         <Skeleton />
       </Tag>
-      <AssistiveLabel isError={error != null}>{error ?? assistiveHelp}</AssistiveLabel>
+      <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
     </Tag>
   );
 });
