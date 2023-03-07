@@ -26,7 +26,7 @@ export const RecordsProvider = createComponent('RecordsProvider', function <T ex
   const inheritedRecordsMap = (useContext(RecordsProviderContext) as RecordsProviderContextProps<T>);
   const recordsMap = useMemo(() => inheritedRecordsMap.clone(), [inheritedRecordsMap]);
   const { records: inheritedRecords, onChanged: onInheritedChanged } = inheritedRecordsMap.getOrSet(typeId, () => createRecordsProviderContextEntry());
-  const [invokeChanged, registerChangedCallback] = useCallbacks<Parameters<RecordsProviderContextEntry<T>['onChanged']>[0]>();
+  const { invoke: invokeChanged, register: registerChangedCallback } = useCallbacks<Parameters<RecordsProviderContextEntry<T>['onChanged']>[0]>();
 
   const records = useMemo<Map<string, T>>(() => {
     return (inherit ? inheritedRecords.clone() : new Map()).merge(is.array(providedRecords) ? providedRecords : [], {

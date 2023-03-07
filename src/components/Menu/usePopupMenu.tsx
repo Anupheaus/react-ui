@@ -1,51 +1,31 @@
-import { ComponentProps, CSSProperties, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount } from '../../hooks';
+import { PaperProps, Popover, PopoverOrigin, PopoverProps } from '@mui/material';
+import { ComponentProps, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { Flex } from '../Flex';
 import { Menu } from './Menu';
+import { PopupMenuContext, PopupMenuContextProps } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
-function calculatePosition(elementRect: DOMRect, { width: menuWidth, height: menuHeight }: { width: number, height: number; }) {
-  const { x: elementX, y: elementY, width: elementWidth, height: elementHeight } = elementRect;
-  const { width: totalWidth, height: totalHeight } = document.body.getBoundingClientRect();
-  let x = elementX + elementWidth - 8;
-  let y = elementY + elementHeight - 8;
-  if (x + menuWidth > totalWidth) x = totalWidth - menuWidth;
-  if (y + menuHeight > totalHeight) y = totalHeight - menuHeight;
-  if (x < elementX + (elementWidth / 2)) x = elementX - menuWidth + 8;
-  return {
-    left: x,
-    top: y,
-  };
-}
-
 const useStyles = createStyles({
-  popupMenu: {
-    position: 'absolute',
-    zIndex: 10000,
-    boxShadow: '0 0 10px 0 rgba(0 0 0 / 20%)',
-    borderRadius: 4,
-    overflow: 'hidden',
-    opacity: 0,
+  slotProps: {
     pointerEvents: 'none',
-    transition: 'opacity 0.4s ease',
-  },
-  isOpen: {
-    opacity: 1,
-    pointerEvents: 'all',
   },
 });
 
 interface Props extends ComponentProps<typeof Menu> {
   isOpen?: boolean;
+  targetAnchorPosition?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
+  menuAnchorPosition?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
+  offsetPosition?: number;
+  useWidthOfTargetElement?: boolean;
 }
 
 export function usePopupMenu() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setElementRef = useRef((element: HTMLElement | undefined) => void 0);
   const openMenuRef = useRef<() => void>(() => void 0);
+  const { isValid: isInPopup, close: closeParentPopup } = useContext(PopupMenuContext);
 
   const target = useDOMRef({
     connected: element => { setElementRef.current(element); },
@@ -54,24 +34,28 @@ export function usePopupMenu() {
 
   const openMenu = useBound(() => openMenuRef.current());
 
-  const PopupMenu = useMemo(() => createComponent('PopupMenu', ({ isOpen: propsIsOpen, ...props }: Props) => {
-    const { css, join } = useStyles();
+  const PopupMenu = useMemo(() => createComponent('PopupMenu', ({
+    isOpen: propsIsOpen,
+    targetAnchorPosition = 'bottomRight',
+    menuAnchorPosition = 'topLeft',
+    offsetPosition = 12,
+    useWidthOfTargetElement = false,
+    ...props
+  }: Props) => {
+    const { css } = useStyles();
     const [isOver, setIsOver, setIsNotOver] = useBooleanState(false);
     const [isOpen, setIsOpen] = useState(propsIsOpen === true);
-    const cancelTimeoutRef = useRef<unknown>();
-    const autoHideTimeoutRef = useRef<unknown>();
+    const cancelTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+    const autoHideTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
     const canBeAutoHiddenRef = useRef(false);
     const isUnmounted = useOnUnmount();
     const [element, setElement] = useState<HTMLElement>();
-    const { width, height, target: resizeTarget } = useOnResize();
+    const { target: resizeTarget, width, height } = useOnResize();
+    resizeTarget(element ?? null);
+    const batchUpdate = useBatchUpdates();
 
     setElementRef.current = setElement as typeof setElementRef.current;
     openMenuRef.current = useBound(() => setIsOpen(true));
-
-    const style = useMemo<CSSProperties>(() => {
-      if (element == null || width == null || height == null) return {};
-      return calculatePosition(element.getBoundingClientRect(), { width, height });
-    }, [isOpen, isOver, width, height]);
 
     useLayoutEffect(() => {
       if (propsIsOpen) {
@@ -86,9 +70,7 @@ export function usePopupMenu() {
     }, [propsIsOpen]);
 
     useEffect(() => {
-      if (isOpen && isOver && propsIsOpen == null) {
-        canBeAutoHiddenRef.current = true;
-      } else if (isOpen && !isOver && canBeAutoHiddenRef.current && propsIsOpen == null) {
+      if (isOpen && !isOver && canBeAutoHiddenRef.current && propsIsOpen == null) {
         autoHideTimeoutRef.current = setTimeout(() => {
           if (isUnmounted()) return;
           canBeAutoHiddenRef.current = false;
@@ -96,27 +78,73 @@ export function usePopupMenu() {
         }, 400);
       } else {
         clearTimeout(autoHideTimeoutRef.current as any);
+        if (isOpen && isOver && propsIsOpen == null) canBeAutoHiddenRef.current = true;
       }
     }, [isOpen, isOver, propsIsOpen]);
 
-    if (!location) return null;
+    const close = useBound(() => batchUpdate(() => {
+      setIsOpen(false);
+      setIsNotOver();
+      if (isInPopup) closeParentPopup();
+    }));
 
-    return createPortal(
-      <Flex
-        ref={resizeTarget}
-        tagName="popup-menu"
-        className={join(css.popupMenu, (isOpen || isOver) && css.isOpen)}
-        style={style}
-        onMouseOver={setIsOver}
-        onMouseEnter={setIsOver}
-        onMouseLeave={setIsNotOver}
-        onMouseOut={setIsNotOver}
+    const targetElementWidth = useWidthOfTargetElement ? width : undefined;
+
+    const handleIsOver = useBound(() => batchUpdate(() => {
+      setIsOver();
+      if (propsIsOpen == null) setIsOpen(true);
+    }));
+
+    const handleIsNotOver = useBound(() => batchUpdate(() => {
+      setIsNotOver();
+    }));
+
+    const anchorOrigin = useMemo<PopoverOrigin>(() => ({
+      horizontal: targetAnchorPosition === 'topLeft' || targetAnchorPosition === 'bottomLeft' ? offsetPosition : (width ?? 0) - offsetPosition,
+      vertical: targetAnchorPosition === 'topLeft' || targetAnchorPosition === 'topRight' ? offsetPosition : (height ?? 0) - offsetPosition,
+    }), [width, height, targetAnchorPosition, offsetPosition]);
+
+    const transformOrigin = useMemo<PopoverOrigin>(() => ({
+      horizontal: menuAnchorPosition === 'bottomLeft' || menuAnchorPosition === 'topLeft' ? 'left' : 'right',
+      vertical: menuAnchorPosition === 'topLeft' || menuAnchorPosition === 'topRight' ? 'top' : 'bottom',
+    }), [menuAnchorPosition]);
+
+    const paperProps = useMemo<PaperProps>(() => ({
+      onMouseEnter: handleIsOver,
+      onMouseOver: handleIsOver,
+      onMouseLeave: handleIsNotOver,
+      onMouseOut: handleIsNotOver,
+    }), []);
+
+    const slotProps = useMemo<PopoverProps['slotProps']>(() => ({
+      root: {
+        className: css.slotProps,
+      },
+    }), []);
+
+    const context = useMemo<PopupMenuContextProps>(() => ({
+      isValid: true,
+      close,
+    }), []);
+
+    return (
+      <Popover
+        open={isOpen || isOver}
+        anchorEl={element}
+        slotProps={slotProps}
+        anchorOrigin={anchorOrigin}
+        transformOrigin={transformOrigin}
+        PaperProps={paperProps}
+        hideBackdrop
       >
-        <SubMenuProvider>
-          <Menu {...props} />
-        </SubMenuProvider>
-      </Flex>,
-      document.body);
+        <PopupMenuContext.Provider value={context}>
+          <SubMenuProvider>
+            <Menu {...props} minWidth={props.minWidth ?? targetElementWidth} />
+          </SubMenuProvider>
+        </PopupMenuContext.Provider>
+      </Popover>
+    );
+
   }), []);
 
   return {

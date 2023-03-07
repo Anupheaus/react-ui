@@ -1,15 +1,16 @@
-import { ReactNode, useState } from 'react';
-import { useBooleanState, useDOMRef } from '../../hooks';
+import { ReactNode, useContext, useState } from 'react';
+import { useBooleanState, useBound, useDOMRef } from '../../hooks';
 import { createStyles, TransitionTheme } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { useRipple } from '../Ripple';
 import { MenuTheme } from './MenuTheme';
+import { PopupMenuContext } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
 const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
-  const { active, default: defaultTheme, padding, fontSize, fontWeight } = useTheme(MenuTheme);
+  const { menuItem: { active, default: defaultTheme, padding, fontSize, fontWeight } } = useTheme(MenuTheme);
   const transitionSettings = useTheme(TransitionTheme);
 
   return {
@@ -44,12 +45,14 @@ interface Props {
   className?: string;
   isReadOnly?: boolean;
   children: ReactNode;
+  onSelect?(): void;
 }
 
 export const MenuItem = createComponent('MenuItem', ({
   className,
   isReadOnly = false,
   children,
+  onSelect,
 }: Props) => {
   const { css, join } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
@@ -57,6 +60,12 @@ export const MenuItem = createComponent('MenuItem', ({
   const [element, setElement] = useState<HTMLDivElement>();
   const target = useDOMRef([rippleTarget, setElement]);
   const [hasSubMenu, setHasSubMenu] = useState(false);
+  const { close } = useContext(PopupMenuContext);
+
+  const handleSelect = useBound(() => {
+    close();
+    onSelect?.();
+  });
 
   return (
     <Flex
@@ -68,6 +77,7 @@ export const MenuItem = createComponent('MenuItem', ({
       onMouseEnter={setIsOver}
       onMouseLeave={setIsNotOver}
       onMouseOut={setIsNotOver}
+      onClick={handleSelect}
       disableGrow
     >
       <Ripple stayWithinContainer />

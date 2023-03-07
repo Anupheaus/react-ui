@@ -22,3 +22,4 @@ export * from './SplashScreen';
 export * from './Windows';
 export * from './Scroller';
 export * from './Menu';
+export * from './UserProfileMenu';

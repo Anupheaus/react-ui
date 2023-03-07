@@ -58,7 +58,7 @@ const DemoablePopupMenu = () => {
   const { PopupMenu, target, openMenu } = usePopupMenu();
 
   return (
-    <Flex fixedSize width={500} height={200}>
+    <Flex fixedSize width={500} height={200} valign="top">
       <Button ref={target} onClick={openMenu}>Open Menu</Button>
       <PopupMenu>
         <MenuItem>Menu Item 1</MenuItem>

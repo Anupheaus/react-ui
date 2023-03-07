@@ -1,12 +1,14 @@
-import { ComponentProps, useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { DistributedState, useBatchUpdates, useBound, useDistributedState, useId } from '../../hooks';
 import { createStyles, ThemesProvider } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { WindowsProvider, WindowsRenderer, WindowTheme } from '../Windows';
-import { Dialog } from './Dialog';
+import { Windows, WindowsActionsProvider, WindowTheme } from '../Windows';
+import { Dialog, DialogProps } from './Dialog';
 import { DialogTheme } from './DialogTheme';
+import { DialogWindowActions } from './DialogWindowActions';
+import { DialogState } from './InternalDialogModels';
 
 const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
   const { titleBackgroundColor, titleFontSize, titleFontWeight } = useTheme(DialogTheme);
@@ -31,34 +33,40 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
   };
 });
 
-interface Props extends ComponentProps<typeof Dialog> {
-  state: DistributedState<boolean>;
+interface Props {
+  dialogProps: DialogProps;
+  state: DistributedState<DialogState>;
 }
 
 export const DialogContainer = createComponent('DialogContainer', ({
+  dialogProps,
   state,
-  disableBlurBackground = false,
-  ...props
 }: Props) => {
-  const id = useId();
+  const { disableBlurBackground } = dialogProps;
+  const containerId = useId();
+  const dialogIdRef = useRef(Math.uniqueId());
   const { css, variants, join } = useStyles();
-  const { getAndObserve, set } = useDistributedState(state);
-  const isDialogOpen = getAndObserve();
+  const { getAndObserve } = useDistributedState(state);
+  const { isOpen: isDialogOpen, closeReason } = getAndObserve();
   const [shouldRenderDialog, setShouldRenderDialog] = useState(isDialogOpen);
   const batchUpdates = useBatchUpdates();
 
-  const handleClosed = useBound((reason: string) => batchUpdates(() => {
-    props.onClosed?.(reason);
-    set(false);
+  const handleClosing = useBound(() => {
+    dialogProps.onClosing?.(closeReason ?? 'Unknown');
+  });
+
+  const handleClosed = useBound(() => batchUpdates(() => {
+    dialogIdRef.current = Math.uniqueId(); // give the next dialog a new id
+    dialogProps.onClosed?.(closeReason ?? 'Unknown');
     setShouldRenderDialog(false);
   }));
 
   useLayoutEffect(() => {
     if (!isDialogOpen || disableBlurBackground) return;
     Array.from(document.body.childNodes).forEach(node => {
-      if (!(node instanceof HTMLElement)) return;
+      if (!(node instanceof HTMLElement) || node.getAttribute('data-dialog-container-id') === containerId) return;
       let ids = node.getAttribute('data-dialog-controllers')?.split(',') ?? [];
-      ids = [...ids, id].distinct();
+      ids = [...ids, containerId].distinct();
       node.setAttribute('data-dialog-controllers', ids.join(','));
       if (ids.length > 1) return;
       node.style.transitionDuration = '400ms';
@@ -70,8 +78,8 @@ export const DialogContainer = createComponent('DialogContainer', ({
       Array.from(document.body.childNodes).forEach(node => {
         if (!(node instanceof HTMLElement)) return;
         let ids = node.getAttribute('data-dialog-controllers')?.split(',') ?? [];
-        if (!ids.includes(id)) return;
-        ids = ids.remove(id);
+        if (!ids.includes(containerId)) return;
+        ids = ids.remove(containerId);
         if (ids.length > 0) {
           node.setAttribute('data-dialog-controllers', ids.join(','));
         } else {
@@ -90,12 +98,14 @@ export const DialogContainer = createComponent('DialogContainer', ({
   if (!shouldRenderDialog) return null;
 
   return createPortal((
-    <Tag name="dialog-container" className={css.dialogContainer}>
+    <Tag name="dialog-container" className={css.dialogContainer} data-dialog-container-id={containerId}>
       <ThemesProvider themes={join(variants.windowTheme)}>
-        <WindowsProvider>
-          <Dialog {...props} onClosed={handleClosed} />
-          <WindowsRenderer />
-        </WindowsProvider>
+        <WindowsActionsProvider>
+          <DialogWindowActions id={dialogIdRef.current} isDialogOpen={isDialogOpen} />
+          <Windows>
+            <Dialog {...dialogProps} id={dialogIdRef.current} onClosing={handleClosing} onClosed={handleClosed} />
+          </Windows>
+        </WindowsActionsProvider>
       </ThemesProvider>
     </Tag>
   ), document.body);

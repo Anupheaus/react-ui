@@ -20,7 +20,7 @@ export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dep
   const state = (createState ? useRef<any>({ [State]: createState(), [Callbacks]: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
   const update = useForceUpdate();
   const firstRenderRef = useRef(true);
-  const [invoke, register] = state.current[Callbacks] as ReturnType<typeof useCallbacks>;
+  const { invoke, register } = state.current[Callbacks] as ReturnType<typeof useCallbacks>;
 
   const get = useBound(() => state.current[State]);
   const observe = useBound(() => register(update));

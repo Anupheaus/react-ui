@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect } from 'react';
+import { ReactNode, useLayoutEffect, useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -8,15 +8,15 @@ import { useSubMenu } from './SubMenuProvider';
 import { usePopupMenu } from './usePopupMenu';
 
 const useStyles = createStyles(({ useTheme }) => {
-  const { default: { backgroundColor, textColor } } = useTheme(MenuTheme);
+  const { backgroundColor } = useTheme(MenuTheme);
   return {
     styles: {
       menu: {
         backgroundColor,
-        color: textColor,
         margin: 0,
         padding: 0,
         appearance: 'none',
+        pointerEvents: 'all',
       },
     },
   };
@@ -26,6 +26,7 @@ interface Props {
   className?: string;
   gap?: number;
   children: ReactNode;
+  minWidth?: string | number;
 }
 
 export const Menu = createComponent('Menu', (props: Props) => {
@@ -33,10 +34,15 @@ export const Menu = createComponent('Menu', (props: Props) => {
     className,
     gap,
     children,
+    minWidth,
   } = props;
   const { css, join } = useStyles();
   const { PopupMenu, target } = usePopupMenu();
   const { isVisible, isSubMenu, element, onHasSubMenu } = useSubMenu();
+
+  const style = useMemo(() => ({
+    minWidth,
+  }), [minWidth]);
 
   useLayoutEffect(() => {
     onHasSubMenu(element != null);
@@ -50,7 +56,7 @@ export const Menu = createComponent('Menu', (props: Props) => {
     );
   } else {
     return (
-      <Flex tagName="menu" isVertical gap={gap} className={join(css.menu, className)} disableGrow>
+      <Flex tagName="menu" isVertical gap={gap} className={join(css.menu, className)} disableGrow style={style}>
         <Scroller>
           {children}
         </Scroller>

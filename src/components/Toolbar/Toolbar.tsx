@@ -25,7 +25,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
         borderWidth: 1,
         borderStyle: 'solid',
         borderRadius,
-        minHeight: 34,
+        minHeight: 30,
         alignItems: 'center',
         boxSizing: 'border-box',
         position: 'relative',

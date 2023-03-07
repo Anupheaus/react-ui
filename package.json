@@ -21,7 +21,7 @@
   ],
   "typings": "dist/index",
   "dependencies": {
-    "@anupheaus/common": "^0.0.19",
+    "@anupheaus/common": "^0.0.20",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.10.13",
@@ -34,7 +34,8 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.6.0",
     "tss-react": "^4.4.4",
-    "use-resize-observer": "^9.0.2"
+    "use-resize-observer": "^9.0.2",
+    "crypto-js": "^4.1.1"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^6.5.13",
@@ -47,6 +48,7 @@
     "@testing-library/react": "^13.4.0",
     "@types/jest": "^29.2.2",
     "@types/node": "^18.11.9",
+    "@types/crypto-js": "^4.1.1",
     "@types/luxon": "^3.1.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",

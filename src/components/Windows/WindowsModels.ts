@@ -1,10 +1,10 @@
 export interface WindowState {
   id: string;
-  isMaximized: boolean;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
+  isMaximized?: boolean;
+  x?: string | number;
+  y?: string | number;
+  width?: string | number;
+  height?: string | number;
 }
 
 export interface WindowApi {

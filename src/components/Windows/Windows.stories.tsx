@@ -1,30 +1,36 @@
-import { useBound, useStorage } from '../../hooks';
+import { useBound } from '../../hooks';
 import { createStories, StorybookComponent } from '../../Storybook';
 import { Button } from '../Button';
-import { WindowsRenderer } from './WindowsRenderer';
-import { WindowsProvider } from './WindowsProvider';
 import { createComponent } from '../Component';
-import { useWindows } from './useWindows';
+import { useWindowActions } from './useWindowActions';
 import { Window } from './Window';
 import { Flex } from '../Flex';
 import { WindowState } from './WindowsModels';
-import { useRef } from 'react';
+import { Windows } from './Windows';
+import { createStyles } from '../../theme';
+import { WindowsActionsProvider } from './WindowsActionsProvider';
 
-const WindowsController = createComponent('WindowsController', () => {
-  const { addWindow } = useWindows();
-  const windowCounterRef = useRef(0);
+const useStyles = createStyles({
+  new: {
+    flex: 'auto',
+    boxSizing: 'border-box',
+  },
+});
+
+const WindowActions = createComponent('WindowActions', () => {
+  const { closeWindow, addWindow } = useWindowActions();
+
+  const handleCloseWindow = useBound(() => {
+    closeWindow('2');
+  });
 
   const handleAddWindow = useBound(() => {
-    windowCounterRef.current += 1;
-    addWindow(
-      <Window id={`window_${windowCounterRef.current}`} title="My Test Window">
-        This is the content of the window.
-      </Window>
-    );
+    addWindow({ id: '3' });
   });
 
   return (
     <Flex fixedSize>
+      <Button onClick={handleCloseWindow}>Close Window</Button>
       <Button onClick={handleAddWindow}>Add Window</Button>
     </Flex>
   );
@@ -43,20 +49,21 @@ createStories<Props>(({ createStory }) => ({
   stories: {
     'Default': createStory({
       wrapInStorybookComponent: false,
-      component: props => {
-        const { state, setState } = useStorage<WindowState[]>('windows', { type: 'local', defaultValue: () => [] });
+      component: () => {
+        const { css } = useStyles();
 
-        const handleSaveState = useBound((updates: WindowState[]) => {
-          setState(updates);
-          props.onSaveState?.(updates);
-        });
-
+        const handleCreateNewWindow = useBound((data: WindowState) => (
+          <Window id={data.id} title={'This is my new window'} />
+        ));
         return (
-          <StorybookComponent width={1000} height={600} title={'Default'} isVertical>
-            <WindowsProvider {...props} state={state} onSaveState={handleSaveState}>
-              <WindowsController />
-              <WindowsRenderer />
-            </WindowsProvider>
+          <StorybookComponent width={'100%'} height={550} title={'Default'} className={css.new} isVertical>
+            <WindowsActionsProvider>
+              <WindowActions />
+              <Windows onCreateNewWindow={handleCreateNewWindow}>
+                <Window id="1" title={'This is my title'} minHeight={200} />
+                <Window id="2" title={'This is my dialog'} initialPosition={'center'} />
+              </Windows>
+            </WindowsActionsProvider>
           </StorybookComponent>
         );
       },

@@ -1,22 +1,22 @@
 import { createComponent } from '../Component';
-import { useUIState } from '../../providers';
 import { useRipple } from '../Ripple';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 import { useBound } from '../../hooks';
 import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { createStyles, TransitionTheme } from '../../theme';
-import { Children, MouseEvent, ReactNode, Ref } from 'react';
+import { Children, KeyboardEvent, MouseEvent, ReactNode, Ref, useRef } from 'react';
 import { Tag } from '../Tag';
 import { ButtonTheme } from './ButtonTheme';
 import { IconButtonTheme } from './IconButtonTheme';
-import { is } from '@anupheaus/common';
+import { is, PromiseMaybe } from '@anupheaus/common';
 import { Icon } from '../Icon';
 
 export interface ButtonProps {
   className?: string;
   ref?: Ref<HTMLButtonElement>;
   onClick?(event: MouseEvent): void;
+  onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
   size?: 'default' | 'small' | 'large';
   children?: ReactNode;
 }
@@ -60,12 +60,6 @@ const useStyles = createStyles(({ useTheme }, { children }: ButtonProps) => {
           color: activeTextColor,
         },
       },
-      isLoading: {
-        pointerEvents: 'none',
-        cursor: 'default',
-        visibility: 'hidden',
-        borderWidth: 0,
-      },
       size_variant_default: {
         ...(isIconOnly ? {
           width: 30,
@@ -95,13 +89,19 @@ export const Button = createComponent('Button', ({
   ref,
   size = 'default',
   onClick,
+  onSelect,
 }: ButtonProps) => {
   const { css, join } = useStyles();
-  const { isLoading } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
   const eventsIsolator = useEventIsolator({ clickEvents: 'propagation', focusEvents: 'propagation', onParentElement: true });
+  const useAnimatedBorderEffectRef = useRef(false);
   const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
-  const handleClick = useBound((event: MouseEvent) => onClick?.(event));
+  const handleClick = useBound(async (event: MouseEvent) => {
+    onClick?.(event);
+    useAnimatedBorderEffectRef.current = true;
+    await onSelect?.(event);
+    useAnimatedBorderEffectRef.current = false;
+  });
 
   return (
     <Tag
@@ -109,7 +109,6 @@ export const Button = createComponent('Button', ({
       name={'button'}
       className={join(
         css.button,
-        isLoading && css.isLoading,
         css[`size_variant_${size}`],
         className,
       )}
@@ -119,7 +118,7 @@ export const Button = createComponent('Button', ({
       <NoSkeletons>
         {children}
       </NoSkeletons>
-      <Skeleton />
+      <Skeleton useAnimatedBorder={useAnimatedBorderEffectRef.current} />
     </Tag>
   );
 });

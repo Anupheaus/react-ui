@@ -51,11 +51,9 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
         flexShrink: 0,
         backgroundColor,
         color: textColor,
-        padding: '0 12px',
         boxShadow: `0 0 0 1px ${borderColor}`,
         borderRadius,
-        minHeight: 34,
-        alignItems: 'center',
+        minHeight: 30,
         boxSizing: 'border-box',
         position: 'relative',
         overflow: 'hidden',
@@ -67,15 +65,23 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
           color: activeTextColor,
         },
       },
+      inputContainer: {
+        display: 'flex',
+        flexGrow: 1,
+        flexShrink: 1,
+        position: 'relative',
+        overflow: 'hidden',
+      },
       input: {
         outline: 'none',
         appearance: 'textfield',
+        position: 'absolute',
+        inset: 0,
         border: 0,
-        padding: 0,
-        width: 0,
-        flexGrow: 1,
+        padding: '0 12px',
         textOverflow: 'ellipsis',
-        backgroundColor: 'transparent',
+        overflow: 'hidden',
+        backgroundColor: 'transparent!important',
       },
       isLoading: {
         visibility: 'hidden',
@@ -84,15 +90,11 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
         borderRadius: 0,
         borderWidth: 0,
         borderLeftWidth: 1,
-        marginRight: -12,
-        marginLeft: 12,
       },
       toolbarAtStart: {
         borderRadius: 0,
         borderWidth: 0,
         borderRightWidth: 1,
-        marginLeft: -12,
-        marginRight: 12,
       },
     },
   };
@@ -127,13 +129,15 @@ export const InternalText = createComponent('InternalText', function <T = unknow
         <Ripple />
         <NoSkeletons>
           {startAdornments instanceof Array && <Toolbar className={css.toolbarAtStart}>{startAdornments}</Toolbar>}
-          <input
-            ref={innerRef}
-            type={type}
-            className={join(css.input, inputClassName)}
-            value={(value ?? '') as any}
-            onChange={bind(event => onChange?.(event.target.value as any))}
-          />
+          <Tag name={`${tagName}-input-container`} className={css.inputContainer}>
+            <input
+              ref={innerRef}
+              type={type}
+              className={join(css.input, inputClassName)}
+              value={(value ?? '') as any}
+              onChange={bind(event => onChange?.(event.target.value as any))}
+            />
+          </Tag>
           {endAdornments instanceof Array && <Toolbar className={css.toolbarAtEnd}>{endAdornments}</Toolbar>}
         </NoSkeletons>
         <Skeleton />

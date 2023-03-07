@@ -16,7 +16,7 @@ export function useDelegatedBound<TFunc extends DelegatedBoundFunc>(delegate: TF
   const cache = useRef<Map<string, LoopBoundCachedItemType>>(new Map()).current;
 
   return ((...args) => {
-    const key = args.map(arg => stringify(arg, replacer)).join('|').hash(40);
+    const key = args.map(arg => stringify(arg, replacer)).join('|').hash();
     let data = cache.get(key);
     if (!data) {
       data = {

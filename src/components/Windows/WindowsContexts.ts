@@ -1,25 +1,35 @@
-import { createContext, ReactNode } from 'react';
-import { WindowProps } from './WindowRenderer';
-import { WindowApi, WindowState } from './WindowsModels';
+import { PromiseMaybe } from '@anupheaus/common';
+import { createContext } from 'react';
+import { WindowState } from './WindowsModels';
 
-export interface WindowsContextWindowEvent {
-  type: 'updated' | 'closed';
-  state: WindowState;
-}
-
-export interface WindowsContextsUseWindowApi {
-  addWindow(window: ReactNode): Promise<WindowApi>;
-}
-
-export type WindowsContextsRegisterWindow = (props: WindowProps, registerApi: (api: WindowApi) => void) => void;
-
-export type WindowsContextsUpdateStates = (newStates: WindowState[]) => void;
-
-export const WindowsContexts = {
-  windows: createContext<ReactNode[]>([]),
-  registerApi: createContext<(api: WindowApi) => void>(() => void 0),
-  registerWindow: createContext<WindowsContextsRegisterWindow>(() => void 0),
-  useWindows: createContext<WindowsContextsUseWindowApi>({ addWindow: () => Promise.resolve({} as WindowApi) }),
-  initialStates: createContext<WindowState[]>([]),
-  stateUpdates: createContext<WindowsContextsUpdateStates>(() => void 0),
+export type WindowsActionTypes = {
+  close(): Promise<void>;
+  focus(): Promise<void>;
+  closed(): Promise<void>;
+  updateOrdinal(index: number, isFocused: boolean): Promise<void>;
+  updateState(state: WindowState): Promise<void>;
+  open<T extends WindowState>(config: T): Promise<void>;
 };
+
+export interface WindowsActionsContextProps {
+  isValid: boolean;
+  invoke<K extends keyof WindowsActionTypes>(id: string, action: K, ...args: Parameters<WindowsActionTypes[K]>): Promise<void>;
+  onAction<K extends keyof WindowsActionTypes>(id: string, action: K, delegate: (...args: Parameters<WindowsActionTypes[K]>) => PromiseMaybe<void>): void;
+  onAction<K extends keyof WindowsActionTypes>(action: K, delegate: (id: string, ...args: Parameters<WindowsActionTypes[K]>) => PromiseMaybe<void>): void;
+}
+
+export const WindowsActionsContext = createContext<WindowsActionsContextProps>({
+  isValid: false,
+  invoke: () => Promise.resolve(),
+  onAction: () => void 0,
+});
+
+export interface WindowsContextProps {
+  isValid: boolean;
+  states: WindowState[];
+}
+
+export const WindowsContext = createContext<WindowsContextProps>({
+  isValid: false,
+  states: [],
+});

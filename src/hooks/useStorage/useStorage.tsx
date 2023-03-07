@@ -7,10 +7,10 @@ interface Props<T> {
   defaultValue?(): T;
 }
 
-function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] | undefined, storage: Storage): T {
-  if (!(key in storage)) { return defaultValue?.() as T; }
+function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] | undefined, storage: Storage): T | undefined {
+  if (!(key in storage)) { return defaultValue?.(); }
   const value = storage.getItem(key);
-  if (value == null || value.length === 0 || value === 'null') return defaultValue?.() as T;
+  if (value == null || value.length === 0 || value === 'null') return defaultValue?.();
   try {
     return JSON.parse(value) as unknown as T;
   } catch (err) {
@@ -24,9 +24,9 @@ function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => 
   const hasKey = (key in storage);
   const [state, internalSetState] = useState(getFromStorage<T>(key, defaultValue, storage));
 
-  const setState = useBound((param: SetStateAction<T>) =>
+  const setState = useBound((param: SetStateAction<T | undefined>) =>
     internalSetState(prevState => {
-      const newState = typeof (param) === 'function' ? (param as (prevState: T) => T)(prevState) : param;
+      const newState = typeof (param) === 'function' ? (param as (prevState: T | undefined) => T | undefined)(prevState) : param;
       if (newState == null) {
         storage.removeItem(key);
       } else {
@@ -46,8 +46,8 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
   const batchUpdates = useBatchUpdates();
 
   let state: T | undefined;
-  let setState: Dispatch<SetStateAction<T>> | undefined;
-  let firstSetState: Dispatch<SetStateAction<T>> | undefined;
+  let setState: Dispatch<SetStateAction<T | undefined>> | undefined;
+  let firstSetState: Dispatch<SetStateAction<T | undefined>> | undefined;
   let hasState = false;
 
   if (!firstStorage && !secondStorage) throw new Error('No browser storage available.');
@@ -61,7 +61,7 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
 
   if (secondStorage) {
     const { state: innerState, setState: innerSetState } = useStorageState(key, secondStorage, defaultValue);
-    setState = useBound((param: SetStateAction<T>) => {
+    setState = useBound((param: SetStateAction<T | undefined>) => {
       batchUpdates(() => {
         firstSetState?.(param);
         innerSetState(param);
@@ -71,7 +71,7 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
   }
 
   return {
-    state: state!,
+    state: state,
     get isInSessionStorage() { return key in window.sessionStorage; },
     get isInLocalStorage() { return key in window.localStorage; },
     setState: setState!,

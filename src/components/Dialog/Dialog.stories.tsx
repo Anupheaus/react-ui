@@ -4,6 +4,7 @@ import { Button } from '../Button';
 import { createStyles, ThemesProvider } from '../../theme';
 import { DialogTheme } from './DialogTheme';
 import { Flex } from '../Flex';
+import { useBound } from '../../hooks';
 
 const useStyles = createStyles({
   background: {
@@ -31,12 +32,17 @@ createStories(({ createStory }) => ({
         const { css } = useStyles();
         const { Dialog, DialogContent, DialogActions, openDialog, OkButton } = useDialog();
 
+        const handleClosed = useBound((reason: string) => {
+          // eslint-disable-next-line no-console
+          console.log('Dialog closed', reason);
+        });
+
         return (<>
           <ThemesProvider themes={[MyDialogTheme]}>
             <Flex tagName="dialog-test" valign="top" align="left">
               <Flex tagName="background" className={css.background} />
               <Button onClick={openDialog}>Test</Button>
-              <Dialog title={'Test Dialog'}>
+              <Dialog title={'Test Dialog'} onClosed={handleClosed}>
                 <DialogContent>
                   This is the content of the Dialog
                 </DialogContent>

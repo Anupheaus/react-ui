@@ -4,14 +4,18 @@ export const MenuTheme = createTheme({
   id: 'MenuTheme',
 
   definition: {
-    default: {
-      ...DefaultTheme.action.default,
+    backgroundColor: 'transparent',
+
+    menuItem: {
+      default: {
+        ...DefaultTheme.action.default,
+      },
+      active: {
+        ...DefaultTheme.action.active,
+      },
+      fontSize: 13,
+      fontWeight: 400,
+      padding: 8,
     },
-    active: {
-      ...DefaultTheme.action.active,
-    },
-    fontSize: 13,
-    fontWeight: 400,
-    padding: 8,
   },
 });

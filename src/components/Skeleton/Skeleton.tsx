@@ -5,6 +5,7 @@ import { createStyles, createAnimationKeyFrame } from '../../theme';
 import { Tag } from '../Tag';
 import { SkeletonContexts } from './SkeletonContexts';
 import { SkeletonTheme } from './SkeletonTheme';
+import { AnimatingBorder } from '../AnimatingBorder';
 
 const animation = createAnimationKeyFrame({
   from: {
@@ -14,15 +15,6 @@ const animation = createAnimationKeyFrame({
     opacity: 1,
   },
 });
-
-interface Props {
-  className?: string;
-  contentClassName?: string;
-  variant?: 'full' | 'text' | 'circle';
-  isVisible?: boolean;
-  children?: ReactNode;
-  onClick?(event: MouseEvent<HTMLDivElement>): void;
-}
 
 const useStyles = createStyles(({ useTheme }) => {
   const { color } = useTheme(SkeletonTheme);
@@ -54,13 +46,20 @@ const useStyles = createStyles(({ useTheme }) => {
       },
       isVisible: {
         visibility: 'visible',
+        pointerEvents: 'all',
+        cursor: 'default',
+      },
+      isPulsing: {
         animationPlayState: 'running',
       },
       isHidden: {
         visibility: 'hidden',
         pointerEvents: 'none',
       },
-
+      usingAnimatedBorder: {
+        backgroundColor: 'transparent',
+        visibility: 'visible',
+      },
       variant_full: {
 
       },
@@ -81,9 +80,22 @@ const useStyles = createStyles(({ useTheme }) => {
       },
       variant_content_circle: {
       },
+      animatedBorder: {
+        visibility: 'visible',
+      },
     },
   };
 });
+
+interface Props {
+  className?: string;
+  contentClassName?: string;
+  variant?: 'full' | 'text' | 'circle';
+  isVisible?: boolean;
+  children?: ReactNode;
+  useAnimatedBorder?: boolean;
+  onClick?(event: MouseEvent<HTMLDivElement>): void;
+}
 
 export const Skeleton = createComponent('Skeleton', ({
   className,
@@ -91,6 +103,7 @@ export const Skeleton = createComponent('Skeleton', ({
   variant = 'full',
   isVisible,
   children = null,
+  useAnimatedBorder = false,
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
@@ -100,8 +113,19 @@ export const Skeleton = createComponent('Skeleton', ({
   if (!isLoading && children != null) return (<>{children}</>);
 
   return (
-    <Tag name="skeleton" className={join(css.skeleton, children == null && css.absolutePositioning, isLoading && !noSkeletons && css.isVisible, css[`variant_${variant}`], className)}>
-      {children != null && (
+    <Tag
+      name="skeleton"
+      className={join(
+        css.skeleton,
+        children == null && css.absolutePositioning,
+        isLoading && !noSkeletons && css.isVisible,
+        useAnimatedBorder && css.usingAnimatedBorder,
+        isLoading && !noSkeletons && !useAnimatedBorder && css.isPulsing,
+        css[`variant_${variant}`],
+        className
+      )}
+    >
+      {children != null && (useAnimatedBorder ? children : (
         <Tag
           name="skeleton-content"
           className={join(css.content, css[`variant_content_${variant}`], isLoading && css.isHidden, contentClassName)}
@@ -109,7 +133,8 @@ export const Skeleton = createComponent('Skeleton', ({
         >
           {children}
         </Tag>
-      )}
+      ))}
+      <AnimatingBorder isEnabled={useAnimatedBorder && !noSkeletons} className={css.animatedBorder} />
     </Tag>
   );
 });
