@@ -5,17 +5,18 @@ import type { IconType } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { IconTheme } from './IconTheme';
-import { IconDefinitions, IconName } from './Icons';
+import { IconDefinitions, LocalIconDefinitions } from './Icons';
 import { is } from '@anupheaus/common';
 
 export { IconType };
 
-interface Props {
-  name: IconName;
+interface Props<T extends IconDefinitions = IconDefinitions> {
+  name: keyof T;
   className?: string;
   size?: 'normal' | 'small' | 'large' | number;
   ref?: Ref<HTMLDivElement>;
 }
+
 const useStyles = createStyles(({ useTheme }) => {
   const { opacity } = useTheme(IconTheme);
   return {
@@ -34,12 +35,12 @@ const useStyles = createStyles(({ useTheme }) => {
   };
 });
 
-export const Icon = createComponent('Icon', ({
+const IconComponent = createComponent('Icon', function <T extends IconDefinitions>({
   name,
   className,
   size = 'normal',
   ref,
-}: Props) => {
+}: Props<T>) {
   const { css, join } = useStyles();
   const sizeAmount = (() => {
     if (typeof (size) === 'number') return size;
@@ -51,8 +52,8 @@ export const Icon = createComponent('Icon', ({
   })();
 
   const icon = useMemo(() => {
-    let iconFunc = IconDefinitions[name];
-    if (!is.function(iconFunc)) iconFunc = IconDefinitions['no-image'];
+    let iconFunc = LocalIconDefinitions[name as keyof typeof LocalIconDefinitions];
+    if (!is.function(iconFunc)) iconFunc = LocalIconDefinitions['no-image'];
     return iconFunc({ size: sizeAmount });
   }, [name, sizeAmount]);
 
@@ -62,3 +63,18 @@ export const Icon = createComponent('Icon', ({
     </Tag>
   );
 });
+
+const Icon = IconComponent as typeof IconComponent & { augmentWith<T extends IconDefinitions>(icons: T): typeof IconComponent & T; };
+
+Icon.augmentWith = () => {
+  // do nothing
+};
+
+export { Icon };
+
+
+const NewIcon = Icon.augmentWith({
+  blah: () => <></>,
+});
+
+const a = <NewIcon name="blah" />;

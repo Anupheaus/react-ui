@@ -21,7 +21,7 @@
   ],
   "typings": "dist/index",
   "dependencies": {
-    "@anupheaus/common": "^0.0.20",
+    "@anupheaus/common": "link:../common/src",
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@mui/material": "^5.10.13",
@@ -71,6 +71,8 @@
     "webpack-node-externals": "^3.0.0",
     "terser-webpack-plugin": "^5.3.6",
     "circular-dependency-plugin": "^5.2.2",
-    "@faker-js/faker": "^7.6.0"
+    "@faker-js/faker": "^7.6.0",
+    "@babel/core": "^7.21.3",
+    "require-from-string": "^2.0.2"
   }
 }

@@ -14,7 +14,7 @@ interface Props {
 }
 
 const useStyles = createStyles(({ useTheme }) => {
-  const { headers: { backgroundColor, fontColor: color, fontSize } } = useTheme(GridTheme);
+  const { headers: { backgroundColor, textColor: color, fontSize } } = useTheme(GridTheme);
 
   return {
     styles: {

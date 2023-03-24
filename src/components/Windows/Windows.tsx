@@ -1,3 +1,4 @@
+import { AnyObject, is } from '@anupheaus/common';
 import { Fragment, ReactNode, useContext, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks';
 import { createStyles } from '../../theme';
@@ -15,17 +16,19 @@ const useStyles = createStyles({
 });
 
 interface Props {
-  children: ReactNode;
+  className?: string;
+  children?: ReactNode;
   onStatesUpdated?(states: WindowState[]): void;
-  onCreateNewWindow?<T extends WindowState>(data: T): ReactNode;
+  onCreateNewWindow?(data: WindowState & AnyObject): ReactNode;
 }
 
 export const Windows = createComponent('Windows', ({
-  children,
+  className,
+  children = null,
   onStatesUpdated,
   onCreateNewWindow,
 }: Props) => {
-  const { css } = useStyles();
+  const { css, join } = useStyles();
   const { invoke, onAction } = useContext(WindowsActionsContext);
   const extraChildren = useRef(new Map<string, ReactNode>()).current;
   const [extraChildrenId, setExtraChildrenId] = useState('');
@@ -56,7 +59,7 @@ export const Windows = createComponent('Windows', ({
 
   onAction('updateState', async (_id, state) => {
     const newStates = context.states.upsert(state);
-    if (Reflect.areDeepEqual(newStates, context.states)) return;
+    if (is.deepEqual(newStates, context.states)) return;
     const shouldUpdateWindowsOrdinalPositions = newStates.length !== context.states.length;
     context.states = newStates;
     if (shouldUpdateWindowsOrdinalPositions) await updateWindowsOrdinalPositions();
@@ -77,7 +80,7 @@ export const Windows = createComponent('Windows', ({
   )), [extraChildrenId]);
 
   return (
-    <Flex tagName="windows" className={css.windows}>
+    <Flex tagName="windows" className={join(css.windows, className)}>
       <WindowsContext.Provider value={context}>
         {children}
         {renderedExtraChildren}

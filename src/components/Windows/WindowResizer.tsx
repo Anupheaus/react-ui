@@ -18,6 +18,7 @@ const useStyles = createStyles(() => ({
       position: 'absolute',
       inset: 0,
       pointerEvents: 'none',
+      zIndex: 3,
     },
     windowResizerCommon: {
       position: 'absolute',

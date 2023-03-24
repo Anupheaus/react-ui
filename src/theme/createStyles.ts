@@ -43,20 +43,32 @@ export function createStyles<TStyles extends MapOf<CSSObject>>(styles: TStyles):
 // eslint-disable-next-line max-len
 export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants> {
   const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
-  const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'anux' })((_theme, { props, variants, ...utils }) => {
-    if (is.function(stylesOrDelegate)) {
-      const renderedStyles = stylesOrDelegate(utils, props as TProps);
-      Object.assign(variants, renderedStyles.variants ?? {});
-      return renderedStyles.styles ?? {};
-    } else {
-      return stylesOrDelegate;
-    }
+  const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'anux' })((_theme, { props, variants, ...utils }, classes) => {
+    const result = (() => {
+      if (is.function(stylesOrDelegate)) {
+        const renderedStyles = stylesOrDelegate(utils, props as TProps);
+        Object.assign(variants, renderedStyles.variants ?? {});
+        return renderedStyles.styles ?? {};
+      } else {
+        return stylesOrDelegate;
+      }
+    })();
+    const keys = Object.keys(result);
+    Reflect.walk(result, ({ name, rename }) => {
+      if (!name.includes('$')) return;
+      const foundKey = keys.find(key => name.includes(`$${key}`));
+      if (foundKey) rename(name.replace(`$${foundKey}`, (classes as AnyObject)[foundKey]));
+    });
+    return result;
   });
 
-  function useStyles() {
+  function useStyles(providedProps?: AnyObject) {
     const utils = require('./useThemesProvider').useThemesProvider();
     const variants = {} as TVariants;
-    const props = internalThemes.styles.synchronousProps;
+    const props = {
+      ...internalThemes.styles.synchronousProps,
+      ...providedProps,
+    };
     const { classes: css, cx } = useStylesInnerFunc({ ...utils, variants, props });
     const join = (...classNames: (string | boolean | undefined | Theme)[]) => {
       classNames = classNames.filter(filterClassNames);

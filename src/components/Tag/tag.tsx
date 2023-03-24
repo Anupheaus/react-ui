@@ -3,7 +3,7 @@ import { createElement, CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref, u
 import { createComponent } from '../Component';
 import { AnyObject } from '@anupheaus/common';
 import { TooltipRenderer } from '../Tooltip/TooltipRenderer';
-import { useDOMRef } from '../../hooks';
+import { useDOMRef } from '../../hooks/useDOMRef';
 
 interface Props extends Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, 'ref' | 'className'> {
   name: string;

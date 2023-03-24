@@ -1,15 +1,15 @@
-import { ReactNode, useMemo, useState } from 'react';
+import { ReactElement, useMemo, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
 import { createStyles, ThemesProvider } from '../../theme';
 import { Button } from '../Button';
-import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
+import { InternalText, InternalTextProps } from '../InternalText';
 import { PasswordTheme } from './PasswordTheme';
 import { Icon } from '../Icon';
+import { InternalFieldTheme } from '../InternalField';
 
-interface Props extends InternalTextProps {
-  passwordShowIcon?: ReactNode;
-  passwordHideIcon?: ReactNode;
+interface Props extends InternalTextProps<string> {
+  endAdornments?: ReactElement[];
 }
 
 const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
@@ -17,7 +17,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
   return {
     styles: {},
     variants: {
-      internalTextTheme: createThemeVariant(InternalTextTheme, definition),
+      internalTextTheme: createThemeVariant(InternalFieldTheme, definition),
     },
   };
 });
@@ -30,7 +30,7 @@ export const Password = createComponent('Password', ({
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const handleShowPasswordClick = useBound(() => setIsPasswordVisible(!isPasswordVisible));
 
-  const buttons = useMemo(() => [
+  const buttons = useMemo<ReactElement[]>(() => [
     <Button
       key="showPassword"
       onClick={handleShowPasswordClick}
@@ -47,7 +47,6 @@ export const Password = createComponent('Password', ({
         tagName={'password'}
         type={isPasswordVisible ? 'text' : 'password'}
         endAdornments={buttons}
-
       />
     </ThemesProvider>
   );

@@ -1,5 +1,5 @@
-import { AnyObject } from '@anupheaus/common';
-import { ListItem, ListItems } from '../../models';
+import { AnyObject, ListItems } from '@anupheaus/common';
+import { ReactListItem } from '../../models';
 
 export interface Api {
   get<T>(url: string): Promise<T>;
@@ -11,7 +11,7 @@ export interface Api {
   getHeaders(): Record<string, string>;
 }
 
-interface ApiFilterOperatorListItem extends ListItem {
+interface ApiFilterOperatorListItem extends ReactListItem {
   operatorSymbol: string;
   valueModification(value: unknown): unknown;
 }

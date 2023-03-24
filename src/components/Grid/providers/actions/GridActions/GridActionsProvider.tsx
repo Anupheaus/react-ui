@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from 'react';
-import { ListItem } from '../../../../../models';
+import { ReactListItem } from '../../../../../models';
 import { createComponent } from '../../../../Component';
 import { Records } from '@anupheaus/common';
 import { GridActionsContext, GridActionsContextProps } from './GridActionsContext';
@@ -13,7 +13,7 @@ export const GridActionsProvider = createComponent('GridActionsProvider', ({
 }: Props) => {
 
   const context = useMemo<GridActionsContextProps>(() => ({
-    actions: new Records<ListItem>(),
+    actions: new Records<ReactListItem>(),
   }), []);
 
   return (

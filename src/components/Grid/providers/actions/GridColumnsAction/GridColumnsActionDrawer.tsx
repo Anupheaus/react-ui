@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { UseActions, useBound, useDelegatedBound } from '../../../../../hooks';
-import { ListItem } from '../../../../../models';
+import { ReactListItem } from '../../../../../models';
 import { createStyles, ThemesProvider } from '../../../../../theme';
 import { Button, ButtonTheme } from '../../../../Button';
 import { Checkbox } from '../../../../Checkbox';
 import { createComponent } from '../../../../Component';
 import { DrawerTheme, useDrawer } from '../../../../Drawer';
 import { Flex } from '../../../../Flex';
+import { Icon } from '../../../../Icon';
 import { DraggableListItem, List } from '../../../../List';
 import { GridColumn } from '../../../GridModels';
 import { GridTheme } from '../../../GridTheme';
@@ -24,7 +25,7 @@ interface Props {
 }
 
 const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
-  const { headers: { backgroundColor, fontColor } } = useTheme(GridTheme);
+  const { headers: { backgroundColor, textColor } } = useTheme(GridTheme);
   return {
     styles: {
 
@@ -33,14 +34,14 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
       drawerTheme: createThemeVariant(DrawerTheme, {
         header: {
           backgroundColor,
-          textColor: fontColor,
+          textColor,
         },
       }),
       buttons: createThemeVariant(ButtonTheme, {
         backgroundColor: 'transparent',
         activeBackgroundColor: 'rgba(0 0 0 / 20%)',
-        textColor: fontColor,
-        activeTextColor: fontColor,
+        textColor,
+        activeTextColor: textColor,
       }),
     },
   };
@@ -60,13 +61,13 @@ export const GridColumnsActionDrawer = createComponent('GridColumnsActionDrawer'
   const toggleColumnVisibility = useDelegatedBound((id: string) => (isVisible: boolean) =>
     onChange(columns.update(column => column.id === id, column => ({ ...column, isVisible }))));
 
-  const handleColumnsChanged = useBound((items: ListItem[]) => {
+  const handleColumnsChanged = useBound((items: ReactListItem[]) => {
     const newColumns = items.orderBy(({ ordinal }) => ordinal).map(({ id }) => columns.find(column => column.id === id)).removeNull();
     if (Reflect.areDeepEqual(newColumns, columns)) return;
     onChange(newColumns);
   });
 
-  const renderedColumns = useMemo(() => columns.map((column): ListItem => ({
+  const renderedColumns = useMemo(() => columns.map((column): ReactListItem => ({
     id: column.id,
     text: column.id,
     label: <DraggableListItem key={column.id} data={column}>
@@ -82,7 +83,7 @@ export const GridColumnsActionDrawer = createComponent('GridColumnsActionDrawer'
         title={'Column Selection & Order'}
         disableBackdropClick
         headerActions={(
-          <Button icon={'button-apply'} onClick={onApply}>Apply</Button>
+          <Button onClick={onApply}><Icon name={'button-apply'} />Apply</Button>
         )}
       >
         <List items={renderedColumns} gap={8} onChange={handleColumnsChanged} borderless disableOverlay />

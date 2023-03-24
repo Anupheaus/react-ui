@@ -17,11 +17,11 @@ interface DemoRecord {
 }
 
 const columns: GridColumn<DemoRecord>[] = [
-  { id: '1', label: 'Name', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.name ?? 'Loading...'}</Skeleton> },
-  { id: '2', label: 'Age **', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.age ?? 'Loading...'}</Skeleton> },
-  { id: '3', label: 'Email', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.email ?? 'Loading...'}</Skeleton> },
-  { id: '4', label: 'Phone', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.phone ?? 'Loading...'}</Skeleton> },
-  { id: '5', label: 'Address', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.address ?? 'Loading...'}</Skeleton> },
+  { id: '1', field: 'name', label: 'Name', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.name ?? 'Loading...'}</Skeleton> },
+  { id: '2', field: 'age', label: 'Age **', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.age ?? 'Loading...'}</Skeleton> },
+  { id: '3', field: 'email', label: 'Email', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.email ?? 'Loading...'}</Skeleton> },
+  { id: '4', field: 'phone', label: 'Phone', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.phone ?? 'Loading...'}</Skeleton> },
+  { id: '5', field: 'address', label: 'Address', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.address ?? 'Loading...'}</Skeleton> },
 ];
 
 faker.seed(10121);
@@ -38,9 +38,7 @@ const records: DemoRecord[] = new Array(100).fill(0).map(() => ({
 
 const DemoableGrid = () => (
   <Flex height={300}>
-    <Grid>
-      <GridColumns columns={columns} />
-    </Grid>
+    <Grid columns={columns} />
   </Flex>);
 
 createStories(({ createStory }) => ({
@@ -58,10 +56,7 @@ createStories(({ createStory }) => ({
         });
 
         return (
-          <Grid>
-            <GridColumns columns={localColumns} onChange={setLocalColumns} />
-            <GridRecords records={records} onRefresh={refresh} />
-          </Grid>
+          <Grid columns={localColumns} records={records} />
         );
       },
     }),

@@ -13,6 +13,8 @@ import { GridActionsRenderer } from './providers/actions/GridActions/GridActions
 import { useGridColumns } from './providers/columns/GridColumns/useGridColumns';
 import { useGridRecords } from './providers/records/GridRecords/useGridRecords';
 
+const loadingRecords = Array.ofSize(10).map((_, index) => ({ id: `loading-${index}` }));
+
 interface Props {
   isActionsVisible: boolean;
 }
@@ -80,8 +82,9 @@ export const GridRender = createComponent('GridRender', ({
       columnIndex={index}
     />
   )), [visibleColumns]);
+
   const rowCells = useMemo(() => {
-    const recordsToRender = isLoading ? records.length > 0 ? records : Array.ofSize(10) : records;
+    const recordsToRender = isLoading ? (records.length > 0 ? records : loadingRecords) : records;
     return recordsToRender
       .map((record, rowIndex, recordsArray) => visibleColumns
         .map((column, columnIndex) => (

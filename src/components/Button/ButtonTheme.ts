@@ -12,5 +12,6 @@ export const ButtonTheme = createTheme({
     borderRadius: 4 as string | number,
     fontSize: DefaultTheme.action.default.fontSize,
     fontWeight: DefaultTheme.action.default.fontWeight,
+    alignment: 'center' as 'center' | 'left' | 'right',
   },
 });

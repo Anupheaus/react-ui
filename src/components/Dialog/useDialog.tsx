@@ -1,16 +1,17 @@
-import { ComponentProps, FunctionComponent, useMemo } from 'react';
-import { useDistributedState, useBound, useDelegatedBound } from '../../hooks';
+import { ComponentProps, FunctionComponent, useMemo, useRef } from 'react';
+import { useDistributedState, useBound, useDelegatedBound, useId } from '../../hooks';
 import { Button } from '../Button';
 import { DialogContent } from './DialogContent';
 import { DialogActions } from './DialogActions';
 import { createComponent } from '../Component';
-import { DialogContainer } from './DialogContainer';
+import { Dialog as DialogComponent } from './Dialog';
 import { DialogState } from './InternalDialogModels';
 import { DialogProps } from './Dialog';
+import { PromiseState } from '@anupheaus/common';
 
 export interface UseDialogApi {
-  openDialog(): void;
-  closeDialog(): void;
+  openDialog(): Promise<string>;
+  closeDialog(reason?: string): void;
   Dialog: FunctionComponent<DialogProps>;
   DialogContent: typeof DialogContent;
   DialogActions: typeof DialogActions;
@@ -18,16 +19,23 @@ export interface UseDialogApi {
 }
 
 export function useDialog(): UseDialogApi {
+  const dialogId = useId();
   const { state, set } = useDistributedState<DialogState>(() => ({ isOpen: false }));
-  // const { setActions, close } = useActions<DialogActionsType>();
+  const dialogPromise = useRef(useMemo(() => Promise.createDeferred<string>(), []));
 
-  const Dialog = useMemo(() => createComponent('Dialog', (props: DialogProps) => (<DialogContainer dialogProps={props} state={state} />)), []);
+  const Dialog = useMemo(() => createComponent('Dialog', (props: DialogProps) => (
+    <DialogComponent {...props} id={dialogId} state={state} />
+  )), []);
 
-  const openDialog = useBound(() => set({ isOpen: true }));
-  const closeDialog = useBound(() => set({ isOpen: false, closeReason: 'close' }));
+  const openDialog = useBound(() => {
+    if (dialogPromise.current.state !== PromiseState.Pending) dialogPromise.current = Promise.createDeferred();
+    set({ isOpen: true });
+    return dialogPromise.current;
+  });
+  const closeDialog = useBound((reason?: string) => set({ isOpen: false, closeReason: reason }));
 
   const handleClick = useDelegatedBound((buttonId: string, onClick?: (...args: any[]) => void) => () => {
-    set({ isOpen: false, closeReason: buttonId });
+    closeDialog(buttonId);
     onClick?.();
   });
 

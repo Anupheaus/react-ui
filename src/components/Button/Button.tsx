@@ -1,7 +1,7 @@
 import { createComponent } from '../Component';
 import { useRipple } from '../Ripple';
 import { NoSkeletons, Skeleton } from '../Skeleton';
-import { useBound } from '../../hooks';
+import { useBound, useForceUpdate } from '../../hooks';
 import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { createStyles, TransitionTheme } from '../../theme';
@@ -15,18 +15,18 @@ import { Icon } from '../Icon';
 export interface ButtonProps {
   className?: string;
   ref?: Ref<HTMLButtonElement>;
+  size?: 'default' | 'small' | 'large';
+  iconOnly?: boolean;
+  children?: ReactNode;
   onClick?(event: MouseEvent): void;
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
-  size?: 'default' | 'small' | 'large';
-  children?: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme }, { children }: ButtonProps) => {
-  const isIconOnly = Children.count(children) === 1 && is.reactElement(children) && children.type === Icon;
+const useStyles = createStyles(({ useTheme }, { iconOnly }: ButtonProps) => {
   const {
     backgroundColor, activeBackgroundColor, borderRadius, fontSize, fontWeight,
-    textColor, activeTextColor, borderColor, activeBorderColor,
-  } = useTheme(isIconOnly ? IconButtonTheme : ButtonTheme);
+    textColor, activeTextColor, borderColor, activeBorderColor, alignment,
+  } = useTheme(iconOnly ? IconButtonTheme : ButtonTheme);
   const transitionSettings = useTheme(TransitionTheme);
 
   return {
@@ -46,8 +46,9 @@ const useStyles = createStyles(({ useTheme }, { children }: ButtonProps) => {
         display: 'flex',
         flex: 'none',
         gap: 4,
+        ...(iconOnly ? { overflow: 'hidden' } : {}),
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: alignment,
         transitionProperty: 'background-color, color',
         ...transitionSettings,
         boxSizing: 'border-box',
@@ -61,7 +62,7 @@ const useStyles = createStyles(({ useTheme }, { children }: ButtonProps) => {
         },
       },
       size_variant_default: {
-        ...(isIconOnly ? {
+        ...(iconOnly ? {
           width: 30,
           height: 30,
           padding: 0,
@@ -88,19 +89,25 @@ export const Button = createComponent('Button', ({
   children = null,
   ref,
   size = 'default',
+  iconOnly: providedIconOnly,
   onClick,
   onSelect,
 }: ButtonProps) => {
-  const { css, join } = useStyles();
+  const iconOnly = providedIconOnly ?? (Children.count(children) === 1 && is.reactElement(children) && children.type === Icon);
+  const { css, join } = useStyles({ iconOnly });
   const { Ripple, rippleTarget } = useRipple();
   const eventsIsolator = useEventIsolator({ clickEvents: 'propagation', focusEvents: 'propagation', onParentElement: true });
   const useAnimatedBorderEffectRef = useRef(false);
   const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
+  const update = useForceUpdate();
   const handleClick = useBound(async (event: MouseEvent) => {
     onClick?.(event);
+    const result = onSelect?.(event);
+    if (!is.promise(result)) return;
     useAnimatedBorderEffectRef.current = true;
-    await onSelect?.(event);
+    await result;
     useAnimatedBorderEffectRef.current = false;
+    update({ ifNotDoneNaturallyWithin: 1 });
   });
 
   return (

@@ -1,10 +1,14 @@
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
-  FiEye, FiEyeOff,
+  FiEye, FiEyeOff, FiChevronDown,
 } from 'react-icons/fi';
 import { IconType } from '../../theme';
 
-export const IconDefinitions = {
+export interface IconDefinitions {
+  [key: string]: IconType;
+}
+
+export const LocalIconDefinitions = {
   'drawer-close': FiX,
   'dialog-close': FiX,
   'window-close': FiX,
@@ -21,11 +25,11 @@ export const IconDefinitions = {
   'sub-menu': FiChevronRight,
   'password-show': FiEye,
   'password-hide': FiEyeOff,
+  'dropdown': FiChevronDown,
+} satisfies IconDefinitions;
 
-} satisfies { [key: string]: IconType; };
-
-export type IconName = keyof typeof IconDefinitions;
+export type IconName = keyof typeof LocalIconDefinitions;
 
 export function configureIcons(icons: { [key: string]: IconType; }): void {
-  Object.assign(IconDefinitions, icons);
+  Object.assign(LocalIconDefinitions, icons);
 }

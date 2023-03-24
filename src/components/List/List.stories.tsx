@@ -2,7 +2,7 @@ import { createStories, StorybookComponent } from '../../Storybook';
 import { faker } from '@faker-js/faker';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
 import { List } from './List';
-import { ListItem } from '../../models';
+import { ReactListItem } from '../../models';
 import { DraggableListItem } from './Items';
 import { AnyObject, Record } from '@anupheaus/common';
 import { ComponentProps, useState } from 'react';
@@ -11,7 +11,7 @@ import { Flex } from '../Flex';
 faker.seed(10121);
 faker.setLocale('en_GB');
 
-const draggableItems = new Array(10).fill(0).map((): ListItem => {
+const draggableItems = new Array(10).fill(0).map((): ReactListItem => {
   const data = {
     id: faker.datatype.uuid(),
     name: faker.name.firstName(),

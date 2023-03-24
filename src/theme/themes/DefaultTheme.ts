@@ -19,12 +19,24 @@ export const DefaultTheme = {
       textColor: '#90caf9',
     },
   },
+  menuItem: {
+    default: {
+      backgroundColor: 'transparent',
+      textColor: '#000',
+      borderColor: 'transparent',
+    },
+    active: {
+      backgroundColor: 'rgba(0 0 0 / 10%)',
+      textColor: '#000',
+      borderColor: 'transparent',
+    },
+  },
   field: {
     default: {
       backgroundColor: '#fff',
       textColor: '#000',
       borderColor: '#ddd',
-      fontSize: 14,
+      fontSize: 13,
       fontWeight: 400,
       borderRadius: 4,
     },

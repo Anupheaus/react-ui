@@ -1,8 +1,10 @@
-import { ComponentProps } from 'react';
+import { ComponentProps, useContext, useLayoutEffect } from 'react';
 import { createComponent } from '../Component';
-import { Window } from '../Windows';
+import { useWindowActions, Window } from '../Windows';
 import { createStyles } from '../../theme';
-import { useBound } from '../../hooks';
+import { DistributedState, useBound, useDistributedState } from '../../hooks';
+import { DialogsContext } from './DialogsContext';
+import { DialogState } from './InternalDialogModels';
 
 export interface DialogProps extends Omit<ComponentProps<typeof Window>, 'id' | 'hideMaximizeButton' | 'hideCloseButton' | 'disableDrag' | 'disableResize' | 'initialPosition' | 'onClosing' | 'onClosed'> {
   allowMaximizeButton?: boolean;
@@ -16,6 +18,7 @@ export interface DialogProps extends Omit<ComponentProps<typeof Window>, 'id' | 
 
 interface Props extends DialogProps {
   id: string;
+  state: DistributedState<DialogState>;
 }
 
 const useStyles = createStyles({
@@ -34,24 +37,46 @@ export const Dialog = createComponent('Dialog', ({
   disableBlurBackground: ignored,
   onClosing,
   onClosed,
+  id,
+  state,
   ...props
 }: Props) => {
+  const { getAndObserve: getDialogState } = useDistributedState(state);
+  const { isOpen, closeReason } = getDialogState();
+  const { setContent } = useContext(DialogsContext);
+  const { closeWindow } = useWindowActions();
   const { css, join } = useStyles();
 
-  const handleClosing = useBound(() => onClosing?.(''));
-  const handleClosed = useBound(() => onClosed?.(''));
+  const handleClosing = useBound(() => onClosing?.(closeReason ?? 'unknown'));
+  const handleClosed = useBound(() => {
+    onClosed?.(closeReason ?? 'unknown');
+    setContent(id, null);
+  });
 
-  return (
-    <Window
-      {...props}
-      initialPosition={'center'}
-      contentClassName={join(css.dialogContent, props.contentClassName)}
-      hideMaximizeButton={!allowMaximizeButton}
-      hideCloseButton={!allowCloseButton}
-      disableDrag={!allowDrag}
-      disableResize={!allowResize}
-      onClosing={handleClosing}
-      onClosed={handleClosed}
-    />
-  );
+  const updateContent = () => {
+    setContent(id, (
+      <Window
+        {...props}
+        id={id}
+        initialPosition={'center'}
+        contentClassName={join(css.dialogContent, props.contentClassName)}
+        hideMaximizeButton={!allowMaximizeButton}
+        hideCloseButton={!allowCloseButton}
+        disableDrag={!allowDrag}
+        disableResize={!allowResize}
+        onClosing={handleClosing}
+        onClosed={handleClosed}
+      />
+    ));
+  };
+
+  useLayoutEffect(() => {
+    if (isOpen) {
+      updateContent();
+    } else {
+      closeWindow(id);
+    }
+  });
+
+  return null;
 });

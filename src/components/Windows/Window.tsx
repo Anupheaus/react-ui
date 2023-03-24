@@ -44,6 +44,8 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, mi
         padding: '8px 8px 8px 16px',
         minHeight: 40,
         boxSizing: 'border-box',
+        boxShadow: '0 0 8px 0 rgb(0 0 0 / 30%)',
+        zIndex: 2,
       },
       isDraggableTitleBar: {
         cursor: 'grab',
@@ -54,7 +56,6 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, mi
       title: {
       },
       content: {
-        padding: '8px 16px',
       },
       isVisible: {
         transform: 'scale(1)',
@@ -318,7 +319,7 @@ export const Window = createComponent('Window', ({
           </ThemesProvider>
         </Flex>
       </Flex>
-      <Flex tagName="window-content" className={join(css.content, contentClassName)}>
+      <Flex tagName="window-content" className={join(css.content, contentClassName)} disableOverflow>
         {children}
       </Flex>
       <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />

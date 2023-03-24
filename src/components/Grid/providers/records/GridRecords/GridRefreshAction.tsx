@@ -1,5 +1,6 @@
 import { Button } from '../../../../Button';
 import { createComponent } from '../../../../Component';
+import { Icon } from '../../../../Icon';
 import { GridAction } from '../../actions';
 
 interface Props {
@@ -11,7 +12,7 @@ export const GridRefreshAction = createComponent('GridRefreshAction', ({
 }: Props) => {
   return (
     <GridAction id={'grid-refresh-action'} ordinal={8000}>
-      <Button icon={'grid-refresh'} size={'small'} onClick={onRefresh} />
+      <Button size={'small'} onClick={onRefresh}><Icon name={'grid-refresh'} /></Button>
     </GridAction>
   );
 });

@@ -5,19 +5,19 @@ import { createStories } from '../../Storybook';
 import { InternalText, InternalTextProps } from './InternalText';
 import { generateInternalTextStories } from './InternalText.stories.utils';
 import { createStyles, ThemesProvider } from '../../theme';
-import { InternalTextTheme } from './InternalTextTheme';
+import { InternalFieldTheme } from '../InternalField';
 
 const useStyles = createStyles(({ createThemeVariant }) => {
   return {
     variants: {
-      internalText: createThemeVariant(InternalTextTheme, {
+      internalText: createThemeVariant(InternalFieldTheme, {
         backgroundColor: '#efefef',
       }),
     },
   };
 });
 
-export const EditableText = createComponent('EditableText', (props: InternalTextProps) => {
+const EditableText = createComponent('EditableText', (props: InternalTextProps) => {
   const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
   const { variants, join } = useStyles();
 

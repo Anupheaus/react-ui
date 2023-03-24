@@ -1,5 +1,5 @@
 import { ComponentProps, useContext, useMemo } from 'react';
-import { createComponent } from '../../components';
+import { createComponent } from '../../components/Component';
 import { useBound, useDistributedState } from '../../hooks';
 import { UIState } from './UIState';
 import { UIStateContexts } from './UIStateContexts';

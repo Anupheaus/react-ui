@@ -1,6 +1,6 @@
 import { Fragment, ReactNode, useMemo, useState } from 'react';
 import { useBound } from '../../hooks';
-import { ListItem } from '../../models';
+import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { DraggedItem, DropArea, MouseMoveEvent } from '../DragAndDrop';
@@ -10,7 +10,7 @@ import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { ListTheme } from './ListTheme';
 
-interface Props<T extends ListItem = ListItem> {
+interface Props<T extends ReactListItem = ReactListItem> {
   borderless?: boolean;
   gap?: number;
   items: T[];
@@ -71,7 +71,7 @@ const useStyles = createStyles(({ useTheme }, { borderless = false, gap = 0 }: P
   };
 });
 
-export const List = createComponent('List', function <T extends ListItem = ListItem>({
+export const List = createComponent('List', function <T extends ReactListItem = ReactListItem>({
   items,
   label,
   help,

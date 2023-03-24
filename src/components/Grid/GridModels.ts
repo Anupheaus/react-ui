@@ -8,6 +8,7 @@ export interface GridRenderValueAdditionalProps<T = unknown> {
 
 export interface GridColumn<T = unknown> {
   id: string;
+  field: string;
   label: ReactNode;
   alignment?: 'left' | 'center' | 'right';
   width?: string | number;

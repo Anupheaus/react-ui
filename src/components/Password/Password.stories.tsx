@@ -8,7 +8,7 @@ import { ComponentProps } from 'react';
 
 interface Props extends ComponentProps<typeof Password> { }
 
-export const EditablePassword = createComponent('EditablePassword', (props: Props) => {
+const EditablePassword = createComponent('EditablePassword', (props: Props) => {
   const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
 
   return (<Password width={150} label={'Label'} {...props} value={value} onChange={setValue} />);

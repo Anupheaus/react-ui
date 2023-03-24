@@ -1,6 +1,7 @@
 import { useActions, useBound, useUpdatableState } from '../../../../../hooks';
 import { Button } from '../../../../Button';
 import { createComponent } from '../../../../Component';
+import { Icon } from '../../../../Icon';
 import { useGridColumns } from '../../columns/GridColumns/useGridColumns';
 import { GridAction } from '../GridActions';
 import { GridColumnsActionDrawer, GridColumnsActionDrawerActions } from './GridColumnsActionDrawer';
@@ -18,7 +19,7 @@ export const GridColumnsAction = createComponent('GridColumnsAction', () => {
 
   return (<>
     <GridAction id={'grid-columns-action'} ordinal={9000}>
-      <Button icon={'grid-column-selection'} size={'small'} onClick={openDrawer} />
+      <Button size={'small'} onClick={openDrawer}><Icon name={'grid-column-selection'} /></Button>
     </GridAction>
     <GridColumnsActionDrawer columns={localColumns} actions={drawerActions} onChange={setLocalColumns} onApply={handleApply} />
   </>);

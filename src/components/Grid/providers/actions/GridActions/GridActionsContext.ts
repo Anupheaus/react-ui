@@ -1,9 +1,9 @@
 import { Records } from '@anupheaus/common';
 import { createContext } from 'react';
-import { ListItem } from '../../../../../models';
+import { ReactListItem } from '../../../../../models';
 
 export interface GridActionsContextProps {
-  actions: Records<ListItem>;
+  actions: Records<ReactListItem>;
 }
 
 export const GridActionsContext = createContext<GridActionsContextProps>({
