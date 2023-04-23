@@ -4,6 +4,7 @@ module.exports = {
   staticDirs: ['./public'],
   addons: [
     '@storybook/addon-essentials',
+    'storybook-dark-mode',
   ],
   webpackFinal: async config => {
     return {

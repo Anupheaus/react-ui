@@ -10,7 +10,7 @@ import { is } from '@anupheaus/common';
 
 export { IconType };
 
-interface Props<T extends IconDefinitions = IconDefinitions> {
+interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   name: keyof T;
   className?: string;
   size?: 'normal' | 'small' | 'large' | number;
@@ -35,12 +35,14 @@ const useStyles = createStyles(({ useTheme }) => {
   };
 });
 
-const IconComponent = createComponent('Icon', function <T extends IconDefinitions>({
+let augmentedIconDefinitions = LocalIconDefinitions;
+
+const IconComponent = createComponent('Icon', function ({
   name,
   className,
   size = 'normal',
   ref,
-}: Props<T>) {
+}: Props<typeof LocalIconDefinitions>) {
   const { css, join } = useStyles();
   const sizeAmount = (() => {
     if (typeof (size) === 'number') return size;
@@ -52,29 +54,33 @@ const IconComponent = createComponent('Icon', function <T extends IconDefinition
   })();
 
   const icon = useMemo(() => {
-    let iconFunc = LocalIconDefinitions[name as keyof typeof LocalIconDefinitions];
-    if (!is.function(iconFunc)) iconFunc = LocalIconDefinitions['no-image'];
+    let iconFunc = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions];
+    if (!is.function(iconFunc)) iconFunc = augmentedIconDefinitions['no-image'];
     return iconFunc({ size: sizeAmount });
   }, [name, sizeAmount]);
 
   return (
-    <Tag name="Icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
+    <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
       <Skeleton variant="circle">{icon}</Skeleton>
     </Tag>
   );
 });
 
-const Icon = IconComponent as typeof IconComponent & { augmentWith<T extends IconDefinitions>(icons: T): typeof IconComponent & T; };
+class AugmentedIconComponent<T extends IconDefinitions> { public getAugmentedIconType(): (props: Props<T & typeof LocalIconDefinitions>) => JSX.Element { return null as any; } }
+const Icon = IconComponent as typeof IconComponent & { augmentWith<T extends IconDefinitions>(icons: T): ReturnType<AugmentedIconComponent<T>['getAugmentedIconType']>; };
 
-Icon.augmentWith = () => {
-  // do nothing
-};
+Icon.augmentWith = ((newIconDefinitions: IconDefinitions) => {
+  augmentedIconDefinitions = {
+    ...augmentedIconDefinitions,
+    ...newIconDefinitions,
+  };
+  return Icon;
+}) as typeof Icon.augmentWith;
 
 export { Icon };
 
+// const NewIcon = Icon.augmentWith({
+//   blah: () => <></>,
+// });
 
-const NewIcon = Icon.augmentWith({
-  blah: () => <></>,
-});
-
-const a = <NewIcon name="blah" />;
+// const a = <NewIcon name="blah" />;

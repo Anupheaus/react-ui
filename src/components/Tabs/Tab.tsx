@@ -21,9 +21,11 @@ const useStyles = createStyles(({ useTheme }) => {
         transitionDuration: '400ms',
         transitionTimingFunction: 'ease',
         overflow: 'hidden',
+        pointerEvents: 'none',
       },
       isVisible: {
         opacity: 1,
+        pointerEvents: 'all',
       },
       slideLeft: {
         marginLeft: -50,
@@ -60,6 +62,7 @@ const useStyles = createStyles(({ useTheme }) => {
 });
 
 export interface TabProps {
+  className?: string;
   label?: ReactNode;
   children: ReactNode;
 }
@@ -78,6 +81,7 @@ interface Props extends TabProps {
 
 export const TabComponent = createComponent('Tab', ({
   state,
+  className,
   label,
   children,
 }: Props) => {
@@ -89,6 +93,7 @@ export const TabComponent = createComponent('Tab', ({
   useLayoutEffect(() => {
     upsertTab({
       id,
+      hasLabel: label != null,
       Button: createComponent('TabButton', ({
         tabIndex,
       }: TabButtonProps) => {
@@ -122,7 +127,7 @@ export const TabComponent = createComponent('Tab', ({
         });
 
         return (
-          <Tag name="tab" className={join(css.tabContent, !isFocused && (css as MapOf<string>)[`slide${directionRef.current}`], isFocused && css.isVisible)}>
+          <Tag name="tab" className={join(css.tabContent, !isFocused && (css as MapOf<string>)[`slide${directionRef.current}`], isFocused && css.isVisible, className)}>
             {children}
           </Tag>
         );

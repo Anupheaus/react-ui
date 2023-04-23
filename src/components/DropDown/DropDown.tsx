@@ -1,6 +1,6 @@
 import { is } from '@anupheaus/common';
 import { PaperProps, Popover, PopoverOrigin } from '@mui/material';
-import { useMemo, useRef } from 'react';
+import { ReactNode, useMemo, useRef } from 'react';
 import { useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { createStyles, ThemesProvider } from '../../theme';
@@ -48,7 +48,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
 interface Props extends InternalFieldProps {
   value?: string | ReactListItem;
   values?: ReactListItem[];
-  renderSelectedValue?(item?: ReactListItem): React.ReactNode;
+  renderSelectedValue?(item?: ReactListItem): ReactNode | void;
   onChange?(id: string, item: ReactListItem): void;
 }
 
@@ -66,15 +66,19 @@ export const DropDown = createComponent('DropDown', ({
   const innerRef = useDOMRef([props.ref, anchorRef, resizeTarget]);
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
 
-  const renderItem = (item: ReactListItem) => (<>
+  const renderItem = useMemo(() => (item: ReactListItem) => (<>
     {item.iconName != null && <Icon name={item.iconName as any} size={'small'} />}
     {item.label ?? item.text}
-  </>);
+  </>), []);
 
   const selectedValue = useMemo(() => {
-    if (renderSelectedValue) return renderSelectedValue(value);
+    if (renderSelectedValue) {
+      const result = renderSelectedValue(value);
+      if (result !== undefined) return result;
+    }
     return value != null ? renderItem(value) : null;
   }, [value, renderSelectedValue]);
+
 
   const handleItemClick = useBound((item: ReactListItem) => () => {
     item.onSelect?.();

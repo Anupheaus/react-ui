@@ -4,10 +4,8 @@ import { useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { WindowsActionsContext, WindowsContext, WindowsContextProps } from './WindowsContexts';
+import { WindowsManagerContext, WindowsContext, WindowsContextProps, WindowIdContext, WindowsManagerIdContext } from './WindowsContexts';
 import { WindowState } from './WindowsModels';
-
-export const WindowsProviderId = '37dd6e84-1826-4694-8eaa-402492232672';
 
 const useStyles = createStyles({
   windows: {
@@ -16,21 +14,29 @@ const useStyles = createStyles({
 });
 
 interface Props {
+  managerId?: string;
   className?: string;
   children?: ReactNode;
   onStatesUpdated?(states: WindowState[]): void;
-  onCreateNewWindow?(data: WindowState & AnyObject): ReactNode;
+  onCreateNewWindowFromState?(data: WindowState & AnyObject): ReactNode;
 }
 
 export const Windows = createComponent('Windows', ({
+  managerId: providedManagerId,
   className,
   children = null,
   onStatesUpdated,
-  onCreateNewWindow,
+  onCreateNewWindowFromState,
 }: Props) => {
   const { css, join } = useStyles();
-  const { invoke, onAction } = useContext(WindowsActionsContext);
+  const managerContexts = useContext(WindowsManagerContext);
+  const { id: managerId, invoke, onAction } = (providedManagerId ? managerContexts.get(providedManagerId) : Array.from(managerContexts.values()).last()) ?? {};
+  if (managerId == null || invoke == null || onAction == null) {
+    if (providedManagerId) throw new Error(`A WindowsManager component with id "${providedManagerId}" was not found.`);
+    throw new Error('Windows component must be a child of a WindowsManager component.');
+  }
   const extraChildren = useRef(new Map<string, ReactNode>()).current;
+  const extraChildrenLinkedIds = useRef(new Map<string, string>()).current;
   const [extraChildrenId, setExtraChildrenId] = useState('');
 
   const context = useMemo<WindowsContextProps>(() => ({
@@ -42,10 +48,24 @@ export const Windows = createComponent('Windows', ({
     await Promise.all(context.states.map(({ id }, index, arr) => invoke(id, 'updateOrdinal', index + 1, index === arr.length - 1)));
   });
 
-  onAction(WindowsProviderId, 'open', config => {
-    const extraChild = onCreateNewWindow?.(config);
-    if (!extraChild) return;
+  onAction(managerId, 'open', config => {
+    const extraChild = onCreateNewWindowFromState?.(config);
+    if (extraChild === undefined)
+      throw new Error('A window was requested to be opened from state, but no "onCreateNewWindowFromState" property was provided or it did not provide a valid window.');
     extraChildren.set(config.id, extraChild);
+    setExtraChildrenId(Math.uniqueId());
+  });
+
+  onAction(managerId, 'add', (id, content) => {
+    if (content == null) {
+      extraChildren.delete(id);
+    } else {
+      extraChildren.set(id, (
+        <WindowIdContext.Provider value={id}>
+          {content}
+        </WindowIdContext.Provider>
+      ));
+    }
     setExtraChildrenId(Math.uniqueId());
   });
 
@@ -56,6 +76,8 @@ export const Windows = createComponent('Windows', ({
     await updateWindowsOrdinalPositions();
     onStatesUpdated?.(context.states);
   });
+
+  onAction('link', (targetId, id, windowId) => { extraChildrenLinkedIds.set(id, windowId); });
 
   onAction('updateState', async (_id, state) => {
     const newStates = context.states.upsert(state);
@@ -69,7 +91,8 @@ export const Windows = createComponent('Windows', ({
   onAction('closed', async id => {
     context.states = context.states.removeById(id);
     const extraChildrenCountBefore = extraChildren.size;
-    extraChildren.delete(id);
+    const extraChildId = extraChildrenLinkedIds.get(id) ?? id;
+    extraChildren.delete(extraChildId);
     await updateWindowsOrdinalPositions();
     onStatesUpdated?.(context.states);
     if (extraChildrenCountBefore !== extraChildren.size) setExtraChildrenId(Math.uniqueId());
@@ -82,8 +105,10 @@ export const Windows = createComponent('Windows', ({
   return (
     <Flex tagName="windows" className={join(css.windows, className)}>
       <WindowsContext.Provider value={context}>
-        {children}
-        {renderedExtraChildren}
+        <WindowsManagerIdContext.Provider value={managerId}>
+          {children}
+          {renderedExtraChildren}
+        </WindowsManagerIdContext.Provider>
       </WindowsContext.Provider>
     </Flex>
   );

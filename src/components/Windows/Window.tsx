@@ -7,10 +7,10 @@ import { Button, IconButtonTheme } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
+import { Tag } from '../Tag';
 import { useWindowDrag } from './useWindowDrag';
 import { WindowResizer } from './WindowResizer';
-import { WindowsProviderId } from './Windows';
-import { WindowsActionsContext } from './WindowsContexts';
+import { WindowIdContext, WindowsManagerContext, WindowsManagerIdContext } from './WindowsContexts';
 import { InitialWindowPosition, WindowState } from './WindowsModels';
 import { WindowTheme } from './WindowTheme';
 
@@ -54,6 +54,13 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, mi
         cursor: 'grabbing',
       },
       title: {
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        outline: 'none',
+        position: 'relative',
+        flex: 'auto',
       },
       content: {
       },
@@ -133,23 +140,27 @@ export const Window = createComponent('Window', ({
   onFocus,
   onStateUpdated,
 }: Props) => {
+  const managerId = useContext(WindowsManagerIdContext);
+  if (managerId == null) throw new Error('Window must be rendered within a WindowsManager component.');
+  const windowId = useContext(WindowIdContext);
   const { css, variants, join } = useStyles();
   const generatedId = useId();
   const id = providedId ?? generatedId;
   const closingRef = useRef<() => void>();
-  const [state, setState] = useState<WindowState>(useMemo(() => ({
-    id, isMaximized: false, x: 0, y: 0, width: providedWidth, height: providedHeight, ...initialState
-  }), []));
+  const [state, setState] = useState<WindowState>(useMemo(() => ({ id, isMaximized: false, x: 0, y: 0, width: providedWidth, height: providedHeight, ...initialState }), []));
   const { isMaximized, x, y, width, height } = state;
   const isDraggable = !disableDrag && !isMaximized;
   const [isResizing, setIsResizing] = useState(false);
+  const [isMaximising, setIsMaximising] = useState(false);
   const initialPositionHasBeenSetRef = useRef(false);
   const [focusIndex, setFocusIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
-  const { isValid, onAction, invoke } = useContext(WindowsActionsContext);
+  const managerContexts = useContext(WindowsManagerContext);
+  const { onAction, invoke } = managerContexts.get(managerId) ?? {};
+
   const batchUpdate = useBatchUpdates();
-  if (!isValid) throw new Error('Window must be rendered within a Windows component.');
+  if (onAction == null || invoke == null) throw new Error('Window must be rendered within a Windows component.');
   const update = useForceUpdate();
 
   const focus = useBound(() => {
@@ -178,7 +189,7 @@ export const Window = createComponent('Window', ({
   const updateState = (newState: Partial<WindowState>) => setState(currentState => {
     const nextState = { ...currentState, ...newState };
     if (is.deepEqual(nextState, currentState)) return currentState;
-    invoke(WindowsProviderId, 'updateState', nextState);
+    invoke(managerId, 'updateState', nextState);
     onStateUpdated?.(nextState);
     return nextState;
   });
@@ -193,14 +204,18 @@ export const Window = createComponent('Window', ({
 
   // if initial position is central and our size has changed, and we are still in the centre, then re-position
   useLayoutEffect(() => {
-    if (!initialPositionHasBeenSetRef.current) return;
-    if (initialPosition !== 'center') return;
+    if (!initialPositionHasBeenSetRef.current || isMaximising || isResizing || isMaximized) return;
     let newX = x;
     let newY = y;
     if (typeof (x) === 'string' && x.startsWith('calc(50% - ') && actualWidth != null) newX = 'calc(50% - ' + (actualWidth / 2) + 'px)';
     if (typeof (y) === 'string' && y.startsWith('calc(50% - ') && actualHeight != null) newY = 'calc(50% - ' + (actualHeight / 2) + 'px)';
-    if (newX !== x || newY !== y) updateState({ x: newX, y: newY });
-  }, [initialPosition, actualWidth, actualHeight]);
+    updateState({ x: newX, y: newY, height: actualHeight, width: actualWidth });
+  }, [initialPositionHasBeenSetRef.current, isMaximising, isResizing, actualWidth, actualHeight, isMaximized]);
+
+  useLayoutEffect(() => {
+    if (windowId == null) return;
+    invoke(managerId, 'link', id, windowId);
+  }, [id, windowId, managerId]);
 
   const { dragTargetProps, dragMovableTarget, isDragging } = useWindowDrag({ isEnabled: isDraggable, onDragStart: focus, onDragEnd });
   const shouldStopTransitions = isDragging || isResizing;
@@ -210,13 +225,20 @@ export const Window = createComponent('Window', ({
 
   const isVisible = hasRendered && closingRef.current == null;
 
-  const maximizeWindow = useBound(() => updateState({ isMaximized: true }));
+  const maximizeWindow = useBound(() => batchUpdate(() => {
+    focus();
+    setIsMaximising(true);
+    updateState({ isMaximized: true });
+  }));
 
-  const restoreWindow = useBound(() => updateState({ isMaximized: false }));
+  const restoreWindow = useBound(() => batchUpdate(() => {
+    setIsMaximising(true);
+    updateState({ isMaximized: false });
+  }));
 
   useMemo(() => { // should only run on initial mounting
-    invoke(WindowsProviderId, 'updateState', state);
-  }, []);
+    invoke(managerId, 'updateState', state);
+  }, [managerId]);
 
   // set up the initial position of the window
   useLayoutEffect(() => {
@@ -240,7 +262,7 @@ export const Window = createComponent('Window', ({
     }
     windowElement.style.left = typeof (newX) === 'number' ? `${newX}px` : newX;
     windowElement.style.top = typeof (newY) === 'number' ? `${newY}px` : newY;
-    setState(existingState => ({ ...existingState, x: newX, y: newY }));
+    updateState({ x: newX, y: newY });
   }, [windowElementRef.current]);
 
   const style = useMemo<CSSProperties>(() => ({
@@ -256,6 +278,10 @@ export const Window = createComponent('Window', ({
   const handleTransitionEnd = useBound((event: TransitionEvent) => {
     if (event.target !== windowElementRef.current || windowElementRef.current == null) return;
     if (closingRef.current && event.propertyName === 'opacity') closingRef.current();
+    if (event.propertyName === 'width' || event.propertyName === 'height') {
+      if (isMaximising) setIsMaximising(false);
+      if (isResizing) setIsResizing(false);
+    }
     windowElementRef.current.style.transitionProperty = ''; // clear any style set transition properties (this might have been set when setting the initial position of the window)
   });
 
@@ -309,7 +335,7 @@ export const Window = createComponent('Window', ({
         valign="center"
       >
         {icon}
-        <Flex tagName="window-title" className={css.title}>{title}</Flex>
+        <Tag name="window-title" className={css.title}>{title}</Tag>
         <Flex tagName="window-controls" fixedSize gap={4} onMouseDown={stopPropagation}>
           <ThemesProvider themes={join(variants.windowControlIconButton)}>
             {windowControls}

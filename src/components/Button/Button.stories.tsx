@@ -4,6 +4,7 @@ import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateP
 import { ComponentProps } from 'react';
 import { Icon } from '../Icon';
 import { createStyles, DefaultTheme } from '../../theme';
+import { useBound } from '../../hooks';
 
 const useStyles = createStyles({
   iconOnly: {
@@ -22,10 +23,10 @@ function generateButtonStories(props: Partial<ComponentProps<typeof Button>> = {
     wrapInStorybookComponent: false,
     component: () => {
       const { css } = useStyles();
+
+      const doNeverEndingTask = useBound(() => new Promise<void>(() => void 0));
+
       return (<>
-        {/* <StorybookComponent title="With Error">
-        <Button {...props} icon={icons.close}><RaiseError /></Button>
-      </StorybookComponent> */}
 
         <StorybookComponent title="Simple">
           <Button {...props}>Test</Button>
@@ -45,6 +46,10 @@ function generateButtonStories(props: Partial<ComponentProps<typeof Button>> = {
 
         <StorybookComponent title="Icon Only" className={css.iconOnly}>
           <Button {...props}><Icon name="drawer-close" /></Button>
+        </StorybookComponent>
+
+        <StorybookComponent title="Is Busy">
+          <Button {...props} onSelect={doNeverEndingTask}>Save</Button>
         </StorybookComponent>
       </>);
     },

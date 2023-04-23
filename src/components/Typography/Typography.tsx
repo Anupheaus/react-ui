@@ -1,7 +1,8 @@
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, ReactNode, useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
+import { LocalTypographicDefinitions, TypographyTypes } from './Typographies';
 
 const useStyles = createStyles({
   typography: {
@@ -11,51 +12,45 @@ const useStyles = createStyles({
   },
 });
 
-export interface TypographyType {
-  fontSize?: string | number;
-  fontWeight?: string | number;
-}
+let augmentedTypographicDefinitions = LocalTypographicDefinitions as TypographyTypes;
 
-export type TypographyTypes = {
-  [name: string]: TypographyType;
-};
-
-interface Props<T extends TypographyTypes> {
+interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> {
   className?: string;
   type: keyof T;
+  children: ReactNode;
 }
 
-class GetTypographyTypes<T extends TypographyTypes> { public getTypes() { return createTypographyComponentUsing<T>(null as unknown as T); } }
-export type TypographyComponent<T extends TypographyTypes> = ReturnType<GetTypographyTypes<T>['getTypes']>;
+const TypographyComponent = createComponent('Typography', ({
+  className,
+  type,
+  children,
+}: Props<typeof LocalTypographicDefinitions>) => {
+  const { css, join } = useStyles();
+  const typeStyle = augmentedTypographicDefinitions[type];
 
-export type TypographyTypeIds<T extends TypographyComponent<TypographyTypes>> = T extends TypographyComponent<infer U> ? keyof U : never;
+  const style = useMemo<CSSProperties>(() => ({
+    fontSize: typeStyle?.size ?? 12,
+    fontWeight: typeStyle?.weight ?? 400,
+  }), [typeStyle]);
 
-export function createTypographyComponentUsing<T extends TypographyTypes>(types: T) {
-  const Typography = createComponent('Typography', ({
-    className,
-    type,
-  }: Props<T>) => {
-    const { css, join } = useStyles();
-    const typeStyle = types[type];
+  return (
+    <Tag name="typography" className={join(css.typography, className)} style={style}>
+      {children}
+    </Tag>
+  );
+});
 
-    const style = useMemo<CSSProperties>(() => ({
-      fontSize: typeStyle?.fontSize ?? 12,
-      fontWeight: typeStyle?.fontWeight ?? 400,
-    }), [typeStyle]);
+class AugmentedTypographyComponent<T extends TypographyTypes> { public getAugmentedTypographicType(): (props: Props<T & typeof LocalTypographicDefinitions>) => JSX.Element { return null as any; } }
+const Typography = TypographyComponent as typeof TypographyComponent & {
+  augmentWith<T extends TypographyTypes>(typographicDefinitions: T): ReturnType<AugmentedTypographyComponent<T>['getAugmentedTypographicType']>;
+};
 
-    return (
-      <Tag name="typography" className={join(css.typography, className)} style={style} />
-    );
-  });
-
+Typography.augmentWith = ((newTypographicDefinitions: TypographyTypes) => {
+  augmentedTypographicDefinitions = {
+    ...augmentedTypographicDefinitions,
+    ...newTypographicDefinitions,
+  };
   return Typography;
-}
+}) as typeof Typography.augmentWith;
 
-// const AC = createTypographyComponentUsing({
-//   title: { fontSize: 14 },
-//   heading: { },
-// });
-
-// const a = <AC type="" />
-
-// type b = TypographyTypeIds<typeof AC>;
+export { Typography };

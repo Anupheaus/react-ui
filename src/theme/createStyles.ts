@@ -19,7 +19,7 @@ interface UseStylesUtils {
   createThemeVariant<TTheme extends Theme>(theme: TTheme, themeVariant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme;
 }
 
-type UseStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>> = (props?: AnyObject) => UseStylesApi<TStyles, TVariants>;
+type UseStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject> = (props?: TProps) => UseStylesApi<TStyles, TVariants>;
 
 type UseStylesDelegate<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject> = (utils: UseStylesUtils, props: TProps) => {
   styles?: TStyles;
@@ -38,10 +38,10 @@ function filterClassNames(value: string | boolean | Theme | undefined): boolean 
 }
 
 // eslint-disable-next-line max-len
-export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(delegate: UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants>;
+export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(delegate: UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants, TProps>;
 export function createStyles<TStyles extends MapOf<CSSObject>>(styles: TStyles): UseStyles<TStyles, {}>;
 // eslint-disable-next-line max-len
-export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants> {
+export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants, TProps> {
   const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
   const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'anux' })((_theme, { props, variants, ...utils }, classes) => {
     const result = (() => {
@@ -62,7 +62,7 @@ export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends
     return result;
   });
 
-  function useStyles(providedProps?: AnyObject) {
+  function useStyles(providedProps?: TProps) {
     const utils = require('./useThemesProvider').useThemesProvider();
     const variants = {} as TVariants;
     const props = {

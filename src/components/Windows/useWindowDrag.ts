@@ -17,9 +17,16 @@ export function useWindowDrag({ isEnabled, onDragStart: propsOnDragStart, onDrag
     if (parentElement == null) return;
     boundsRef.current = { maxWidth: parentElement.clientWidth, maxHeight: parentElement.clientHeight };
   });
-  const onDragEnd = useBound(({ movableElement, originalTop, originalLeft, diffX, diffY }: UseDragEvent) => {
-    movableElement.style.left = `${originalLeft + diffX}px`;
-    movableElement.style.top = `${originalTop + diffY}px`;
+  const onDragEnd = useBound(({ movableElement, originalTop, originalLeft, originalWidth, originalHeight, diffX, diffY }: UseDragEvent) => {
+    const { maxWidth, maxHeight } = boundsRef.current;
+    let newLeft = originalLeft + diffX;
+    let newTop = originalTop + diffY;
+    if (newLeft < 0) newLeft = 0;
+    if (newTop < 0) newTop = 0;
+    if (maxWidth != null && newLeft + originalWidth > maxWidth) newLeft = maxWidth - originalWidth;
+    if (maxHeight != null && newTop + originalHeight > maxHeight) newTop = maxHeight - originalHeight;
+    movableElement.style.left = `${newLeft}px`;
+    movableElement.style.top = `${newTop}px`;
     movableElement.style.transform = '';
     propsOnDragEnd?.();
     setIsDragging(false);

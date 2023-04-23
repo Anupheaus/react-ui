@@ -37,6 +37,7 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
 }
 
 export interface RippleProps {
+  isDisabled?: boolean;
   className?: string;
   stayWithinContainer?: boolean;
 }
@@ -84,6 +85,7 @@ const useStyles = createStyles(({ useTheme }) => {
 
 export const Ripple = createComponent('Ripple', ({
   className,
+  isDisabled = false,
   stayWithinContainer = false,
   state,
 }: Props) => {
@@ -104,8 +106,8 @@ export const Ripple = createComponent('Ripple', ({
         name="ui-ripple-animation"
         className={join(
           css.rippleAnimation,
-          isActive && css.isActive,
-          !isActive && beenActiveRef.current && css.isInActive,
+          isActive && !isDisabled && css.isActive,
+          !isActive && !isDisabled && beenActiveRef.current && css.isInActive,
         )}
         style={rippleStyle}
       />

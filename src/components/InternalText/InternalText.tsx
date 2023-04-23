@@ -1,13 +1,19 @@
-import { createStyles } from '../../theme/createStyles';
-import { ReactElement, Ref } from 'react';
+import { FocusEvent, KeyboardEvent, MouseEvent, ReactElement, Ref } from 'react';
 import { createComponent } from '../Component';
 import { useBinder } from '../../hooks';
 import { InternalField, InternalFieldProps } from '../InternalField';
+import { useInputStyles } from './InputStyles';
 
 export interface InternalTextProps<TValue = unknown> extends InternalFieldProps {
   value?: TValue;
   ref?: Ref<HTMLInputElement>;
+  initialFocus?: boolean;
   onChange?(value: TValue): void;
+  onFocus?(event: FocusEvent<HTMLInputElement>): void;
+  onClick?(event: MouseEvent<HTMLInputElement>): void;
+  onBlur?(event: FocusEvent<HTMLInputElement>): void;
+  onKeyDown?(event: KeyboardEvent<HTMLInputElement>): void;
+  onKeyUp?(event: KeyboardEvent<HTMLInputElement>): void;
 }
 
 interface Props<TValue = unknown> extends InternalTextProps<TValue> {
@@ -18,30 +24,22 @@ interface Props<TValue = unknown> extends InternalTextProps<TValue> {
   endAdornments?: ReactElement[];
 }
 
-const useStyles = createStyles({
-  input: {
-    outline: 'none',
-    appearance: 'textfield',
-    position: 'absolute',
-    inset: 0,
-    border: 0,
-    padding: '0 12px',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    backgroundColor: 'transparent!important',
-  },
-});
-
 export const InternalText = createComponent('InternalText', function <T = unknown>({
   tagName,
   type,
   inputClassName,
   value,
+  initialFocus,
   ref: innerRef,
   onChange,
+  onFocus,
+  onBlur,
+  onClick,
+  onKeyDown,
+  onKeyUp,
   ...props
 }: Props<T>) {
-  const { css, join } = useStyles();
+  const { css, join } = useInputStyles();
   const bind = useBinder();
 
   return (
@@ -52,6 +50,12 @@ export const InternalText = createComponent('InternalText', function <T = unknow
         className={join(css.input, inputClassName)}
         value={(value ?? '') as any}
         onChange={bind(event => onChange?.(event.target.value as any))}
+        onFocus={onFocus}
+        onBlurCapture={onBlur}
+        onClick={onClick}
+        onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
+        autoFocus={initialFocus}
       />
     </InternalField>
   );

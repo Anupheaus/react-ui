@@ -19,6 +19,12 @@ export function generateUIStateStories<T extends {}>(Component: ComponentType<T>
           <Component {...props} />
         </StorybookComponent>
 
+        <StorybookComponent title="Read Only">
+          <UIState isReadOnly>
+            <Component {...props} />
+          </UIState>
+        </StorybookComponent>
+
       </>),
     },
   };

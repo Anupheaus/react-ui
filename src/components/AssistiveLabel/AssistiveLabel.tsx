@@ -33,10 +33,7 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
 }: Props) => {
   const { css, join } = useStyles();
 
-  if (children == null) {
-    if (error == null) return null;
-    children = error instanceof Error ? error.message : error;
-  }
+  if (children == null && error != null) children = error instanceof Error ? error.message : error;
 
   return (
     <Tag
@@ -46,7 +43,7 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
         error != null && css.isError,
         className,
       )}>
-      {children}
+      {children ?? <>&nbsp;</>}
     </Tag>
   );
 });

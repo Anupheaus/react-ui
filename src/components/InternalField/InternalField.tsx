@@ -28,6 +28,7 @@ interface Props extends InternalFieldProps {
   contentClassName?: string;
   startAdornments?: ReactElement[];
   endAdornments?: ReactElement[];
+  noContainer?: boolean;
   children: ReactNode;
 }
 
@@ -41,7 +42,8 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
     styles: {
       field: {
         display: 'flex',
-        flexGrow: 1,
+        flexGrow: 0,
+        flexShrink: 1,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         minWidth: 50,
@@ -108,20 +110,22 @@ export const InternalField = createComponent('InternalField', ({
   endAdornments,
   startAdornments,
   isOptional,
+  noContainer = false,
   help,
   assistiveHelp,
   error,
   children,
   ref,
+  ...props
 }: Props) => {
   const { css, join } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
   const { isLoading } = useUIState();
 
-  return (
-    <Tag name={tagName} className={join(css.field, className)} width={width}>
-      <Label isOptional={isOptional} help={help}>{label}</Label>
+  const wrapContent = (content: ReactNode) => {
+    if (noContainer) return content;
+    return (
       <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && css.isLoading, containerClassName)}>
         <Ripple />
         <NoSkeletons>
@@ -133,6 +137,13 @@ export const InternalField = createComponent('InternalField', ({
         </NoSkeletons>
         <Skeleton />
       </Tag>
+    );
+  };
+
+  return (
+    <Tag {...props} name={tagName} className={join(css.field, className)} width={width}>
+      <Label isOptional={isOptional} help={help}>{label}</Label>
+      {wrapContent(children)}
       <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
     </Tag>
   );

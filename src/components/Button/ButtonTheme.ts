@@ -3,12 +3,21 @@ import { createTheme, DefaultTheme } from '../../theme';
 export const ButtonTheme = createTheme({
   id: 'ButtonTheme',
   definition: {
-    backgroundColor: DefaultTheme.action.default.backgroundColor,
-    activeBackgroundColor: DefaultTheme.action.active.backgroundColor,
-    textColor: DefaultTheme.action.default.textColor,
-    activeTextColor: DefaultTheme.action.active.textColor,
-    borderColor: DefaultTheme.action.default.borderColor,
-    activeBorderColor: DefaultTheme.action.active.borderColor,
+    default: {
+      backgroundColor: DefaultTheme.action.default.backgroundColor,
+      textColor: DefaultTheme.action.default.textColor,
+      borderColor: DefaultTheme.action.default.borderColor,
+    },
+    active: {
+      backgroundColor: DefaultTheme.action.active.backgroundColor,
+      textColor: DefaultTheme.action.active.textColor,
+      borderColor: DefaultTheme.action.active.borderColor,
+    },
+    disabled: {
+      backgroundColor: DefaultTheme.action.disabled.backgroundColor,
+      textColor: DefaultTheme.action.disabled.textColor,
+      borderColor: DefaultTheme.action.disabled.backgroundColor,
+    },
     borderRadius: 4 as string | number,
     fontSize: DefaultTheme.action.default.fontSize,
     fontWeight: DefaultTheme.action.default.fontWeight,

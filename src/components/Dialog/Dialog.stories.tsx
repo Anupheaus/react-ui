@@ -6,7 +6,7 @@ import { createStyles, ThemesProvider } from '../../theme';
 import { DialogTheme } from './DialogTheme';
 import { Flex } from '../Flex';
 import { useBinder, useBound } from '../../hooks';
-import { DialogsContainer } from './DialogsContainer';
+import { DialogsManager } from './DialogsManager';
 
 const useStyles = createStyles({
   background: {
@@ -56,7 +56,7 @@ createStories(({ createStory }) => ({
                   closeDialog('blah');
                 })}>Close</Button>
               </Flex>
-              <DialogsContainer>
+              <DialogsManager shouldBlurBackground>
                 <Flex tagName="background" className={css.background} />
                 <Flex className={css.text}>This should be blurred!</Flex>
                 <Dialog title={'Test Dialog'} onClosed={handleClosed}>
@@ -67,7 +67,7 @@ createStories(({ createStory }) => ({
                     <OkButton />
                   </DialogActions>
                 </Dialog>
-              </DialogsContainer>
+              </DialogsManager>
             </Flex>
           </ThemesProvider>
         </>);

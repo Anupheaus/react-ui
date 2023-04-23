@@ -63,7 +63,7 @@ export const TabsComponent = createComponent('Tabs', ({
   const { css, variants, join } = useStyles();
   const [tabs, setTabs] = useState<UpsertTabProps[]>([]);
 
-  const isTabsHidden = tabs.length <= 1 && !alwaysShowTabs;
+  const isTabsHidden = (tabs.length <= 1 || tabs.every(({ hasLabel }) => !hasLabel)) && !alwaysShowTabs;
 
   const upsertTab = useBound((props: UpsertTabProps) => setTabs(innerTabs => innerTabs.upsert(props)));
 

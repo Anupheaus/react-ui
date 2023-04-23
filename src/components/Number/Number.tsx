@@ -1,5 +1,5 @@
 import { to } from '@anupheaus/common';
-import { useMemo } from 'react';
+import { ReactElement, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
 import { createStyles, ThemesProvider } from '../../theme';
@@ -8,7 +8,12 @@ import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalT
 import { NumberTheme } from './NumberTheme';
 import { Icon } from '../Icon';
 
-interface Props extends InternalTextProps<number> { }
+interface Props extends InternalTextProps<number | undefined> {
+  min?: number;
+  max?: number;
+  endAdornments?: ReactElement[];
+  hideIncreaseDecreaseButtons?: boolean;
+}
 
 const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
   const numberTheme = useTheme(NumberTheme);
@@ -23,6 +28,9 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
         },
         textAlign: 'center',
       },
+      hiddenButtons: {
+        'padding': '0 4px',
+      },
     },
     variants: {
       buttonTheme: createThemeVariant(ButtonTheme, {
@@ -35,6 +43,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
 
 export const Number = createComponent('Number', ({
   endAdornments: providedEndAdornments,
+  hideIncreaseDecreaseButtons = false,
   ...props
 }: Props) => {
   const { css, variants, join } = useStyles();
@@ -42,16 +51,18 @@ export const Number = createComponent('Number', ({
   const decrease = useBound(() => props.onChange?.(to.number(props.value, 0) - 1));
 
   const buttons = useMemo(() => [
-    <Button
-      key="increase"
-      onClick={increase}
-    >
-      <Icon name="number-increase" size="small" />
-    </Button>,
+    ...(hideIncreaseDecreaseButtons ? [] : [
+      <Button
+        key="increase"
+        onClick={increase}
+      >
+        <Icon name="number-increase" size="small" />
+      </Button>
+    ]),
     ...(providedEndAdornments ?? []),
   ], [providedEndAdornments]);
 
-  const startButtons = useMemo(() => [
+  const startButtons = useMemo(() => hideIncreaseDecreaseButtons ? [] : [
     <Button
       key="decrease"
       onClick={decrease}
@@ -65,7 +76,7 @@ export const Number = createComponent('Number', ({
       <InternalText
         {...props}
         tagName={'number'}
-        inputClassName={css.number}
+        inputClassName={join(css.number, hideIncreaseDecreaseButtons && css.hiddenButtons)}
         type={'number'}
         endAdornments={buttons}
         startAdornments={startButtons}

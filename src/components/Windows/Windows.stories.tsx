@@ -2,13 +2,13 @@ import { useBound } from '../../hooks';
 import { createStories, StorybookComponent } from '../../Storybook';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
-import { useWindowActions } from './useWindowActions';
+import { useWindows } from './useWindows';
 import { Window } from './Window';
 import { Flex } from '../Flex';
 import { WindowState } from './WindowsModels';
 import { Windows } from './Windows';
 import { createStyles } from '../../theme';
-import { WindowsActionsProvider } from './WindowsActionsProvider';
+import { WindowsManager } from './WindowsManager';
 
 const useStyles = createStyles({
   new: {
@@ -18,19 +18,25 @@ const useStyles = createStyles({
 });
 
 const WindowActions = createComponent('WindowActions', () => {
-  const { closeWindow, addWindow } = useWindowActions();
+  const { closeWindow, openWindow, addWindow } = useWindows();
 
   const handleCloseWindow = useBound(() => {
-    closeWindow('2');
+    closeWindow('3');
+    closeWindow('4');
+  });
+
+  const handleOpenWindow = useBound(() => {
+    openWindow({ id: '3' });
   });
 
   const handleAddWindow = useBound(() => {
-    addWindow({ id: '3' });
+    addWindow(<Window id="4" title="This is my new window" />);
   });
 
   return (
     <Flex fixedSize>
       <Button onClick={handleCloseWindow}>Close Window</Button>
+      <Button onClick={handleOpenWindow}>Open Window</Button>
       <Button onClick={handleAddWindow}>Add Window</Button>
     </Flex>
   );
@@ -55,15 +61,16 @@ createStories<Props>(({ createStory }) => ({
         const handleCreateNewWindow = useBound((data: WindowState) => (
           <Window id={data.id} title={'This is my new window'} />
         ));
+
         return (
           <StorybookComponent width={'100%'} height={550} title={'Default'} className={css.new} isVertical>
-            <WindowsActionsProvider>
+            <WindowsManager>
               <WindowActions />
-              <Windows onCreateNewWindow={handleCreateNewWindow}>
+              <Windows onCreateNewWindowFromState={handleCreateNewWindow}>
                 <Window id="1" title={'This is my title'} minHeight={200} />
                 <Window id="2" title={'This is my dialog'} initialPosition={'center'} />
               </Windows>
-            </WindowsActionsProvider>
+            </WindowsManager>
           </StorybookComponent>
         );
       },

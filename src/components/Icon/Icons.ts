@@ -1,7 +1,9 @@
+import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa';
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
-  FiEye, FiEyeOff, FiChevronDown,
+  FiEye, FiEyeOff, FiChevronDown, FiLock,
 } from 'react-icons/fi';
+import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
 import { IconType } from '../../theme';
 
 export interface IconDefinitions {
@@ -26,10 +28,11 @@ export const LocalIconDefinitions = {
   'password-show': FiEye,
   'password-hide': FiEyeOff,
   'dropdown': FiChevronDown,
+  'sign-in-dialog': FiLock,
+  'calendar-holiday': FaUmbrellaBeach,
+  'calendar-business': MdBusinessCenter,
+  'calendar-sick': MdOutlineSick,
+  'calendar-paternity': FaBaby,
 } satisfies IconDefinitions;
 
 export type IconName = keyof typeof LocalIconDefinitions;
-
-export function configureIcons(icons: { [key: string]: IconType; }): void {
-  Object.assign(LocalIconDefinitions, icons);
-}

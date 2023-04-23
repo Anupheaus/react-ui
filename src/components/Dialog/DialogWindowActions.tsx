@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 import { createComponent } from '../Component';
-import { useWindowActions } from '../Windows';
+import { useWindows } from '../Windows';
 
 interface Props {
   id: string;
@@ -11,7 +11,7 @@ export const DialogWindowActions = createComponent('DialogWindowActions', ({
   id,
   isDialogOpen,
 }: Props) => {
-  const { closeWindow } = useWindowActions();
+  const { closeWindow } = useWindows();
 
   useLayoutEffect(() => {
     if (isDialogOpen) return;
