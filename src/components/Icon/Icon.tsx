@@ -61,7 +61,7 @@ const IconComponent = createComponent('Icon', function ({
 
   return (
     <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
-      <Skeleton variant="circle">{icon}</Skeleton>
+      <Skeleton type="circle">{icon}</Skeleton>
     </Tag>
   );
 });

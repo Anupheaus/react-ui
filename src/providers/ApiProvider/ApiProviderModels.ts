@@ -9,6 +9,7 @@ export interface Api {
   addToHeaders(key: string, value: string): void;
   removeFromHeaders(key: string): void;
   getHeaders(): Record<string, string>;
+  setAuthToken(token: string | undefined): void;
 }
 
 interface ApiFilterOperatorListItem extends ReactListItem {

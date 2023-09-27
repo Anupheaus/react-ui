@@ -1,9 +1,9 @@
-import { Event, is } from '@anupheaus/common';
+import { AnyObject, Event, is } from '@anupheaus/common';
 import { useContext, useLayoutEffect } from 'react';
 import { useBound, useForceUpdate } from '../../hooks';
 import { FormContext } from './FormContext';
 
-export function useFormState() {
+export function useFormState<T = AnyObject>() {
   const { isReal, original: originalProxy, current: currentProxy, errors, showAllErrors: showAllErrorsEvent, save } = useContext(FormContext);
   const update = useForceUpdate();
 
@@ -28,8 +28,8 @@ export function useFormState() {
   return {
     isDirty,
     isValid,
-    current,
-    original,
+    current: current as T,
+    original: original as T,
     save,
     showAllErrors,
   };

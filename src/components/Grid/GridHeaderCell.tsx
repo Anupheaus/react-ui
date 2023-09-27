@@ -52,7 +52,7 @@ export const GridHeaderCell = createComponent('GridHeaderCell', ({
 
   return (
     <Tag ref={target} name="grid-header-cell" className={css.gridHeaderCell}>
-      <Skeleton variant="text">{column.label}</Skeleton>
+      <Skeleton type="text">{column.label}</Skeleton>
     </Tag>
   );
 });

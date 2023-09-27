@@ -23,8 +23,13 @@ export function useDialog(): UseDialogApi {
   const { state, set } = useDistributedState<DialogState>(() => ({ isOpen: false }));
   const dialogPromise = useRef(useMemo(() => Promise.createDeferred<string>(), []));
 
+  const handleClosed = useDelegatedBound((onClosed?: (reason: string) => void) => (reason: string) => {
+    dialogPromise.current.resolve(reason);
+    onClosed?.(reason);
+  });
+
   const Dialog = useMemo(() => createComponent('Dialog', (props: DialogProps) => (
-    <DialogComponent {...props} id={dialogId} state={state} />
+    <DialogComponent {...props} id={dialogId} state={state} onClosed={handleClosed(props.onClosed)} />
   )), []);
 
   const openDialog = useBound(() => {
@@ -32,6 +37,7 @@ export function useDialog(): UseDialogApi {
     set({ isOpen: true });
     return dialogPromise.current;
   });
+
   const closeDialog = useBound((reason?: string) => set({ isOpen: false, closeReason: reason }));
 
   const handleClick = useDelegatedBound((buttonId: string, onClick?: (...args: any[]) => void) => () => {

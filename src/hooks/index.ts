@@ -19,3 +19,5 @@ export * from './useId';
 export * from './useStorage';
 export * from './useDrag';
 export * from './useActions';
+export * from './useSet';
+export * from './useMap';

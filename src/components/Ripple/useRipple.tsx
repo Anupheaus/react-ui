@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { createRippleEventHandler } from './createRippleEventHandler';
 import { Ripple as RippleComponent, RippleProps } from './Ripple';
-import { RippleState } from './RippleModels';
+import { RippleConfig, RippleState } from './RippleModels';
 import { useDistributedState } from '../../hooks';
 import { createComponent } from '../Component';
 
 export function useRipple() {
-  const { state, modify } = useDistributedState<RippleState>(() => ({ x: 0, y: 0, isActive: false, useCoords: false }));
+  const { state: rippleState, modify: modifyRippleState } = useDistributedState<RippleState>(() => ({ x: 0, y: 0, isActive: false, useCoords: false }));
+  const rippleConfig = useDistributedState<RippleConfig>(() => ({ ignoreMouseCoords: false, containerElement: null }));
 
-  const rippleTarget = createRippleEventHandler(modify);
+  const rippleTarget = createRippleEventHandler(modifyRippleState, rippleConfig);
 
-  const Ripple = useMemo(() => createComponent('Ripple', (props: RippleProps) => (<RippleComponent {...props} state={state} />)), []);
+  const Ripple = useMemo(() => createComponent('Ripple', (props: RippleProps) => (<RippleComponent {...props} rippleState={rippleState} rippleConfig={rippleConfig.state} />)), []);
 
   return {
     rippleTarget,

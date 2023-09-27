@@ -71,7 +71,7 @@ export const Label = createComponent('Label', ({
   return (
     <Tag name="label" className={join(css.label, className)}>
       <Tag name="label-content" className={join(css.labelContent)}>
-        <Skeleton variant="text">
+        <Skeleton type="text">
           <Tag
             name="label-text"
             className={join(css.labelText, onClick != null && css.isClickable)}
@@ -83,7 +83,7 @@ export const Label = createComponent('Label', ({
         </Skeleton>
         {help != null && <HelpInfo>{help}</HelpInfo>}
         <Tooltip content="This field is optional" showArrow>
-          {isOptional && <Skeleton variant="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
+          {isOptional && <Skeleton type="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
         </Tooltip>
       </Tag>
     </Tag>

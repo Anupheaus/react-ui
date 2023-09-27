@@ -56,6 +56,7 @@ export function useForm<T extends AnyObject>({ data: providedData }: Props<T>) {
 
   return {
     data: current.proxy,
+    get: current.get,
     Form,
     SaveButton: FormSaveButton,
     Toolbar: FormToolbar,

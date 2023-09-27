@@ -3,20 +3,20 @@ import { createTheme } from '../createTheme';
 export const DefaultTheme = {
   action: {
     default: {
-      backgroundColor: '#1e88e5',
-      textColor: '#fff',
+      backgroundColor: 'rgba(0 0 0 / 15%)',
+      textColor: '#000',
       borderColor: 'transparent',
       fontSize: 14,
       fontWeight: 400,
     },
     active: {
-      backgroundColor: '#6ab7ff',
-      textColor: '#fff',
+      backgroundColor: 'rgba(0 0 0 / 25%)',
+      textColor: '#000',
       borderColor: 'transparent',
     },
     disabled: {
-      backgroundColor: '#e3f2fd',
-      textColor: '#90caf9',
+      backgroundColor: 'rgba(0 0 0 / 5%)',
+      textColor: 'rgba(0 0 0 / 45%)',
     },
   },
   menuItem: {
@@ -31,11 +31,23 @@ export const DefaultTheme = {
       borderColor: 'transparent',
     },
   },
+  toolbar: {
+    default: {
+      backgroundColor: 'rgba(0 0 0 / 5%)',
+      textColor: '#000',
+      borderColor: 'rgba(0 0 0 / 10%)'
+    },
+    active: {
+      backgroundColor: 'rgba(0 0 0 / 5%)',
+      textColor: '#000',
+      borderColor: 'rgba(0 0 0 / 20%)',
+    },
+  },
   field: {
     default: {
-      backgroundColor: '#fff',
+      backgroundColor: 'transparent',
       textColor: '#000',
-      borderColor: '#ddd',
+      borderColor: 'rgba(0 0 0 / 15%)',
       fontSize: 13,
       fontWeight: 400,
       borderRadius: 4,
@@ -43,7 +55,7 @@ export const DefaultTheme = {
     active: {
       backgroundColor: 'transparent',
       textColor: '#000',
-      borderColor: '#ccc',
+      borderColor: 'rgba(0 0 0 / 25%)',
     },
     disabled: {
       backgroundColor: '#e3f2fd',

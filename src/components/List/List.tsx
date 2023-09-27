@@ -121,7 +121,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
   return (
     <Tag name="list" className={css.list}>
       <Label help={help}>{label}</Label>
-      <Skeleton variant={'full'} className={css.skeleton}>
+      <Skeleton type={'full'} className={css.skeleton}>
         <Tag name="list-container" className={css.listContainer}>
           <DropArea
             overlayClassName={css.dropAreaOverlay}

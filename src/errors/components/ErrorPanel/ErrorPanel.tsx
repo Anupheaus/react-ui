@@ -35,8 +35,12 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       buttonTheme: createThemeVariant(ButtonTheme, {
-        backgroundColor,
-        activeBackgroundColor: 'rgba(0 0 0 / 10%)',
+        default: {
+          backgroundColor,
+        },
+        active: {
+          backgroundColor: 'rgba(0 0 0 / 10%)',
+        },
       }),
       dialogTheme: createThemeVariant(DialogTheme, {
         titleBackgroundColor: backgroundColor,

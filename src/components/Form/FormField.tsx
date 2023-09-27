@@ -1,15 +1,16 @@
-import { ComponentType, FocusEvent } from 'react';
+import { FocusEvent, ReactElement } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { useFormField } from './useFormField';
 
+type ReactFC<T extends {}> = (props: T) => ReactElement<any, any> | null;
 interface FieldComponent<T> {
   value?: T | undefined;
   onChange?(newValue: T): void;
 }
 
 type Props<P extends FieldComponent<T>, T> = {
-  component: ComponentType<P>;
+  component: ReactFC<P>;
   field: T | undefined;
   defaultValue?: NonNullable<T>;
   isOptional?: boolean;

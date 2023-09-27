@@ -38,10 +38,14 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
         },
       }),
       buttons: createThemeVariant(ButtonTheme, {
-        backgroundColor: 'transparent',
-        activeBackgroundColor: 'rgba(0 0 0 / 20%)',
-        textColor,
-        activeTextColor: textColor,
+        default: {
+          backgroundColor: 'transparent',
+          textColor,
+        },
+        active: {
+          backgroundColor: 'rgba(0 0 0 / 20%)',
+          textColor: textColor,
+        },
       }),
     },
   };

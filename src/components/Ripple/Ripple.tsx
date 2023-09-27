@@ -1,8 +1,8 @@
-import { CSSProperties, useMemo, useRef } from 'react';
+import { CSSProperties, useLayoutEffect, useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
-import { RippleState } from './RippleModels';
+import { RippleConfig, RippleState } from './RippleModels';
 import { DistributedState, useDistributedState } from '../../hooks';
 import { createStyles, createAnimationKeyFrame } from '../../theme';
 import { RippleTheme } from './RippleTheme';
@@ -40,10 +40,12 @@ export interface RippleProps {
   isDisabled?: boolean;
   className?: string;
   stayWithinContainer?: boolean;
+  ignoreMouseCoords?: boolean;
 }
 
 interface Props extends RippleProps {
-  state: DistributedState<RippleState>;
+  rippleState: DistributedState<RippleState>;
+  rippleConfig: DistributedState<RippleConfig>;
 }
 
 const useStyles = createStyles(({ useTheme }) => {
@@ -87,15 +89,26 @@ export const Ripple = createComponent('Ripple', ({
   className,
   isDisabled = false,
   stayWithinContainer = false,
-  state,
+  ignoreMouseCoords = false,
+  rippleConfig,
+  rippleState,
 }: Props) => {
   const { css, join } = useStyles();
-  const { getAndObserve } = useDistributedState(state);
+  const { getAndObserve } = useDistributedState(rippleState);
+  const { modify } = useDistributedState(rippleConfig);
   const { isActive, x, y, useCoords } = getAndObserve();
   const beenActiveRef = useRef(false);
   const [element, target] = useDOMRef();
 
   if (isActive === true) beenActiveRef.current = true;
+
+  useLayoutEffect(() => {
+    modify(existing => ({ ...existing, rippleElement: element.current }));
+  }, [element.current]);
+
+  useLayoutEffect(() => {
+    modify(existing => ({ ...existing, ignoreMouseCoords }));
+  }, [ignoreMouseCoords]);
 
   const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
     [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);

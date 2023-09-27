@@ -31,3 +31,4 @@ export * from './PIN';
 export * from './Typography';
 export * from './Notifications';
 export * from './Form';
+export * from './Radio';

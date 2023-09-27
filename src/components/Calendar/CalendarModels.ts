@@ -6,6 +6,7 @@ export interface CalendarEntryRecord {
   startDate: Date;
   endDate?: Date;
   isAllDay?: boolean;
+  isBusy?: boolean;
   title: ReactNode;
   description?: ReactNode;
   color?: string;

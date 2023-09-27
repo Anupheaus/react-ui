@@ -23,7 +23,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     styles: {
       number: {
         '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-          '-webkit-appearance': 'none',
+          WebkitAppearance: 'none',
           margin: 0,
         },
         textAlign: 'center',
@@ -34,7 +34,9 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       buttonTheme: createThemeVariant(ButtonTheme, {
-        backgroundColor,
+        default: {
+          backgroundColor,
+        },
       }),
       internalTextTheme: createThemeVariant(InternalTextTheme, numberTheme),
     },

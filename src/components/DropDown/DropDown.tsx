@@ -33,12 +33,16 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       buttons: createThemeVariant(ButtonTheme, {
-        backgroundColor: menuItem.default.backgroundColor,
-        activeBackgroundColor: menuItem.active.backgroundColor,
-        textColor: menuItem.default.textColor,
-        activeTextColor: menuItem.active.textColor,
-        borderColor: menuItem.default.borderColor,
-        activeBorderColor: menuItem.active.borderColor,
+        default: {
+          backgroundColor: menuItem.default.backgroundColor,
+          textColor: menuItem.default.textColor,
+          borderColor: menuItem.default.borderColor,
+        },
+        active: {
+          backgroundColor: menuItem.active.backgroundColor,
+          textColor: menuItem.active.textColor,
+          borderColor: menuItem.active.borderColor,
+        },
         alignment: 'left',
       }),
     }

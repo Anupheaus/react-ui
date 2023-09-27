@@ -1,9 +1,10 @@
 import { useRef } from 'react';
+import { DistributedStateApi } from '../../hooks';
 import { useBound } from '../../hooks/useBound';
 import { useOnUnmount } from '../../hooks/useOnUnmount';
-import { RippleState } from './RippleModels';
+import { RippleConfig, RippleState } from './RippleModels';
 
-export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void) {
+export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
   const unhookRef = useRef<() => void>(() => void 0);
   const isUnmounted = useOnUnmount();
 
@@ -15,6 +16,12 @@ export function createRippleEventHandler(setState: (delegate: (currentState: Rip
       if (isUnmounted()) return;
       setState(currentState => {
         if (currentState.isActive) return currentState;
+        const { ignoreMouseCoords, rippleElement } = rippleConfig.get();
+        if (ignoreMouseCoords) {
+          const rect = rippleElement?.parentElement?.getBoundingClientRect();
+
+          if (rect) return { x: Math.round(rect.width / 2), y: Math.round(rect.height / 2), isActive: true, useCoords: false };
+        }
         let x = (event.offsetX ?? 0);
         let y = (event.offsetY ?? 0);
         const getOffsets = (target: HTMLElement | null) => {

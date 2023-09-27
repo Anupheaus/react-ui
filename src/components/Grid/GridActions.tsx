@@ -24,9 +24,13 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       iconButtonTheme: createThemeVariant(IconButtonTheme, {
+        default: {
+          backgroundColor: 'transparent',
+        },
+        active: {
+          backgroundColor: 'rgba(0 0 0 / 20%)',
+        },
         borderRadius: '4px',
-        backgroundColor: 'transparent',
-        activeBackgroundColor: 'rgba(0 0 0 / 20%)',
       }),
     },
   };

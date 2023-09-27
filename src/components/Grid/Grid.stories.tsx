@@ -17,11 +17,11 @@ interface DemoRecord {
 }
 
 const columns: GridColumn<DemoRecord>[] = [
-  { id: '1', field: 'name', label: 'Name', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.name ?? 'Loading...'}</Skeleton> },
-  { id: '2', field: 'age', label: 'Age **', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.age ?? 'Loading...'}</Skeleton> },
-  { id: '3', field: 'email', label: 'Email', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.email ?? 'Loading...'}</Skeleton> },
-  { id: '4', field: 'phone', label: 'Phone', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.phone ?? 'Loading...'}</Skeleton> },
-  { id: '5', field: 'address', label: 'Address', renderValue: ({ record }) => <Skeleton variant={'text'}>{record?.address ?? 'Loading...'}</Skeleton> },
+  { id: '1', field: 'name', label: 'Name', renderValue: ({ record }) => <Skeleton type={'text'}>{record?.name ?? 'Loading...'}</Skeleton> },
+  { id: '2', field: 'age', label: 'Age **', renderValue: ({ record }) => <Skeleton type={'text'}>{record?.age ?? 'Loading...'}</Skeleton> },
+  { id: '3', field: 'email', label: 'Email', renderValue: ({ record }) => <Skeleton type={'text'}>{record?.email ?? 'Loading...'}</Skeleton> },
+  { id: '4', field: 'phone', label: 'Phone', renderValue: ({ record }) => <Skeleton type={'text'}>{record?.phone ?? 'Loading...'}</Skeleton> },
+  { id: '5', field: 'address', label: 'Address', renderValue: ({ record }) => <Skeleton type={'text'}>{record?.address ?? 'Loading...'}</Skeleton> },
 ];
 
 faker.seed(10121);

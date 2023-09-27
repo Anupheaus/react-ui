@@ -6,8 +6,14 @@ export const IconButtonTheme = createTheme({
 
   definition: {
     ...ButtonTheme.definition,
+    default: {
+      ...ButtonTheme.definition.default,
+      backgroundColor: 'transparent',
+    },
+    active: {
+      ...ButtonTheme.definition.active,
+      backgroundColor: 'rgba(0 0 0 / 20%)',
+    },
     borderRadius: '50%' as string | number,
-    backgroundColor: 'transparent',
-    activeBackgroundColor: 'rgba(0 0 0 / 20%)',
   },
 });

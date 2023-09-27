@@ -1,9 +1,10 @@
 import { ListItem } from '@anupheaus/common';
 import { ReactNode } from 'react';
+import { IconName } from '../components/Icon/Icons';
 
 export interface ReactListItem extends ListItem {
   label?: ReactNode;
-  iconName?: string;
+  iconName?: IconName;
   tooltip?: ReactNode;
   onSelect?(): void;
 }

@@ -2,6 +2,7 @@ import { AnyFunction, DeferredPromise, InternalError, PromiseMaybe, PromiseState
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
+import { useSet } from '../useSet';
 
 type CallbackFunction = (...args: any[]) => PromiseMaybe<void>;
 
@@ -18,7 +19,7 @@ interface RegisterOutOfRenderPhaseProps {
 type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
 export function useCallbacks<T extends CallbackFunction = () => void>() {
-  const callbacks = useRef(new Set<T>()).current;
+  const callbacks = useSet<T>();
 
   const register = (delegate: AddCallbackState<T>) => {
     const renderCount = useRef(0);

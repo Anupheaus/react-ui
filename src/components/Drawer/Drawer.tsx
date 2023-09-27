@@ -54,8 +54,12 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       iconButtons: createThemeVariant(IconButtonTheme, {
-        textColor: headerTextColor,
-        activeTextColor: headerTextColor,
+        default: {
+          textColor: headerTextColor,
+        },
+        active: {
+          textColor: headerTextColor,
+        },
       }),
     },
   };

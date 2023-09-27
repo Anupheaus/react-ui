@@ -5,11 +5,12 @@ import { useRipple } from '../Ripple';
 import { Tag } from '../Tag';
 import { Label } from '../Label';
 import { InternalFieldTheme } from './InternalFieldTheme';
-import { Toolbar } from '../Toolbar';
+import { Toolbar, ToolbarTheme } from '../Toolbar';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { useUIState } from '../../providers/UIStateProvider';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 import { useDOMRef } from '../../hooks';
+import { ThemesProvider } from '../../theme';
 
 export interface InternalFieldProps {
   className?: string;
@@ -32,11 +33,12 @@ interface Props extends InternalFieldProps {
   children: ReactNode;
 }
 
-const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
+const useStyles = createStyles(({ activePseudoClasses, createThemeVariant, useTheme }) => {
   const {
     backgroundColor, activeBackgroundColor, textColor, activeTextColor, borderColor, activeBorderColor, borderRadius,
     fontSize, fontWeight,
   } = useTheme(InternalFieldTheme);
+  const { default: { borderColor: toolbarDefaultBorderColor }, active: { borderColor: toolbarActiveBorderColor } } = useTheme(ToolbarTheme);
 
   return {
     styles: {
@@ -68,11 +70,13 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
         transitionProperty: 'border-color, background-color, color',
         transitionDuration: '0.4s',
         transitionTimingFunction: 'ease',
+        '--internal-field-toolbar-border-color': toolbarDefaultBorderColor,
 
         [activePseudoClasses]: {
           borderColor: activeBorderColor,
           backgroundColor: activeBackgroundColor,
           color: activeTextColor,
+          '--internal-field-toolbar-border-color': toolbarActiveBorderColor,
         },
       },
       fieldContent: {
@@ -97,6 +101,16 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
         borderRightWidth: 1,
       },
     },
+    variants: {
+      ToolbarTheme: createThemeVariant(ToolbarTheme, {
+        default: {
+          borderColor: 'var(--internal-field-toolbar-border-color)',
+        },
+        active: {
+          borderColor: 'var(--internal-field-toolbar-border-color)',
+        },
+      }),
+    },
   };
 });
 
@@ -118,7 +132,7 @@ export const InternalField = createComponent('InternalField', ({
   ref,
   ...props
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, variants } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
   const { isLoading } = useUIState();
@@ -142,9 +156,11 @@ export const InternalField = createComponent('InternalField', ({
 
   return (
     <Tag {...props} name={tagName} className={join(css.field, className)} width={width}>
-      <Label isOptional={isOptional} help={help}>{label}</Label>
-      {wrapContent(children)}
-      <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
+      <ThemesProvider themes={join(variants.ToolbarTheme)}>
+        <Label isOptional={isOptional} help={help}>{label}</Label>
+        {wrapContent(children)}
+        <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
+      </ThemesProvider>
     </Tag>
   );
 });

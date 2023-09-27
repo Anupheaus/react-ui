@@ -11,8 +11,8 @@ interface Props {
   children: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
-  const { backgroundColor, borderColor, borderRadius, textColor } = useTheme(ToolbarTheme);
+const useStyles = createStyles(({ useTheme, createThemeVariant, activePseudoClasses }) => {
+  const { default: { backgroundColor, borderColor, borderRadius, textColor }, active } = useTheme(ToolbarTheme);
   return {
     styles: {
       toolbar: {
@@ -30,6 +30,15 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
         boxSizing: 'border-box',
         position: 'relative',
         overflow: 'hidden',
+        transitionProperty: 'border-color, background-color, color',
+        transitionDuration: '0.4s',
+        transitionTimingFunction: 'ease',
+
+        [activePseudoClasses]: {
+          backgroundColor: active.backgroundColor,
+          borderColor: active.borderColor,
+          color: active.textColor,
+        },
       },
       toolbarItem: {
         borderRadius: 0,
@@ -37,16 +46,20 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       iconButtonTheme: createThemeVariant(IconButtonTheme, {
-        backgroundColor,
-        borderColor,
+        default: {
+          backgroundColor,
+          textColor,
+          borderColor: 'transparent',
+        },
         borderRadius: 0,
-        textColor,
       }),
       buttonTheme: createThemeVariant(ButtonTheme, {
-        backgroundColor,
-        borderColor,
+        default: {
+          backgroundColor,
+          textColor,
+          borderColor: 'transparent',
+        },
         borderRadius: 0,
-        textColor,
       }),
     },
   };

@@ -46,7 +46,6 @@ export const Dialog = createComponent('Dialog', ({
   const id = providedId ?? internalId;
   const { closeWindow, addWindow } = useWindows();
   const { css, join } = useStyles();
-
   const handleClosing = useBound(() => onClosing?.(closeReason ?? 'unknown'));
   const handleClosed = useBound(() => onClosed?.(closeReason ?? 'unknown'));
 

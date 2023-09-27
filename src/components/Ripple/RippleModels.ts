@@ -4,3 +4,8 @@ export interface RippleState {
   x: number;
   y: number;
 }
+
+export interface RippleConfig {
+  ignoreMouseCoords: boolean;
+  rippleElement: HTMLElement | null;
+}

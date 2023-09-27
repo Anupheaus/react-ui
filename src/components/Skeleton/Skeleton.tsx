@@ -90,7 +90,7 @@ const useStyles = createStyles(({ useTheme }) => {
 interface Props {
   className?: string;
   contentClassName?: string;
-  variant?: 'full' | 'text' | 'circle';
+  type?: 'full' | 'text' | 'circle';
   isVisible?: boolean;
   children?: ReactNode;
   useAnimatedBorder?: boolean;
@@ -100,7 +100,7 @@ interface Props {
 export const Skeleton = createComponent('Skeleton', ({
   className,
   contentClassName,
-  variant = 'full',
+  type = 'full',
   isVisible,
   children = null,
   useAnimatedBorder = false,
@@ -121,14 +121,14 @@ export const Skeleton = createComponent('Skeleton', ({
         isLoading && !noSkeletons && css.isVisible,
         useAnimatedBorder && css.usingAnimatedBorder,
         isLoading && !noSkeletons && !useAnimatedBorder && css.isPulsing,
-        css[`variant_${variant}`],
+        css[`variant_${type}`],
         className
       )}
     >
       {children != null && (useAnimatedBorder ? children : (
         <Tag
           name="skeleton-content"
-          className={join(css.content, css[`variant_content_${variant}`], isLoading && css.isHidden, contentClassName)}
+          className={join(css.content, css[`variant_content_${type}`], isLoading && css.isHidden, contentClassName)}
           onClick={onClick}
         >
           {children}

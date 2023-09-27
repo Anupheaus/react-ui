@@ -19,7 +19,7 @@ export interface ButtonProps {
   size?: 'default' | 'small' | 'large';
   iconOnly?: boolean;
   children?: ReactNode;
-  onClick?(event: MouseEvent): void;
+  onClick?(event: MouseEvent): PromiseMaybe<unknown>;
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
 
@@ -114,12 +114,12 @@ export const Button = createComponent('Button', ({
   const update = useForceUpdate();
   const handleClick = useBound(async (event: MouseEvent) => {
     if (isLoading || isReadOnly) return;
-    onClick?.(event);
-    const result = onSelect?.(event);
-    if (!is.promise(result)) return;
+    const clickResult = onClick?.(event);
+    const selectResult = onSelect?.(event);
+    if (!is.promise(clickResult) && !is.promise(selectResult)) return;
     useAnimatedBorderEffectRef.current = true;
     update();
-    await result;
+    await Promise.all([clickResult, selectResult]);
     useAnimatedBorderEffectRef.current = false;
     update();
   });

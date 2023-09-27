@@ -39,8 +39,10 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
     },
     variants: {
       buttonTheme: createThemeVariant(ButtonTheme, {
-        backgroundColor: inactiveTab.backgroundColor,
-        textColor: inactiveTab.textColor,
+        default: {
+          backgroundColor: inactiveTab.backgroundColor,
+          textColor: inactiveTab.textColor,
+        },
         borderRadius: 0,
       }),
     },

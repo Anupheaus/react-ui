@@ -84,8 +84,12 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, mi
     },
     variants: {
       windowControlIconButton: createThemeVariant(IconButtonTheme, {
-        backgroundColor: titleBar.backgroundColor,
-        activeBackgroundColor: 'rgba(0 0 0 / 10%)',
+        default: {
+          backgroundColor: titleBar.backgroundColor,
+        },
+        active: {
+          backgroundColor: 'rgba(0 0 0 / 10%)',
+        },
         borderRadius: 4,
       }),
     },

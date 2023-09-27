@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode, useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
+import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { LocalTypographicDefinitions, TypographyTypes } from './Typographies';
 
@@ -10,6 +11,9 @@ const useStyles = createStyles({
     justifyContent: 'inherit',
     alignItems: 'inherit',
   },
+  fullWidth: {
+    width: '100%',
+  },
 });
 
 let augmentedTypographicDefinitions = LocalTypographicDefinitions as TypographyTypes;
@@ -17,12 +21,16 @@ let augmentedTypographicDefinitions = LocalTypographicDefinitions as TypographyT
 interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> {
   className?: string;
   type: keyof T;
+  fullWidth?: boolean;
+  align?: CSSProperties['textAlign'];
   children: ReactNode;
 }
 
 const TypographyComponent = createComponent('Typography', ({
   className,
   type,
+  fullWidth,
+  align,
   children,
 }: Props<typeof LocalTypographicDefinitions>) => {
   const { css, join } = useStyles();
@@ -31,12 +39,17 @@ const TypographyComponent = createComponent('Typography', ({
   const style = useMemo<CSSProperties>(() => ({
     fontSize: typeStyle?.size ?? 12,
     fontWeight: typeStyle?.weight ?? 400,
-  }), [typeStyle]);
+    textTransform: typeStyle?.transform ?? 'none',
+    color: typeStyle?.color,
+    textAlign: align,
+  }), [typeStyle, align]);
 
   return (
-    <Tag name="typography" className={join(css.typography, className)} style={style}>
-      {children}
-    </Tag>
+    <Skeleton type="text">
+      <Tag name="typography" className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style}>
+        {children}
+      </Tag>
+    </Skeleton>
   );
 });
 
