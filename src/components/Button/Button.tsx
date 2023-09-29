@@ -5,7 +5,7 @@ import { useBound, useForceUpdate } from '../../hooks';
 import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { createStyles, TransitionTheme } from '../../theme';
-import { Children, KeyboardEvent, MouseEvent, ReactNode, Ref, useRef } from 'react';
+import { Children, CSSProperties, KeyboardEvent, MouseEvent, ReactNode, Ref, useRef } from 'react';
 import { Tag } from '../Tag';
 import { ButtonTheme } from './ButtonTheme';
 import { IconButtonTheme } from './IconButtonTheme';
@@ -17,6 +17,7 @@ export interface ButtonProps {
   className?: string;
   ref?: Ref<HTMLButtonElement>;
   size?: 'default' | 'small' | 'large';
+  style?: CSSProperties;
   iconOnly?: boolean;
   children?: ReactNode;
   onClick?(event: MouseEvent): PromiseMaybe<unknown>;
@@ -101,6 +102,7 @@ export const Button = createComponent('Button', ({
   ref,
   size = 'default',
   iconOnly: providedIconOnly,
+  style,
   onClick,
   onSelect,
 }: ButtonProps) => {
@@ -112,6 +114,7 @@ export const Button = createComponent('Button', ({
   const useAnimatedBorderEffectRef = useRef(false);
   const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
   const update = useForceUpdate();
+
   const handleClick = useBound(async (event: MouseEvent) => {
     if (isLoading || isReadOnly) return;
     const clickResult = onClick?.(event);
@@ -135,6 +138,7 @@ export const Button = createComponent('Button', ({
         isReadOnly && css.isReadOnly,
         className,
       )}
+      style={style}
       onClickCapture={handleClick}
     >
       <Ripple isDisabled={isReadOnly || isLoading} />

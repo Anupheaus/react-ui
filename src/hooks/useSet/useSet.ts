@@ -1,5 +1,5 @@
-import { useMemo, useRef } from 'react';
+import { useRef } from '../useRef';
 
 export function useSet<T>() {
-  return useRef(useMemo(() => new Set<T>(), [])).current;
+  return useRef(() => new Set<T>()).current;
 }

@@ -37,9 +37,15 @@ dependencies:
   react:
     specifier: ^18.2.0
     version: 18.2.0
+  react-async-script:
+    specifier: ^1.2.0
+    version: 1.2.0(react@18.2.0)
   react-dom:
     specifier: ^18.2.0
     version: 18.2.0(react@18.2.0)
+  react-google-recaptcha-enterprise:
+    specifier: ^1.0.3
+    version: 1.0.3(react@18.2.0)
   react-hot-toast:
     specifier: ^2.4.0
     version: 2.4.0(csstype@3.1.2)(react-dom@18.2.0)(react@18.2.0)
@@ -105,9 +111,15 @@ devDependencies:
   '@types/react':
     specifier: ^18.0.25
     version: 18.0.28
+  '@types/react-async-script':
+    specifier: ^1.2.2
+    version: 1.2.2
   '@types/react-dom':
     specifier: ^18.0.8
     version: 18.0.11
+  '@types/react-google-recaptcha-enterprise':
+    specifier: ^1.0.1
+    version: 1.0.1
   '@types/react-test-renderer':
     specifier: ^18.0.0
     version: 18.0.0
@@ -4144,6 +4156,13 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
 
+  /@types/hoist-non-react-statics@3.3.2:
+    resolution: {integrity: sha512-YIQtIg4PKr7ZyqNPZObpxfHsHEmuB8dXCxd6qVcGuQVDK2bpsF7bYNnBJ4Nn7giuACZg+WewExgrtAJ3XnA4Xw==}
+    dependencies:
+      '@types/react': 18.0.28
+      hoist-non-react-statics: 3.3.2
+    dev: true
+
   /@types/html-minifier-terser@5.1.2:
     resolution: {integrity: sha512-h4lTMgMJctJybDp8CQrxTUiiYmedihHWkjnF/8Pxseu2S6Nlfcy8kwboQ8yejh456rP2yWoEVm1sS/FVsfM48w==}
     dev: false
@@ -4248,8 +4267,22 @@ packages:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: true
 
+  /@types/react-async-script@1.2.2:
+    resolution: {integrity: sha512-ybIqvjaRLQh8EdT6BC6BPiiISQcC7iVid6NbX1tXWowWr0bFpAqHGssK4u5+x+zQ/bySG5TGIzauBeKIePthwg==}
+    dependencies:
+      '@types/hoist-non-react-statics': 3.3.2
+      '@types/react': 18.0.28
+      hoist-non-react-statics: 3.3.2
+    dev: true
+
   /@types/react-dom@18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
+    dependencies:
+      '@types/react': 18.0.28
+    dev: true
+
+  /@types/react-google-recaptcha-enterprise@1.0.1:
+    resolution: {integrity: sha512-8XmI0KvWwMxVxt/OXezkKo49TXUbc8wfHeRMZmgoP+lEBPlb0sXz6Y4BwC0khP3mxHaWVhEkOhTtOqJSwel+zg==}
     dependencies:
       '@types/react': 18.0.28
     dev: true
@@ -5586,7 +5619,7 @@ packages:
       mississippi: 3.0.0
       mkdirp: 0.5.6
       move-concurrently: 1.0.1
-      promise-inflight: 1.0.1(bluebird@3.7.2)
+      promise-inflight: 1.0.1
       rimraf: 2.7.1
       ssri: 6.0.2
       unique-filename: 1.1.1
@@ -5609,7 +5642,7 @@ packages:
       minipass-pipeline: 1.2.4
       mkdirp: 1.0.4
       p-map: 4.0.0
-      promise-inflight: 1.0.1(bluebird@3.7.2)
+      promise-inflight: 1.0.1
       rimraf: 3.0.2
       ssri: 8.0.1
       tar: 6.1.13
@@ -7853,7 +7886,6 @@ packages:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
     dependencies:
       react-is: 16.13.1
-    dev: false
 
   /hosted-git-info@2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
@@ -10501,15 +10533,13 @@ packages:
     resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
     engines: {node: '>= 0.6.0'}
 
-  /promise-inflight@1.0.1(bluebird@3.7.2):
+  /promise-inflight@1.0.1:
     resolution: {integrity: sha512-6zWPyEOFaQBJYcGMHBKTKJ3u6TBsnMFOIZSa6ce1e/ZrrsOlnHRHbabMjLiBYKp+n44X9eUI6VUPaukCXHuG4g==}
     peerDependencies:
       bluebird: '*'
     peerDependenciesMeta:
       bluebird:
         optional: true
-    dependencies:
-      bluebird: 3.7.2
 
   /promise.allsettled@1.0.6:
     resolution: {integrity: sha512-22wJUOD3zswWFqgwjNHa1965LvqTX87WPu/lreY2KSd7SVcERfuZ4GfUaOnJNnvtoIv2yXT/W00YIGMetXtFXg==}
@@ -10672,6 +10702,16 @@ packages:
       webpack: 4.46.0(webpack-cli@4.10.0)
     dev: false
 
+  /react-async-script@1.2.0(react@18.2.0):
+    resolution: {integrity: sha512-bCpkbm9JiAuMGhkqoAiC0lLkb40DJ0HOEJIku+9JDjxX3Rcs+ztEOG13wbrOskt3n2DTrjshhaQ/iay+SnGg5Q==}
+    peerDependencies:
+      react: '>=16.4.1'
+    dependencies:
+      hoist-non-react-statics: 3.3.2
+      prop-types: 15.8.1
+      react: 18.2.0
+    dev: false
+
   /react-docgen-typescript@2.2.2(typescript@4.9.5):
     resolution: {integrity: sha512-tvg2ZtOpOi6QDwsb3GZhOjDkkX0h8Z2gipvTg6OVMUyoYoURhEiRNePT8NZItTVCDh39JJHnLdfCOkzoLbFnTg==}
     peerDependencies:
@@ -10719,6 +10759,16 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       react-is: 17.0.2
+    dev: false
+
+  /react-google-recaptcha-enterprise@1.0.3(react@18.2.0):
+    resolution: {integrity: sha512-pRtKoYTVGCAPGk1TdNfmlZE1l8U0WNUe98h/MV5c0AsYxFRw5U167DldKc/Gfhv4a8pSCiqM8+ZdWQVQnW1vEg==}
+    peerDependencies:
+      react: '>=16.4.1'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-async-script: 1.2.0(react@18.2.0)
     dev: false
 
   /react-hot-toast@2.4.0(csstype@3.1.2)(react-dom@18.2.0)(react@18.2.0):

@@ -7,6 +7,8 @@ import { LocalTypographicDefinitions, TypographyTypes } from './Typographies';
 
 const useStyles = createStyles({
   typography: {
+    fontSize: 14,
+    fontWeight: 400,
     display: 'inline-block',
     justifyContent: 'inherit',
     alignItems: 'inherit',
@@ -20,7 +22,10 @@ let augmentedTypographicDefinitions = LocalTypographicDefinitions as TypographyT
 
 interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> {
   className?: string;
-  type: keyof T;
+  type?: keyof T;
+  size?: number | string;
+  weight?: number | string;
+  color?: string;
   fullWidth?: boolean;
   align?: CSSProperties['textAlign'];
   children: ReactNode;
@@ -29,20 +34,23 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
 const TypographyComponent = createComponent('Typography', ({
   className,
   type,
+  size,
+  weight,
+  color,
   fullWidth,
   align,
   children,
 }: Props<typeof LocalTypographicDefinitions>) => {
   const { css, join } = useStyles();
-  const typeStyle = augmentedTypographicDefinitions[type];
+  const typeStyle = type != null ? augmentedTypographicDefinitions[type] : undefined;
 
   const style = useMemo<CSSProperties>(() => ({
-    fontSize: typeStyle?.size ?? 12,
-    fontWeight: typeStyle?.weight ?? 400,
+    fontSize: size ?? typeStyle?.size,
+    fontWeight: weight ?? typeStyle?.weight,
     textTransform: typeStyle?.transform ?? 'none',
-    color: typeStyle?.color,
+    color: color ?? typeStyle?.color,
     textAlign: align,
-  }), [typeStyle, align]);
+  }), [typeStyle, align, size, weight, color]);
 
   return (
     <Skeleton type="text">
