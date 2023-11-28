@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@anupheaus/common':
-    specifier: ''
-    version: 0.0.20
+    specifier: ^0.0.23
+    version: 0.0.23
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.39)(react@18.2.0)
@@ -203,16 +203,16 @@ packages:
       '@jridgewell/trace-mapping': 0.3.17
     dev: true
 
-  /@anupheaus/common@0.0.20:
-    resolution: {integrity: sha512-VoH7sfyrM68PDYe7txwtPJmCF4CNeePsTBRNppPCu1yrWSJoHjfVDevo+HZjrDgtpRiuGB0gHXZE9fIj4NnVtw==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.0.20/8d9c19c0dd5b6d30d50d502870cd09be4ee20b96}
+  /@anupheaus/common@0.0.23:
+    resolution: {integrity: sha512-rChPXOU1ujCWLnirodEY9gYipxCwSXJnfjbIWB/1UH7vQdOiczAmZf2b3IiYcMoDcYWr6ye+U+PiMpkrRGvwEg==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.0.23/342bd1df64852c31e9d4f2f4785ce576c13f4e33}
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1
       fast-equals: 4.0.3
-      luxon: 2.5.2
+      luxon: 3.4.4
       numeral: 2.0.6
       object-hash: 3.0.0
-      uuid: 8.3.2
+      uuid: 9.0.1
     dev: false
 
   /@babel/code-frame@7.23.4:
@@ -9809,11 +9809,6 @@ packages:
       yallist: 4.0.0
     dev: true
 
-  /luxon@2.5.2:
-    resolution: {integrity: sha512-Yg7/RDp4nedqmLgyH0LwgGRvMEKVzKbUdkBYyCosbHgJ+kaOUx0qzSiSatVc3DFygnirTPYnMM2P5dg2uH1WvA==}
-    engines: {node: '>=12'}
-    dev: false
-
   /luxon@3.4.4:
     resolution: {integrity: sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==}
     engines: {node: '>=12'}
@@ -12774,11 +12769,11 @@ packages:
   /uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
     hasBin: true
+    dev: true
 
   /uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
-    dev: true
 
   /v8-to-istanbul@9.1.0:
     resolution: {integrity: sha512-6z3GW9x8G1gd+JIIgQQQxXuiJtCXeAjp6RaPEPLv62mH3iPHPxV6W3robxtCzNErRo6ZwTmzWhsbNvjyEBKzKA==}

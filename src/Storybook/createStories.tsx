@@ -10,10 +10,11 @@ import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 import { createComponent } from '../components/Component';
 import { createStyles } from '../theme';
 
-if (module.hot) {
-  module.hot.accept(); // already had this init code 
+const localModule = global.module as NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; };
+if (localModule.hot) {
+  localModule.hot.accept(); // already had this init code 
 
-  module.hot.addStatusHandler(status => {
+  localModule.hot.addStatusHandler(status => {
     // eslint-disable-next-line no-console
     if (status === 'check') console.clear();
   });
