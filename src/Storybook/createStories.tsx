@@ -10,8 +10,8 @@ import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 import { createComponent } from '../components/Component';
 import { createStyles } from '../theme';
 
-const localModule = global.module as NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; };
-if (localModule.hot) {
+const localModule = global.module as undefined | (NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; });
+if (localModule?.hot) {
   localModule.hot.accept(); // already had this init code 
 
   localModule.hot.addStatusHandler(status => {
