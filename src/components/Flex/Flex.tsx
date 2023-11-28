@@ -60,7 +60,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   maxWidthAndHeight?: boolean;
   shadow?: number;
   align?: 'left' | 'center' | 'right' | 'space-around' | 'space-between' | 'space-evenly';
-  valign?: 'top' | 'center' | 'bottom' | 'space-around' | 'space-between' | 'space-evenly';
+  valign?: 'top' | 'center' | 'bottom' | 'space-around' | 'space-between' | 'space-evenly' | 'stretch';
   gap?: number;
   testId?: string;
   tooltip?: ReactNode;

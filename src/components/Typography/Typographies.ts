@@ -1,8 +1,12 @@
 export interface TypographyType {
-  size?: number;
+  size?: number | string;
   weight?: number;
   color?: string;
   transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
+  name?: string;
+  opacity?: number;
+  spacing?: number | string;
+  shadow?: string | boolean;
 }
 
 export interface TypographyTypes {

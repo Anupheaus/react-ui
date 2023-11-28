@@ -1,5 +1,5 @@
 import { NotPromise, PromiseMaybe, Unsubscribe } from '@anupheaus/common';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
 import { useOnUnmount } from '../useOnUnmount';
@@ -23,6 +23,7 @@ export type UseAsyncOnCancelled = (handler: UseAsyncCancelDelegate) => void;
 export interface UseAsyncResult<DelegateType extends AsyncDelegate> {
   response: UseAsyncResponse<DelegateType> | undefined;
   isLoading: boolean;
+  error?: Error;
   trigger: UseAsyncTrigger<DelegateType>;
   cancel: UseAsyncCancel;
   onCancelled: UseAsyncOnCancelled;
@@ -41,6 +42,8 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
   const lastRequestRef = useRef<string>('');
   const onLocalCancelledCallbacks = useRef(new Set<Unsubscribe>()).current;
   const onGlobalCancelledCallbacks = useRef(new Set<UseAsyncCancelDelegate>()).current;
+  const captureErrorRef = useRef(false);
+  const [error, setError] = useState<Error>();
   const isLoadingRef = useRef(false);
   const update = useForceUpdate();
 
@@ -68,21 +71,39 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
       onCancelled: cancelledDelegate => onLocalCancelledCallbacks.add(cancelledDelegate),
       hasBeenCancelled: () => requestId !== lastRequestRef.current || hasBeenCancelled,
     };
-    const result = delegate(state, ...args);
-    if (result instanceof Promise) {
-      isLoadingRef.current = true;
-      result.then(value => {
-        if (requestId !== lastRequestRef.current || isUnmounted()) return;
-        isLoadingRef.current = false;
-        if (hasBeenCancelled) return;
-        responseRef.current = value;
-        update();
-      });
-    } else {
-      responseRef.current = result;
+
+    const handleError = (err: unknown) => {
+      responseRef.current = undefined;
       isLoadingRef.current = false;
+      if (captureErrorRef.current) {
+        if (err instanceof Error) { setError(err); return; }
+        if (typeof err === 'string') { setError(new Error(err)); return; }
+        setError(new Error('Unknown error'));
+        return;
+      } else {
+        throw err;
+      }
+    };
+
+    try {
+      const result = delegate(state, ...args);
+      if (result instanceof Promise) {
+        isLoadingRef.current = true;
+        result.then(value => {
+          if (requestId !== lastRequestRef.current || isUnmounted()) return;
+          isLoadingRef.current = false;
+          if (hasBeenCancelled) return;
+          responseRef.current = value;
+          update();
+        }).catch(handleError);
+      } else {
+        responseRef.current = result;
+        isLoadingRef.current = false;
+      }
+      return result;
+    } catch (err) {
+      handleError(err);
     }
-    return result;
   });
 
   useMemo(() => {
@@ -94,6 +115,7 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
     trigger,
     get response() { return responseRef.current; },
     get isLoading() { return isLoadingRef.current; },
+    get error() { captureErrorRef.current = true; return error; },
     cancel,
     onCancelled,
   };

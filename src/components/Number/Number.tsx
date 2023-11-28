@@ -46,11 +46,16 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
 export const Number = createComponent('Number', ({
   endAdornments: providedEndAdornments,
   hideIncreaseDecreaseButtons = false,
+  value,
+  min,
+  max,
+  error: providedError,
+  onChange,
   ...props
 }: Props) => {
   const { css, variants, join } = useStyles();
-  const increase = useBound(() => props.onChange?.(to.number(props.value, 0) + 1));
-  const decrease = useBound(() => props.onChange?.(to.number(props.value, 0) - 1));
+  const increase = useBound(() => onChange?.(to.number(value, 0) + 1));
+  const decrease = useBound(() => onChange?.(to.number(value, 0) - 1));
 
   const buttons = useMemo(() => [
     ...(hideIncreaseDecreaseButtons ? [] : [
@@ -73,15 +78,26 @@ export const Number = createComponent('Number', ({
     </Button>,
   ], []);
 
+  const error = useMemo(() => {
+    if (providedError) return providedError;
+    if (min == null && max == null) return;
+    if (value == null) return;
+    if (min != null && value < min) return `Value cannot be less than ${min}`;
+    if (max != null && value > max) return `Value cannot be greater than ${max}`;
+  }, [providedError, min, max, value]);
+
   return (
     <ThemesProvider themes={join(variants.internalTextTheme, variants.buttonTheme)}>
       <InternalText
         {...props}
+        value={value}
         tagName={'number'}
         inputClassName={join(css.number, hideIncreaseDecreaseButtons && css.hiddenButtons)}
         type={'number'}
         endAdornments={buttons}
         startAdornments={startButtons}
+        error={error}
+        onChange={onChange}
       />
     </ThemesProvider>
   );

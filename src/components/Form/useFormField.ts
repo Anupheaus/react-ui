@@ -4,16 +4,22 @@ import { useBound, useForceUpdate } from '../../hooks';
 import { FormContext } from './FormContext';
 import { useFormValidation } from './useFormValidation';
 
-interface Props {
+interface Props<T> {
   isRequired?: boolean;
   requiredMessage?: ReactNode;
+  defaultValue?: T | (() => T);
 }
 
-export function useFormField<T>(field: T, { isRequired = false, requiredMessage }: Props = {}) {
+export function useFormField<T>(field: T, { isRequired = false, requiredMessage, defaultValue }: Props<T> = {}) {
   const { original, current, showAllErrors } = useContext(FormContext);
   const update = useForceUpdate();
   const [isErrorVisible, setErrorVisible] = useState(false);
 
+  if (!original.isSet(field) && defaultValue !== undefined) {
+    const newValue = is.function(defaultValue) ? defaultValue() : defaultValue;
+    original.set(field, newValue);
+    current.set(field, newValue);
+  }
   const value = current.get(field);
   const isDirty = !is.deepEqual(original.get(field), value);
 

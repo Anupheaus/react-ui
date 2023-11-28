@@ -14,7 +14,7 @@ import { Typography } from '../Typography';
 import { RadioTheme } from './RadioTheme';
 
 const useStyles = createStyles(({ useTheme }) => {
-  const { default: { backgroundColor, borderColor } } = useTheme(RadioTheme);
+  const { default: { borderColor } } = useTheme(RadioTheme);
   return {
     styles: {
       radio: {
@@ -89,7 +89,8 @@ export const RadioOption = createComponent('RadioOption', ({
   });
 
   return (
-    <Flex ref={rippleTarget} tagName="radio" valign="center" align="left" disableGrow className={join(css.radio, isLoading && css.isLoading)} gap={4} allowFocus onClick={handleClick} onKeyUp={handleKeyUp}>
+    <Flex ref={rippleTarget} tagName="radio" valign="center" align="left" disableGrow className={join(css.radio, isLoading && css.isLoading)} gap={4} allowFocus
+      onClickCapture={handleClick} onKeyUp={handleKeyUp}>
       <Tag name="radio-graphic-container" className={css.radioGraphicContainer}>
         <Ripple stayWithinContainer ignoreMouseCoords className={css.ripple} />
         <Skeleton type="circle">

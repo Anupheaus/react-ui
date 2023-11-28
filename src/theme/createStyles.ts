@@ -7,6 +7,7 @@ import { GetThemeDefinition, Theme } from './themeModels';
 interface UseStylesApi<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>> {
   css: { [K in keyof TStyles]: string; };
   variants: TVariants;
+  toPx(value: number | string | undefined): string | undefined;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   join(...themes: Theme[]): Theme[];
 }
@@ -76,7 +77,13 @@ export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends
       if (is.theme(classNames[0])) return classNames;
       return cx(...(classNames as (string | boolean | undefined)[]));
     };
-    return { css, variants, join } as UseStylesApi<TStyles, TVariants>;
+    const toPx = (value: number | string | undefined) => {
+      if (value == null) return undefined;
+      if (is.number(value)) return `${value}px`;
+      if (is.string(value) && value.endsWith('px')) return value;
+      return undefined;
+    };
+    return { css, variants, toPx, join } as UseStylesApi<TStyles, TVariants>;
   }
 
   return useStyles;

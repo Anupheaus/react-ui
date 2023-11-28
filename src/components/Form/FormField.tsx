@@ -12,13 +12,13 @@ interface FieldComponent<T> {
 type Props<P extends FieldComponent<T>, T> = {
   component: ReactFC<P>;
   field: T | undefined;
-  defaultValue?: NonNullable<T>;
+  defaultValue?: NonNullable<T> | (() => NonNullable<T>);
   isOptional?: boolean;
 } & Omit<P, 'defaultValue' | 'field' | 'value' | 'onChange'>;
 
 export const FormField = createComponent('FormField', function <P extends FieldComponent<T>, T>({ component: Component, field, defaultValue, ...props }: Props<P, T>) {
   const { isOptional = false } = props;
-  const { value, error, set, onBlur } = useFormField(field, { isRequired: !isOptional });
+  const { value, error, set, onBlur } = useFormField(field, { isRequired: !isOptional, defaultValue });
 
   const handleBlur = useBound((event: FocusEvent) => {
     onBlur();

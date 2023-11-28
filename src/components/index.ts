@@ -32,3 +32,5 @@ export * from './Typography';
 export * from './Notifications';
 export * from './Form';
 export * from './Radio';
+export * from './Carousel';
+export * from './ParallaxScrollers';
