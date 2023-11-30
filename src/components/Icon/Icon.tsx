@@ -16,6 +16,7 @@ interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   color?: string;
   size?: 'normal' | 'small' | 'large' | number;
   ref?: Ref<HTMLDivElement>;
+  onClick?(): void;
 }
 
 const useStyles = createStyles(({ useTheme }) => {
@@ -44,6 +45,7 @@ const IconComponent = createComponent('Icon', function ({
   color,
   size = 'normal',
   ref,
+  onClick,
 }: Props<typeof LocalIconDefinitions>) {
   const { css, join } = useStyles();
   const sizeAmount = (() => {
@@ -62,7 +64,7 @@ const IconComponent = createComponent('Icon', function ({
   }, [name, color, sizeAmount]);
 
   return (
-    <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
+    <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name} onClick={onClick}>
       <Skeleton type="circle">{icon}</Skeleton>
     </Tag>
   );
