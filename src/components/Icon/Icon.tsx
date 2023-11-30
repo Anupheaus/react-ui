@@ -13,6 +13,7 @@ export { IconType };
 interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   name: keyof T;
   className?: string;
+  color?: string;
   size?: 'normal' | 'small' | 'large' | number;
   ref?: Ref<HTMLDivElement>;
 }
@@ -40,6 +41,7 @@ let augmentedIconDefinitions = LocalIconDefinitions;
 const IconComponent = createComponent('Icon', function ({
   name,
   className,
+  color,
   size = 'normal',
   ref,
 }: Props<typeof LocalIconDefinitions>) {
@@ -56,8 +58,8 @@ const IconComponent = createComponent('Icon', function ({
   const icon = useMemo(() => {
     let iconFunc = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions];
     if (!is.function(iconFunc)) iconFunc = augmentedIconDefinitions['no-image'];
-    return iconFunc({ size: sizeAmount });
-  }, [name, sizeAmount]);
+    return iconFunc({ size: sizeAmount, color });
+  }, [name, color, sizeAmount]);
 
   return (
     <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name}>
