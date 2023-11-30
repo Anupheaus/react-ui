@@ -33,6 +33,7 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
   opacity?: number;
   fullWidth?: boolean;
   align?: CSSProperties['textAlign'];
+  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -48,6 +49,7 @@ const TypographyComponent = createComponent('Typography', ({
   color,
   fullWidth,
   align,
+  style: providedStyle,
   children,
 }: Props<typeof LocalTypographicDefinitions>) => {
   const { css, join } = useStyles();
@@ -63,7 +65,8 @@ const TypographyComponent = createComponent('Typography', ({
     textShadow: ((result: string | boolean | undefined) => typeof (result) === 'boolean' ? (result === true ? '0 0 2px rgba(0, 0, 0, 0.5)' : undefined) : result)(shadow ?? typeStyle?.shadow),
     textAlign: align,
     opacity: opacity ?? typeStyle?.opacity,
-  }), [typeStyle, align, size, opacity, weight, name, spacing, shadow, color]);
+    ...providedStyle,
+  }), [typeStyle, align, size, opacity, weight, name, spacing, shadow, color, providedStyle]);
 
   return (
     <Skeleton type="text">
