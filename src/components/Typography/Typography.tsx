@@ -35,6 +35,7 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
   align?: CSSProperties['textAlign'];
   style?: CSSProperties;
   children: ReactNode;
+  onClick?(): void;
 }
 
 const TypographyComponent = createComponent('Typography', ({
@@ -51,6 +52,7 @@ const TypographyComponent = createComponent('Typography', ({
   align,
   style: providedStyle,
   children,
+  onClick,
 }: Props<typeof LocalTypographicDefinitions>) => {
   const { css, join } = useStyles();
   const typeStyle = type != null ? augmentedTypographicDefinitions[type] : undefined;
@@ -70,7 +72,7 @@ const TypographyComponent = createComponent('Typography', ({
 
   return (
     <Skeleton type="text">
-      <Tag name="typography" className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style}>
+      <Tag name="typography" className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style} onClick={onClick}>
         {children}
       </Tag>
     </Skeleton>
