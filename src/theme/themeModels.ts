@@ -3,6 +3,7 @@ import { CSSObject } from 'tss-react';
 
 export interface IconTypeProps {
   size?: 'normal' | 'small' | 'large' | number;
+  color?: string;
 }
 
 export type IconType = (props: IconTypeProps) => JSX.Element | null;
