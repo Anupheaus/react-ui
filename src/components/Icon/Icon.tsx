@@ -33,6 +33,9 @@ const useStyles = createStyles(({ useTheme }) => {
         flexGrow: 0,
         flexShrink: 0,
       },
+      clickable: {
+        cursor: 'pointer',
+      },
     },
   };
 });
@@ -60,11 +63,12 @@ const IconComponent = createComponent('Icon', function ({
   const icon = useMemo(() => {
     let iconFunc = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions];
     if (!is.function(iconFunc)) iconFunc = augmentedIconDefinitions['no-image'];
+
     return iconFunc({ size: sizeAmount, color });
   }, [name, color, sizeAmount]);
 
   return (
-    <Tag name="icon" ref={ref} className={join(css.icon, className)} data-icon-type={name} onClick={onClick}>
+    <Tag name="icon" ref={ref} className={join(css.icon, onClick != null && css.clickable, className)} data-icon-type={name} onClick={onClick}>
       <Skeleton type="circle">{icon}</Skeleton>
     </Tag>
   );
