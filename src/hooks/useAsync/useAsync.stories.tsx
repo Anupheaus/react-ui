@@ -33,11 +33,11 @@ createStories(({ createStory }) => ({
           });
           setTimeout(() => reject(), 3000);
         });
-        expect(results.size).to.be(4);
-        expect([...results][0]).to.eql({ isLoading: true });
-        expect([...results][1]).to.eql({ isLoading: false, response: 'beep 1' });
-        expect([...results][2]).to.eql({ isLoading: true, response: 'beep 1' });
-        expect([...results][3]).to.eql({ isLoading: false, response: 'beep 2' });
+        expect(results.size).toBe(4);
+        expect([...results][0]).toBe({ isLoading: true });
+        expect([...results][1]).toBe({ isLoading: false, response: 'beep 1' });
+        expect([...results][2]).toBe({ isLoading: true, response: 'beep 1' });
+        expect([...results][3]).toBe({ isLoading: false, response: 'beep 2' });
       },
     }),
   },

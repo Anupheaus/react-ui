@@ -8,6 +8,7 @@ export interface InternalTextProps<TValue = unknown> extends InternalFieldProps 
   value?: TValue;
   ref?: Ref<HTMLInputElement>;
   initialFocus?: boolean;
+  endAdornments?: ReactElement[];
   onChange?(value: TValue): void;
   onFocus?(event: FocusEvent<HTMLInputElement>): void;
   onClick?(event: MouseEvent<HTMLInputElement>): void;
@@ -21,7 +22,7 @@ interface Props<TValue = unknown> extends InternalTextProps<TValue> {
   inputClassName?: string;
   type: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
   startAdornments?: ReactElement[];
-  endAdornments?: ReactElement[];
+
 }
 
 export const InternalText = createComponent('InternalText', function <T = unknown>({

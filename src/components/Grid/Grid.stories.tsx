@@ -1,5 +1,5 @@
 import { createStories } from '../../Storybook';
-import { Grid, GridColumns, GridRecords } from '.';
+import { Grid } from '.';
 import { GridColumn } from './GridModels';
 import { faker } from '@faker-js/faker';
 import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
@@ -25,7 +25,6 @@ const columns: GridColumn<DemoRecord>[] = [
 ];
 
 faker.seed(10121);
-faker.setLocale('en_GB');
 
 const records: DemoRecord[] = new Array(100).fill(0).map(() => ({
   id: faker.datatype.uuid(),

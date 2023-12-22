@@ -33,8 +33,12 @@ import { ButtonTheme } from './ButtonTheme';
 
 export const PrimaryButtonTheme = ButtonTheme.createVariant({
   definition: {
-    backgroundColor: '#007bff',
-    textColor: '#fff',
-    activeBackgroundColor: colors.darken('#007bff', 10),
+    default: {
+      backgroundColor: '#007bff',
+      textColor: '#fff',
+    },
+    active: {
+      backgroundColor: colors.darken('#007bff', 10),
+    },
   },
 });

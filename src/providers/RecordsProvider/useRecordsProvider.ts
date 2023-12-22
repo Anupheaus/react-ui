@@ -1,6 +1,6 @@
 import { is, Record } from '@anupheaus/common';
 import { useContext, useRef } from 'react';
-import { useForceUpdate } from '../../hooks';
+import { useForceUpdate } from '../../hooks/useForceUpdate';
 import { createRecordsProviderContextEntry, RecordsProviderContext, RecordsProviderContextProps } from './RecordsProviderContext';
 
 function useEmptyRecordsProvider<T extends Record = Record>(typeId: string) {

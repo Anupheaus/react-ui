@@ -9,7 +9,7 @@ import { ComponentProps, useState } from 'react';
 import { Flex } from '../Flex';
 
 faker.seed(10121);
-faker.setLocale('en_GB');
+// faker.setLocale('en_GB');
 
 const draggableItems = new Array(10).fill(0).map((): ReactListItem => {
   const data = {

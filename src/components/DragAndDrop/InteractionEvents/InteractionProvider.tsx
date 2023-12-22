@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
-import { createComponent } from '../../../components';
-import { useBound } from '../../../hooks';
+import { createComponent } from '../../../components/Component';
+import { useBound } from '../../../hooks/useBound';
 import { InteractionContext } from './InteractionContext';
 import { MouseMoveEvent } from './InteractionEvents';
 

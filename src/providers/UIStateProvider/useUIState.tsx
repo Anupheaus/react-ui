@@ -1,8 +1,9 @@
 import { ComponentProps, useContext, useMemo } from 'react';
 import { createComponent } from '../../components/Component';
-import { useBound, useDistributedState } from '../../hooks';
+import { useBound } from '../../hooks/useBound';
 import { UIState } from './UIState';
 import { UIStateContexts } from './UIStateContexts';
+import { useDistributedState } from '../../hooks/useDistributedState';
 
 interface Props {
   isLoading?: boolean;

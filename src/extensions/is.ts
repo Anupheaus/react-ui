@@ -1,7 +1,8 @@
 import { is } from '@anupheaus/common';
 import { isValidElement, Component, ReactElement, RefObject } from 'react';
-import { Component as AnuxComponent, ComponentSymbol } from '../components/Component';
-import type { Theme } from '../theme';
+import type { Component as AnuxComponent } from '../components/Component';
+import { ComponentSymbol } from '../components/Component/ComponentModels';
+import type { Theme } from '../theme/themeModels';
 
 declare module '@anupheaus/common' {
   export interface Is {

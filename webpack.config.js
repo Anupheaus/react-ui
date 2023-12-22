@@ -12,7 +12,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, './dist'),
     libraryTarget: 'umd',
-    library: 'anux-react-utils',
+    library: 'react-ui',
   },
   module: {
     rules: [{
@@ -62,7 +62,9 @@ module.exports = {
         const entries = Array.from(circularDeps.entries());
         circularDeps.clear();
         entries.sort(([, count1], [, count2]) => count1 > count2 ? -1 : 1);
+        // eslint-disable-next-line no-console
         console.log(entries.slice(0, 20).map(([pathValue, count]) => `${pathValue} ${count}`));
+        // eslint-disable-next-line no-console
         console.log(`Found ${entries.length} circular dependencies`);
       },
     }),
@@ -72,9 +74,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    alias: {
-      '@anux/common': path.resolve(__dirname, '../common/src'),
-    }
+    // alias: {
+    //   '@anux/common': path.resolve(__dirname, '../common/src'),
+    // }
   },
   stats: {
     assets: false,

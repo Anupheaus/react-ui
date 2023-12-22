@@ -1,6 +1,6 @@
 import { MouseEvent, ReactNode, useContext } from 'react';
 import { createComponent } from '../Component';
-import { useUIState } from '../../providers';
+import { useUIState } from '../../providers/UIStateProvider';
 import { createStyles, createAnimationKeyFrame } from '../../theme';
 import { Tag } from '../Tag';
 import { SkeletonContexts } from './SkeletonContexts';

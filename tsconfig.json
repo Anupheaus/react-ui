@@ -5,18 +5,13 @@
     "noUnusedParameters": false,
     "experimentalDecorators": true,
     "importHelpers": false,
-    "noEmit": false,
+    "noEmit": true,
     "removeComments": true,
     "module": "CommonJS",
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "incremental": true,
     "moduleResolution": "node",
-    "paths": {
-      "@anupheaus/common": [
-        "../common/src"
-      ]
-    },
     "lib": [
       "DOM",
       "ES2020"

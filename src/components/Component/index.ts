@@ -1,3 +1,3 @@
-export * from './createComponent';
+// export * from './createComponentOld';
 export * from './ComponentModels';
-export * from './createComponent2';
+export * from './createComponent';

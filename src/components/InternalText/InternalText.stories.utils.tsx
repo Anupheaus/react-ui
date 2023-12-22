@@ -1,15 +1,10 @@
 import { MapOf } from '@anupheaus/common';
 import { FunctionComponent } from 'react';
-import { FiHelpCircle } from 'react-icons/fi';
 import { useUpdatableState } from '../../hooks/useUpdatableState';
 import { StorybookComponent, StoryConfig } from '../../Storybook';
-import { createThemeIcons } from '../../theme';
 import { Button } from '../Button';
 import { InternalTextProps } from './InternalText';
-
-const icons = createThemeIcons({
-  help: FiHelpCircle,
-});
+import { Icon } from '../Icon';
 
 interface Props<T = InternalTextProps> extends Partial<InternalTextProps> {
   component: FunctionComponent<T>;
@@ -32,7 +27,7 @@ export function generateInternalTextStories<T extends InternalTextProps>(compone
         </StorybookComponent>
 
         <StorybookComponent title="With Button">
-          <EditableComponent component={component} additionalProps={additionalProps} endAdornments={[<Button key={'help'} icon={icons.help} />]} />
+          <EditableComponent component={component} additionalProps={additionalProps} endAdornments={[<Button key={'help'}><Icon name={'help'} /></Button>]} />
         </StorybookComponent>
 
         <StorybookComponent title="Is Optional">
