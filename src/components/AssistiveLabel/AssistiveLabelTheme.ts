@@ -5,6 +5,6 @@ export const AssistiveLabelTheme = createTheme({
   definition: {
     fontSize: 12,
     fontWeight: 400,
-    errorTextColor: DefaultTheme.error.textColor,
+    errorTextColor: DefaultTheme.error.color,
   },
 });

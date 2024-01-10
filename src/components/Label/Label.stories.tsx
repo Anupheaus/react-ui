@@ -1,49 +1,33 @@
-import { UIState } from '../../providers';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { createStories, StorybookComponent, StoryConfig } from '../../Storybook';
+import { Meta, StoryObj } from '@storybook/react';
 import { Label } from './Label';
+import { createStorybookComponentStates } from '../../Storybook';
 
-interface StoryProps {
-  isLoading?: boolean;
-}
+const meta: Meta<typeof Label> = {
+  component: Label,
+};
+export default meta;
 
-function generateStories({ isLoading = false }: StoryProps = {}): StoryConfig {
-  return {
-    wrapInStorybookComponent: false,
-    component: () => (
-      <UIState isLoading={isLoading}>
-        <StorybookComponent title="Normal">
-          <Label>Label</Label>
-        </StorybookComponent>
+type Story = StoryObj<typeof Label>;
 
-        <StorybookComponent title="No Label">
-          <Label />
-        </StorybookComponent>
-
-        <StorybookComponent title="With Help">
-          <Label help={<>This is my help</>}>Label</Label>
-        </StorybookComponent>
-
-        <StorybookComponent title="Is Optional">
-          <Label isOptional>Label</Label>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Help and Is Optional">
-          <Label help={<>This is my help</>} isOptional>Label</Label>
-        </StorybookComponent>
-      </UIState>
-    ),
-  };
-}
-
-const DemoLabel = () => <Label>Label</Label>;
-
-createStories(() => ({
-  module,
-  name: 'Components/Label',
-  stories: {
-    ...generateUIStateStories(DemoLabel),
-    'Default': generateStories(),
-    'Loading': generateStories({ isLoading: true }),
+const config = {
+  storyName: '',
+  args: {
+    children: 'Label',
+    isOptional: false,
   },
-}));
+  render: props => (
+    <Label {...props} />
+  ),
+} satisfies Story;
+
+export const UIStates = createStorybookComponentStates(config);
+UIStates.storyName = 'UI States';
+
+export const UIStatesWithOptional = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true } });
+UIStatesWithOptional.storyName = 'UI States as Optional';
+
+export const UIStatesWithHelp = createStorybookComponentStates({ ...config, args: { ...config.args, help: 'This is my help' } });
+UIStatesWithHelp.storyName = 'UI States with Help';
+
+export const UIStatesWithOptionalAndHelp = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true, help: 'This is my help' } });
+UIStatesWithOptionalAndHelp.storyName = 'UI States as Optional with Help';

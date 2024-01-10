@@ -1,68 +1,41 @@
-import { ComponentProps, useState } from 'react';
-import { UIState } from '../../providers';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { createStories, StorybookComponent, StoryConfig } from '../../Storybook';
+import { Meta, StoryObj } from '@storybook/react';
+import { createStorybookComponentStates } from '../../Storybook';
+import { ComponentProps, ReactNode, useState } from 'react';
 import { Checkbox } from './Checkbox';
 
-interface StoryProps {
-  isLoading?: boolean;
-}
-
-const EditableCheckbox = (props: ComponentProps<typeof Checkbox>) => {
-  const [isChecked, setIsChecked] = useState(false);
-  return <Checkbox {...props} value={isChecked} onChange={setIsChecked} />;
+const meta: Meta<typeof Checkbox> = {
+  component: Checkbox,
 };
+export default meta;
 
-function generateStories({ isLoading = false }: StoryProps = {}, additionalProps: Partial<ComponentProps<typeof Checkbox>> = {}): StoryConfig {
-  return {
-    wrapInStorybookComponent: false,
-    component: () => (
-      <UIState isLoading={isLoading}>
-        <StorybookComponent title="Normal">
-          <EditableCheckbox label={'Label'} {...additionalProps} />
-        </StorybookComponent>
+type Story = StoryObj<typeof Checkbox>;
 
-        <StorybookComponent title="No Label">
-          <EditableCheckbox {...additionalProps} />
-        </StorybookComponent>
-
-        <StorybookComponent title="With Help">
-          <EditableCheckbox help={<>This is my help</>} {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-
-        <StorybookComponent title="Is Optional">
-          <EditableCheckbox isOptional {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Help and Is Optional">
-          <EditableCheckbox help={<>This is my help</>} isOptional {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Assistive Text">
-          <EditableCheckbox assistiveText={<>This is assistive text</>} {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Assistive Text and Help">
-          <EditableCheckbox assistiveText={<>This is assistive text</>} help={<>This is my help</>} {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Assistive Text, Help and Is Optional">
-          <EditableCheckbox assistiveText={<>Assistive text</>} help={<>This is my help</>} isOptional {...additionalProps}>Label</EditableCheckbox>
-        </StorybookComponent>
-      </UIState>
-    ),
-  };
+interface Props {
+  isBusy?: boolean;
+  children?: ReactNode;
+  labelPosition?: ComponentProps<typeof Checkbox>['labelPosition'];
 }
 
-createStories(() => ({
-  module,
-  name: 'Components/Checkbox',
-  stories: {
-    ...generateUIStateStories(EditableCheckbox),
-    'Label on Right': generateStories(),
-    'Label on Left': generateStories({}, { labelPosition: 'left' }),
-    'Label on Top': generateStories({}, { labelPosition: 'top' }),
-    'Label on Bottom': generateStories({}, { labelPosition: 'bottom' }),
-    'Loading': generateStories({ isLoading: true }),
+const config = ({ children = 'Label', labelPosition }: Props = {}) => ({
+  storyName: '',
+  args: {
   },
-}));
+  render: props => {
+    const [value, setValue] = useState(false);
+    return (
+      <Checkbox {...props} value={value} onChange={setValue} labelPosition={labelPosition}>{children}</Checkbox>
+    );
+  },
+}) satisfies Story;
+
+export const UIStates = createStorybookComponentStates({ ...config(), includeError: true });
+UIStates.storyName = 'UI States (Right Align)';
+
+export const UIStatesLeftAlign = createStorybookComponentStates({ ...config({ labelPosition: 'left' }), includeError: true });
+UIStatesLeftAlign.storyName = 'UI States (Left Align)';
+
+export const UIStatesTopAlign = createStorybookComponentStates({ ...config({ labelPosition: 'top' }), includeError: true });
+UIStatesTopAlign.storyName = 'UI States (Top Align)';
+
+export const UIStatesBottomAlign = createStorybookComponentStates({ ...config({ labelPosition: 'bottom' }), includeError: true });
+UIStatesBottomAlign.storyName = 'UI States (Bottom Align)';

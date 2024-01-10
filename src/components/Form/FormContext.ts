@@ -19,7 +19,7 @@ export const FormContext = createContext<FormContextProps>({
   isReal: false,
   original: {} as unknown as Proxy,
   current: null as unknown as Proxy,
-  errors: null as unknown as Records<FormError>,
+  errors: new Records(),
   showAllErrors: null as unknown as EventDelegate<() => void>,
   onBeforeSave: null as unknown as EventDelegate<(data: unknown) => PromiseMaybe<unknown>>,
   onSave: null as unknown as MutableRefObject<((data: unknown) => PromiseMaybe<void>) | undefined>,

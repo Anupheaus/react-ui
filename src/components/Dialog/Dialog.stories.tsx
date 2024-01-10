@@ -1,77 +1,71 @@
-/* eslint-disable no-console */
-import { createStories } from '../../Storybook';
-import { useDialog } from './useDialog';
-import { Button } from '../Button';
-import { createStyles, ThemesProvider } from '../../theme';
-import { DialogTheme } from './DialogTheme';
-import { Flex } from '../Flex';
+import { Meta, StoryObj } from '@storybook/react';
+import { Dialog as DialogType } from './Dialog';
+import { createStyles2 } from '../../theme';
 import { useBinder, useBound } from '../../hooks';
+import { useDialog } from './useDialog';
+import { Flex } from '../Flex';
+import { Button } from '../Button';
 import { DialogsManager } from './DialogsManager';
+import { StorybookComponent2 } from '../../Storybook';
 
-const useStyles = createStyles({
+const meta: Meta<typeof DialogType> = {
+  component: DialogType,
+};
+export default meta;
+
+type Story = StoryObj<typeof DialogType>;
+
+const useStyles = createStyles2({
   background: {
     position: 'absolute',
     inset: 0,
     backgroundImage: 'url(https://www.metoffice.gov.uk/binaries/content/gallery/metofficegovuk/hero-images/advice/maps-satellite-images/satellite-image-of-globe.jpg)',
     backgroundSize: 'cover',
-    zIndex: -1,
+    minHeight: 600,
   },
   text: {
     color: 'white',
   },
 });
 
-const MyDialogTheme = DialogTheme.createVariant({
-  definition: {
-    titleBackgroundColor: '#7cd18b',
+export const Default: Story = {
+  args: {
   },
-});
+  render: () => {
+    const { css } = useStyles();
+    const bind = useBinder();
+    const { Dialog, DialogContent, DialogActions, openDialog, closeDialog, OkButton } = useDialog();
 
-createStories(({ createStory }) => ({
-  module,
-  name: 'Components/Dialog',
-  stories: {
-    'Main': createStory({
-      width: 500,
-      height: 500,
-      component: () => {
-        const { css, join } = useStyles();
-        const bind = useBinder();
-        const { Dialog, DialogContent, DialogActions, openDialog, closeDialog, OkButton } = useDialog();
+    const handleClosed = useBound((reason: string) => {
+      // eslint-disable-next-line no-console
+      console.log('Dialog closed', reason);
+    });
 
-        const handleClosed = useBound((reason: string) => {
-          // eslint-disable-next-line no-console
-          console.log('Dialog closed', reason);
-        });
-
-        return (<>
-          <ThemesProvider themes={join(MyDialogTheme)}>
-            <Flex tagName="dialog-test" valign="top" align="left" isVertical>
-              <Flex gap={4}>
-                <Button onClick={bind(async () => {
-                  const reason = await openDialog();
-                  console.log({ reason });
-                })}>Open</Button>
-                <Button onClick={bind(() => {
-                  closeDialog('blah');
-                })}>Close</Button>
-              </Flex>
-              <DialogsManager shouldBlurBackground>
-                <Flex tagName="background" className={css.background} />
-                <Flex className={css.text}>This should be blurred!</Flex>
-                <Dialog title={'Test Dialog'} onClosed={handleClosed}>
-                  <DialogContent>
-                    This is the content of the Dialog
-                  </DialogContent>
-                  <DialogActions>
-                    <OkButton />
-                  </DialogActions>
-                </Dialog>
-              </DialogsManager>
-            </Flex>
-          </ThemesProvider>
-        </>);
-      },
-    }),
+    return (
+      <Flex tagName="dialog-test" valign="top" align="left" isVertical>
+        <Flex gap={4}>
+          <Button onClick={bind(async () => {
+            await openDialog();
+          })}>Open</Button>
+          <Button onClick={bind(() => {
+            closeDialog('blah');
+          })}>Close</Button>
+        </Flex>
+        <StorybookComponent2 width={1200} height={600} showComponentBorders>
+          <DialogsManager shouldBlurBackground isVertical>
+            <Flex tagName="background" className={css.background} />
+            <Flex className={css.text}>This should be blurred!</Flex>
+            <Dialog title={'Test Dialog'} onClosed={handleClosed}>
+              <DialogContent>
+                This is the content of the Dialog
+              </DialogContent>
+              <DialogActions>
+                <OkButton />
+              </DialogActions>
+            </Dialog>
+          </DialogsManager>
+        </StorybookComponent2>
+      </Flex>
+    );
   },
-}));
+};

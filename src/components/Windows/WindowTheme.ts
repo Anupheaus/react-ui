@@ -6,13 +6,13 @@ export const WindowTheme = createTheme({
 
   definition: {
     backgroundColor: DefaultTheme.surface.asAContainer.backgroundColor,
-    textColor: DefaultTheme.surface.asAContainer.textColor,
+    textColor: DefaultTheme.surface.asAContainer.color,
     fontSize: DefaultTheme.surface.asAContainer.fontSize,
     fontWeight: DefaultTheme.surface.asAContainer.fontWeight,
 
     titleBar: {
       backgroundColor: DefaultTheme.surface.titleArea.backgroundColor,
-      textColor: DefaultTheme.surface.titleArea.textColor,
+      textColor: DefaultTheme.surface.titleArea.color,
       fontSize: DefaultTheme.surface.titleArea.fontSize,
       fontWeight: DefaultTheme.surface.titleArea.fontWeight,
     },

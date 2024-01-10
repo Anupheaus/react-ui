@@ -18,7 +18,7 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
       menuItem: {
         position: 'relative',
         backgroundColor: defaultTheme.backgroundColor,
-        color: defaultTheme.textColor,
+        color: defaultTheme.color,
         padding,
         cursor: 'default',
         fontSize,
@@ -31,7 +31,7 @@ const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
 
         [activePseudoClasses]: {
           backgroundColor: active.backgroundColor,
-          color: active.textColor,
+          color: active.color,
         },
       },
       subMenuIcon: {

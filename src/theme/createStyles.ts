@@ -44,7 +44,7 @@ export function createStyles<TStyles extends MapOf<CSSObject>>(styles: TStyles):
 // eslint-disable-next-line max-len
 export function createStyles<TStyles extends MapOf<CSSObject>, TVariants extends MapOf<Theme>, TProps extends AnyObject = AnyObject>(stylesOrDelegate: TStyles | UseStylesDelegate<TStyles, TVariants, TProps>): UseStyles<TStyles, TVariants, TProps> {
   const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
-  const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'anux' })((_theme, { props, variants, ...utils }, classes) => {
+  const useStylesInnerFunc = makeStyles<MakeStylesUtils>({ name: 'react-ui' })((_theme, { props, variants, ...utils }, classes) => {
     const result = (() => {
       if (is.function(stylesOrDelegate)) {
         const renderedStyles = stylesOrDelegate(utils, props as TProps);

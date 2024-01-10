@@ -1,24 +1,22 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { AssistiveLabel } from './AssistiveLabel';
 import { createStorybookComponentStates } from '../../Storybook';
-import { InternalField } from './InternalField';
 
-const meta: Meta<typeof InternalField> = {
-  component: InternalField,
+const meta: Meta<typeof AssistiveLabel> = {
+  component: AssistiveLabel,
 };
 export default meta;
 
-type Story = StoryObj<typeof InternalField>;
+type Story = StoryObj<typeof AssistiveLabel>;
 
 const config = {
   storyName: '',
   args: {
-    tagName: 'field',
-    label: 'Label',
+    children: 'Label',
   },
   render: props => (
-    <InternalField {...props}>&nbsp;</InternalField>
+    <AssistiveLabel {...props} />
   ),
 } satisfies Story;
 
 export const UIStates = createStorybookComponentStates({ ...config, includeError: true });
-UIStates.storyName = 'UI States';

@@ -5,33 +5,30 @@ import { useForceUpdate } from '../useForceUpdate';
 import { useCallbacks } from '../useCallbacks';
 import { DistributedState, DistributedStateApi } from './DistributedStateModels';
 
-const State = Symbol('DistributionState');
-const Callbacks = Symbol('DistributionState');
-
 interface InternalState<T> {
-  [State]: T;
-  [Callbacks]: ReturnType<typeof useCallbacks>;
+  state: T;
+  callbacks: ReturnType<typeof useCallbacks>;
 }
 
 export function useDistributedState<T>(state: () => T, dependencies?: unknown[]): DistributedStateApi<T>;
 export function useDistributedState<T>(state: DistributedState<T>): DistributedStateApi<T>;
 export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dependencies: unknown[] = []): DistributedStateApi<T> {
   const createState = is.function(arg) ? arg : undefined;
-  const state = (createState ? useRef<any>({ [State]: createState(), [Callbacks]: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
+  const state = (createState ? useRef<any>({ state: createState(), callbacks: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
   const update = useForceUpdate();
   const firstRenderRef = useRef(true);
-  const { invoke, register } = state.current[Callbacks] as ReturnType<typeof useCallbacks>;
+  const { invoke, register } = state.current.callbacks;
 
-  const get = useBound(() => state.current[State]);
+  const get = useBound(() => state.current.state);
   const observe = useBound(() => register(update));
   const set = useBound((newData: T) => {
-    const existingData = state.current[State];
+    const existingData = state.current.state;
     if (is.deepEqual(newData, existingData)) return;
-    state.current[State] = newData;
+    state.current.state = newData;
     invoke();
   });
-  const modify = useBound((modifier: (value: T) => T) => set(modifier(state.current[State])));
-  const onChange = useBound((handler: (value: T) => void) => register(() => handler(state.current[State])));
+  const modify = useBound((modifier: (value: T) => T) => set(modifier(state.current.state)));
+  const onChange = useBound((handler: (value: T) => void) => register(() => handler(state.current.state)));
   const getAndObserve = useBound(() => { observe(); return get(); });
 
   useLayoutEffect(() => {

@@ -1,7 +1,6 @@
 import '../../extensions/is';
 import { Error, is } from '@anupheaus/common';
 import { forwardRef, FunctionComponent, isValidElement, memo, Ref } from 'react';
-import { internalThemes } from '../../theme/internalThemes';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
@@ -40,7 +39,6 @@ export function createComponent<TFunc extends (props: any) => JSX.Element | null
     const ref = is.function(providedRef) || is.reactRef(providedRef) ? providedRef : undefined;
     const fullProps = { ...props, ref };
     try {
-      internalThemes.styles.synchronousProps = fullProps;
       return render(fullProps);
     } catch (error) {
       if (onError != null) return onError(new Error({ error }), fullProps);
