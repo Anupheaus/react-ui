@@ -3,6 +3,7 @@ import { createComponent } from '../Component';
 import { useBinder } from '../../hooks';
 import { InternalField, InternalFieldProps } from '../InternalField';
 import { useInputStyles } from './InputStyles';
+import { useUIState } from '../../providers';
 
 export interface InternalTextProps<TValue = unknown> extends InternalFieldProps {
   value?: TValue;
@@ -41,6 +42,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   ...props
 }: Props<T>) {
   const { css, join } = useInputStyles();
+  const { isReadOnly } = useUIState();
   const bind = useBinder();
 
   return (
@@ -48,7 +50,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       <input
         ref={innerRef}
         type={type}
-        className={join(css.input, inputClassName)}
+        className={join(css.input, isReadOnly && 'is-read-only', inputClassName)}
         value={(value ?? '') as any}
         onChange={bind(event => onChange?.(event.target.value as any))}
         onFocus={onFocus}

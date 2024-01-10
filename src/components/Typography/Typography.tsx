@@ -64,7 +64,12 @@ const TypographyComponent = createComponent('Typography', ({
     textTransform: typeStyle?.transform ?? 'none',
     color: color ?? typeStyle?.color,
     letterSpacing: spacing ?? typeStyle?.spacing,
-    textShadow: ((result: string | boolean | undefined) => typeof (result) === 'boolean' ? (result === true ? '0 0 2px rgba(0, 0, 0, 0.5)' : undefined) : result)(shadow ?? typeStyle?.shadow),
+    textShadow: ((result: string | number | boolean | undefined) => {
+      if (result == null) return undefined;
+      if (typeof (result) === 'string') return result;
+      if (typeof (result) === 'number') return `0 0 ${result}px rgba(0, 0, 0, 0.5)`;
+      if (typeof (result) === 'boolean' && result === true) return '0 0 2px rgba(0, 0, 0, 0.5)';
+    })(shadow ?? typeStyle?.shadow),
     textAlign: align,
     opacity: opacity ?? typeStyle?.opacity,
     ...providedStyle,

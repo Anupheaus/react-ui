@@ -5,7 +5,7 @@ import { ErrorBoundary } from '../../ErrorBoundary';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
 import { createStyles, ThemesProvider } from '../../../theme';
 import { Error, is } from '@anupheaus/common';
-import { ButtonTheme } from '../../../components/Button/ButtonTheme';
+// import { ButtonTheme } from '../../../components/Button/ButtonTheme';
 import { DialogTheme } from '../../../components/Dialog/DialogTheme';
 import { useDialog } from '../../../components/Dialog/useDialog';
 import { Flex } from '../../../components/Flex';
@@ -34,14 +34,14 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
       error: {},
     },
     variants: {
-      buttonTheme: createThemeVariant(ButtonTheme, {
-        default: {
-          backgroundColor,
-        },
-        active: {
-          backgroundColor: 'rgba(0 0 0 / 10%)',
-        },
-      }),
+      // buttonTheme: createThemeVariant(ButtonTheme, {
+      //   default: {
+      //     backgroundColor,
+      //   },
+      //   active: {
+      //     backgroundColor: 'rgba(0 0 0 / 10%)',
+      //   },
+      // }),
       dialogTheme: createThemeVariant(DialogTheme, {
         titleBackgroundColor: backgroundColor,
       }),
@@ -76,9 +76,9 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
   if (error != null) return (
     <ThemesProvider themes={join(variants.dialogTheme)}>
       <Flex tagName="error-panel" className={css.errorPanel}>
-        <ThemesProvider themes={join(variants.buttonTheme)}>
-          <Button onClick={openDialog}><Icon name="error" size="small" />Error</Button>
-        </ThemesProvider>
+        {/* <ThemesProvider themes={join(variants.buttonTheme)}> */}
+        <Button onClick={openDialog}><Icon name="error" size="small" />Error</Button>
+        {/* </ThemesProvider> */}
       </Flex>
       <Flex tagName="error" ref={target} className={css.error} gap={4} onClick={openDialog}>
         {renderError()}

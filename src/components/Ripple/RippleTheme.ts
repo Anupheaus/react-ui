@@ -1,8 +1,8 @@
-import { createTheme } from '../../theme';
+// import { createTheme } from '../../theme';
 
-export const RippleTheme = createTheme({
-  id: 'RippleTheme',
-  definition: {
-    color: 'rgba(0 0 0 / 20%)',
-  }
-});
+// export const RippleTheme = createTheme({
+//   id: 'RippleTheme',
+//   definition: {
+//     color: 'rgba(0 0 0 / 20%)',
+//   }
+// });

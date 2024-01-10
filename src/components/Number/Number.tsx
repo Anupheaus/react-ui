@@ -2,11 +2,10 @@ import { to } from '@anupheaus/common';
 import { ReactElement, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
-import { createStyles, ThemesProvider } from '../../theme';
-import { Button, ButtonTheme } from '../Button';
-import { InternalText, InternalTextProps, InternalTextTheme } from '../InternalText';
-import { NumberTheme } from './NumberTheme';
+import { createStyles2 } from '../../theme';
 import { Icon } from '../Icon';
+import { InternalText, InternalTextProps } from '../InternalText';
+import { Button } from '../Button';
 
 interface Props extends InternalTextProps<number | undefined> {
   min?: number;
@@ -15,32 +14,21 @@ interface Props extends InternalTextProps<number | undefined> {
   hideIncreaseDecreaseButtons?: boolean;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
-  const numberTheme = useTheme(NumberTheme);
-  const { backgroundColor } = numberTheme;
+const useStyles = createStyles2({
+  number: {
+    minWidth: 100,
+  },
+  input: {
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      WebkitAppearance: 'none',
+      margin: 0,
+    },
+    textAlign: 'center',
 
-  return {
-    styles: {
-      number: {
-        '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
-          WebkitAppearance: 'none',
-          margin: 0,
-        },
-        textAlign: 'center',
-      },
-      hiddenButtons: {
-        'padding': '0 4px',
-      },
+    '&.hidden-buttons': {
+      'padding': '0 4px',
     },
-    variants: {
-      buttonTheme: createThemeVariant(ButtonTheme, {
-        default: {
-          backgroundColor,
-        },
-      }),
-      internalTextTheme: createThemeVariant(InternalTextTheme, numberTheme),
-    },
-  };
+  },
 });
 
 export const Number = createComponent('Number', ({
@@ -53,7 +41,7 @@ export const Number = createComponent('Number', ({
   onChange,
   ...props
 }: Props) => {
-  const { css, variants, join } = useStyles();
+  const { css, join } = useStyles();
   const increase = useBound(() => onChange?.(to.number(value, 0) + 1));
   const decrease = useBound(() => onChange?.(to.number(value, 0) - 1));
 
@@ -87,18 +75,17 @@ export const Number = createComponent('Number', ({
   }, [providedError, min, max, value]);
 
   return (
-    <ThemesProvider themes={join(variants.internalTextTheme, variants.buttonTheme)}>
-      <InternalText
-        {...props}
-        value={value}
-        tagName={'number'}
-        inputClassName={join(css.number, hideIncreaseDecreaseButtons && css.hiddenButtons)}
-        type={'number'}
-        endAdornments={buttons}
-        startAdornments={startButtons}
-        error={error}
-        onChange={onChange}
-      />
-    </ThemesProvider>
+    <InternalText
+      {...props}
+      className={join(css.number, props.className)}
+      value={value}
+      tagName={'number'}
+      inputClassName={join(css.input, hideIncreaseDecreaseButtons && 'hidden-buttons')}
+      type={'number'}
+      endAdornments={buttons}
+      startAdornments={startButtons}
+      error={error}
+      onChange={onChange}
+    />
   );
 });

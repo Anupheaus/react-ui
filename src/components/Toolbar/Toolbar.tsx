@@ -1,75 +1,57 @@
 import { Children, createElement, isValidElement, ReactNode } from 'react';
-import { createStyles, ThemesProvider } from '../../theme';
-import { ButtonTheme, IconButtonTheme } from '../Button';
+import { createStyles2 } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { ToolbarTheme } from './ToolbarTheme';
+import { useUIState } from '../../providers';
 
 interface Props {
   className?: string;
-  theme?: typeof ToolbarTheme;
   children: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant, activePseudoClasses }) => {
-  const { default: { backgroundColor, borderColor, borderRadius, textColor }, active } = useTheme(ToolbarTheme);
-  return {
-    styles: {
-      toolbar: {
-        display: 'flex',
-        flexGrow: 0,
-        flexShrink: 0,
-        backgroundColor,
-        padding: 0,
-        borderColor,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderRadius,
-        minHeight: 30,
-        alignItems: 'center',
-        boxSizing: 'border-box',
-        position: 'relative',
-        overflow: 'hidden',
-        transitionProperty: 'border-color, background-color, color',
-        transitionDuration: '0.4s',
-        transitionTimingFunction: 'ease',
+const useStyles = createStyles2(({ activePseudoClasses, toolbar: { default: defaultToolbar, active: activeToolbar } }) => ({
+  toolbar: {
+    ...defaultToolbar,
+    display: 'flex',
+    flexGrow: 0,
+    flexShrink: 0,
+    padding: 0,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    minHeight: 30,
+    alignItems: 'center',
+    boxSizing: 'border-box',
+    position: 'relative',
+    overflow: 'hidden',
+    transitionProperty: 'border-color, background-color, color',
+    transitionDuration: '0.4s',
+    transitionTimingFunction: 'ease',
 
-        [activePseudoClasses]: {
-          backgroundColor: active.backgroundColor,
-          borderColor: active.borderColor,
-          color: active.textColor,
-        },
-      },
-      toolbarItem: {
-        borderRadius: 0,
-      },
+    [activePseudoClasses]: {
+      ...activeToolbar,
     },
-    variants: {
-      iconButtonTheme: createThemeVariant(IconButtonTheme, {
-        default: {
-          backgroundColor,
-          textColor,
-          borderColor: 'transparent',
-        },
-        borderRadius: 0,
-      }),
-      buttonTheme: createThemeVariant(ButtonTheme, {
-        default: {
-          backgroundColor,
-          textColor,
-          borderColor: 'transparent',
-        },
-        borderRadius: 0,
-      }),
+
+    '&.is-compact': {
+      minHeight: 16,
     },
-  };
-});
+
+    '& button.is-icon-only': {
+      borderRadius: 0,
+    },
+  },
+  toolbarItem: {
+    borderRadius: 0,
+  },
+
+}));
 
 export const Toolbar = createComponent('Toolbar', ({
   className,
   children: rawChildren = null,
 }: Props) => {
-  const { css, variants, join } = useStyles();
+  const { css, join } = useStyles();
+  const { isCompact } = useUIState();
+
   const children = Children.toArray(rawChildren)
     .map((child, index) => {
       if (isValidElement(child)) {
@@ -79,10 +61,8 @@ export const Toolbar = createComponent('Toolbar', ({
     .removeNull();
 
   return (
-    <Tag name="toolbar" className={join(css.toolbar, className)}>
-      <ThemesProvider themes={join(variants.iconButtonTheme, variants.buttonTheme)}>
-        {children}
-      </ThemesProvider>
+    <Tag name="toolbar" className={join(css.toolbar, isCompact && 'is-compact', className)}>
+      {children}
     </Tag>
   );
 });

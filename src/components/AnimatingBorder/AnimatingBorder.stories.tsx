@@ -1,9 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { AnimatingBorder } from './AnimatingBorder';
 import { StorybookComponent2 } from '../../Storybook';
 import { createStyles2 } from '../../theme';
-import { Drawer as DrawerComponent } from './Drawer';
-import { useDrawer } from './useDrawer';
-import { Button } from '../Button';
 
 const useStyles = createStyles2({
   animatingBorder: {
@@ -12,30 +10,22 @@ const useStyles = createStyles2({
   },
 });
 
-const meta: Meta<typeof DrawerComponent> = {
-  component: DrawerComponent,
-  argTypes: {
-    title: { type: 'string', name: 'Title' },
-  },
+const meta: Meta<typeof AnimatingBorder> = {
+  component: AnimatingBorder,
 };
 export default meta;
 
-type Story = StoryObj<typeof DrawerComponent>;
+type Story = StoryObj<typeof AnimatingBorder>;
 
 export const Default: Story = {
   args: {
-    title: 'My Title',
+    isEnabled: true,
   },
   render: props => {
     const { css } = useStyles();
-    const { Drawer, openDrawer } = useDrawer();
-
     return (
       <StorybookComponent2 className={css.animatingBorder} showComponentBorders>
-        <Button onClick={openDrawer}>Open</Button>
-        <Drawer {...props}>
-          Hey
-        </Drawer>
+        <AnimatingBorder {...props} />
       </StorybookComponent2>
     );
   },

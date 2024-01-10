@@ -1,4 +1,4 @@
-import { ArgTypes } from '@storybook/react';
+import { ArgTypes, Meta } from '@storybook/react';
 import { FunctionComponent, ReactNode, useMemo } from 'react';
 import { AnyObject, Event, MapOf, PromiseMaybe } from '@anupheaus/common';
 import { within, userEvent } from '@storybook/testing-library';
@@ -214,15 +214,15 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
 interface StoryHelpers<TProps extends {} = {}> {
   createStory<T extends StoryConfig<TProps>>(config: T): T;
 }
-export function createStories<TProps extends {} = {}>(delegate: (helpers: StoryHelpers<TProps>) => StoriesConfig<TProps>): void;
-export function createStories<TProps extends {} = {}>(config: StoriesConfig<TProps>): void;
-export function createStories<TProps extends {} = {}>(delegateOrConfig: ((helpers: StoryHelpers<TProps>) => StoriesConfig<TProps>) | StoriesConfig<TProps>): void {
+export function createStories<TProps extends {} = {}>(delegate: (helpers: StoryHelpers<TProps>) => StoriesConfig<TProps>): Meta;
+export function createStories<TProps extends {} = {}>(config: StoriesConfig<TProps>): Meta;
+export function createStories<TProps extends {} = {}>(delegateOrConfig: ((helpers: StoryHelpers<TProps>) => StoriesConfig<TProps>) | StoriesConfig<TProps>): Meta {
   const delegate = typeof (delegateOrConfig) === 'function' ? delegateOrConfig : () => delegateOrConfig;
 
   const { name, stories, props, module } = delegate({ createStory: config => config });
   const component: FunctionComponent = () => null;
 
-  module.exports.default = {
+  const meta: Meta = {
     title: name,
     component,
     argTypes: {
@@ -232,4 +232,43 @@ export function createStories<TProps extends {} = {}>(delegateOrConfig: ((helper
   };
 
   walkThroughTheStories([], stories, module);
+
+  return meta;
 }
+/*
+const meta: Meta<typeof Digits> = {
+  component: Digits,
+  argTypes: {
+    onChange: {
+      action: 'onChange',
+      type: 'function',
+      table: {
+        disable: true,
+      },
+    },
+  },
+};
+export default meta;
+
+type Story = StoryObj<typeof Digits>;
+
+export const Default: Story = {
+  args: {
+    label: 'Digits',
+    length: 5,
+    value: '123',
+  },
+  render: props => {
+    const [value, setValue] = useUpdatableState<string | undefined>(() => props.value, [props.value]);
+
+    const saveValue = useBound((newValue: string | undefined) => {
+      setValue(newValue);
+      props.onChange?.(newValue);
+    });
+
+    return (
+      <Digits {...props} value={value} onChange={saveValue} />
+    );
+  },
+};
+*/

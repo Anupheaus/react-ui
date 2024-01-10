@@ -4,8 +4,8 @@ import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { RippleConfig, RippleState } from './RippleModels';
 import { DistributedState, useDistributedState } from '../../hooks';
-import { createStyles, createAnimationKeyFrame } from '../../theme';
-import { RippleTheme } from './RippleTheme';
+import { createAnimationKeyFrame, createStyles2 } from '../../theme';
+import { useUIState } from '../../providers';
 
 function getMarginFrom(element: HTMLElement) {
   const { top, left } = window.getComputedStyle(element);
@@ -36,98 +36,6 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
   return { width: size, height: size, top, left };
 }
 
-export interface RippleProps {
-  isDisabled?: boolean;
-  className?: string;
-  stayWithinContainer?: boolean;
-  ignoreMouseCoords?: boolean;
-}
-
-interface Props extends RippleProps {
-  rippleState: DistributedState<RippleState>;
-  rippleConfig: DistributedState<RippleConfig>;
-}
-
-const useStyles = createStyles(({ useTheme }) => {
-  const { color } = useTheme(RippleTheme);
-  return {
-    styles: {
-      Ripple: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
-      },
-      stayWithinContainer: {
-        overflow: 'hidden',
-      },
-      rippleAnimation: {
-        position: 'absolute',
-        borderRadius: '50%',
-        transform: 'scale(0)',
-        animationFillMode: 'forwards',
-        animationDuration: '800ms',
-        animationTimingFunction: 'ease-out',
-        backgroundColor: color,
-        pointerEvents: 'none',
-      },
-      isActive: {
-        animationName: activeKeyFrame,
-      },
-      isInActive: {
-        animationDuration: '400ms',
-        animationName: inactiveKeyFrame,
-      },
-    },
-  };
-});
-
-export const Ripple = createComponent('Ripple', ({
-  className,
-  isDisabled = false,
-  stayWithinContainer = false,
-  ignoreMouseCoords = false,
-  rippleConfig,
-  rippleState,
-}: Props) => {
-  const { css, join } = useStyles();
-  const { getAndObserve } = useDistributedState(rippleState);
-  const { modify } = useDistributedState(rippleConfig);
-  const { isActive, x, y, useCoords } = getAndObserve();
-  const beenActiveRef = useRef(false);
-  const [element, target] = useDOMRef();
-
-  if (isActive === true) beenActiveRef.current = true;
-
-  useLayoutEffect(() => {
-    modify(existing => ({ ...existing, rippleElement: element.current }));
-  }, [element.current]);
-
-  useLayoutEffect(() => {
-    modify(existing => ({ ...existing, ignoreMouseCoords }));
-  }, [ignoreMouseCoords]);
-
-  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
-    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
-
-  return (
-    <Tag ref={target} name="ui-ripple" className={join(css.Ripple, stayWithinContainer && css.stayWithinContainer, className)}>
-      <Tag
-        name="ui-ripple-animation"
-        className={join(
-          css.rippleAnimation,
-          isActive && !isDisabled && css.isActive,
-          !isActive && !isDisabled && beenActiveRef.current && css.isInActive,
-        )}
-        style={rippleStyle}
-      />
-    </Tag>
-  );
-});
-
 const activeKeyFrame = createAnimationKeyFrame({
   from: {
     transform: 'scale(0)',
@@ -148,4 +56,95 @@ const inactiveKeyFrame = createAnimationKeyFrame({
     transform: 'scale(1.2)',
     opacity: 0,
   }
+});
+
+const useStyles = createStyles2(({ vars }) => ({
+  ripple: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+    pointerEvents: 'none',
+
+    '&.stay-within-container': {
+      overflow: 'hidden',
+    },
+  },
+  rippleAnimation: {
+    position: 'absolute',
+    borderRadius: '50%',
+    transform: 'scale(0)',
+    animationFillMode: 'forwards',
+    animationDuration: '800ms',
+    animationTimingFunction: 'ease-out',
+    backgroundColor: `var(${vars.ripple}, currentColor)`,
+    pointerEvents: 'none',
+
+    '&.is-active:not(.is-read-only)': {
+      animationName: activeKeyFrame,
+    },
+
+    '&.is-inactive': {
+      animationDuration: '400ms',
+      animationName: inactiveKeyFrame,
+    },
+  },
+}));
+
+export interface RippleProps {
+  isDisabled?: boolean;
+  className?: string;
+  stayWithinContainer?: boolean;
+  ignoreMouseCoords?: boolean;
+}
+
+interface Props extends RippleProps {
+  rippleState: DistributedState<RippleState>;
+  rippleConfig: DistributedState<RippleConfig>;
+}
+
+export const Ripple = createComponent('Ripple', ({
+  className,
+  isDisabled = false,
+  stayWithinContainer = false,
+  ignoreMouseCoords = false,
+  rippleConfig,
+  rippleState,
+}: Props) => {
+  const { css, join } = useStyles();
+  const { getAndObserve } = useDistributedState(rippleState);
+  const { modify } = useDistributedState(rippleConfig);
+  const { isReadOnly } = useUIState();
+  const { isActive, x, y, useCoords } = getAndObserve();
+  const beenActiveRef = useRef(false);
+  const [element, target] = useDOMRef();
+
+  if (isActive === true && !isReadOnly && !isDisabled) beenActiveRef.current = true;
+
+  useLayoutEffect(() => {
+    modify(existing => ({ ...existing, rippleElement: element.current }));
+  }, [element.current]);
+
+  useLayoutEffect(() => {
+    modify(existing => ({ ...existing, ignoreMouseCoords }));
+  }, [ignoreMouseCoords]);
+
+  const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
+    [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
+
+  return (
+    <Tag ref={target} name="ui-ripple" className={join(css.ripple, stayWithinContainer && 'stay-within-container', className)}>
+      <Tag
+        name="ui-ripple-animation"
+        className={join(
+          css.rippleAnimation,
+          isActive && !isDisabled && !isReadOnly && 'is-active',
+          (!isActive || isReadOnly) && beenActiveRef.current && 'is-inactive',
+        )}
+        style={rippleStyle}
+      />
+    </Tag>
+  );
 });

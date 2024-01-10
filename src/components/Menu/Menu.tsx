@@ -1,26 +1,21 @@
 import { ReactNode, useLayoutEffect, useMemo } from 'react';
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Scroller } from '../Scroller';
-import { MenuTheme } from './MenuTheme';
 import { useSubMenu } from './SubMenuProvider';
 import { usePopupMenu } from './usePopupMenu';
 
-const useStyles = createStyles(({ useTheme }) => {
-  const { backgroundColor } = useTheme(MenuTheme);
-  return {
-    styles: {
-      menu: {
-        backgroundColor,
-        margin: 0,
-        padding: 0,
-        appearance: 'none',
-        pointerEvents: 'all',
-      },
-    },
-  };
-});
+const useStyles = createStyles2(({ menu: { menuItem, ...menu }, text }) => ({
+  menu: {
+    ...text,
+    ...menu,
+    margin: 0,
+    padding: 0,
+    appearance: 'none',
+    pointerEvents: 'all',
+  },
+}));
 
 interface Props {
   className?: string;

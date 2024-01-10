@@ -3,10 +3,9 @@ import { useBound } from '../../hooks/useBound';
 import { createComponent } from '../Component';
 import { Drawer as MuiDrawer, AppBar, Toolbar, DrawerProps as MuiDrawerProps, ModalProps } from '@mui/material';
 import { DistributedState, useDistributedState } from '../../hooks';
-import { DrawerTheme } from './DrawerTheme';
-import { Button, IconButtonTheme } from '../Button';
+import { Button } from '../Button';
 import { Flex } from '../Flex';
-import { createStyles, ThemesProvider } from '../../theme';
+import { ThemeProvider, createStyles2 } from '../../theme';
 import { Icon } from '../Icon';
 
 type DrawerCloseReasons = Parameters<Required<ModalProps>['onClose']>[1] | 'drawerClosed';
@@ -25,45 +24,17 @@ interface Props extends DrawerProps {
   state: DistributedState<boolean>;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
-  const { header: { backgroundColor: headerBackgroundColor, textColor: headerTextColor, fontSize, fontWeight }, content: { backgroundColor: contentBackgroundColor, textColor } } = useTheme(DrawerTheme);
-
-  return {
-    styles: {
-      drawer: {
-        minWidth: 400,
-        contentBackgroundColor,
-        color: textColor,
-      },
-      drawerTitle: {
-        gap: 12,
-        padding: '0 12px !important',
-        fontSize,
-        fontWeight,
-        color: headerTextColor,
-        backgroundColor: headerBackgroundColor,
-      },
-      drawerTitleText: {
-        color: headerTextColor,
-        fontSize,
-        fontWeight,
-      },
-      closeDrawerButton: {
-        marginRight: 8,
-      },
-    },
-    variants: {
-      iconButtons: createThemeVariant(IconButtonTheme, {
-        default: {
-          textColor: headerTextColor,
-        },
-        active: {
-          textColor: headerTextColor,
-        },
-      }),
-    },
-  };
-});
+const useStyles = createStyles2(({ surface: { asAContainer: containerTheme, titleArea } }) => ({
+  drawer: {
+    ...containerTheme,
+    minWidth: 400,
+  },
+  drawerTitle: {
+    ...titleArea,
+    gap: 12,
+    padding: '0 12px !important',
+  },
+}));
 
 export const Drawer = createComponent('Drawer', ({
   className,
@@ -76,7 +47,7 @@ export const Drawer = createComponent('Drawer', ({
   children = null,
   ...props
 }: Props) => {
-  const { css, variants, join } = useStyles();
+  const { css, join, alterTheme } = useStyles();
   const { getAndObserve: getOpenState, set: setOpenState } = useDistributedState(state);
 
   const drawerClasses = useMemo<MuiDrawerProps['classes']>(() => ({
@@ -90,6 +61,17 @@ export const Drawer = createComponent('Drawer', ({
     setOpenState(false);
   });
 
+  const theme = alterTheme(({ surface: { titleArea } }) => ({
+    action: {
+      default: {
+        color: titleArea.color,
+      },
+      active: {
+        color: titleArea.color,
+      },
+    }
+  }));
+
   return (
     <MuiDrawer
       open={getOpenState()}
@@ -101,15 +83,13 @@ export const Drawer = createComponent('Drawer', ({
     >
       <AppBar position="static">
         <Toolbar className={css.drawerTitle}>
-          <ThemesProvider themes={join(variants.iconButtons)}>
-            <Button onClick={close}><Icon name="drawer-close" /></Button>
-          </ThemesProvider>
-          <Flex tagName="drawer-title-text" className={css.drawerTitleText}>
-            {title}
-          </Flex>
-          <Flex tagName="drawer-title-actions" gap={12}>
-            {headerActions}
-          </Flex>
+          <ThemeProvider theme={theme}>
+            <Button variant="hover" onClick={close}><Icon name="drawer-close" /></Button>
+            <Flex tagName="drawer-title-text">{title}</Flex>
+            <Flex tagName="drawer-title-actions" gap={12}>
+              {headerActions}
+            </Flex>
+          </ThemeProvider>
         </Toolbar>
       </AppBar>
       {children}

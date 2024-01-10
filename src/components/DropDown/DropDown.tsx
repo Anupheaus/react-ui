@@ -3,51 +3,30 @@ import { PaperProps, Popover, PopoverOrigin } from '@mui/material';
 import { ReactNode, useMemo, useRef } from 'react';
 import { useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
 import { ReactListItem } from '../../models';
-import { createStyles, ThemesProvider } from '../../theme';
-import { Button, ButtonTheme } from '../Button';
+import { createStyles2 } from '../../theme';
+import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
 import { InternalField, InternalFieldProps } from '../InternalField';
-import { DropDownTheme } from './DropDownTheme';
+import { UIState } from '../../providers';
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
-  const { menuItem } = useTheme(DropDownTheme);
-
-  return {
-    styles: {
-      dropDown: {
-        minWidth: 75,
-      },
-      dropDownContent: {
-        alignItems: 'center',
-        gap: 4,
-        padding: '0 8px',
-      },
-      popover: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 4,
-        padding: 4,
-        boxSizing: 'border-box',
-      },
-    },
-    variants: {
-      buttons: createThemeVariant(ButtonTheme, {
-        default: {
-          backgroundColor: menuItem.default.backgroundColor,
-          textColor: menuItem.default.textColor,
-          borderColor: menuItem.default.borderColor,
-        },
-        active: {
-          backgroundColor: menuItem.active.backgroundColor,
-          textColor: menuItem.active.textColor,
-          borderColor: menuItem.active.borderColor,
-        },
-        alignment: 'left',
-      }),
-    }
-  };
-});
+const useStyles = createStyles2(() => ({
+  dropDown: {
+    minWidth: 75,
+  },
+  dropDownContent: {
+    alignItems: 'center',
+    gap: 4,
+    padding: '0 8px',
+  },
+  popover: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    padding: 4,
+    boxSizing: 'border-box',
+  },
+}));
 
 interface Props extends InternalFieldProps {
   value?: string | ReactListItem;
@@ -63,7 +42,7 @@ export const DropDown = createComponent('DropDown', ({
   onChange,
   ...props
 }: Props) => {
-  const { css, variants, join } = useStyles();
+  const { css, join } = useStyles();
   const value = useMemo(() => is.string(providedValue) ? values?.findById(providedValue) : is.listItem(providedValue) ? providedValue : undefined, [providedValue, values]);
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
@@ -83,7 +62,6 @@ export const DropDown = createComponent('DropDown', ({
     return value != null ? renderItem(value) : null;
   }, [value, renderSelectedValue]);
 
-
   const handleItemClick = useBound((item: ReactListItem) => () => {
     item.onSelect?.();
     setIsClosed();
@@ -94,7 +72,7 @@ export const DropDown = createComponent('DropDown', ({
     if (!is.array(values)) return null;
     return values.map(item => {
       return (
-        <Button key={item.id} onClick={handleItemClick(item)}>
+        <Button key={item.id} variant="hover" onClick={handleItemClick(item)}>
           {renderItem(item)}
         </Button>
       );
@@ -102,7 +80,7 @@ export const DropDown = createComponent('DropDown', ({
   }, [values]);
 
   const endAdornments = useMemo(() => [(
-    <Button key="dropdown-open" onSelect={setIsOpen}>
+    <Button key="dropdown-open" variant="hover" onSelect={setIsOpen}>
       <Icon name="dropdown" />
     </Button>
   )], []);
@@ -142,9 +120,9 @@ export const DropDown = createComponent('DropDown', ({
         PaperProps={paperProps}
         onClose={setIsClosed}
       >
-        <ThemesProvider themes={join(variants.buttons)}>
+        <UIState isCompact={false}>
           {renderedItems}
-        </ThemesProvider>
+        </UIState>
       </Popover>
     </InternalField>
   );

@@ -1,7 +1,7 @@
 import { ComponentProps, useLayoutEffect } from 'react';
 import { createComponent } from '../Component';
 import { useWindows, Window } from '../Windows';
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { DistributedState, useBound, useDistributedState, useId } from '../../hooks';
 import { DialogState } from './InternalDialogModels';
 
@@ -20,7 +20,7 @@ interface Props extends DialogProps {
   state: DistributedState<DialogState>;
 }
 
-const useStyles = createStyles({
+const useStyles = createStyles2({
   dialogContent: {
     flexDirection: 'column',
     gap: 16,

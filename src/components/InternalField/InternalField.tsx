@@ -1,16 +1,14 @@
-import { createStyles } from '../../theme/createStyles';
 import { ReactElement, ReactNode, Ref } from 'react';
 import { createComponent } from '../Component';
 import { useRipple } from '../Ripple';
 import { Tag } from '../Tag';
 import { Label } from '../Label';
-import { InternalFieldTheme } from './InternalFieldTheme';
-import { Toolbar, ToolbarTheme } from '../Toolbar';
+import { Toolbar } from '../Toolbar';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { useUIState } from '../../providers/UIStateProvider';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 import { useDOMRef } from '../../hooks';
-import { ThemesProvider } from '../../theme';
+import { createStyles2 } from '../../theme';
 
 export interface InternalFieldProps {
   className?: string;
@@ -33,86 +31,68 @@ interface Props extends InternalFieldProps {
   children: ReactNode;
 }
 
-const useStyles = createStyles(({ activePseudoClasses, createThemeVariant, useTheme }) => {
-  const {
-    backgroundColor, activeBackgroundColor, textColor, activeTextColor, borderColor, activeBorderColor, borderRadius,
-    fontSize, fontWeight,
-  } = useTheme(InternalFieldTheme);
-  const { default: { borderColor: toolbarDefaultBorderColor }, active: { borderColor: toolbarActiveBorderColor } } = useTheme(ToolbarTheme);
+const useStyles = createStyles2(({ activePseudoClasses, field: { default: defaultField, active: activeField, disabled: disabledField }, vars }) => ({
+  field: {
+    display: 'flex',
+    flexGrow: 0,
+    flexShrink: 1,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    minWidth: 50,
+    gap: 4,
+    [vars.ripple]: defaultField.borderColor,
+  },
+  fieldContainer: {
+    ...defaultField,
+    display: 'flex',
+    flexGrow: 0,
+    flexShrink: 0,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    minHeight: 30,
+    boxSizing: 'border-box',
+    position: 'relative',
+    overflow: 'hidden',
+    transitionProperty: 'border-color, background-color, color',
+    transitionDuration: '0.4s',
+    transitionTimingFunction: 'ease',
 
-  return {
-    styles: {
-      field: {
-        display: 'flex',
-        flexGrow: 0,
-        flexShrink: 1,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        minWidth: 50,
-        gap: 4,
-      },
-      fieldContainer: {
-        display: 'flex',
-        flexGrow: 0,
-        flexShrink: 0,
-        backgroundColor,
-        color: textColor,
-        borderColor,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderRadius,
-        fontSize,
-        fontWeight,
-        minHeight: 30,
-        boxSizing: 'border-box',
-        position: 'relative',
-        overflow: 'hidden',
-        transitionProperty: 'border-color, background-color, color',
-        transitionDuration: '0.4s',
-        transitionTimingFunction: 'ease',
-        '--internal-field-toolbar-border-color': toolbarDefaultBorderColor,
+    [activePseudoClasses]: {
+      ...activeField,
+    },
 
-        [activePseudoClasses]: {
-          borderColor: activeBorderColor,
-          backgroundColor: activeBackgroundColor,
-          color: activeTextColor,
-          '--internal-field-toolbar-border-color': toolbarActiveBorderColor,
-        },
-      },
-      fieldContent: {
-        display: 'flex',
-        flexGrow: 1,
-        flexShrink: 1,
-        position: 'relative',
-        overflow: 'hidden',
-      },
-      isLoading: {
-        visibility: 'hidden',
-        borderStyle: 'none',
-      },
-      toolbarAtEnd: {
-        borderRadius: 0,
-        borderWidth: 0,
-        borderLeftWidth: 1,
-      },
-      toolbarAtStart: {
-        borderRadius: 0,
-        borderWidth: 0,
-        borderRightWidth: 1,
-      },
+    '&.is-loading': {
+      visibility: 'hidden',
+      borderStyle: 'none',
     },
-    variants: {
-      ToolbarTheme: createThemeVariant(ToolbarTheme, {
-        default: {
-          borderColor: 'var(--internal-field-toolbar-border-color)',
-        },
-        active: {
-          borderColor: 'var(--internal-field-toolbar-border-color)',
-        },
-      }),
+
+    '&.is-compact': {
+      minHeight: 24,
     },
-  };
-});
+
+    '&.is-read-only': {
+      ...disabledField,
+      userSelect: 'none',
+    },
+  },
+  fieldContent: {
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  toolbarAtEnd: {
+    borderRadius: 0,
+    borderWidth: 0,
+    borderLeftWidth: 1,
+  },
+  toolbarAtStart: {
+    borderRadius: 0,
+    borderWidth: 0,
+    borderRightWidth: 1,
+  },
+}));
 
 export const InternalField = createComponent('InternalField', ({
   tagName,
@@ -132,15 +112,15 @@ export const InternalField = createComponent('InternalField', ({
   ref,
   ...props
 }: Props) => {
-  const { css, join, variants } = useStyles();
+  const { css, join } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
-  const { isLoading } = useUIState();
+  const { isLoading, isCompact, isReadOnly } = useUIState();
 
   const wrapContent = (content: ReactNode) => {
     if (noContainer) return content;
     return (
-      <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && css.isLoading, containerClassName)}>
+      <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && 'is-loading', isCompact && 'is-compact', isReadOnly && 'is-read-only', containerClassName)}>
         <Ripple />
         <NoSkeletons>
           {startAdornments instanceof Array && <Toolbar className={css.toolbarAtStart}>{startAdornments}</Toolbar>}
@@ -156,11 +136,9 @@ export const InternalField = createComponent('InternalField', ({
 
   return (
     <Tag {...props} name={tagName} className={join(css.field, className)} width={width}>
-      <ThemesProvider themes={join(variants.ToolbarTheme)}>
-        <Label isOptional={isOptional} help={help}>{label}</Label>
-        {wrapContent(children)}
-        <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
-      </ThemesProvider>
+      {!isCompact && <Label isOptional={isOptional} help={help}>{label}</Label>}
+      {wrapContent(children)}
+      <AssistiveLabel error={error}>{isCompact ? null : assistiveHelp}</AssistiveLabel>
     </Tag>
   );
 });

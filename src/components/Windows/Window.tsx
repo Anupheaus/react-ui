@@ -2,8 +2,8 @@ import { is, PromiseMaybe } from '@anupheaus/common';
 import { CSSProperties, MouseEvent, ReactNode, TransitionEvent, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer/polyfilled';
 import { useBatchUpdates, useBound, useDOMRef, useForceUpdate, useId } from '../../hooks';
-import { createStyles, ThemesProvider } from '../../theme';
-import { Button, IconButtonTheme } from '../Button';
+import { createStyles2 } from '../../theme';
+import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
@@ -12,89 +12,70 @@ import { useWindowDrag } from './useWindowDrag';
 import { WindowResizer } from './WindowResizer';
 import { WindowIdContext, WindowsManagerContext, WindowsManagerIdContext } from './WindowsContexts';
 import { InitialWindowPosition, WindowState } from './WindowsModels';
-import { WindowTheme } from './WindowTheme';
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, minHeight }: Props) => {
-  const { backgroundColor, textColor, fontSize, titleBar } = useTheme(WindowTheme);
-  return {
-    styles: {
-      window: {
-        position: 'absolute',
-        borderRadius: 8,
-        boxShadow: 'rgb(0 0 0 / 20%) 0px 3px 3px -2px, rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px',
-        overflow: 'hidden',
-        backgroundColor,
-        color: textColor,
-        fontSize,
-        cursor: 'default',
-        transform: 'scale(0.7)',
-        transitionProperty: 'opacity, transform, width, height, top, left, border-radius, filter',
-        transitionDuration: '400ms',
-        transitionTimingFunction: 'ease-in-out',
-        opacity: 0,
-        minWidth: minWidth ?? 170,
-        minHeight: minHeight ?? 100,
-        userSelect: 'none',
-        filter: 'blur(0px)',
-      },
-      titleBar: {
-        backgroundColor: titleBar.backgroundColor,
-        color: titleBar.textColor,
-        fontSize: titleBar.fontSize,
-        padding: '8px 8px 8px 16px',
-        minHeight: 40,
-        boxSizing: 'border-box',
-        boxShadow: '0 0 8px 0 rgb(0 0 0 / 30%)',
-        zIndex: 2,
-      },
-      isDraggableTitleBar: {
-        cursor: 'grab',
-      },
-      isDraggingTitleBar: {
-        cursor: 'grabbing',
-      },
-      title: {
-        display: 'inline-block',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        outline: 'none',
-        position: 'relative',
-        flex: 'auto',
-      },
-      content: {
-      },
-      isVisible: {
-        transform: 'scale(1)',
-        opacity: 1,
-      },
-      isMaximized: {
-        width: '100%!important',
-        height: '100%!important',
-        top: '0!important',
-        left: '0!important',
-        borderRadius: 0,
-      },
-      isNotFocused: {
-        filter: 'blur(2px)',
-      },
-      stopTransitions: {
-        transitionProperty: 'none',
-      },
+const useStyles = createStyles2(({ surface: { asAContainer: theme, titleArea } }) => ({
+  window: {
+    ...theme,
+    position: 'absolute',
+    borderRadius: 8,
+    boxShadow: 'rgb(0 0 0 / 20%) 0px 3px 3px -2px, rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px',
+    overflow: 'hidden',
+    cursor: 'default',
+    transform: 'scale(0.7)',
+    transitionProperty: 'opacity, transform, width, height, top, left, border-radius, filter',
+    transitionDuration: '400ms',
+    transitionTimingFunction: 'ease-in-out',
+    opacity: 0,
+    minWidth: 170,
+    minHeight: 100,
+    userSelect: 'none',
+    filter: 'blur(0px)',
+  },
+  titleBar: {
+    ...titleArea,
+    padding: '8px 8px 8px 16px',
+    minHeight: 40,
+    boxSizing: 'border-box',
+    boxShadow: '0 0 8px 0 rgb(0 0 0 / 30%)',
+    zIndex: 2,
+
+    '&.is-draggable': {
+      cursor: 'grab',
     },
-    variants: {
-      windowControlIconButton: createThemeVariant(IconButtonTheme, {
-        default: {
-          backgroundColor: titleBar.backgroundColor,
-        },
-        active: {
-          backgroundColor: 'rgba(0 0 0 / 10%)',
-        },
-        borderRadius: 4,
-      }),
+
+    '&.is-dragging': {
+      cursor: 'grabbing',
     },
-  };
-});
+  },
+  title: {
+    display: 'inline-block',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    outline: 'none',
+    position: 'relative',
+    flex: 'auto',
+  },
+  content: {
+  },
+  isVisible: {
+    transform: 'scale(1)',
+    opacity: 1,
+  },
+  isMaximized: {
+    width: '100%!important',
+    height: '100%!important',
+    top: '0!important',
+    left: '0!important',
+    borderRadius: 0,
+  },
+  isNotFocused: {
+    filter: 'blur(2px)',
+  },
+  stopTransitions: {
+    transitionProperty: 'none',
+  },
+}));
 
 interface Props {
   id?: string;
@@ -147,7 +128,7 @@ export const Window = createComponent('Window', ({
   const managerId = useContext(WindowsManagerIdContext);
   if (managerId == null) throw new Error('Window must be rendered within a WindowsManager component.');
   const windowId = useContext(WindowIdContext);
-  const { css, variants, join } = useStyles();
+  const { css, join } = useStyles();
   const generatedId = useId();
   const id = providedId ?? generatedId;
   const closingRef = useRef<() => void>();
@@ -334,19 +315,17 @@ export const Window = createComponent('Window', ({
         {...dragTargetProps}
         tagName="window-title-bar"
         fixedSize
-        className={join(css.titleBar, isDraggable && css.isDraggableTitleBar, isDragging && css.isDraggingTitleBar)}
+        className={join(css.titleBar, isDraggable && 'is-draggable', isDragging && 'is-dragging')}
         gap={8}
         valign="center"
       >
         {icon}
         <Tag name="window-title" className={css.title}>{title}</Tag>
         <Flex tagName="window-controls" fixedSize gap={4} onMouseDown={stopPropagation}>
-          <ThemesProvider themes={join(variants.windowControlIconButton)}>
-            {windowControls}
-            {!hideMaximizeButton && !isMaximized && <Button onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
-            {!hideMaximizeButton && isMaximized && <Button size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
-            {!hideCloseButton && <Button size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
-          </ThemesProvider>
+          {windowControls}
+          {!hideMaximizeButton && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
+          {!hideMaximizeButton && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
+          {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
         </Flex>
       </Flex>
       <Flex tagName="window-content" className={join(css.content, contentClassName)} disableOverflow>

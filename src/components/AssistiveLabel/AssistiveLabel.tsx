@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { createComponent } from '../Component';
 import { useFormValidation } from '../Form';
 import { Tag } from '../Tag';
-import { AssistiveLabelTheme } from './AssistiveLabelTheme';
+import { Skeleton } from '../Skeleton';
+import { useUIState } from '../../providers';
 
 interface Props {
   className?: string;
@@ -11,22 +12,17 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
-  const { errorTextColor, fontSize, fontWeight } = useTheme(AssistiveLabelTheme);
-  return {
-    styles: {
-      assistiveLabel: {
-        fontSize,
-        fontWeight,
-        cursor: 'default',
-        width: 'max-content',
-      },
-      isError: {
-        color: errorTextColor,
-      },
-    },
-  };
-});
+const useStyles = createStyles2(({ field: { default: defaultField, assistiveText }, error }) => ({
+  assistiveLabel: {
+    ...defaultField,
+    ...assistiveText,
+    cursor: 'default',
+    width: 'max-content',
+  },
+  isError: {
+    color: error.color,
+  },
+}));
 
 export const AssistiveLabel = createComponent('AssistiveLabel', ({
   className,
@@ -34,12 +30,13 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
   children = null,
 }: Props) => {
   const { css, join } = useStyles();
+  const { isLoading } = useUIState();
 
   useFormValidation(
     () => error != null ? (error instanceof Error ? error.message : error) : null,
   );
 
-  if (children == null && error != null) children = error instanceof Error ? error.message : error;
+  if (error != null) children = error instanceof Error ? error.message : error;
 
   return (
     <Tag
@@ -48,8 +45,11 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
         css.assistiveLabel,
         error != null && css.isError,
         className,
-      )}>
-      {children ?? <>&nbsp;</>}
+      )}
+    >
+      <Skeleton type="text" isVisible={children != null && isLoading}>
+        {children ?? <>&nbsp;</>}
+      </Skeleton>
     </Tag>
   );
 });

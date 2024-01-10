@@ -1,4 +1,3 @@
-import { createStyles } from '../../theme/createStyles';
 import { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
@@ -6,7 +5,8 @@ import { HelpInfo } from '../HelpInfo';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
-import { LabelTheme } from './LabelTheme';
+import { createStyles2 } from '../../theme';
+import { useUIState } from '../../providers';
 
 interface Props {
   className?: string;
@@ -15,46 +15,44 @@ interface Props {
   children?: ReactNode;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
-const useStyles = createStyles(({ useTheme }) => {
-  const { fontSize, fontWeight } = useTheme(LabelTheme);
-  return {
-    styles: {
-      label: {
-        display: 'flex',
-        flex: 'none',
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        alignItems: 'center',
-      },
-      labelContent: {
-        display: 'flex',
-        flex: 'none',
-        gap: 4,
-        minHeight: 18,
-        cursor: 'default',
-        position: 'relative',
-      },
-      labelText: {
-        display: 'flex',
-        flex: 'none',
-        alignItems: 'center',
-      },
-      isClickable: {
-        cursor: 'pointer',
-      },
-      isOptional: {
-        fontSize: '0.8em',
-        alignSelf: 'flex-end',
-        margin: '0 0 1px 4px',
-        fontWeight: 400,
-      },
-      isOptionalSkeleton: {
-        maxHeight: 8,
-        alignSelf: 'flex-end',
-      },
+
+const useStyles = createStyles2(({ field: { label, default: defaultField } }) => ({
+  label: {
+    display: 'flex',
+    flex: 'none',
+    ...defaultField,
+    ...label,
+    alignItems: 'center',
+  },
+  labelContent: {
+    display: 'flex',
+    flex: 'none',
+    gap: 4,
+    minHeight: 18,
+    cursor: 'default',
+    position: 'relative',
+  },
+  labelText: {
+    display: 'flex',
+    flex: 'none',
+    alignItems: 'center',
+    userSelect: 'none',
+
+    '&.is-clickable': {
+      cursor: 'pointer',
     },
-  };
-});
+  },
+  isOptional: {
+    fontSize: '0.8em',
+    alignSelf: 'flex-end',
+    margin: '0 0 1px 4px',
+    fontWeight: 400,
+  },
+  isOptionalSkeleton: {
+    maxHeight: 8,
+    alignSelf: 'flex-end',
+  },
+}));
 
 export const Label = createComponent('Label', ({
   className,
@@ -64,9 +62,11 @@ export const Label = createComponent('Label', ({
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
-  if (children == null) return null;
+  const { isReadOnly } = useUIState();
 
   const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
+
+  if (children == null) return null;
 
   return (
     <Tag name="label" className={join(css.label, className)}>
@@ -74,7 +74,7 @@ export const Label = createComponent('Label', ({
         <Skeleton type="text">
           <Tag
             name="label-text"
-            className={join(css.labelText, onClick != null && css.isClickable)}
+            className={join(css.labelText, onClick != null && !isReadOnly && 'is-clickable')}
             onMouseDown={onClick != null ? stopPropagation : undefined}
             onClick={onClick}
           >

@@ -1,9 +1,9 @@
-import { ReactNode, useLayoutEffect, useState } from 'react';
+import { ComponentProps, ReactNode, useLayoutEffect, useState } from 'react';
 import { useId } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { Tag } from '../Tag';
 import { Windows, WindowsManager, WindowState } from '../Windows';
+import { Flex } from '../Flex';
 
 const useStyles = createStyles({
   dialogsManager: {
@@ -17,14 +17,13 @@ const useStyles = createStyles({
       transitionDuration: '400ms',
       transitionTimingFunction: 'ease',
     },
+
+    '&.blur-background>*:not(windows)': {
+      filter: 'blur(2px)',
+    },
   },
   disableInteraction: {
     pointerEvents: 'all',
-  },
-  blurBackground: {
-    '&>*:not(windows)': {
-      filter: 'blur(2px)',
-    },
   },
   windows: {
     position: 'absolute',
@@ -36,7 +35,7 @@ const useStyles = createStyles({
   },
 });
 
-interface Props {
+interface Props extends ComponentProps<typeof Flex> {
   id?: string;
   shouldBlurBackground?: boolean;
   children: ReactNode;
@@ -48,6 +47,7 @@ export const DialogsManager = createComponent('DialogsManager', ({
   shouldBlurBackground = false,
   children,
   onDialogCountChanged,
+  ...props
 }: Props) => {
   const { css, join } = useStyles();
   const internalId = useId();
@@ -57,11 +57,11 @@ export const DialogsManager = createComponent('DialogsManager', ({
   useLayoutEffect(() => onDialogCountChanged?.(state.length), [state.length, onDialogCountChanged]);
 
   return (
-    <Tag name="dialogs-container" className={join(css.dialogsManager, shouldBlurBackground && state.length > 0 && css.blurBackground)}>
+    <Flex {...props} tagName="dialogs-container" className={join(css.dialogsManager, shouldBlurBackground && state.length > 0 && 'blur-background', props.className)}>
       <WindowsManager id={id}>
         {children}
         <Windows managerId={id} className={join(css.windows, state.length > 0 && css.disableInteraction)} onStatesUpdated={saveState} />
       </WindowsManager>
-    </Tag >
+    </Flex >
   );
 });

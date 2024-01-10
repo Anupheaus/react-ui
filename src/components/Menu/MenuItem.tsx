@@ -1,45 +1,36 @@
 import { ReactNode, useContext, useState } from 'react';
 import { useBooleanState, useBound, useDOMRef } from '../../hooks';
-import { createStyles, TransitionTheme } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { useRipple } from '../Ripple';
-import { MenuTheme } from './MenuTheme';
 import { PopupMenuContext } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
-const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
-  const { menuItem: { active, default: defaultTheme, padding, fontSize, fontWeight } } = useTheme(MenuTheme);
-  const transitionSettings = useTheme(TransitionTheme);
+const useStyles = createStyles2(({ animation, menu: { menuItem: { default: defaultMenuItem, active: activeMenuItem } }, activePseudoClasses }) => ({
+  menuItem: {
+    ...defaultMenuItem,
+    ...animation,
+    position: 'relative',
+    cursor: 'default',
+    transitionProperty: 'background-color, color',
 
-  return {
-    styles: {
-      menuItem: {
-        position: 'relative',
-        backgroundColor: defaultTheme.backgroundColor,
-        color: defaultTheme.textColor,
-        padding,
-        cursor: 'default',
-        fontSize,
-        fontWeight,
-      },
-      isInteractable: {
-        cursor: 'pointer',
-        ...transitionSettings,
-        transitionProperty: 'background-color, color',
+    '&.is-interactive': {
+      cursor: 'pointer',
 
-        [activePseudoClasses]: {
-          backgroundColor: active.backgroundColor,
-          color: active.textColor,
-        },
-      },
-      subMenuIcon: {
-        marginLeft: 4,
-      }
     },
-  };
-});
+
+    [activePseudoClasses]: {
+      '&.is-interactive': {
+        ...activeMenuItem,
+      },
+    },
+  },
+  subMenuIcon: {
+    marginLeft: 4,
+  },
+}));
 
 interface Props {
   className?: string;
@@ -71,7 +62,7 @@ export const MenuItem = createComponent('MenuItem', ({
     <Flex
       tagName="menu-item"
       ref={target}
-      className={join(css.menuItem, !isReadOnly && css.isInteractable, className)}
+      className={join(css.menuItem, !isReadOnly && 'is-interactive', className)}
       allowFocus
       onMouseOver={setIsOver}
       onMouseEnter={setIsOver}

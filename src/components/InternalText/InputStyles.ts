@@ -1,6 +1,6 @@
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 
-export const useInputStyles = createStyles({
+export const useInputStyles = createStyles2({
   input: {
     outline: 'none',
     appearance: 'textfield',
@@ -11,5 +11,12 @@ export const useInputStyles = createStyles({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     backgroundColor: 'transparent!important',
+
+    '&.is-read-only': {
+      cursor: 'default',
+      pointerEvents: 'none',
+      userSelect: 'none',
+      opacity: 0.7,
+    },
   },
 });

@@ -1,24 +1,22 @@
-import { createStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
 import { Icon } from '../Icon';
+import { createStyles2 } from '../../theme';
 
 interface Props {
   className?: string;
   icon?: ReactNode;
   children?: ReactNode;
 }
-const useStyles = createStyles(() => ({
-  styles: {
-    fieldHelp: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
+const useStyles = createStyles2({
+  fieldHelp: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-}));
+});
 
 export const HelpInfo = createComponent('HelpInfo', ({
   className,

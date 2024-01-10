@@ -107,10 +107,10 @@ export const Skeleton = createComponent('Skeleton', ({
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
-  const { isLoading } = useUIState({ isLoading: isVisible });
+  const { isLoading } = useUIState();
   const noSkeletons = useContext(SkeletonContexts.noSkeletons);
 
-  if (!isLoading && children != null) return (<>{children}</>);
+  if ((!isLoading && children != null) || isVisible === false) return (<>{children}</>);
 
   return (
     <Tag

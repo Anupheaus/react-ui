@@ -1,12 +1,11 @@
-import { createStyles } from '../../theme/createStyles';
 import { Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
-import type { IconType } from '../../theme';
+import { createStyles2, type IconType } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
-import { IconTheme } from './IconTheme';
 import { IconDefinitions, LocalIconDefinitions } from './Icons';
 import { is } from '@anupheaus/common';
+import { useUIState } from '../../providers';
 
 export { IconType };
 
@@ -19,26 +18,30 @@ interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   onClick?(): void;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
-  const { opacity } = useTheme(IconTheme);
-  return {
-    styles: {
-      icon: {
-        display: 'flex',
-        opacity,
-        minWidth: 16,
-        minHeight: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexGrow: 0,
-        flexShrink: 0,
-      },
-      clickable: {
-        cursor: 'pointer',
+const useStyles = createStyles2(({ animation, icon: { default: defaultIcon, active: activeIcon }, activePseudoClasses }) => ({
+  icon: {
+    ...defaultIcon,
+    ...animation,
+    display: 'flex',
+    minWidth: 16,
+    minHeight: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    transitionProperty: 'opacity',
+
+    [activePseudoClasses]: {
+      '&.is-clickable:not(.is-read-only)': {
+        ...activeIcon,
       },
     },
-  };
-});
+
+    '&.is-clickable:not(.is-read-only)': {
+      cursor: 'pointer',
+    },
+  },
+}));
 
 let augmentedIconDefinitions = LocalIconDefinitions;
 
@@ -51,6 +54,8 @@ const IconComponent = createComponent('Icon', function ({
   onClick,
 }: Props<typeof LocalIconDefinitions>) {
   const { css, join } = useStyles();
+  const { isReadOnly } = useUIState();
+
   const sizeAmount = (() => {
     if (typeof (size) === 'number') return size;
     switch (size) {
@@ -68,7 +73,7 @@ const IconComponent = createComponent('Icon', function ({
   }, [name, color, sizeAmount]);
 
   return (
-    <Tag name="icon" ref={ref} className={join(css.icon, onClick != null && css.clickable, className)} data-icon-type={name} onClick={onClick}>
+    <Tag name="icon" ref={ref} className={join(css.icon, isReadOnly && 'is-read-only', onClick != null && 'is-clickable', className)} data-icon-type={name} onClick={onClick}>
       <Skeleton type="circle">{icon}</Skeleton>
     </Tag>
   );

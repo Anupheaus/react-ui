@@ -1,3 +1,3 @@
-import { InternalTextTheme } from '../InternalText';
+// import { InternalTextTheme } from '../InternalText';
 
-export const TextTheme = InternalTextTheme.createVariant({});
+// export const TextTheme = InternalTextTheme.createVariant({});

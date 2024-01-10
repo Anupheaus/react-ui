@@ -1,13 +1,13 @@
 import { PaperProps, Popover, PopoverOrigin, PopoverProps } from '@mui/material';
 import { ComponentProps, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount } from '../../hooks';
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { createComponent } from '../Component';
 import { Menu } from './Menu';
 import { PopupMenuContext, PopupMenuContextProps } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
-const useStyles = createStyles({
+const useStyles = createStyles2({
   slotProps: {
     pointerEvents: 'none',
   },
