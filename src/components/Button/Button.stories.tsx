@@ -1,73 +1,58 @@
-import { createStories, StorybookComponent, StoryConfig } from '../../Storybook';
+import { Meta, StoryObj } from '@storybook/react';
 import { Button } from './Button';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { ComponentProps } from 'react';
+import { createStorybookComponentStates } from '../../Storybook';
 import { Icon } from '../Icon';
-import { createStyles, DefaultTheme } from '../../theme';
-import { useBound } from '../../hooks';
+import { ComponentProps, ReactNode } from 'react';
 
-const useStyles = createStyles({
-  iconOnly: {
-    padding: 16,
-    backgroundColor: DefaultTheme.action.default.backgroundColor,
-  },
-  wideButton: {
-    width: 300,
-  }
-});
+const meta: Meta<typeof Button> = {
+  component: Button,
+};
+export default meta;
 
-// const RaiseError = () => { throw new Error('Testing my error!'); };
-
-function generateButtonStories(props: Partial<ComponentProps<typeof Button>> = {}): StoryConfig {
-  return {
-    wrapInStorybookComponent: false,
-    component: () => {
-      const { css } = useStyles();
-
-      const doNeverEndingTask = useBound(() => new Promise<void>(() => void 0));
-
-      return (<>
-
-        <StorybookComponent title="Simple">
-          <Button {...props}>Test</Button>
-        </StorybookComponent>
-
-        <StorybookComponent title="Wide">
-          <Button {...props} className={css.wideButton}>Test</Button>
-        </StorybookComponent>
-
-        <StorybookComponent title="With Icon">
-          <Button {...props}><Icon name="drawer-close" />Test</Button>
-        </StorybookComponent>
-
-        <StorybookComponent title="Wide With Icon">
-          <Button {...props} className={css.wideButton}><Icon name="drawer-close" />Test</Button>
-        </StorybookComponent>
-
-        <StorybookComponent title="Icon Only" className={css.iconOnly}>
-          <Button {...props}><Icon name="drawer-close" /></Button>
-        </StorybookComponent>
-
-        <StorybookComponent title="Is Busy">
-          <Button {...props} onSelect={doNeverEndingTask}>Save</Button>
-        </StorybookComponent>
-      </>);
-    },
-  };
-}
+type Story = StoryObj<typeof Button>;
 
 interface Props {
-  children: string;
+  isBusy?: boolean;
+  children?: ReactNode;
+  variant?: ComponentProps<typeof Button>['variant'];
 }
 
-createStories<Props>(() => ({
-  module,
-  name: 'Components/Button',
-  props: {
-    children: { type: 'string', defaultValue: 'Test', name: 'Label' },
+const config = ({ children = 'Label', variant }: Props = {}) => ({
+  storyName: '',
+  args: {
   },
-  stories: {
-    ...generateUIStateStories(Button),
-    'Default': generateButtonStories(),
+  render: props => {
+    const doSomethingForever = () => new Promise<void>(() => void 0);
+
+    return (
+      <Button {...props} variant={variant} onSelect={doSomethingForever}>{children}</Button>
+    );
   },
-}));
+}) satisfies Story;
+
+export const UIStates = createStorybookComponentStates(config());
+UIStates.storyName = 'UI States';
+
+export const UIStatesWithIcon = createStorybookComponentStates(config({ children: <><Icon name="drawer-close" />Label</> }));
+UIStatesWithIcon.storyName = 'UI States with Icon';
+
+export const UIStatesWithIconOnly = createStorybookComponentStates(config({ children: <Icon name="drawer-close" /> }));
+UIStatesWithIconOnly.storyName = 'UI States with Icon Only';
+
+export const UIStatesAsBorderOnlyVariant = createStorybookComponentStates(config({ variant: 'bordered' }));
+UIStatesAsBorderOnlyVariant.storyName = 'UI States as Bordered Variant';
+
+export const UIStatesAsBorderOnlyVariantWithIcon = createStorybookComponentStates(config({ variant: 'bordered', children: <><Icon name="drawer-close" />Label</> }));
+UIStatesAsBorderOnlyVariantWithIcon.storyName = 'UI States as Bordered Variant with Icon';
+
+export const UIStatesAsBorderOnlyVariantWithIconOnly = createStorybookComponentStates(config({ variant: 'bordered', children: <Icon name="drawer-close" /> }));
+UIStatesAsBorderOnlyVariantWithIconOnly.storyName = 'UI States as Bordered Variant with Icon Only';
+
+export const UIStatesAsHoverVariant = createStorybookComponentStates(config({ variant: 'hover' }));
+UIStatesAsHoverVariant.storyName = 'UI States as Hover Variant';
+
+export const UIStatesAsHoverVariantWithIcon = createStorybookComponentStates(config({ variant: 'hover', children: <><Icon name="drawer-close" />Label</> }));
+UIStatesAsHoverVariantWithIcon.storyName = 'UI States as Hover Variant with Icon';
+
+export const UIStatesAsHoverVariantWithIconOnly = createStorybookComponentStates(config({ variant: 'hover', children: <Icon name="drawer-close" /> }));
+UIStatesAsHoverVariantWithIconOnly.storyName = 'UI States as Hover Variant with Icon Only';

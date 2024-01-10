@@ -1,24 +1,29 @@
-import { createComponent } from '../Component';
-import { useUpdatableState } from '../../hooks/useUpdatableState';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { createStories } from '../../Storybook';
-import { generateInternalTextStories } from '../InternalText/InternalText.stories.utils';
+import { Meta, StoryObj } from '@storybook/react';
+import { createStorybookComponentStates } from '../../Storybook';
+import { useUpdatableState } from '../../hooks';
 import { Number } from './Number';
-import { ComponentProps } from 'react';
 
-interface Props extends ComponentProps<typeof Number> { }
+const meta: Meta<typeof Number> = {
+  component: Number,
+};
+export default meta;
 
-export const EditableNumber = createComponent('EditableNumber', (props: Props) => {
-  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+type Story = StoryObj<typeof Number>;
 
-  return (<Number width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
-});
-
-createStories(() => ({
-  module,
-  name: 'Components/Number',
-  stories: {
-    ...generateUIStateStories(EditableNumber),
-    ...generateInternalTextStories(EditableNumber),
+const config = {
+  storyName: '',
+  args: {
+    label: 'Label',
+    value: 3,
   },
-}));
+  render: props => {
+    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+
+    return (
+      <Number {...props} value={value} onChange={setValue} />
+    );
+  },
+} satisfies Story;
+
+export const UIStates = createStorybookComponentStates({ ...config, includeError: true });
+UIStates.storyName = 'UI States';

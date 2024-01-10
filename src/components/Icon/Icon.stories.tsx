@@ -1,41 +1,34 @@
-// import { FiActivity } from 'react-icons/fi';
-// import { AnuxError } from '../../errors';
-// import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-// import { createStories } from '../../Storybook';
-// import { StorybookComponent } from '../../Storybook/StorybookComponent';
-// import { createThemeIcons } from '../../theme';
-// import { Icon } from './Icon';
+import { Meta, StoryObj } from '@storybook/react';
+import { createStorybookComponentStates } from '../../Storybook';
+import { Icon } from './Icon';
+import { ComponentProps } from 'react';
 
-// const icons = createThemeIcons({
-//   activity: FiActivity,
-// });
+const meta: Meta<typeof Icon> = {
+  component: Icon,
+};
+export default meta;
 
-// // const DemoIcon = () => <Icon name={''}>{icons.activity}</Icon>;
+type Story = StoryObj<typeof Icon>;
 
-// createStories(() => ({
-//   module,
-//   name: 'Components/Icon',
-//   stories: {
-//     ...generateUIStateStories(DemoIcon),
-//     'Default': {
-//       wrapInStorybookComponent: false,
-//       component: () => (<>
-//         <StorybookComponent title="Small Icon">
-//           <Icon size="small">{icons.activity}</Icon>
-//         </StorybookComponent>
+const config = (additionalProps: Partial<ComponentProps<typeof Icon>> = {}): any => ({
+  storyName: '',
+  args: {
+    name: 'no-image',
+    ...additionalProps,
+  },
+  render: props => (
+    <Icon {...props} />
+  ),
+}) as Story;
 
-//         <StorybookComponent title="Normal Icon">
-//           <Icon size="normal">{icons.activity}</Icon>
-//         </StorybookComponent>
+export const UIStatesSmall = createStorybookComponentStates(config({ size: 'small' }));
+UIStatesSmall.storyName = 'UI States (Small)';
 
-//         <StorybookComponent title="Large Icon">
-//           <Icon size="large">{icons.activity}</Icon>
-//         </StorybookComponent>
+export const UIStatesNormal = createStorybookComponentStates(config({ size: 'normal' }));
+UIStatesNormal.storyName = 'UI States (Normal)';
 
-//         <StorybookComponent title="With Error">
-//           <Icon size="large">{() => { throw new AnuxError({ title: 'Icon Error', message: 'This has occurred in the icon!' }); }}</Icon>
-//         </StorybookComponent>
-//       </>),
-//     },
-//   },
-// }));
+export const UIStatesLarge = createStorybookComponentStates(config({ size: 'large' }));
+UIStatesLarge.storyName = 'UI States (Large)';
+
+export const UIStatesAndIsClickable = createStorybookComponentStates(config({ onClick: () => void 0 }));
+UIStatesAndIsClickable.storyName = 'UI States (Clickable)';

@@ -1,24 +1,29 @@
-import { createComponent } from '../Component';
-import { useUpdatableState } from '../../hooks/useUpdatableState';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
-import { createStories } from '../../Storybook';
-import { generateInternalTextStories } from '../InternalText/InternalText.stories.utils';
+import { Meta, StoryObj } from '@storybook/react';
+import { createStorybookComponentStates } from '../../Storybook';
+import { useUpdatableState } from '../../hooks';
 import { Password } from './Password';
-import { ComponentProps } from 'react';
 
-interface Props extends ComponentProps<typeof Password> { }
+const meta: Meta<typeof Password> = {
+  component: Password,
+};
+export default meta;
 
-const EditablePassword = createComponent('EditablePassword', (props: Props) => {
-  const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+type Story = StoryObj<typeof Password>;
 
-  return (<Password width={150} label={'Label'} {...props} value={value} onChange={setValue} />);
-});
-
-createStories(() => ({
-  module,
-  name: 'Components/Password',
-  stories: {
-    ...generateUIStateStories(EditablePassword),
-    ...generateInternalTextStories(EditablePassword),
+const config = {
+  storyName: '',
+  args: {
+    label: 'Label',
+    value: 'Hey'
   },
-}));
+  render: props => {
+    const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
+
+    return (
+      <Password {...props} value={value} onChange={setValue} />
+    );
+  },
+} satisfies Story;
+
+export const UIStates = createStorybookComponentStates({ ...config, includeError: true });
+UIStates.storyName = 'UI States';

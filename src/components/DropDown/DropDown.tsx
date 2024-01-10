@@ -35,12 +35,12 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
       buttons: createThemeVariant(ButtonTheme, {
         default: {
           backgroundColor: menuItem.default.backgroundColor,
-          textColor: menuItem.default.textColor,
+          textColor: menuItem.default.color,
           borderColor: menuItem.default.borderColor,
         },
         active: {
           backgroundColor: menuItem.active.backgroundColor,
-          textColor: menuItem.active.textColor,
+          textColor: menuItem.active.color,
           borderColor: menuItem.active.borderColor,
         },
         alignment: 'left',

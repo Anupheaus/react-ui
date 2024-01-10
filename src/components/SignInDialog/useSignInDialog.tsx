@@ -108,7 +108,7 @@ export function useSignInDialog() {
                 <DropDown label="Email" values={listItems} value={email} onChange={setEmail} width={250} error={emailError} renderSelectedValue={renderEmail} />
                 {signInCredentialType === 'password' && <Password ref={passwordOrPinRef} label={'Password'} value={passwordOrPin} onChange={setPasswordOrPin} error={passwordOrPinError} initialFocus />}
                 {signInCredentialType === 'pin' && (
-                  <PIN ref={passwordOrPinRef} label={'PIN'} value={passwordOrPin} onChange={setPasswordOrPin} onComplete={handleSignIn} error={passwordOrPinError} initialFocus />
+                  <PIN ref={passwordOrPinRef} label={'PIN'} value={passwordOrPin} onChange={setPasswordOrPin} onSubmit={handleSignIn} error={passwordOrPinError} initialFocus />
                 )}
               </Flex>
             </Flex>

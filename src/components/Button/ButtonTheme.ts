@@ -5,17 +5,17 @@ export const ButtonTheme = createTheme({
   definition: {
     default: {
       backgroundColor: DefaultTheme.action.default.backgroundColor,
-      textColor: DefaultTheme.action.default.textColor,
+      textColor: DefaultTheme.action.default.color,
       borderColor: DefaultTheme.action.default.borderColor,
     },
     active: {
       backgroundColor: DefaultTheme.action.active.backgroundColor,
-      textColor: DefaultTheme.action.active.textColor,
+      textColor: DefaultTheme.action.active.color,
       borderColor: DefaultTheme.action.active.borderColor,
     },
     disabled: {
       backgroundColor: DefaultTheme.action.disabled.backgroundColor,
-      textColor: DefaultTheme.action.disabled.textColor,
+      textColor: DefaultTheme.action.disabled.color,
       borderColor: DefaultTheme.action.disabled.backgroundColor,
     },
     borderRadius: 4 as string | number,

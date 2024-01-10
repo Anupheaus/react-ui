@@ -8,10 +8,10 @@ export const MenuTheme = createTheme({
 
     menuItem: {
       default: {
-        ...DefaultTheme.menuItem.default,
+        ...DefaultTheme.menu.menuItem.default,
       },
       active: {
-        ...DefaultTheme.menuItem.active,
+        ...DefaultTheme.menu.menuItem.active,
       },
       fontSize: 13,
       fontWeight: 400,

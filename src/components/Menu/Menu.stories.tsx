@@ -1,13 +1,14 @@
-import { createStories, StorybookComponent } from '../../Storybook';
-import { generateUIStateStories } from '../../providers/UIStateProvider/UIStateProvider.stories.utils';
+import { Meta, StoryObj } from '@storybook/react';
+import { createStorybookComponentStates } from '../../Storybook';
+import { useUpdatableState } from '../../hooks';
 import { Flex } from '../Flex';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
-import { createStyles } from '../../theme';
+import { createStyles2 } from '../../theme';
 import { Button } from '../Button';
 import { usePopupMenu } from './usePopupMenu';
 
-const useStyles = createStyles({
+const useStyles = createStyles2({
   farSideMenu: {
     position: 'absolute',
     right: 0,
@@ -91,49 +92,70 @@ const DemoablePopupMenu = () => {
   );
 };
 
-createStories(({ createStory }) => ({
-  name: 'Components/Menu',
-  module,
-  stories: {
-    ...generateUIStateStories(DemoableMenu),
-    'Menu': createStory({
-      wrapInStorybookComponent: false,
-      component: () => {
-        const { css } = useStyles();
-        return (<>
-          <StorybookComponent title={'Normal Menu'}>
-            <DemoableMenu />
-          </StorybookComponent>
+const meta: Meta<typeof Menu> = {
+  component: Menu,
+};
+export default meta;
 
-          <StorybookComponent title={'Far Side Menu'} width={110} className={css.farSideMenu}>
-            <DemoableMenu />
-          </StorybookComponent>
+type Story = StoryObj<typeof Menu>;
 
-          <StorybookComponent title={'Bottom Menu'} className={css.bottomMenu}>
-            <DemoableMenu />
-          </StorybookComponent>
-        </>);
-      },
-    }),
+const config = {
+  storyName: '',
+  args: {
 
-    'usePopupMenu': createStory({
-      wrapInStorybookComponent: false,
-      component: () => {
-        const { css } = useStyles();
-        return (<>
-          <StorybookComponent title={'Normal Popup Menu'}>
-            <DemoablePopupMenu />
-          </StorybookComponent>
-
-          <StorybookComponent title={'Far Side Popup Menu'} width={110} className={css.farSideMenu}>
-            <DemoablePopupMenu />
-          </StorybookComponent>
-
-          <StorybookComponent title={'Bottom Popup Menu'} className={css.bottomMenu}>
-            <DemoablePopupMenu />
-          </StorybookComponent>
-        </>);
-      },
-    }),
   },
-}));
+  render: () => (
+    <DemoableMenu />
+  ),
+} satisfies Story;
+
+export const UIStates = createStorybookComponentStates({ ...config, includeError: true });
+UIStates.storyName = 'UI States';
+
+
+// createStories(({ createStory }) => ({
+//   name: 'Components/Menu',
+//   module,
+//   stories: {
+//     ...generateUIStateStories(DemoableMenu),
+//     'Menu': createStory({
+//       wrapInStorybookComponent: false,
+//       component: () => {
+//         const { css } = useStyles();
+//         return (<>
+//           <StorybookComponent title={'Normal Menu'}>
+//             <DemoableMenu />
+//           </StorybookComponent>
+
+//           <StorybookComponent title={'Far Side Menu'} width={110} className={css.farSideMenu}>
+//             <DemoableMenu />
+//           </StorybookComponent>
+
+//           <StorybookComponent title={'Bottom Menu'} className={css.bottomMenu}>
+//             <DemoableMenu />
+//           </StorybookComponent>
+//         </>);
+//       },
+//     }),
+
+//     'usePopupMenu': createStory({
+//       wrapInStorybookComponent: false,
+//       component: () => {
+//         const { css } = useStyles();
+//         return (<>
+//           <StorybookComponent title={'Normal Popup Menu'}>
+//             <DemoablePopupMenu />
+//           </StorybookComponent>
+
+//           <StorybookComponent title={'Far Side Popup Menu'} width={110} className={css.farSideMenu}>
+//             <DemoablePopupMenu />
+//           </StorybookComponent>
+
+//           <StorybookComponent title={'Bottom Popup Menu'} className={css.bottomMenu}>
+//             <DemoablePopupMenu />
+//           </StorybookComponent>
+//         </>);
+//       },
+//     }),
+//   },
+// }));

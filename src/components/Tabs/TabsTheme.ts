@@ -11,14 +11,14 @@ export const TabsTheme = createTheme({
 
     activeTab: {
       backgroundColor: DefaultTheme.action.active.backgroundColor,
-      textColor: DefaultTheme.action.active.textColor,
+      textColor: DefaultTheme.action.active.color,
       highlightHeight: 3,
       highlightColor: Color('white').alpha(0.8).hexa(),
     },
 
     inactiveTab: {
       backgroundColor: DefaultTheme.action.default.backgroundColor,
-      textColor: DefaultTheme.action.default.textColor,
+      textColor: DefaultTheme.action.default.color,
       highlightHeight: 3,
       highlightColor: Color('white').alpha(0.4).hexa(),
     },
