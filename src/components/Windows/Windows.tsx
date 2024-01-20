@@ -1,13 +1,13 @@
 import { AnyObject, is } from '@anupheaus/common';
 import { Fragment, ReactNode, useContext, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { WindowsManagerContext, WindowsContext, WindowsContextProps, WindowIdContext, WindowsManagerIdContext } from './WindowsContexts';
 import { WindowState } from './WindowsModels';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   windows: {
 
   },

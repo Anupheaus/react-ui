@@ -1,7 +1,7 @@
 import { MouseEvent, ReactNode, useContext } from 'react';
 import { createComponent } from '../Component';
 import { useUIState } from '../../providers/UIStateProvider';
-import { createStyles, createAnimationKeyFrame } from '../../theme';
+import { createLegacyStyles, createAnimationKeyFrame } from '../../theme';
 import { Tag } from '../Tag';
 import { SkeletonContexts } from './SkeletonContexts';
 import { SkeletonTheme } from './SkeletonTheme';
@@ -16,7 +16,7 @@ const animation = createAnimationKeyFrame({
   },
 });
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { color } = useTheme(SkeletonTheme);
   return {
     styles: {

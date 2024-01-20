@@ -1,11 +1,11 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { StorybookComponent2 } from '../../Storybook';
-import { createStyles2 } from '../../theme';
+import { createStyles } from '../../theme';
 import { Drawer as DrawerComponent } from './Drawer';
 import { useDrawer } from './useDrawer';
 import { Button } from '../Button';
 
-const useStyles = createStyles2({
+const useStyles = createStyles({
   animatingBorder: {
     width: 200,
     height: 50,

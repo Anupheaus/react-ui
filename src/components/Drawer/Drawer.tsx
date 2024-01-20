@@ -6,7 +6,7 @@ import { DistributedState, useDistributedState } from '../../hooks';
 import { DrawerTheme } from './DrawerTheme';
 import { Button, IconButtonTheme } from '../Button';
 import { Flex } from '../Flex';
-import { createStyles, ThemesProvider } from '../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../theme';
 import { Icon } from '../Icon';
 
 type DrawerCloseReasons = Parameters<Required<ModalProps>['onClose']>[1] | 'drawerClosed';
@@ -25,7 +25,7 @@ interface Props extends DrawerProps {
   state: DistributedState<boolean>;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { header: { backgroundColor: headerBackgroundColor, textColor: headerTextColor, fontSize, fontWeight }, content: { backgroundColor: contentBackgroundColor, textColor } } = useTheme(DrawerTheme);
 
   return {

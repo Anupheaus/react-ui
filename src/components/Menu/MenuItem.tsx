@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useState } from 'react';
 import { useBooleanState, useBound, useDOMRef } from '../../hooks';
-import { createStyles, TransitionTheme } from '../../theme';
+import { createLegacyStyles, TransitionTheme } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
@@ -9,7 +9,7 @@ import { MenuTheme } from './MenuTheme';
 import { PopupMenuContext } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
-const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
+const useStyles = createLegacyStyles(({ activePseudoClasses, useTheme }) => {
   const { menuItem: { active, default: defaultTheme, padding, fontSize, fontWeight } } = useTheme(MenuTheme);
   const transitionSettings = useTheme(TransitionTheme);
 

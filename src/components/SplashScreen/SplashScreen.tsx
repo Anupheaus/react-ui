@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { ReactNode, useLayoutEffect, useRef } from 'react';
 import { useDebounce } from '../../hooks';
 import { useUIState } from '../../providers';
@@ -11,7 +11,7 @@ interface Props {
   whenLoading?: ReactNode;
   children: ReactNode;
 }
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { backgroundColor, textColor } = useTheme(SplashScreenTheme);
 
   return {

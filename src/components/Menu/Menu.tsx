@@ -1,5 +1,5 @@
 import { ReactNode, useLayoutEffect, useMemo } from 'react';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Scroller } from '../Scroller';
@@ -7,7 +7,7 @@ import { MenuTheme } from './MenuTheme';
 import { useSubMenu } from './SubMenuProvider';
 import { usePopupMenu } from './usePopupMenu';
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { backgroundColor } = useTheme(MenuTheme);
   return {
     styles: {

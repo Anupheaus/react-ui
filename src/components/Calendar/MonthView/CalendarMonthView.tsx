@@ -1,4 +1,4 @@
-import { createStyles } from '../../../theme/createStyles';
+import { createLegacyStyles } from '../../../theme/createStyles';
 import { Tag } from '../../Tag';
 import { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarTheme } from '../CalendarTheme';
@@ -12,7 +12,7 @@ interface Props {
   viewingDate: Date;
   entries: readonly CalendarEntryRecord[];
 }
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { monthViewDayNameFontSize, monthViewDayNameFontWeight } = useTheme(CalendarTheme);
   return {
     styles: {

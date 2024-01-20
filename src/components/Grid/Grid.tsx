@@ -3,7 +3,7 @@ import { CSSProperties, useMemo, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { useBooleanState } from '../../hooks';
 import { useUIState } from '../../providers';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { GridColumn } from './GridModels';
 import { AnyObject, DataRequest, Record } from '@anupheaus/common';
 import { GridContexts } from './GridContexts';
@@ -22,7 +22,7 @@ interface Props {
   onRequest?(request: DataRequest): void;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { borders: { radius: borderRadius }, headers: { backgroundColor } } = useTheme(GridTheme);
   return {
     styles: {

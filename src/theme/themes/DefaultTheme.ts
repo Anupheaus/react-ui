@@ -1,17 +1,30 @@
+import Color from 'color';
 import { createTheme } from '../createTheme';
+import { Theme } from './ThemeModel';
 
-export const DefaultTheme = {
+export const DefaultTheme: Theme = {
   text: {
-    fontFamily: 'Roboto',
-    fontSize: 14,
-    color: '#000',
+    primary: {
+      fontFamily: 'Roboto',
+      fontSize: 14,
+      color: '#000',
+    },
+    secondary: {
+      fontFamily: 'Roboto',
+      fontSize: 14,
+      color: '#000',
+    },
   },
   animation: {
+    animationDuration: '400ms',
+    animationTimingFunction: 'ease',
+  },
+  transition: {
     transitionDuration: '400ms',
     transitionTimingFunction: 'ease',
   },
   action: {
-    default: {
+    normal: {
       backgroundColor: 'rgba(0 0 0 / 15%)',
       color: '#000',
       borderColor: 'rgba(0 0 0 / 15%)',
@@ -30,10 +43,15 @@ export const DefaultTheme = {
     },
   },
   menu: {
-    backgroundColor: '#fff',
+    normal: {
+      backgroundColor: '#fff',
+    },
+    disabled: {
+
+    },
 
     menuItem: {
-      default: {
+      normal: {
         backgroundColor: 'transparent',
         color: '#000',
         borderColor: 'transparent',
@@ -44,51 +62,60 @@ export const DefaultTheme = {
         color: '#000',
         borderColor: 'transparent',
       },
+      disabled: {},
     },
   },
   toolbar: {
-    default: {
+    normal: {
       backgroundColor: 'rgba(0 0 0 / 5%)',
-      textColor: '#000',
-      borderColor: 'rgba(0 0 0 / 10%)'
+      color: '#000',
+      borderColor: 'rgba(0 0 0 / 10%)',
+      padding: '0 8px',
+      gap: 8,
     },
     active: {
-      backgroundColor: 'rgba(0 0 0 / 5%)',
-      textColor: '#000',
       borderColor: 'rgba(0 0 0 / 20%)',
+    },
+    disabled: {},
+    title: {
+      gap: 8,
+    },
+    content: {
+      gap: 8,
     },
   },
   field: {
     label: {
-      fontSize: 14,
-      fontWeight: 600,
+      normal: {
+        fontSize: 14,
+        fontWeight: 600,
+      },
+      active: {},
+      disabled: {},
     },
     value: {
-      fontSize: 12,
-      fontWeight: 400,
+      normal: {
+        backgroundColor: 'transparent',
+        color: '#000',
+        borderColor: 'rgba(0 0 0 / 15%)',
+        fontSize: 12,
+        fontWeight: 400,
+        borderRadius: 4,
+      },
+      active: {
+        backgroundColor: 'transparent',
+        color: '#000',
+        borderColor: 'rgba(0 0 0 / 25%)',
+      },
+      disabled: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+        color: 'rgba(0 0 0 / 65%)',
+        borderColor: 'rgba(0 0 0 / 15%)',
+      },
     },
     assistiveText: {
       fontSize: 12,
       fontWeight: 400,
-    },
-    default: {
-      backgroundColor: 'transparent',
-      color: '#000',
-      borderColor: 'rgba(0 0 0 / 15%)',
-      fontFamily: 'Roboto',
-      fontSize: 13,
-      fontWeight: 400,
-      borderRadius: 4,
-    },
-    active: {
-      backgroundColor: 'transparent',
-      color: '#000',
-      borderColor: 'rgba(0 0 0 / 25%)',
-    },
-    disabled: {
-      backgroundColor: 'rgba(0 0 0 / 10%)',
-      color: 'rgba(0 0 0 / 65%)',
-      borderColor: 'rgba(0 0 0 / 15%)',
     },
   },
   error: {
@@ -96,40 +123,81 @@ export const DefaultTheme = {
     color: '#b71313',
   },
   surface: {
-    default: {
-      backgroundColor: 'transparent',
+    general: {
+      normal: {
+        backgroundColor: 'transparent',
+      },
+      active: {},
+      disabled: {},
     },
     asAContainer: {
-      backgroundColor: '#f0f0f0',
-      borderColor: '#ddd',
-      color: '#000',
-      fontFamily: 'Roboto',
-      fontSize: 14,
-      fontWeight: 400,
+      normal: {
+        backgroundColor: '#f0f0f0',
+        borderColor: '#ddd',
+        color: '#000',
+        fontFamily: 'Roboto',
+        fontSize: 14,
+        fontWeight: 400,
+      },
+      active: {},
+      disabled: {},
     },
     titleArea: {
-      backgroundColor: '#1e88e5',
-      color: '#fff',
-      borderColor: 'transparent',
-      fontSize: 16,
-      fontWeight: 400,
+      normal: {
+        backgroundColor: '#1e88e5',
+        color: '#fff',
+        borderColor: 'transparent',
+        fontSize: 16,
+        fontWeight: 400,
+      },
+      active: {},
+      disabled: {},
+    },
+    shadows: {
+      light: {
+        boxShadow: '0 1px 2px rgba(0 0 0 / 15%), 0 3px 6px rgba(0 0 0 / 12%)',
+      },
+      medium: {
+        boxShadow: '0 1px 3px rgba(0 0 0 / 30%), 0 6px 12px rgba(0 0 0 / 24%)',
+      },
+      heavy: {
+        boxShadow: '0 3px 6px rgba(0 0 0 / 25%), 0 10px 20px rgba(0 0 0 / 20%)',
+      },
     },
   },
   skeleton: {
     color: 'rgba(0 0 0 / 10%)',
   },
   icon: {
-    default: {
+    normal: {
       opacity: 0.7,
     },
     active: {
       opacity: 1,
     },
+    disabled: {},
   },
+  scrollbars: {
+    thumb: {
+      normal: {
+        backgroundColor: 'rgba(0 0 0 / 15%)',
+        borderRadius: 8,
+      },
+      active: {},
+      disabled: {},
+    },
+    track: {
+      normal: {
+        padding: 2,
+        width: 10,
+      },
+      active: {},
+      disabled: {},
+    },
+  },
+  dataPaletteColors: ['#6929c4', '#1192e8', '#005d5d', '#9f1853', '#fa4d56', '#570408', '#198038', '#002d9c', '#ee538b', '#b28600', '#009d9a', '#012749', '#8a3800', '#a56eff']
+    .map(color => Color(color).lighten(0.85).hexa()),
   activePseudoClasses: '&:hover, &:active, &:focus, &:focus-visible' as const,
-  vars: {
-    ripple: '--ripple-color',
-  },
 };
 
 export const ColorTheme = createTheme({

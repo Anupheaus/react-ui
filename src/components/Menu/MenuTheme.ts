@@ -8,7 +8,7 @@ export const MenuTheme = createTheme({
 
     menuItem: {
       default: {
-        ...DefaultTheme.menu.menuItem.default,
+        ...DefaultTheme.menu.menuItem.normal,
       },
       active: {
         ...DefaultTheme.menu.menuItem.active,

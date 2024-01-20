@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
@@ -15,7 +15,7 @@ interface Props {
   children?: ReactNode;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { fontSize, fontWeight } = useTheme(LabelTheme);
   return {
     styles: {

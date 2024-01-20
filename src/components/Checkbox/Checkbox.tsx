@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { ChangeEvent, ComponentProps, MouseEvent, ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { ErrorIcon } from '../../errors';
@@ -18,7 +18,7 @@ interface Props extends ComponentProps<typeof Label> {
   children?: ReactNode;
   onChange?(value: boolean): void;
 }
-const useStyles = createStyles(({ activePseudoClasses, useTheme }) => {
+const useStyles = createLegacyStyles(({ activePseudoClasses, useTheme }) => {
   const transitionSettings = useTheme(TransitionTheme);
   const { backgroundColor, uncheckedColor, checkedColor, activeColor } = useTheme(CheckboxTheme);
   return {

@@ -1,13 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { createStorybookComponentStates } from '../../Storybook';
-import { InternalField } from './InternalField';
+import { Field } from './Field';
 
-const meta: Meta<typeof InternalField> = {
-  component: InternalField,
+const meta: Meta<typeof Field> = {
+  component: Field,
 };
 export default meta;
 
-type Story = StoryObj<typeof InternalField>;
+type Story = StoryObj<typeof Field>;
 
 const config = {
   storyName: '',
@@ -16,7 +16,7 @@ const config = {
     label: 'Label',
   },
   render: props => (
-    <InternalField {...props}>&nbsp;</InternalField>
+    <Field {...props}>&nbsp;</Field>
   ),
 } satisfies Story;
 

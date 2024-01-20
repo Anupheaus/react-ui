@@ -1,14 +1,14 @@
 import { MapOf } from '@anupheaus/common';
 import { ReactNode, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { DistributedState, useBound, useDistributedState, useId } from '../../hooks';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { TabsContext } from './TabsContext';
 import { TabsTheme } from './TabsTheme';
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { activeTab, inactiveTab } = useTheme(TabsTheme);
   return {
     styles: {

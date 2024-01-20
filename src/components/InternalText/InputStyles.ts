@@ -11,5 +11,9 @@ export const useInputStyles = createStyles({
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     backgroundColor: 'transparent!important',
+    fontSize: 'unset',
+    color: 'unset',
+    fontFamily: 'unset',
+    fontWeight: 'unset',
   },
 });

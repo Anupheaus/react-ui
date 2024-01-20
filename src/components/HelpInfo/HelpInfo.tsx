@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -10,7 +10,7 @@ interface Props {
   icon?: ReactNode;
   children?: ReactNode;
 }
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     fieldHelp: {
       display: 'inline-flex',

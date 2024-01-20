@@ -4,10 +4,10 @@ import { useBound } from '../hooks/useBound';
 import { useForceUpdate } from '../hooks/useForceUpdate';
 import { useRecordsProvider } from '../providers/RecordsProvider/useRecordsProvider';
 import { ThemeRecordTypeId } from './InternalThemeModels';
-import type { GetThemeDefinition, Theme } from './themeModels';
+import type { GetThemeDefinition, LegacyTheme } from './themeModels';
 
 export function useThemesProvider(): ComponentStylesUtils {
-  const { records, onChanged } = useRecordsProvider<Theme>(ThemeRecordTypeId);
+  const { records, onChanged } = useRecordsProvider<LegacyTheme>(ThemeRecordTypeId);
   const observedThemes = new Set<string>();
   const update = useForceUpdate();
 
@@ -25,7 +25,7 @@ export function useThemesProvider(): ComponentStylesUtils {
     return (records.get(theme.id) ?? theme).icons;
   }) as UseThemeIcons);
 
-  const createThemeVariant = useBound(<TTheme extends Theme>(theme: TTheme, variant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme => {
+  const createThemeVariant = useBound(<TTheme extends LegacyTheme>(theme: TTheme, variant: DeepPartial<GetThemeDefinition<TTheme>>): TTheme => {
     const providedTheme = useTheme(theme);
     return { ...theme, definition: Object.merge({}, providedTheme, variant) };
   });

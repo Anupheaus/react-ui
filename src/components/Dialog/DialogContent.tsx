@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { CSSProperties, ReactNode, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -8,7 +8,7 @@ interface Props {
   gap?: number | string;
   children?: ReactNode;
 }
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     dialogContent: {
       display: 'flex',

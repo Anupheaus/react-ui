@@ -3,7 +3,7 @@ import { createComponent } from '../../../components/Component';
 import { useBound, useOnResize, useUpdatableState } from '../../../hooks';
 import { ErrorBoundary } from '../../ErrorBoundary';
 import { ErrorPanelTheme } from './ErrorPanelTheme';
-import { createStyles, ThemesProvider } from '../../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../../theme';
 import { Error, is } from '@anupheaus/common';
 import { ButtonTheme } from '../../../components/Button/ButtonTheme';
 import { DialogTheme } from '../../../components/Dialog/DialogTheme';
@@ -19,7 +19,7 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { backgroundColor } = useTheme(ErrorPanelTheme);
 
   return {

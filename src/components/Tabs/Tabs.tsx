@@ -1,6 +1,6 @@
 import { ReactNode, useMemo, useState } from 'react';
 import { DistributedState, useBound } from '../../hooks';
-import { createStyles, ThemesProvider } from '../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../theme';
 import { ButtonTheme } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -8,7 +8,7 @@ import { Tag } from '../Tag';
 import { TabsContext, TabsContextProps, UpsertTabProps } from './TabsContext';
 import { TabsTheme } from './TabsTheme';
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { backgroundColor, highlightHeight, hightlightColor, inactiveTab } = useTheme(TabsTheme);
   return {
     styles: {
@@ -41,7 +41,7 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
       buttonTheme: createThemeVariant(ButtonTheme, {
         default: {
           backgroundColor: inactiveTab.backgroundColor,
-          textColor: inactiveTab.textColor,
+          textColor: inactiveTab.color,
         },
         borderRadius: 0,
       }),

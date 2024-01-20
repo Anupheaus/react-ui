@@ -1,12 +1,12 @@
 import { MD5 } from 'crypto-js';
 import { ReactNode } from 'react';
 import { useBooleanState } from '../../hooks';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { usePopupMenu } from '../Menu';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   gravatarImage: {
     maxWidth: 24,
     maxHeight: 24,

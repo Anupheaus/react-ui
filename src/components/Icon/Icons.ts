@@ -1,7 +1,7 @@
 import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa';
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
-  FiEye, FiEyeOff, FiChevronDown, FiLock,
+  FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar,
 } from 'react-icons/fi';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
 import { IconType } from '../../theme';
@@ -33,6 +33,7 @@ export const LocalIconDefinitions = {
   'calendar-business': MdBusinessCenter,
   'calendar-sick': MdOutlineSick,
   'calendar-paternity': FaBaby,
+  'calendar': FiCalendar,
 } satisfies IconDefinitions;
 
 export type IconName = keyof typeof LocalIconDefinitions;

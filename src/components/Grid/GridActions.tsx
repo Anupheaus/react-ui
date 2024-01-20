@@ -1,14 +1,14 @@
 import { Popover, PopoverOrigin, PopoverProps } from '@mui/material';
 import { MutableRefObject, useMemo } from 'react';
 import { useBound } from '../../hooks';
-import { createStyles, ThemesProvider } from '../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../theme';
 import { Button, IconButtonTheme } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { GridTheme } from './GridTheme';
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { headers: { backgroundColor, textColor } } = useTheme(GridTheme);
   return {
     styles: {

@@ -1,8 +1,9 @@
 import { createMakeStyles, CSSObject } from 'tss-react';
 import { AnyObject, DeepPartial, is, MapOf } from '@anupheaus/common';
-import { useContext, useMemo } from 'react';
+import { CSSProperties, NamedExoticComponent, ReactNode, useContext, useMemo } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { DefaultTheme } from './themes';
+import { ThemeProvider } from './ThemeProvider2';
 
 type BaseTheme = typeof DefaultTheme;
 
@@ -11,14 +12,15 @@ type StylesType = MapOf<CSSObject>;
 type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () => {
   css: { [K in keyof TStyles]: string; };
   theme: TTheme;
-  alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme;
+  alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): NamedExoticComponent<{ children: ReactNode; }>;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   toPx(value: number | string | undefined): string | undefined;
+  useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties;
 };
 
 type CreateStylesType<TTheme extends BaseTheme> = <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme) => TStyles)) => UseStylesType<TTheme, TStyles>;
 
-export function createTheme2<TTheme extends BaseTheme>(theme: TTheme): CreateStylesType<TTheme> {
+function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
   return <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme) => TStyles)): UseStylesType<TTheme, TStyles> => {
     const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
     const useStylesInnerFunc = makeStyles<TTheme>({ name: 'react-ui' })((_ignore, providedTheme, classes) => {
@@ -33,14 +35,19 @@ export function createTheme2<TTheme extends BaseTheme>(theme: TTheme): CreateSty
     });
 
     return () => {
-      const { theme: currentTheme, isValid } = useContext(ThemeContext);
-      const themeInUse = (isValid ? currentTheme : theme) as TTheme;
+      const { theme, isValid } = useContext(ThemeContext);
+      const themeInUse = (isValid ? theme : DefaultTheme) as TTheme;
       const { classes: css, cx } = useStylesInnerFunc(themeInUse);
 
       return {
         css: css as { [K in keyof TStyles]: string; },
         theme: themeInUse,
-        alterTheme: (delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme => useMemo(() => Object.merge({}, themeInUse, delegate(themeInUse as TTheme)) as TTheme, [themeInUse]),
+        alterTheme: (delegate: (theme: TTheme) => DeepPartial<TTheme>): NamedExoticComponent<{ children: ReactNode; }> => useMemo(() => {
+          const alteredTheme = Object.merge({}, themeInUse, delegate(themeInUse as TTheme));
+          return ({ children }: { children: ReactNode; }) => (
+            <ThemeProvider theme={alteredTheme}>{children}</ThemeProvider>
+          );
+        }, [themeInUse]) as NamedExoticComponent<{ children: ReactNode; }>,
         join(...classNames: (string | boolean | undefined)[]): string | undefined {
           classNames = classNames.filter(is.not.empty);
           if (classNames.length <= 0) return;
@@ -51,9 +58,10 @@ export function createTheme2<TTheme extends BaseTheme>(theme: TTheme): CreateSty
           if (is.number(value)) return `${value}px`;
           if (is.string(value) && value.endsWith('px')) return value;
         },
+        useInlineStyle: (delegate: () => CSSObject, dependencies: unknown[] = []) => useMemo(delegate, dependencies) as CSSProperties,
       };
     };
   };
 }
 
-export const createStyles2 = createTheme2(DefaultTheme);
+export const createStyles = createTheme();

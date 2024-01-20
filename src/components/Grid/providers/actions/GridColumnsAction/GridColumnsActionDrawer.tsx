@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { UseActions, useBound, useDelegatedBound } from '../../../../../hooks';
 import { ReactListItem } from '../../../../../models';
-import { createStyles, ThemesProvider } from '../../../../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../../../../theme';
 import { Button, ButtonTheme } from '../../../../Button';
 import { Checkbox } from '../../../../Checkbox';
 import { createComponent } from '../../../../Component';
@@ -24,7 +24,7 @@ interface Props {
   onApply(): void;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { headers: { backgroundColor, textColor } } = useTheme(GridTheme);
   return {
     styles: {

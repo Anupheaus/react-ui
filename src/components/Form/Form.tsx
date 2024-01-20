@@ -1,11 +1,11 @@
 import { AnyObject, PromiseMaybe } from '@anupheaus/common';
 import { ReactNode, useContext, useLayoutEffect } from 'react';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { FormContext } from './FormContext';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   form: {
     margin: 0,
     marginBlock: 0,

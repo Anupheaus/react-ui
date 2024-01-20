@@ -1,4 +1,4 @@
-import { createStyles } from '../../../theme/createStyles';
+import { createLegacyStyles } from '../../../theme/createStyles';
 import { ComponentProps, useMemo } from 'react';
 import { createComponent } from '../../../components/Component';
 import type { Icon } from '../../../components/Icon';
@@ -10,7 +10,7 @@ interface Props extends Omit<ComponentProps<typeof Icon>, 'name'> {
   error: Error;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { iconColor } = useTheme(ErrorIconTheme);
   return {
     styles: {

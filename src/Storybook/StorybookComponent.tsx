@@ -1,4 +1,4 @@
-import { createStyles } from '../theme/createStyles';
+import { createLegacyStyles } from '../theme/createStyles';
 import { Typography } from '@mui/material';
 import { CSSProperties, ReactNode, useContext, useMemo } from 'react';
 import { createComponent } from '../components/Component';
@@ -13,7 +13,7 @@ interface Props {
   isVertical?: boolean;
   children?: ReactNode;
 }
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     storybookComponent: {
       display: 'flex',

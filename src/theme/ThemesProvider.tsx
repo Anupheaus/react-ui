@@ -2,10 +2,10 @@ import { ReactNode } from 'react';
 import { createComponent } from '../components/Component';
 import { RecordsProvider } from '../providers/RecordsProvider';
 import { ThemeRecordTypeId } from './InternalThemeModels';
-import type { Theme } from './themeModels';
+import type { LegacyTheme } from './themeModels';
 
 interface Props {
-  themes: Theme[];
+  themes: LegacyTheme[];
   children?: ReactNode;
 }
 

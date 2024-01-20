@@ -1,14 +1,14 @@
-import { FocusEvent, KeyboardEvent, MouseEvent, ReactElement, Ref } from 'react';
+import { FocusEvent, KeyboardEvent, MouseEvent, ReactElement, ReactNode, Ref } from 'react';
 import { createComponent } from '../Component';
 import { useBinder } from '../../hooks';
-import { InternalField, InternalFieldProps } from '../InternalField';
+import { Field, FieldProps } from '../Field';
 import { useInputStyles } from './InputStyles';
 
-export interface InternalTextProps<TValue = unknown> extends InternalFieldProps {
+export interface InternalTextProps<TValue = unknown> extends FieldProps {
   value?: TValue;
   ref?: Ref<HTMLInputElement>;
   initialFocus?: boolean;
-  endAdornments?: ReactElement[];
+  endAdornments?: ReactNode;
   onChange?(value: TValue): void;
   onFocus?(event: FocusEvent<HTMLInputElement>): void;
   onClick?(event: MouseEvent<HTMLInputElement>): void;
@@ -44,7 +44,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   const bind = useBinder();
 
   return (
-    <InternalField {...props} tagName={tagName}>
+    <Field {...props} tagName={tagName}>
       <input
         ref={innerRef}
         type={type}
@@ -58,6 +58,6 @@ export const InternalText = createComponent('InternalText', function <T = unknow
         onKeyUp={onKeyUp}
         autoFocus={initialFocus}
       />
-    </InternalField>
+    </Field>
   );
 });

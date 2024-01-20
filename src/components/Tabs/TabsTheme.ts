@@ -5,20 +5,18 @@ export const TabsTheme = createTheme({
   id: 'TabsTheme',
 
   definition: {
-    backgroundColor: DefaultTheme.action.default.backgroundColor,
+    ...DefaultTheme.action.normal,
     hightlightColor: Color('white').alpha(0.2).hexa(),
     highlightHeight: 2,
 
     activeTab: {
-      backgroundColor: DefaultTheme.action.active.backgroundColor,
-      textColor: DefaultTheme.action.active.color,
+      ...DefaultTheme.action.active,
       highlightHeight: 3,
       highlightColor: Color('white').alpha(0.8).hexa(),
     },
 
     inactiveTab: {
-      backgroundColor: DefaultTheme.action.default.backgroundColor,
-      textColor: DefaultTheme.action.default.color,
+      ...DefaultTheme.action.normal,
       highlightHeight: 3,
       highlightColor: Color('white').alpha(0.4).hexa(),
     },

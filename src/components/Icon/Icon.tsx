@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
 import type { IconType } from '../../theme';
@@ -19,7 +19,7 @@ interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   onClick?(): void;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { opacity } = useTheme(IconTheme);
   return {
     styles: {

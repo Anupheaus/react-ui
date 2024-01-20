@@ -1,7 +1,7 @@
 import { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks';
 import { ReactListItem } from '../../models';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
@@ -14,7 +14,7 @@ import { Password } from '../Password';
 import { PIN } from '../PIN';
 import { SignInCredentials, SignInCredentialType } from './SignInDialogModels';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   errorLabel: {
     textAlign: 'center',
   },

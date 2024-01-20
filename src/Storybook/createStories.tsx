@@ -8,7 +8,7 @@ import { Typography } from '@mui/material';
 import { TestHookOnRenderProps } from './StorybookModels';
 import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 import { createComponent } from '../components/Component';
-import { createStyles } from '../theme';
+import { createLegacyStyles } from '../theme';
 
 const localModule = global.module as undefined | (NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; });
 if (localModule?.hot) {
@@ -144,7 +144,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
       walkThroughTheStories(path.concat(key), value, module);
     }
     if (InternalComponent != null) {
-      const useStyles = createStyles(() => ({
+      const useStyles = createLegacyStyles(() => ({
         styles: {
           stories: {
             display: 'flex',

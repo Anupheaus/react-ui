@@ -4,9 +4,7 @@ export const ListTheme = createTheme({
   id: 'ListTheme',
 
   definition: {
-    backgroundColor: DefaultTheme.surface.asAContainer.backgroundColor,
-    borderColor: DefaultTheme.surface.asAContainer.borderColor,
-    borderRadius: DefaultTheme.field.default.borderRadius,
+    ...DefaultTheme.field.value.normal,
     padding: 8 as string | number,
   },
 });

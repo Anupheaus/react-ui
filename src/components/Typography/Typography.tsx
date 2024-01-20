@@ -1,12 +1,12 @@
 import { CSSProperties, ReactNode, useMemo } from 'react';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Function } from 'ts-toolbelt';
 import { LocalTypographicDefinitions, TypographyTypes } from './Typographies';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   typography: {
     fontSize: 14,
     fontWeight: 400,
@@ -28,7 +28,7 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
   weight?: number | string;
   name?: string;
   spacing?: number | string;
-  shadow?: string | boolean;
+  shadow?: string | number | boolean;
   color?: string;
   opacity?: number;
   fullWidth?: boolean;
@@ -64,7 +64,10 @@ const TypographyComponent = createComponent('Typography', ({
     textTransform: typeStyle?.transform ?? 'none',
     color: color ?? typeStyle?.color,
     letterSpacing: spacing ?? typeStyle?.spacing,
-    textShadow: ((result: string | boolean | undefined) => typeof (result) === 'boolean' ? (result === true ? '0 0 2px rgba(0, 0, 0, 0.5)' : undefined) : result)(shadow ?? typeStyle?.shadow),
+    textShadow: ((result: string | boolean | number | undefined) =>
+      typeof (result) === 'boolean' ? (result === true ? '0 0 2px rgba(0 0 0 / 50%)' : undefined)
+        : typeof (result) === 'number' ? `0 0 ${result}px rgba(0 0 0 / 50%)`
+          : result)(shadow ?? typeStyle?.shadow),
     textAlign: align,
     opacity: opacity ?? typeStyle?.opacity,
     ...providedStyle,

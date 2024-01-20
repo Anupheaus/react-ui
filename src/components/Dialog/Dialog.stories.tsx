@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Dialog as DialogType } from './Dialog';
-import { createStyles2 } from '../../theme';
+import { createStyles } from '../../theme';
 import { useBinder, useBound } from '../../hooks';
 import { useDialog } from './useDialog';
 import { Flex } from '../Flex';
@@ -15,7 +15,7 @@ export default meta;
 
 type Story = StoryObj<typeof DialogType>;
 
-const useStyles = createStyles2({
+const useStyles = createStyles({
   background: {
     position: 'absolute',
     inset: 0,

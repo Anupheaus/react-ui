@@ -6,7 +6,7 @@ export interface TypographyType {
   name?: string;
   opacity?: number;
   spacing?: number | string;
-  shadow?: string | boolean;
+  shadow?: string | number | boolean;
 }
 
 export interface TypographyTypes {

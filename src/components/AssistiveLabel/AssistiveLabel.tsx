@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { useFormValidation } from '../Form';
 import { Tag } from '../Tag';
@@ -11,7 +11,7 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { errorTextColor, fontSize, fontWeight } = useTheme(AssistiveLabelTheme);
   return {
     styles: {

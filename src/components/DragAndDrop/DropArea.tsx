@@ -1,7 +1,7 @@
 import { Record } from '@anupheaus/common';
 import { ReactNode, useRef, useState } from 'react';
 import { useBinder } from '../../hooks';
-import { createStyles, TransitionTheme } from '../../theme';
+import { createLegacyStyles, TransitionTheme } from '../../theme';
 import { ComponentStylesConfig, createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
@@ -20,7 +20,7 @@ interface Props<T extends Record = Record> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { validOverlayColor, invalidOverlayColor } = useTheme(DragAndDropTheme);
   const transitionSettings = useTheme(TransitionTheme);
   return {

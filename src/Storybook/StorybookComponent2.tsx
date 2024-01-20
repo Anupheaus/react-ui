@@ -1,9 +1,9 @@
 import { createComponent } from '../components/Component';
-import { createStyles2 } from '../theme/createTheme2';
+import { createStyles } from '../theme/createStyles2';
 import { CSSProperties, ReactNode, useMemo } from 'react';
 import { Tag } from '../components/Tag';
 
-const useStyles = createStyles2({
+const useStyles = createStyles({
   component: {
     display: 'inline-flex',
     position: 'relative',

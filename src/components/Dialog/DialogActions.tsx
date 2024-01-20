@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -6,7 +6,7 @@ import { Flex } from '../Flex';
 interface Props {
   children?: ReactNode;
 }
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     dialogActions: {
       //padding: '0px 14px',

@@ -1,9 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { AnimatingBorder } from './AnimatingBorder';
 import { StorybookComponent2 } from '../../Storybook';
-import { createStyles2 } from '../../theme';
+import { createStyles } from '../../theme';
 
-const useStyles = createStyles2({
+const useStyles = createStyles({
   animatingBorder: {
     width: 200,
     height: 50,

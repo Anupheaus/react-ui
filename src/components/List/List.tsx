@@ -1,7 +1,7 @@
 import { Fragment, ReactNode, useMemo, useState } from 'react';
 import { useBound } from '../../hooks';
 import { ReactListItem } from '../../models';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { DraggedItem, DropArea, MouseMoveEvent } from '../DragAndDrop';
 import { Label } from '../Label';
@@ -20,7 +20,7 @@ interface Props<T extends ReactListItem = ReactListItem> {
   onChange?(items: T[]): void;
 }
 
-const useStyles = createStyles(({ useTheme }, { borderless = false, gap = 0 }: Props) => {
+const useStyles = createLegacyStyles(({ useTheme }, { borderless = false, gap = 0 }: Props) => {
   const { borderColor, borderRadius, padding, backgroundColor } = useTheme(ListTheme);
   return {
     styles: {

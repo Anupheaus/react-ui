@@ -1,6 +1,6 @@
 import { CSSProperties, useMemo } from 'react';
 import { createComponent } from '../../Component';
-import { createStyles, colors } from '../../../theme';
+import { createLegacyStyles, colors } from '../../../theme';
 import { Icon } from '../../Icon';
 import { Tag } from '../../Tag';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
@@ -17,7 +17,7 @@ interface Props {
   dayIndex: number;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { monthViewEventFontSize, monthViewEventFontWeight } = useTheme(CalendarTheme);
   return {
     styles: {

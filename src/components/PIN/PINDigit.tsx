@@ -3,82 +3,76 @@ import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { useRipple } from '../Ripple';
-import { createStyles } from '../../theme/createStyles';
 import { is } from '@anupheaus/common';
 import { useUIState } from '../../providers';
 import { Skeleton } from '../Skeleton';
-import { PINTheme } from './PINTheme';
+import { createStyles } from '../../theme';
 
-const useStyles = createStyles(({ useTheme, activePseudoClasses }) => {
-  const { default: defaultField, active: activeField, disabled: disabledField } = useTheme(PINTheme);
-  return {
-    styles: {
-      digit: {
-        minWidth: 28,
-        maxWidth: 28,
-        minHeight: 28,
-        maxHeight: 28,
-        ...defaultField,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        overflow: 'hidden',
+const useStyles = createStyles(({ field: { value: { normal, active, disabled } }, activePseudoClasses }) => ({
+  digit: {
+    minWidth: 28,
+    maxWidth: 28,
+    minHeight: 28,
+    maxHeight: 28,
+    ...normal,
+    borderWidth: 1,
+    borderStyle: 'solid',
+    overflow: 'hidden',
 
-        [activePseudoClasses]: {
-          ...activeField,
-        },
-
-        '&.is-read-only': {
-          ...disabledField,
-        },
-
-        '&.is-loading': {
-          borderColor: 'transparent',
-        },
-      },
-      digitValue: {
-        width: 40,
-        height: 40,
-        opacity: 0,
-        textAlign: 'center',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transitionProperty: 'opacity, width, height',
-        transitionDuration: '0.4s',
-        transitionTimingFunction: 'ease-out',
-
-        '&.is-censored': {
-          backgroundColor: defaultField.borderColor,
-          borderRadius: '50%',
-        },
-
-        '&.has-value': {
-          '&.is-censored': {
-            width: 12,
-            height: 12,
-          },
-          opacity: 1,
-        },
-      },
-      input: {
-        position: 'absolute',
-        inset: 0,
-        border: 0,
-        appearance: 'none',
-        backgroundColor: 'transparent',
-        textAlign: 'center',
-        outline: 'none',
-
-        '&.is-read-only': {
-
-        },
-
-        '&.has-value-and-not-censored': {
-          paddingLeft: 10,
-        },
-      },
+    [activePseudoClasses]: {
+      ...active,
     },
-  };
-});
+
+    '&.is-read-only': {
+      ...disabled,
+    },
+
+    '&.is-loading': {
+      borderColor: 'transparent',
+    },
+  },
+  digitValue: {
+    width: 40,
+    height: 40,
+    opacity: 0,
+    textAlign: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transitionProperty: 'opacity, width, height',
+    transitionDuration: '0.4s',
+    transitionTimingFunction: 'ease-out',
+
+    '&.is-censored': {
+      backgroundColor: normal.borderColor,
+      borderRadius: '50%',
+    },
+
+    '&.has-value': {
+      '&.is-censored': {
+        width: 12,
+        height: 12,
+      },
+      opacity: 1,
+    },
+  },
+  input: {
+    position: 'absolute',
+    inset: 0,
+    border: 0,
+    appearance: 'none',
+    backgroundColor: 'transparent',
+    textAlign: 'center',
+    outline: 'none',
+
+    '&.is-read-only': {
+
+    },
+
+    '&.has-value-and-not-censored': {
+      paddingLeft: 10,
+    },
+  },
+}));
 
 const ignoreOnChange = () => void 0;
 

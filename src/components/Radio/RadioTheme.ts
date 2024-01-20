@@ -5,7 +5,7 @@ export const RadioTheme = createTheme({
   definition: {
     default: {
       backgroundColor: 'transparent',
-      borderColor: DefaultTheme.action.default.backgroundColor,
+      ...DefaultTheme.action.normal,
     },
     toggled: {
       backgroundColor: DefaultTheme.action.active.backgroundColor,

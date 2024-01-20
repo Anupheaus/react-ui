@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Tooltip, TooltipTheme } from '../../../components/Tooltip';
 import { createComponent } from '../../../components/Component';
-import { createStyles, ThemesProvider } from '../../../theme';
+import { createLegacyStyles, ThemesProvider } from '../../../theme';
 import { ErrorTooltipTheme } from './ErrorTooltipTheme';
 import { Flex } from '../../../components/Flex';
 import { Error } from '@anupheaus/common';
@@ -11,7 +11,7 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { backgroundColor, textColor, messageFontSize, messageFontWeight, titleFontSize, titleFontWeight } = useTheme(ErrorTooltipTheme);
   return {
     styles: {

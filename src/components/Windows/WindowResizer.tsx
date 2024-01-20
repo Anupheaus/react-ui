@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { to } from '@anupheaus/common';
 import { RefObject, useRef } from 'react';
 import { useBound } from '../../hooks';
@@ -12,7 +12,7 @@ interface Props {
   onResizingStart(): void;
   onResizingEnd(): void;
 }
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     windowResizer: {
       position: 'absolute',

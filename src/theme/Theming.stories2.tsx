@@ -1,4 +1,4 @@
-import { createStyles } from './createStyles';
+import { createLegacyStyles } from './createStyles';
 import { ThemesProvider } from '..';
 import { createComponent } from '../components/Component';
 import { createStories, StorybookComponent } from '../Storybook';
@@ -26,7 +26,7 @@ const HigherComponentTheme = createTheme({
   },
 });
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { backgroundColor, textColor, height, width } = useTheme(ComponentTheme);
   return {
     styles: {
@@ -55,7 +55,7 @@ const Component = createComponent('Component', ({
   );
 });
 
-const useHigherStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useHigherStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { backgroundColor, color } = useTheme(HigherComponentTheme);
   return {
     variants: {

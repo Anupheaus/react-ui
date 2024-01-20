@@ -4,9 +4,7 @@ export const DraggableListItemTheme = createTheme({
   id: 'DraggableListItem',
 
   definition: {
-    backgroundColor: DefaultTheme.field.default.backgroundColor,
-    borderColor: DefaultTheme.field.default.borderColor,
-    borderRadius: DefaultTheme.field.default.borderRadius,
+    ...DefaultTheme.field.value.normal,
     padding: '4px 8px',
   },
 });

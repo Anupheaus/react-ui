@@ -3,9 +3,9 @@ import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { PINDigit } from './PINDigit';
 import { useDelegatedBound } from '../../hooks';
-import { InternalField, InternalFieldProps } from '../InternalField';
+import { Field, FieldProps } from '../Field';
 
-interface Props extends InternalFieldProps {
+interface Props extends FieldProps {
   className?: string;
   label?: ReactNode;
   isOptional?: boolean;
@@ -68,10 +68,10 @@ export const PIN = createComponent('PIN', ({
   )), [length, value]);
 
   return (
-    <InternalField {...props} tagName="pin" noContainer>
+    <Field {...props} tagName="pin" noContainer>
       <Flex tagName='digits-container' gap={8}>
         {digits}
       </Flex>
-    </InternalField>
+    </Field>
   );
 });

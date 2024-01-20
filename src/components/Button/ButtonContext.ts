@@ -1,5 +1,9 @@
 import { createContext } from 'react';
 
-export const ButtonContexts = {
-  buttonGroup: createContext<{}>({}),
-};
+export interface ButtonContextProps {
+
+}
+
+export const ButtonContext = createContext<ButtonContextProps>({
+
+});

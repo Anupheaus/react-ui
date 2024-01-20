@@ -4,11 +4,11 @@ import { useUpdatableState } from '../../hooks';
 import { Flex } from '../Flex';
 import { Menu } from './Menu';
 import { MenuItem } from './MenuItem';
-import { createStyles2 } from '../../theme';
+import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { usePopupMenu } from './usePopupMenu';
 
-const useStyles = createStyles2({
+const useStyles = createStyles({
   farSideMenu: {
     position: 'absolute',
     right: 0,

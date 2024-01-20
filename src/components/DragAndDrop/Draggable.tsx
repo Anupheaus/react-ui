@@ -2,7 +2,7 @@ import { IDimensions, Record } from '@anupheaus/common';
 import { CSSProperties, Fragment, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useBound, useDOMRef, useDrag, UseDragEvent } from '../../hooks';
-import { createStyles, TransitionTheme } from '../../theme';
+import { createLegacyStyles, TransitionTheme } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
@@ -18,7 +18,7 @@ interface Props {
   onDraggingClonedClassName?: string;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const transitionSettings = useTheme(TransitionTheme);
   return {
     styles: {

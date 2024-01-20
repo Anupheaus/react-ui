@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { to } from '@anupheaus/common';
 import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
@@ -10,7 +10,7 @@ const formatMaxWidthOrHeight = (maxDimension: number | string | boolean | undefi
   return maxDimension;
 };
 
-const useStyles = createStyles(() => ({
+const useStyles = createLegacyStyles(() => ({
   styles: {
     flex: {
       position: 'relative',

@@ -1,17 +1,20 @@
 import { ReactNode, useLayoutEffect, useState } from 'react';
 import { useId } from '../../hooks';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { Windows, WindowsManager, WindowState } from '../Windows';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   dialogsManager: {
     position: 'relative',
     display: 'flex',
     flex: 'auto',
     width: '100%',
     height: '100%',
+    maxHeight: '100%',
+    maxWidth: '100%',
+
     '&>*:not(windows)': {
       transitionProperty: 'filter',
       transitionDuration: '400ms',

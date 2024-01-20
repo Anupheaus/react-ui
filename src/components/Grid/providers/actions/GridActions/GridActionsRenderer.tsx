@@ -1,7 +1,7 @@
 import { AnyObject } from '@anupheaus/common';
 import { Fragment, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useBound, useOnResize } from '../../../../../hooks';
-import { createStyles, ThemesProvider, TransitionTheme } from '../../../../../theme';
+import { createLegacyStyles, ThemesProvider, TransitionTheme } from '../../../../../theme';
 import { IconButtonTheme } from '../../../../Button';
 import { createComponent } from '../../../../Component';
 import { Tag } from '../../../../Tag';
@@ -12,7 +12,7 @@ interface Props {
   isVisible: boolean;
 }
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { headers: { backgroundColor }, borders: { radius: borderRadius } } = useTheme(GridTheme);
   const transitionSettings = useTheme(TransitionTheme);
   return {

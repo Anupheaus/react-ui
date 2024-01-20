@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { Children, ComponentProps, Fragment, ReactElement, ReactNode, useContext, useMemo } from 'react';
 import { Tooltip as MuiTooltip } from '@mui/material';
 import { createComponent } from '../Component';
@@ -8,7 +8,7 @@ import { blankTooltipContext, TooltipContext } from './TooltipContext';
 interface Props {
   children: ReactNode;
 }
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { backgroundColor, fontSize, fontWeight, textColor } = useTheme(TooltipTheme);
   return {
     styles: {

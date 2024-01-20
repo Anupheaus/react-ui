@@ -2,7 +2,7 @@ import { is } from '@anupheaus/common';
 import { isValidElement, Component, ReactElement, RefObject } from 'react';
 import type { Component as AnuxComponent } from '../components/Component';
 import { ComponentSymbol } from '../components/Component/ComponentModels';
-import type { Theme } from '../theme/themeModels';
+import type { LegacyTheme } from '../theme/themeModels';
 
 declare module '@anupheaus/common' {
   export interface Is {
@@ -10,8 +10,8 @@ declare module '@anupheaus/common' {
     reactComponent(value: unknown): value is Component;
     reactRef<T = any>(value: unknown): value is RefObject<T>;
     anuxComponent<T extends AnuxComponent>(value: T | unknown): value is T;
-    theme<TTheme extends Theme>(value: TTheme | unknown): value is TTheme;
-    theme(value: unknown): value is Theme;
+    theme<TTheme extends LegacyTheme>(value: TTheme | unknown): value is TTheme;
+    theme(value: unknown): value is LegacyTheme;
   }
 }
 
@@ -22,5 +22,5 @@ function isObjectRef<T = any>(value: unknown): value is RefObject<T> {
 is.reactElement = isValidElement;
 is.reactRef = isObjectRef;
 is.reactComponent = (value): value is Component => value instanceof Component;
-is.theme = (value: unknown): value is Theme => is.plainObject<Theme>(value) && is.not.empty(value.id) && is.plainObject(value.definition) && is.function(value.createVariant);
+is.theme = (value: unknown): value is LegacyTheme => is.plainObject<LegacyTheme>(value) && is.not.empty(value.id) && is.plainObject(value.definition) && is.function(value.createVariant);
 is.anuxComponent = <T extends AnuxComponent>(value: T | unknown): value is T => is.reactComponent(value) && is.function(value) && (value as any)[ComponentSymbol] === true;

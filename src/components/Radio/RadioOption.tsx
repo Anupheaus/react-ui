@@ -3,7 +3,7 @@ import { KeyboardEvent } from 'react';
 import { DistributedState, useBound, useDistributedState } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { useUIState } from '../../providers';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
@@ -13,7 +13,7 @@ import { Tag } from '../Tag';
 import { Typography } from '../Typography';
 import { RadioTheme } from './RadioTheme';
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { default: { borderColor } } = useTheme(RadioTheme);
   return {
     styles: {

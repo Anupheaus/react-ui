@@ -1,6 +1,7 @@
 import '../../extensions/is';
 import { Error, is } from '@anupheaus/common';
-import { forwardRef, FunctionComponent, isValidElement, memo, Ref } from 'react';
+import { forwardRef, FunctionComponent, isValidElement, memo, NamedExoticComponent, ReactNode, Ref } from 'react';
+import { createComponentOverrides } from './createComponentOverrides';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
@@ -33,25 +34,35 @@ function setName(func: FunctionComponent<{}>, name: string) {
   func.displayName = name;
 }
 
+export type ReactUIComponent<TFunc extends (props: any) => JSX.Element | null> = TFunc & {
+  Overrides: NamedExoticComponent<Partial<Parameters<TFunc>[0]> & { children: ReactNode; }>;
+};
+
 export function createComponent<TFunc extends (props: any) => JSX.Element | null>(name: string, render: TFunc, {
-  disableMemoisation = true, onCompareProps = defaultCompareProps, onError }: Config<TFunc> = {}): TFunc {
+  disableMemoisation = true, onCompareProps = defaultCompareProps, onError }: Config<TFunc> = {}): ReactUIComponent<TFunc> {
+
+  const { Overrides, overrideProps } = createComponentOverrides();
+
   let componentFunc = forwardRef<any, any>((props: {}, providedRef: Ref<HTMLElement>) => {
     const ref = is.function(providedRef) || is.reactRef(providedRef) ? providedRef : undefined;
-    const fullProps = { ...props, ref };
+    const fullProps = overrideProps({ ...props, ref });
     try {
       return render(fullProps);
     } catch (error) {
       if (onError != null) return onError(new Error({ error }), fullProps);
       throw error;
     }
-  }) as unknown as TFunc;
+  }) as unknown as ReactUIComponent<TFunc>;
+
   setName(componentFunc, name);
   if (!disableMemoisation) {
     setName(componentFunc, `${name} (forwardRef)`);
-    componentFunc = memo(componentFunc, onCompareProps) as unknown as TFunc;
+    componentFunc = memo(componentFunc, onCompareProps) as unknown as ReactUIComponent<TFunc>;
     setName(componentFunc, `${name} (memo)`);
   }
-  return componentFunc as unknown as TFunc;
+
+  componentFunc.Overrides = Overrides;
+  return componentFunc;
 }
 
 // interface MyComponentProps<T> {

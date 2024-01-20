@@ -1,7 +1,7 @@
 import { AnyObject } from '@anupheaus/common';
 import { CSSProperties, useMemo, useState } from 'react';
 import { useUIState } from '../../providers';
-import { createStyles, TransitionTheme } from '../../theme';
+import { createLegacyStyles, TransitionTheme } from '../../theme';
 import { createComponent } from '../Component';
 import { Scroller } from '../Scroller';
 import { Tag } from '../Tag';
@@ -19,7 +19,7 @@ interface Props {
   isActionsVisible: boolean;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { borders: { radius: borderRadius }, headers: { backgroundColor } } = useTheme(GridTheme);
   const transitionSettings = useTheme(TransitionTheme);
 

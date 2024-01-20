@@ -1,4 +1,4 @@
-import { createStyles } from '../../../theme/createStyles';
+import { createLegacyStyles } from '../../../theme/createStyles';
 import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
@@ -16,7 +16,7 @@ interface Props {
   entries: CalendarMonthEntryRecord[];
   dehighlightDate: boolean;
 }
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { monthViewCellDateFontSize, monthViewCellDateFontWeight, monthViewTodayBackgroundColor } = useTheme(CalendarTheme);
   return {
     styles: {

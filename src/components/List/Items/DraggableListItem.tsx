@@ -1,6 +1,6 @@
 import { Record } from '@anupheaus/common';
 import { ReactNode } from 'react';
-import { createStyles, TransitionTheme } from '../../../theme';
+import { createLegacyStyles, TransitionTheme } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Draggable } from '../../DragAndDrop/Draggable';
 import { DraggableListItemTheme } from './DraggableListItemTheme';
@@ -10,7 +10,7 @@ interface Props {
   children: ReactNode;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { borderColor, backgroundColor, borderRadius, padding } = useTheme(DraggableListItemTheme);
   const transitionSettings = useTheme(TransitionTheme);
 

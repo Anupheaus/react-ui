@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -10,7 +10,7 @@ interface Props {
   isLastRow?: boolean;
   children: ReactNode;
 }
-const useStyles = createStyles(({ useTheme }, { isLastRow = false }: Props) => {
+const useStyles = createLegacyStyles(({ useTheme }, { isLastRow = false }: Props) => {
   const { borders: { color: borderColor }, rows: { fontSize } } = useTheme(GridTheme);
   return {
     styles: {

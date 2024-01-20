@@ -1,4 +1,4 @@
-import { createStyles } from '../../theme/createStyles';
+import { createLegacyStyles } from '../../theme/createStyles';
 import { useContext, useLayoutEffect } from 'react';
 import { useOnResize } from '../../hooks';
 import { createComponent } from '../Component';
@@ -13,7 +13,7 @@ interface Props {
   columnIndex: number;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { headers: { backgroundColor, textColor: color, fontSize } } = useTheme(GridTheme);
 
   return {

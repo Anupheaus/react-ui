@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { useDistributedState } from '../../hooks';
 import { ReactListItem } from '../../models';
-import { createStyles } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { InternalField, InternalFieldProps } from '../InternalField';
+import { Field, FieldProps } from '../Field';
 import { RadioOption } from './RadioOption';
 
-const useStyles = createStyles({
+const useStyles = createLegacyStyles({
   radioGroupOptions: {
     padding: 4,
     margin: -4,
@@ -17,7 +17,7 @@ const useStyles = createStyles({
   },
 });
 
-interface Props extends InternalFieldProps {
+interface Props extends FieldProps {
   isHorizontal?: boolean;
   value?: string;
   values?: ReactListItem[];
@@ -43,10 +43,10 @@ export const Radio = createComponent('Radio', ({
   });
 
   return (
-    <InternalField tagName="radio-group" {...props} noContainer>
+    <Field tagName="radio-group" {...props} noContainer>
       <Flex tagName="radio-group-options" isVertical={!isHorizontal} align={'left'} disableGrow gap={isHorizontal ? 16 : 8} className={css.radioGroupOptions}>
         {renderedOptions}
       </Flex>
-    </InternalField>
+    </Field>
   );
 });

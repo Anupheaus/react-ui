@@ -4,7 +4,7 @@ import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { RippleConfig, RippleState } from './RippleModels';
 import { DistributedState, useDistributedState } from '../../hooks';
-import { createStyles, createAnimationKeyFrame } from '../../theme';
+import { createLegacyStyles, createAnimationKeyFrame } from '../../theme';
 import { RippleTheme } from './RippleTheme';
 
 function getMarginFrom(element: HTMLElement) {
@@ -48,7 +48,7 @@ interface Props extends RippleProps {
   rippleConfig: DistributedState<RippleConfig>;
 }
 
-const useStyles = createStyles(({ useTheme }) => {
+const useStyles = createLegacyStyles(({ useTheme }) => {
   const { color } = useTheme(RippleTheme);
   return {
     styles: {

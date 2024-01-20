@@ -9,4 +9,4 @@ export * from './themes';
 export * from './useThemeMixer';
 export * from './createStyles';
 export * from './ThemeProvider2';
-export * from './createTheme2';
+export * from './createStyles2';

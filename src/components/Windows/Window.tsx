@@ -2,19 +2,19 @@ import { is, PromiseMaybe } from '@anupheaus/common';
 import { CSSProperties, MouseEvent, ReactNode, TransitionEvent, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer/polyfilled';
 import { useBatchUpdates, useBound, useDOMRef, useForceUpdate, useId } from '../../hooks';
-import { createStyles, ThemesProvider } from '../../theme';
+import { createLegacyStyles } from '../../theme';
 import { Button, IconButtonTheme } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
-import { Tag } from '../Tag';
 import { useWindowDrag } from './useWindowDrag';
 import { WindowResizer } from './WindowResizer';
 import { WindowIdContext, WindowsManagerContext, WindowsManagerIdContext } from './WindowsContexts';
 import { InitialWindowPosition, WindowState } from './WindowsModels';
 import { WindowTheme } from './WindowTheme';
+import { Titlebar } from '../Titlebar';
 
-const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, minHeight }: Props) => {
+const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }, { minWidth, minHeight }: Props) => {
   const { backgroundColor, textColor, fontSize, titleBar } = useTheme(WindowTheme);
   return {
     styles: {
@@ -36,16 +36,6 @@ const useStyles = createStyles(({ useTheme, createThemeVariant }, { minWidth, mi
         minHeight: minHeight ?? 100,
         userSelect: 'none',
         filter: 'blur(0px)',
-      },
-      titleBar: {
-        backgroundColor: titleBar.backgroundColor,
-        color: titleBar.textColor,
-        fontSize: titleBar.fontSize,
-        padding: '8px 8px 8px 16px',
-        minHeight: 40,
-        boxSizing: 'border-box',
-        boxShadow: '0 0 8px 0 rgb(0 0 0 / 30%)',
-        zIndex: 2,
       },
       isDraggableTitleBar: {
         cursor: 'grab',
@@ -147,7 +137,7 @@ export const Window = createComponent('Window', ({
   const managerId = useContext(WindowsManagerIdContext);
   if (managerId == null) throw new Error('Window must be rendered within a WindowsManager component.');
   const windowId = useContext(WindowIdContext);
-  const { css, variants, join } = useStyles();
+  const { css, join } = useStyles();
   const generatedId = useId();
   const id = providedId ?? generatedId;
   const closingRef = useRef<() => void>();
@@ -307,7 +297,7 @@ export const Window = createComponent('Window', ({
     });
   });
 
-  const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
+  // const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
 
   useEffect(() => setHasRendered(true), []);
 
@@ -330,29 +320,21 @@ export const Window = createComponent('Window', ({
       onTransitionEnd={handleTransitionEnd}
       onMouseDown={handleMouseDown}
     >
-      <Flex
+      <Titlebar
         {...dragTargetProps}
-        tagName="window-title-bar"
-        fixedSize
-        className={join(css.titleBar, isDraggable && css.isDraggableTitleBar, isDragging && css.isDraggingTitleBar)}
-        gap={8}
-        valign="center"
-      >
-        {icon}
-        <Tag name="window-title" className={css.title}>{title}</Tag>
-        <Flex tagName="window-controls" fixedSize gap={4} onMouseDown={stopPropagation}>
-          <ThemesProvider themes={join(variants.windowControlIconButton)}>
-            {windowControls}
-            {!hideMaximizeButton && !isMaximized && <Button onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
-            {!hideMaximizeButton && isMaximized && <Button size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
-            {!hideCloseButton && <Button size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
-          </ThemesProvider>
-        </Flex>
-      </Flex>
+        icon={icon}
+        title={title}
+        endAdornment={<>
+          {windowControls}
+          {!hideMaximizeButton && !isMaximized && <Button onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
+          {!hideMaximizeButton && isMaximized && <Button size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
+          {!hideCloseButton && <Button size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
+        </>}
+      />
       <Flex tagName="window-content" className={join(css.content, contentClassName)} disableOverflow>
         {children}
       </Flex>
       <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
-    </Flex>
+    </Flex >
   );
 });

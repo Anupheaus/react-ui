@@ -21,10 +21,11 @@
   ],
   "typings": "dist/index",
   "dependencies": {
-    "@anupheaus/common": "^0.0.25",
+    "@anupheaus/common": "^0.0.26",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.14.18",
+    "@mui/material": "^5.15.4",
+    "@mui/x-date-pickers": "^6.19.0",
     "react-google-recaptcha-enterprise": "^1.0.3",
     "react-async-script": "^1.2.0",
     "color": "^4.2.3",

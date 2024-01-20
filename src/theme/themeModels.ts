@@ -20,9 +20,9 @@ export interface ThemeConfig<D extends ThemeDefinition, I extends ThemeIcons> {
   icons?: I;
 }
 
-export type Theme<D extends ThemeDefinition = ThemeDefinition, I extends ThemeIcons = ThemeIcons> = ThemeConfig<D, I> & {
-  createVariant(variant: DeepPartial<ThemeConfig<D, I>>): Theme<D, I>;
+export type LegacyTheme<D extends ThemeDefinition = ThemeDefinition, I extends ThemeIcons = ThemeIcons> = ThemeConfig<D, I> & {
+  createVariant(variant: DeepPartial<ThemeConfig<D, I>>): LegacyTheme<D, I>;
 };
 
-export type GetThemeDefinition<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<infer D, ThemeIcons> ? D : never;
-export type GetThemeIcons<T extends Theme<ThemeDefinition, ThemeIcons>> = T extends Theme<ThemeDefinition, infer I> ? I : never;
+export type GetThemeDefinition<T extends LegacyTheme<ThemeDefinition, ThemeIcons>> = T extends LegacyTheme<infer D, ThemeIcons> ? D : never;
+export type GetThemeIcons<T extends LegacyTheme<ThemeDefinition, ThemeIcons>> = T extends LegacyTheme<ThemeDefinition, infer I> ? I : never;
