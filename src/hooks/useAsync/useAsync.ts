@@ -11,7 +11,7 @@ export interface UseAsyncState {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AsyncDelegate<ResultType = any> = (state: UseAsyncState, ...args: any[]) => PromiseMaybe<ResultType>;
+export type AsyncDelegate<ResultType = any> = ((...args: any[]) => PromiseMaybe<ResultType>) & ThisType<UseAsyncState>;
 
 // type GetParametersOfDelegate<T> = T extends (state: UseAsyncState, ...args: infer R) => unknown ? R : never;
 
@@ -86,7 +86,7 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
     };
 
     try {
-      const result = delegate(state, ...args);
+      const result = delegate.call(state, ...args);
       if (result instanceof Promise) {
         isLoadingRef.current = true;
         result.then(value => {
