@@ -1,6 +1,6 @@
 {
   "name": "@anupheaus/react-ui",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "main": "./dist/index.js",
   "repository": "https://github.com/Anupheaus/react-ui.git",
   "author": "Anupheaus",
