@@ -18,7 +18,7 @@ interface RegisterOutOfRenderPhaseProps {
 
 type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
-export function useCallbacks<T extends CallbackFunction = () => void>() {
+function internalUseCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useSet<T>();
 
   const register = (delegate: AddCallbackState<T>) => {
@@ -71,3 +71,9 @@ export function useCallbacks<T extends CallbackFunction = () => void>() {
 
   return { invoke, register, registerOutOfRenderPhaseOnly };
 }
+
+class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return internalUseCallbacks<T>(); } }
+
+export type UseCallbacks<T extends CallbackFunction> = ReturnType<UseCallbacksReturnType<T>['result']>;
+
+export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return internalUseCallbacks<T>(); }

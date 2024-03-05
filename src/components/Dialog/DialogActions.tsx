@@ -9,6 +9,7 @@ interface Props {
 const useStyles = createLegacyStyles(() => ({
   styles: {
     dialogActions: {
+      height: 'min-content',
       //padding: '0px 14px',
     },
   },
@@ -19,7 +20,7 @@ export const DialogActions = createComponent('DialogActions', ({
 }: Props) => {
   const { css } = useStyles();
   return (
-    <Flex tagName="dialog-actions" className={css.dialogActions} valign={'center'} align={'right'} gap={12}>
+    <Flex tagName="dialog-actions" className={css.dialogActions} valign={'center'} align={'right'} gap={12} disableGrow>
       {children}
     </Flex>
   );

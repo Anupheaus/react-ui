@@ -1,12 +1,13 @@
 import { AnyObject } from '@anupheaus/common';
 import { createContext } from 'react';
+import { Theme } from './themes';
 
 export interface ThemeContextProps {
-  theme: AnyObject;
+  theme: Theme;
   isValid: boolean;
 }
 
 export const ThemeContext = createContext<ThemeContextProps>({
-  theme: {},
+  theme: null as unknown as Theme,
   isValid: false,
 });

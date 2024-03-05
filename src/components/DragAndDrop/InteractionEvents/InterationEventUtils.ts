@@ -1,4 +1,5 @@
 import { AnyObject, is } from '@anupheaus/common';
+import '../../../extensions/HTMLElement';
 
 export function cloneEvent(event: MouseEvent, data: AnyObject | undefined, element: HTMLElement): MouseEvent {
   const definitionsMap = Reflect.getAllDefinitions(event);

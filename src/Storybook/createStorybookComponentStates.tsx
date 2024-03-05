@@ -1,7 +1,7 @@
 import { AnyObject } from '@anupheaus/common';
 import { StoryContext, StoryObj } from '@storybook/react';
 import { UIState } from '../providers';
-import { StorybookComponent2 } from './StorybookComponent2';
+import { StorybookComponent } from './StorybookComponent2';
 import { Flex } from '../components';
 import { ReactNode } from 'react';
 
@@ -27,11 +27,11 @@ interface GenerateStatesProps {
 
 function generateStates({ props, context, render, nameSuffix, width, height }: GenerateStatesProps) {
   return Object.entries(states).map(([name, state], index) => (
-    <StorybookComponent2 key={index} {...props} width={width} height={height} title={`${[name, nameSuffix].removeNull().join(' ')}`}>
+    <StorybookComponent key={index} {...props} width={width} height={height} title={`${[name, nameSuffix].removeNull().join(' ')}`}>
       <UIState {...state}>
         {render(props, context)}
       </UIState>
-    </StorybookComponent2>
+    </StorybookComponent>
   ));
 }
 

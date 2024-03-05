@@ -1,4 +1,3 @@
-import { createLegacyStyles } from '../../theme/createStyles';
 import { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
@@ -6,7 +5,7 @@ import { HelpInfo } from '../HelpInfo';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
-import { LabelTheme } from './LabelTheme';
+import { createStyles } from '../../theme';
 
 interface Props {
   className?: string;
@@ -15,46 +14,42 @@ interface Props {
   children?: ReactNode;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { fontSize, fontWeight } = useTheme(LabelTheme);
-  return {
-    styles: {
-      label: {
-        display: 'flex',
-        flex: 'none',
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        alignItems: 'center',
-      },
-      labelContent: {
-        display: 'flex',
-        flex: 'none',
-        gap: 4,
-        minHeight: 18,
-        cursor: 'default',
-        position: 'relative',
-      },
-      labelText: {
-        display: 'flex',
-        flex: 'none',
-        alignItems: 'center',
-      },
-      isClickable: {
-        cursor: 'pointer',
-      },
-      isOptional: {
-        fontSize: '0.8em',
-        alignSelf: 'flex-end',
-        margin: '0 0 1px 4px',
-        fontWeight: 400,
-      },
-      isOptionalSkeleton: {
-        maxHeight: 8,
-        alignSelf: 'flex-end',
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ fields: { label } }) => ({
+  label: {
+    display: 'flex',
+    flex: 'none',
+    fontSize: label.normal.textSize,
+    fontWeight: label.normal.textWeight,
+    color: label.normal.textColor,
+    alignItems: 'center',
+  },
+  labelContent: {
+    display: 'flex',
+    flex: 'none',
+    gap: 4,
+    minHeight: 18,
+    cursor: 'default',
+    position: 'relative',
+  },
+  labelText: {
+    display: 'flex',
+    flex: 'none',
+    alignItems: 'center',
+  },
+  isClickable: {
+    cursor: 'pointer',
+  },
+  isOptional: {
+    fontSize: '0.8em',
+    alignSelf: 'flex-end',
+    margin: '0 0 1px 4px',
+    fontWeight: 400,
+  },
+  isOptionalSkeleton: {
+    maxHeight: 8,
+    alignSelf: 'flex-end',
+  },
+}));
 
 export const Label = createComponent('Label', ({
   className,

@@ -1,4 +1,4 @@
 import './Document';
-import './HTMLElement';
+export * from './HTMLElement';
 import './is';
 export * from './global';

@@ -1,4 +1,4 @@
-import { IDimensions, Record } from '@anupheaus/common';
+import { Dimensions, Record } from '@anupheaus/common';
 import { CSSProperties, Fragment, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useBound, useDOMRef, useDrag, UseDragEvent } from '../../hooks';
@@ -58,7 +58,7 @@ export const Draggable = createComponent('Draggable', ({
   onDraggingClonedClassName,
 }: Props) => {
   const { css, join } = useStyles();
-  const dimensionsRef = useRef<IDimensions>();
+  const dimensionsRef = useRef<Dimensions>();
   const [isDragging, setIsDragging] = useState(false);
   const [cloneContent, setCloneContent] = useState<{ __html: string; }>({ __html: '' });
   const interactionTarget = useInteractionProvider({ data });

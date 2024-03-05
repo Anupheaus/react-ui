@@ -78,7 +78,7 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
       onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
       hookToDocument(data);
     },
-  }), []);
+  }), [isEnabled, movableRef.current, onDragStart]);
 
   useOnChange(() => {
     if (isEnabled) return;

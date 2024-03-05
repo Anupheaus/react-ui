@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Windows, Windows as WindowsType } from './Windows';
-import { StorybookComponent2 } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook';
 import { WindowsManager } from './WindowsManager';
 import { Window } from './Window';
 import { useBound } from '../../hooks';
@@ -20,7 +20,7 @@ export const Default: Story = {
     ));
 
     return (
-      <StorybookComponent2 width={1200} height={600} title={'Default'} showComponentBorders>
+      <StorybookComponent width={1200} height={600} title={'Default'} showComponentBorders>
         <WindowsManager>
           {/* <WindowActions /> */}
           <Windows onCreateNewWindowFromState={handleCreateNewWindow}>
@@ -28,7 +28,7 @@ export const Default: Story = {
             <Window id="2" title={'This is my dialog'} initialPosition={'center'} />
           </Windows>
         </WindowsManager>
-      </StorybookComponent2>
+      </StorybookComponent>
     );
   },
 };

@@ -1,4 +1,4 @@
 export * from './Menu';
 export * from './MenuItem';
 export * from './usePopupMenu';
-export * from './MenuTheme';
+export * from './EllipsisMenu';

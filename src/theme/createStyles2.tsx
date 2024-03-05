@@ -12,19 +12,39 @@ type StylesType = MapOf<CSSObject>;
 type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () => {
   css: { [K in keyof TStyles]: string; };
   theme: TTheme;
+  tools: ThemeTools;
   alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): NamedExoticComponent<{ children: ReactNode; }>;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   toPx(value: number | string | undefined): string | undefined;
-  useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties;
+  useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties | undefined;
 };
 
-type CreateStylesType<TTheme extends BaseTheme> = <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme) => TStyles)) => UseStylesType<TTheme, TStyles>;
+type CreateStylesType<TTheme extends BaseTheme> = <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles)) => UseStylesType<TTheme, TStyles>;
+
+function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
+  return {
+    gap(value: number | keyof ThemeType['gaps'] | undefined, defaultValue: number): number {
+      if (is.string(value) && (theme.gaps as AnyObject)[value] != null) value = (theme.gaps as AnyObject)[value] as number;
+      if (is.number(value)) return value;
+      return defaultValue;
+    },
+    applyTransition(propertyNames: string): CSSProperties {
+      return {
+        transitionProperty: propertyNames,
+        transitionDuration: `${theme.transitions.duration}ms`,
+        transitionTimingFunction: theme.transitions.function,
+      };
+    },
+  };
+}
+
+type ThemeTools = ReturnType<typeof createThemeTools>;
 
 function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
-  return <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme) => TStyles)): UseStylesType<TTheme, TStyles> => {
+  return <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles)): UseStylesType<TTheme, TStyles> => {
     const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
-    const useStylesInnerFunc = makeStyles<TTheme>({ name: 'react-ui' })((_ignore, providedTheme, classes) => {
-      const result = (is.function(stylesOrDelegate) ? stylesOrDelegate(providedTheme) : stylesOrDelegate) ?? {};
+    const useStylesInnerFunc = makeStyles<{ theme: TTheme; tools: ThemeTools; }>({ name: 'react-ui' })((_ignore, { theme, tools }, classes) => {
+      const result = (is.function(stylesOrDelegate) ? stylesOrDelegate(theme, tools) : stylesOrDelegate) ?? {};
       const keys = Object.keys(result);
       Reflect.walk(result, ({ name, rename }) => {
         if (!name.includes('$')) return;
@@ -37,7 +57,8 @@ function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
     return () => {
       const { theme, isValid } = useContext(ThemeContext);
       const themeInUse = (isValid ? theme : DefaultTheme) as TTheme;
-      const { classes: css, cx } = useStylesInnerFunc(themeInUse);
+      const tools = createThemeTools(themeInUse);
+      const { classes: css, cx } = useStylesInnerFunc({ theme: themeInUse, tools });
 
       return {
         css: css as { [K in keyof TStyles]: string; },
@@ -58,7 +79,12 @@ function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
           if (is.number(value)) return `${value}px`;
           if (is.string(value) && value.endsWith('px')) return value;
         },
-        useInlineStyle: (delegate: () => CSSObject, dependencies: unknown[] = []) => useMemo(delegate, dependencies) as CSSProperties,
+        useInlineStyle: (delegate: () => CSSObject, dependencies: unknown[] = []) => useMemo(() => {
+          const styles = delegate();
+          if (Object.keys(styles).length <= 0) return;
+          return styles;
+        }, dependencies) as CSSProperties,
+        tools,
       };
     };
   };

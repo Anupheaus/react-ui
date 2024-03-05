@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { StorybookComponent2 } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook';
 import { createStyles } from '../../theme';
 import { Drawer as DrawerComponent } from './Drawer';
 import { useDrawer } from './useDrawer';
@@ -31,12 +31,12 @@ export const Default: Story = {
     const { Drawer, openDrawer } = useDrawer();
 
     return (
-      <StorybookComponent2 className={css.animatingBorder} showComponentBorders>
+      <StorybookComponent className={css.animatingBorder} showComponentBorders>
         <Button onClick={openDrawer}>Open</Button>
         <Drawer {...props}>
           Hey
         </Drawer>
-      </StorybookComponent2>
+      </StorybookComponent>
     );
   },
 } satisfies Story;

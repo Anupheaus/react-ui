@@ -6,7 +6,7 @@ import { useDialog } from './useDialog';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { DialogsManager } from './DialogsManager';
-import { StorybookComponent2 } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook';
 
 const meta: Meta<typeof DialogType> = {
   component: DialogType,
@@ -51,7 +51,7 @@ export const Default: Story = {
             closeDialog('blah');
           })}>Close</Button>
         </Flex>
-        <StorybookComponent2 width={1200} height={600} showComponentBorders>
+        <StorybookComponent width={1200} height={600} showComponentBorders>
           <DialogsManager shouldBlurBackground isVertical>
             <Flex tagName="background" className={css.background} />
             <Flex className={css.text}>This should be blurred!</Flex>
@@ -64,7 +64,7 @@ export const Default: Story = {
               </DialogActions>
             </Dialog>
           </DialogsManager>
-        </StorybookComponent2>
+        </StorybookComponent>
       </Flex>
     );
   },

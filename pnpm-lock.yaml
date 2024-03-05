@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@anupheaus/common':
-    specifier: ^0.0.26
-    version: 0.0.26
+    specifier: ^0.0.34
+    version: 0.0.34
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -124,8 +124,8 @@ devDependencies:
     specifier: ^29.5.10
     version: 29.5.10
   '@types/luxon':
-    specifier: ^3.3.5
-    version: 3.3.5
+    specifier: ^3.4.2
+    version: 3.4.2
   '@types/node':
     specifier: ^20.10.0
     version: 20.10.0
@@ -227,12 +227,13 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anupheaus/common@0.0.26:
-    resolution: {integrity: sha512-4bJHnZs7TWkmcWoG7ugMRjkgTAd+2E8yhBZvV45nZxKGT9U8h0WjySuc2ajPjaMIOV2TxLZM6bxUj1cRLTIrfQ==, tarball: download/@anupheaus/common/0.0.26/bd485cf8c4b2eb89dd1929841966f949124cff62}
+  /@anupheaus/common@0.0.34:
+    resolution: {integrity: sha512-ppeVwZVqa5IgAQMvSr/x1It+olRsel7spBMp3LDV9gTtclxj06Rdh5lN6gb0/Z2Pffi15+QlDq8znQ8SNM7BLA==, tarball: download/@anupheaus/common/0.0.34/837f154f8281127939db7bf4db2d3b888d500c26}
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1
       fast-equals: 4.0.3
+      inflection: 3.0.0
       luxon: 3.4.4
       numeral: 2.0.6
       object-hash: 3.0.0
@@ -6334,8 +6335,8 @@ packages:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: true
 
-  /@types/luxon@3.3.5:
-    resolution: {integrity: sha512-1cyf6Ge/94zlaWIZA2ei1pE6SZ8xpad2hXaYa5JEFiaUH0YS494CZwyi4MXNpXD9oEuv6ZH0Bmh0e7F9sPhmZA==}
+  /@types/luxon@3.4.2:
+    resolution: {integrity: sha512-TifLZlFudklWlMBfhubvgqTXRzLDI5pCbGa4P8a3wPyUQSW+1xQ5eDsreP9DWHX3tjq1ke96uYG/nwundroWcA==}
     dev: true
 
   /@types/mdx@2.0.10:
@@ -10700,6 +10701,11 @@ packages:
   /infer-owner@1.0.4:
     resolution: {integrity: sha512-IClj+Xz94+d7irH5qRyfJonOdfTzuDaifE6ZPWfx0N0+/ATZCbuTPq2prFl526urkQd90WyUKIh1DfBQ2hMz9A==}
     dev: true
+
+  /inflection@3.0.0:
+    resolution: {integrity: sha512-1zEJU1l19SgJlmwqsEyFTbScw/tkMHFenUo//Y0i+XEP83gDFdMvPizAD/WGcE+l1ku12PcTVHQhO6g5E0UCMw==}
+    engines: {node: '>=18.0.0'}
+    dev: false
 
   /inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}

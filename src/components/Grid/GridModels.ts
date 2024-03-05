@@ -1,22 +1,25 @@
 import { ReactNode } from 'react';
+import { GridCellValue } from './GridCellValue';
+import { DataFilterValueTypes, Record } from '@anupheaus/common';
 
-export interface GridRenderValueAdditionalProps<T = unknown> {
-  columnIndex: number;
-  rowIndex: number;
-  record: T | undefined;
-}
-
-export interface GridColumn<T = unknown> {
+export interface GridColumnCommonProps {
   id: string;
   field: string;
+  type?: DataFilterValueTypes;
   label: ReactNode;
   alignment?: 'left' | 'center' | 'right';
   width?: string | number;
   isVisible?: boolean;
-  renderValue?(props: this & GridRenderValueAdditionalProps<T>): ReactNode;
+  className?: string;
 }
 
-export interface GridColumnSort<T = unknown> {
-  column: GridColumn<T>;
-  direction: 'asc' | 'desc';
+export interface GridRenderValueProps<T extends Record = Record> extends GridColumnCommonProps {
+  columnIndex: number;
+  rowIndex: number;
+  record: T | undefined;
+  CellValue: typeof GridCellValue;
+}
+
+export interface GridColumn<T extends Record = Record> extends GridColumnCommonProps {
+  renderValue?(props: GridRenderValueProps<T>): ReactNode;
 }

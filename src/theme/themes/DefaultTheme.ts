@@ -3,18 +3,171 @@ import { createTheme } from '../createTheme';
 import { Theme } from './ThemeModel';
 
 export const DefaultTheme: Theme = {
-  text: {
-    primary: {
-      fontFamily: 'Roboto',
-      fontSize: 14,
-      color: '#000',
+  buttons: {
+    default: {
+      normal: {
+        backgroundColor: 'rgba(0 0 0 / 15%)',
+        borderColor: 'transparent',
+        borderRadius: 4,
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 25%)',
+        borderColor: 'transparent',
+        borderRadius: 4,
+      },
+      disabled: {
+        backgroundColor: 'rgba(0 0 0 / 5%)',
+        borderColor: 'transparent',
+        borderRadius: 4,
+      },
     },
-    secondary: {
-      fontFamily: 'Roboto',
-      fontSize: 14,
-      color: '#000',
+    bordered: {
+      normal: {
+        backgroundColor: 'transparent',
+        borderColor: 'rgba(0 0 0 / 15%)',
+        borderRadius: 4,
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+        borderColor: 'rgba(0 0 0 / 25%)',
+        borderRadius: 4,
+      },
+      disabled: {
+        backgroundColor: 'transparent',
+        borderColor: 'rgba(0 0 0 / 5%)',
+        borderRadius: 4,
+      },
+    },
+    hover: {
+      normal: {
+        backgroundColor: 'transparent',
+        borderColor: 'transparent',
+        borderRadius: 4,
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+        borderColor: 'transparent',
+        borderRadius: 4,
+      },
+      disabled: {
+        backgroundColor: '#e3f2fd',
+        borderColor: 'transparent',
+        borderRadius: 4,
+        textColor: 'rgba(0 0 0 / 55%)',
+      },
     },
   },
+  text: {
+    family: 'Roboto',
+    size: 14,
+    weight: 400,
+    color: '#000',
+  },
+  fields: {
+    label: {
+      normal: {
+        textWeight: 400,
+      },
+      active: {},
+      readOnly: {},
+    },
+    content: {
+      normal: {
+        backgroundColor: '#fff',
+        borderColor: 'rgba(0 0 0 / 15%)',
+        borderRadius: 4,
+      },
+      active: {},
+      readOnly: {},
+    },
+    value: {
+      normal: {},
+      active: {},
+      readOnly: {},
+    },
+  },
+  gaps: {
+    fields: 8,
+  },
+  windows: {
+    window: {
+      active: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        shadow: 'rgb(0 0 0 / 20%) 0px 3px 3px -2px, rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px',
+        filter: 'brightness(100%)',
+      },
+      inactive: {
+        filter: 'brightness(90%)',
+      },
+    },
+    content: {
+      active: {},
+      inactive: {},
+    },
+  },
+  transitions: {
+    duration: 400,
+    function: 'ease-in-out',
+  },
+  list: {
+    normal: {
+      gap: 4,
+    },
+    active: {},
+    readOnly: {},
+
+    item: {
+      normal: {},
+      active: {},
+      readOnly: {},
+    },
+
+    selectableItem: {
+      normal: {
+        padding: '4px 8px',
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+      },
+      readOnly: {},
+    }
+  },
+  pseudoClasses: {
+    active: '&:hover, &:active, &:focus, &:focus-visible',
+    readOnly: '&.is-read-only',
+  },
+  dropDown: {
+    normal: {
+      gap: 4,
+    },
+    active: {},
+    readOnly: {},
+  },
+  chips: {
+    normal: {
+      gap: 4,
+    },
+    active: {},
+    readOnly: {},
+
+    chip: {
+      normal: {
+        backgroundColor: 'rgba(0 0 0 / 15%)',
+        borderRadius: 8,
+        padding: '4px 8px',
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 25%)',
+      },
+      readOnly: {
+        backgroundColor: 'rgba(0 0 0 / 5%)',
+      },
+    }
+  },
+
+
+
   animation: {
     animationDuration: '400ms',
     animationTimingFunction: 'ease',
@@ -49,7 +202,6 @@ export const DefaultTheme: Theme = {
     disabled: {
 
     },
-
     menuItem: {
       normal: {
         backgroundColor: 'transparent',
@@ -72,6 +224,7 @@ export const DefaultTheme: Theme = {
       borderColor: 'rgba(0 0 0 / 10%)',
       padding: '0 8px',
       gap: 8,
+      minHeight: 32,
     },
     active: {
       borderColor: 'rgba(0 0 0 / 20%)',
@@ -88,7 +241,7 @@ export const DefaultTheme: Theme = {
     label: {
       normal: {
         fontSize: 14,
-        fontWeight: 600,
+        fontWeight: 500,
       },
       active: {},
       disabled: {},
@@ -135,9 +288,9 @@ export const DefaultTheme: Theme = {
         backgroundColor: '#f0f0f0',
         borderColor: '#ddd',
         color: '#000',
-        fontFamily: 'Roboto',
-        fontSize: 14,
-        fontWeight: 400,
+        // fontFamily: 'Roboto',
+        // fontSize: 14,
+        // fontWeight: 400,
       },
       active: {},
       disabled: {},
@@ -190,6 +343,7 @@ export const DefaultTheme: Theme = {
       normal: {
         padding: 2,
         width: 10,
+        height: 10,
       },
       active: {},
       disabled: {},

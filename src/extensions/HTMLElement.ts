@@ -1,5 +1,5 @@
+import { Coordinates, Dimensions, Geometry } from '@anupheaus/common';
 import './Document';
-import { ICoordinates, IDimensions, IGeometry } from '@anupheaus/common';
 
 interface IDimensionOptions {
   excludingPadding?: boolean;
@@ -24,8 +24,8 @@ function getNumericDimensions(element: HTMLElement | null) {
 
 class HTMLElementExtensions {
 
-  public screenCoordinates(): ICoordinates;
-  public screenCoordinates(this: HTMLElement): ICoordinates {
+  public screenCoordinates(): Coordinates;
+  public screenCoordinates(this: HTMLElement): Coordinates {
     const rect = this.getBoundingClientRect();
     const { marginTop, marginLeft, borderLeftWidth, borderTopWidth } = getNumericDimensions(this.parentElement);
     return {
@@ -58,8 +58,8 @@ class HTMLElementExtensions {
     return nodes;
   }
 
-  public pageCoordinates(): ICoordinates;
-  public pageCoordinates(this: HTMLElement): ICoordinates {
+  public pageCoordinates(): Coordinates;
+  public pageCoordinates(this: HTMLElement): Coordinates {
     const { left, top } = this.getBoundingClientRect();
     return {
       x: left + window.scrollX,
@@ -67,13 +67,13 @@ class HTMLElementExtensions {
     };
   }
 
-  public coordinates(): ICoordinates;
-  public coordinates(this: HTMLElement): ICoordinates {
+  public coordinates(): Coordinates;
+  public coordinates(this: HTMLElement): Coordinates {
     return { x: this.clientLeft, y: this.clientTop };
   }
 
-  public centreCoordinates(): ICoordinates;
-  public centreCoordinates(this: HTMLElement): ICoordinates {
+  public centreCoordinates(): Coordinates;
+  public centreCoordinates(this: HTMLElement): Coordinates {
     const dimensions = this.dimensions({ excludingMargin: true });
     return {
       x: dimensions.left + (dimensions.width / 2),
@@ -81,8 +81,8 @@ class HTMLElementExtensions {
     };
   }
 
-  public distanceTo(coordinates: ICoordinates): number;
-  public distanceTo(this: HTMLElement, coordinates: ICoordinates): number {
+  public distanceTo(coordinates: Coordinates): number;
+  public distanceTo(this: HTMLElement, coordinates: Coordinates): number {
     if (this.isUnderCoordinates(coordinates)) { return 0; }
     const geometry = this.geometry();
     const x = Math.min(Math.abs(coordinates.x - geometry.x), Math.abs(coordinates.x - (geometry.x + geometry.width)));
@@ -93,9 +93,9 @@ class HTMLElementExtensions {
   /**
    * Dimensions of this element with respect to itself; i.e. the margins, borders and padding.
    */
-  public dimensions(): IDimensions;
-  public dimensions(options: IDimensionOptions): IDimensions;
-  public dimensions(this: HTMLElement, options?: IDimensionOptions): IDimensions {
+  public dimensions(): Dimensions;
+  public dimensions(options: IDimensionOptions): Dimensions;
+  public dimensions(this: HTMLElement, options?: IDimensionOptions): Dimensions {
     options = {
       excludingBorder: false,
       excludingMargin: false,
@@ -141,8 +141,8 @@ class HTMLElementExtensions {
   /**
    * Coordinates and dimensions of this element with respect to the page.
    */
-  public geometry(): IGeometry;
-  public geometry(this: HTMLElement): IGeometry {
+  public geometry(): Geometry;
+  public geometry(this: HTMLElement): Geometry {
     const { width, height } = this.dimensions({ excludingMargin: true });
     return {
       ...this.pageCoordinates(),
@@ -151,8 +151,8 @@ class HTMLElementExtensions {
     };
   }
 
-  public isUnderCoordinates(coordinates: ICoordinates): boolean;
-  public isUnderCoordinates(this: HTMLElement, coordinates: ICoordinates): boolean {
+  public isUnderCoordinates(coordinates: Coordinates): boolean;
+  public isUnderCoordinates(this: HTMLElement, coordinates: Coordinates): boolean {
     const location = this.geometry();
     return (coordinates.x >= location.x && coordinates.x <= location.x + location.width)
       && (coordinates.y >= location.y && coordinates.y <= location.y + location.height);

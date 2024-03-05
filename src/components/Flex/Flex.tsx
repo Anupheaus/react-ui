@@ -1,8 +1,8 @@
-import { createLegacyStyles } from '../../theme/createStyles';
-import { to } from '@anupheaus/common';
-import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref, useMemo } from 'react';
+import { is, to } from '@anupheaus/common';
+import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
+import { createStyles } from '../../theme';
 
 const formatMaxWidthOrHeight = (maxDimension: number | string | boolean | undefined, maxBoth: boolean | undefined): string | number | undefined => {
   if (maxBoth === true || maxDimension === true) return '100%';
@@ -10,32 +10,34 @@ const formatMaxWidthOrHeight = (maxDimension: number | string | boolean | undefi
   return maxDimension;
 };
 
-const useStyles = createLegacyStyles(() => ({
-  styles: {
-    flex: {
-      position: 'relative',
-      display: 'flex',
-      flexGrow: 1,
-      flexShrink: 1,
-      flexBasis: 'auto',
-      outline: 'none',
+const useStyles = createStyles(({ gaps }) => ({
+  flex: {
+    position: 'relative',
+    display: 'flex',
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 'auto',
+    outline: 'none',
+
+    '&.gap-fields': {
+      gap: gaps.fields,
     },
-    disableGrow: {
+    '&.disable-grow': {
       flexGrow: 0,
     },
-    disableShrink: {
+    '&.disable-shrink': {
       flexShrink: 0,
     },
-    isVertical: {
+    '&.is-vertical': {
       flexDirection: 'column',
     },
-    enableWrap: {
+    '&.enable-wrap': {
       flexWrap: 'wrap',
     },
-    inline: {
+    '&.inline': {
       display: 'inline-flex',
     },
-    disableOverflow: {
+    '&.disable-overflow': {
       overflow: 'hidden',
     },
   },
@@ -61,7 +63,8 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   shadow?: number;
   align?: 'left' | 'center' | 'right' | 'space-around' | 'space-between' | 'space-evenly';
   valign?: 'top' | 'center' | 'bottom' | 'space-around' | 'space-between' | 'space-evenly' | 'stretch';
-  gap?: number;
+  gap?: number | 'fields';
+  padding?: number;
   testId?: string;
   tooltip?: ReactNode;
   allowFocus?: boolean;
@@ -87,6 +90,7 @@ export const Flex = createComponent('Flex', ({
   height,
   size,
   gap,
+  padding,
   align: providedAlign,
   valign: providedVAlign,
   testId,
@@ -97,7 +101,7 @@ export const Flex = createComponent('Flex', ({
   ref,
   ...props
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, useInlineStyle } = useStyles();
   if (alignCentrally) { providedAlign = providedAlign ?? 'center'; providedVAlign = providedVAlign ?? 'center'; }
   const align = providedAlign != null ? to.switchMap<Required<Props>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
     left: 'flex-start',
@@ -112,17 +116,18 @@ export const Flex = createComponent('Flex', ({
 
   if (size != null) { width = width ?? size; height = height ?? size; }
 
-  const style = useMemo<CSSProperties>(() => ({
-    gap,
+  const style = useInlineStyle(() => ({
+    gap: is.number(gap) ? gap : undefined,
     width,
     height,
+    padding,
     maxWidth: formatMaxWidthOrHeight(maxWidth, maxWidthAndHeight),
     maxHeight: formatMaxWidthOrHeight(maxHeight, maxWidthAndHeight),
     boxShadow: shadow != null ? `0 0 0 ${Math.floor(shadow / 2)}px rgba(63,63,68,0.05), 0 0 ${shadow}px ${Math.floor(shadow / 2)}px rgba(63,63,68,0.15)` : undefined,
     ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
     ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
     ...providedStyle,
-  }), [gap, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow]);
+  }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow]);
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }
 
@@ -133,12 +138,13 @@ export const Flex = createComponent('Flex', ({
       ref={ref}
       className={join(
         css.flex,
-        disableGrow && css.disableGrow,
-        disableShrink && css.disableShrink,
-        isVertical && css.isVertical,
-        enableWrap && css.enableWrap,
-        inline && css.inline,
-        disableOverflow && css.disableOverflow,
+        disableGrow && 'disable-grow',
+        disableShrink && 'disable-shrink',
+        isVertical && 'is-vertical',
+        enableWrap && 'enable-wrap',
+        inline && 'inline',
+        disableOverflow && 'disable-overflow',
+        gap === 'fields' && 'gap-fields',
         className,
       )}
       style={style}

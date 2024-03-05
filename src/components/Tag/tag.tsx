@@ -9,7 +9,7 @@ interface Props extends Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, H
   name: string;
   className?: string;
   width?: string | number;
-  ref?: Ref<HTMLDivElement>;
+  ref?: Ref<HTMLDivElement | null>;
 }
 
 export const Tag = createComponent('Tag', ({

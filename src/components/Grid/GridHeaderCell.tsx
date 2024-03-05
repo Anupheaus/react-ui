@@ -1,57 +1,60 @@
-import { createLegacyStyles } from '../../theme/createStyles';
-import { useContext, useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import { useOnResize } from '../../hooks';
 import { createComponent } from '../Component';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
-import { GridContexts } from './GridContexts';
 import { GridColumn } from './GridModels';
-import { GridTheme } from './GridTheme';
+import { createStyles } from '../../theme';
+import { useGetGridColumnWidth, useSetGridColumnWidth } from './GridColumnWidths';
 
 interface Props {
   column: GridColumn;
   columnIndex: number;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { headers: { backgroundColor, textColor: color, fontSize } } = useTheme(GridTheme);
-
-  return {
-    styles: {
-      gridHeaderCell: {
-        display: 'flex',
-        backgroundColor,
-        padding: '4px 8px',
-        position: 'sticky',
-        top: 0,
-        minHeight: 32,
-        boxSizing: 'border-box',
-        fontSize,
-        userSelect: 'none',
-        cursor: 'default',
-        color,
-        alignItems: 'center',
-        zIndex: 1,
-      },
-    },
-  };
+const useStyles = createStyles({
+  gridHeaderCell: {
+    display: 'inline-block',
+    flexShrink: 0,
+    flexGrow: 1,
+    padding: '4px 8px',
+    boxSizing: 'border-box',
+    userSelect: 'none',
+    cursor: 'default',
+    alignItems: 'center',
+    zIndex: 1,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+  },
 });
 
 export const GridHeaderCell = createComponent('GridHeaderCell', ({
   column,
   columnIndex,
 }: Props) => {
-  const { css } = useStyles();
-  const { target, height } = useOnResize({ observeHeightOnly: true });
-  const setHeaderHeight = useContext(GridContexts.setHeaderHeight);
+  const { css, useInlineStyle } = useStyles();
+  const { target, width: actualWidth } = useOnResize({ observeWidthOnly: true });
+  const columnWidth = useGetGridColumnWidth(columnIndex);
+  const setColumnWidth = useSetGridColumnWidth(columnIndex);
+  const isGridActionsColumn = column.id === 'grid-actions';
+  const width = isGridActionsColumn ? columnWidth : column.width;
 
-  useLayoutEffect(() => {
+  const style = useInlineStyle(() => ({
+    width,
+    maxWidth: width,
+    minWidth: width,
+    textAlign: column.alignment,
+    justifyContent: column.alignment === 'right' ? 'flex-end' : column.alignment === 'center' ? 'center' : 'flex-start',
+  }), [width, column.alignment]);
 
-    if (height != null && columnIndex === 0) setHeaderHeight(height);
-  }, [height, columnIndex]);
+  useEffect(() => {
+    if (actualWidth == null || isGridActionsColumn) return;
+    setColumnWidth(actualWidth);
+  }, [actualWidth, width, isGridActionsColumn]);
 
   return (
-    <Tag ref={target} name="grid-header-cell" className={css.gridHeaderCell}>
+    <Tag ref={target} name="grid-header-cell" className={css.gridHeaderCell} style={style}>
       <Skeleton type="text">{column.label}</Skeleton>
     </Tag>
   );

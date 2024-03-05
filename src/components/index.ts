@@ -40,3 +40,6 @@ export * from './List';
 export * from './DatePicker';
 export * from './Field';
 export * from './Toolbar';
+export * from './ReadOnlyValue';
+export * from './Autocomplete';
+export * from './Chips';

@@ -21,9 +21,6 @@ const useStyles = createLegacyStyles({
       transitionTimingFunction: 'ease',
     },
   },
-  disableInteraction: {
-    pointerEvents: 'all',
-  },
   blurBackground: {
     '&>*:not(windows)': {
       filter: 'blur(2px)',
@@ -34,6 +31,10 @@ const useStyles = createLegacyStyles({
     inset: 0,
     pointerEvents: 'none',
     '& window': {
+      pointerEvents: 'all',
+    },
+
+    '&.disable-interaction': {
       pointerEvents: 'all',
     },
   },
@@ -63,7 +64,7 @@ export const DialogsManager = createComponent('DialogsManager', ({
     <Tag name="dialogs-container" className={join(css.dialogsManager, shouldBlurBackground && state.length > 0 && css.blurBackground)}>
       <WindowsManager id={id}>
         {children}
-        <Windows managerId={id} className={join(css.windows, state.length > 0 && css.disableInteraction)} onStatesUpdated={saveState} />
+        <Windows managerId={id} className={join(css.windows, state.length > 0 && 'disable-nteraction')} onStatesUpdated={saveState} />
       </WindowsManager>
     </Tag >
   );

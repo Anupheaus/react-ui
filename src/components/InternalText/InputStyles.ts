@@ -16,4 +16,8 @@ export const useInputStyles = createStyles({
     fontFamily: 'unset',
     fontWeight: 'unset',
   },
+  textTransform_uppercase: { textTransform: 'uppercase' },
+  textTransform_lowercase: { textTransform: 'lowercase' },
+  textTransform_capitalize: { textTransform: 'capitalize' },
+  textTransform_none: { textTransform: 'none' },
 });

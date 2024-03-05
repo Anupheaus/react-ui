@@ -1,5 +1,5 @@
 import { PaperProps, Popover, PopoverOrigin, PopoverProps } from '@mui/material';
-import { ComponentProps, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ComponentProps, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount } from '../../hooks';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -9,7 +9,7 @@ import { SubMenuProvider } from './SubMenuProvider';
 
 const useStyles = createLegacyStyles({
   slotProps: {
-    pointerEvents: 'none',
+    // pointerEvents: 'none',
   },
 });
 
@@ -19,6 +19,8 @@ interface Props extends ComponentProps<typeof Menu> {
   menuAnchorPosition?: 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
   offsetPosition?: number;
   useWidthOfTargetElement?: boolean;
+  disableEnforceFocus?: boolean;
+  disableAutoFocus?: boolean;
 }
 
 export function usePopupMenu() {
@@ -40,14 +42,16 @@ export function usePopupMenu() {
     menuAnchorPosition = 'topLeft',
     offsetPosition = 12,
     useWidthOfTargetElement = false,
+    disableEnforceFocus,
+    disableAutoFocus,
     ...props
   }: Props) => {
     const { css } = useStyles();
     const [isOver, setIsOver, setIsNotOver] = useBooleanState(false);
     const [isOpen, setIsOpen] = useState(propsIsOpen === true);
     const cancelTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-    const autoHideTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-    const canBeAutoHiddenRef = useRef(false);
+    // const autoHideTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+    // const canBeAutoHiddenRef = useRef(false);
     const isUnmounted = useOnUnmount();
     const [element, setElement] = useState<HTMLElement>();
     const { target: resizeTarget, width, height } = useOnResize();
@@ -69,18 +73,18 @@ export function usePopupMenu() {
       }
     }, [propsIsOpen]);
 
-    useEffect(() => {
-      if (isOpen && !isOver && canBeAutoHiddenRef.current && propsIsOpen == null) {
-        autoHideTimeoutRef.current = setTimeout(() => {
-          if (isUnmounted()) return;
-          canBeAutoHiddenRef.current = false;
-          setIsOpen(false);
-        }, 400);
-      } else {
-        clearTimeout(autoHideTimeoutRef.current as any);
-        if (isOpen && isOver && propsIsOpen == null) canBeAutoHiddenRef.current = true;
-      }
-    }, [isOpen, isOver, propsIsOpen]);
+    // useEffect(() => {
+    //   if (isOpen && !isOver && canBeAutoHiddenRef.current && propsIsOpen == null) {
+    //     autoHideTimeoutRef.current = setTimeout(() => {
+    //       if (isUnmounted()) return;
+    //       canBeAutoHiddenRef.current = false;
+    //       setIsOpen(false);
+    //     }, 400);
+    //   } else {
+    //     clearTimeout(autoHideTimeoutRef.current as any);
+    //     if (isOpen && isOver && propsIsOpen == null) canBeAutoHiddenRef.current = true;
+    //   }
+    // }, [isOpen, isOver, propsIsOpen]);
 
     const close = useBound(() => batchUpdate(() => {
       setIsOpen(false);
@@ -122,6 +126,10 @@ export function usePopupMenu() {
       },
     }), []);
 
+    const handleOnClose = useBound(() => {
+      setIsOpen(false);
+    });
+
     const context = useMemo<PopupMenuContextProps>(() => ({
       isValid: true,
       close,
@@ -135,7 +143,10 @@ export function usePopupMenu() {
         anchorOrigin={anchorOrigin}
         transformOrigin={transformOrigin}
         PaperProps={paperProps}
-        hideBackdrop
+        disableEnforceFocus={disableEnforceFocus}
+        disableAutoFocus={disableAutoFocus}
+        // hideBackdrop
+        onClose={handleOnClose}
       >
         <PopupMenuContext.Provider value={context}>
           <SubMenuProvider>
@@ -151,5 +162,6 @@ export function usePopupMenu() {
     target,
     PopupMenu,
     openMenu,
+    closeMenu: close,
   };
 }

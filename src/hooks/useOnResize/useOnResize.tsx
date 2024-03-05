@@ -25,6 +25,7 @@ export function useOnResize({ isEnabled = true, observeHeightOnly = false, obser
 
   const { ref } = useOriginalResizeObserver<HTMLDivElement>({
     onResize: ({ width: newWidth, height: newHeight }) => update(newWidth, newHeight),
+    box: 'border-box',
   });
 
   const target = useBound((element: HTMLElement | null) => {

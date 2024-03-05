@@ -49,7 +49,7 @@ interface Props {
   height?: string | number;
 }
 
-export const StorybookComponent2 = createComponent('StorybookComponent', ({
+export const StorybookComponent = createComponent('StorybookComponent', ({
   className,
   title,
   showComponentBorders = false,

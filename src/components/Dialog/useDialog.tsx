@@ -1,4 +1,4 @@
-import { ComponentProps, FunctionComponent, useMemo, useRef } from 'react';
+import { ComponentProps, useMemo, useRef } from 'react';
 import { useDistributedState, useBound, useDelegatedBound, useId } from '../../hooks';
 import { Button } from '../Button';
 import { DialogContent } from './DialogContent';
@@ -9,16 +9,7 @@ import { DialogState } from './InternalDialogModels';
 import { DialogProps } from './Dialog';
 import { PromiseState } from '@anupheaus/common';
 
-export interface UseDialogApi {
-  openDialog(): Promise<string>;
-  closeDialog(reason?: string): void;
-  Dialog: FunctionComponent<DialogProps>;
-  DialogContent: typeof DialogContent;
-  DialogActions: typeof DialogActions;
-  OkButton: typeof Button;
-}
-
-export function useDialog(): UseDialogApi {
+function internalUseDialog() {
   const dialogId = useId();
   const { state, set } = useDistributedState<DialogState>(() => ({ isOpen: false }));
   const dialogPromise = useRef(useMemo(() => Promise.createDeferred<string>(), []));
@@ -46,7 +37,11 @@ export function useDialog(): UseDialogApi {
   });
 
   const OkButton = useMemo(() => createComponent('OkButton', (props: ComponentProps<typeof Button>) => (
-    <Button {...props} onClick={handleClick('Ok', props.onClick)}>{props.children ?? 'Okay'}</Button>
+    <Button {...props} onClick={handleClick('ok', props.onClick)}>{props.children ?? 'Okay'}</Button>
+  )), []);
+
+  const CancelButton = useMemo(() => createComponent('CancelButton', (props: ComponentProps<typeof Button>) => (
+    <Button {...props} onClick={handleClick('cancel', props.onClick)}>{props.children ?? 'Cancel'}</Button>
   )), []);
 
   return {
@@ -56,5 +51,12 @@ export function useDialog(): UseDialogApi {
     DialogContent,
     DialogActions,
     OkButton,
+    CancelButton,
   };
+}
+
+export type UseDialogApi = ReturnType<typeof internalUseDialog>;
+
+export function useDialog(): UseDialogApi {
+  return internalUseDialog();
 }

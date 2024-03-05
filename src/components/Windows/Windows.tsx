@@ -1,17 +1,10 @@
 import { AnyObject, is } from '@anupheaus/common';
 import { Fragment, ReactNode, useContext, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks';
-import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { WindowsManagerContext, WindowsContext, WindowsContextProps, WindowIdContext, WindowsManagerIdContext } from './WindowsContexts';
 import { WindowState } from './WindowsModels';
-
-const useStyles = createLegacyStyles({
-  windows: {
-
-  },
-});
 
 interface Props {
   managerId?: string;
@@ -28,7 +21,6 @@ export const Windows = createComponent('Windows', ({
   onStatesUpdated,
   onCreateNewWindowFromState,
 }: Props) => {
-  const { css, join } = useStyles();
   const managerContexts = useContext(WindowsManagerContext);
   const { id: managerId, invoke, onAction } = (providedManagerId ? managerContexts.get(providedManagerId) : Array.from(managerContexts.values()).last()) ?? {};
   if (managerId == null || invoke == null || onAction == null) {
@@ -103,7 +95,7 @@ export const Windows = createComponent('Windows', ({
   )), [extraChildrenId]);
 
   return (
-    <Flex tagName="windows" className={join(css.windows, className)}>
+    <Flex tagName="windows" className={className}>
       <WindowsContext.Provider value={context}>
         <WindowsManagerIdContext.Provider value={managerId}>
           {children}

@@ -1,6 +1,6 @@
 import { AnyObject, createProxyOf, Event, Records } from '@anupheaus/common';
 import { useMemo, useRef } from 'react';
-import { useBound, useOnChange } from '../../hooks';
+import { useBound, useForceUpdate, useOnChange } from '../../hooks';
 import { createComponent } from '../Component';
 import { FormProps, Form as FormComponent } from './Form';
 import { FormContext, FormContextProps } from './FormContext';
@@ -37,10 +37,16 @@ export function useForm<T extends AnyObject>({ data: providedData }: Props<T>) {
     setOriginalAndCurrentTo(newData as T);
   });
 
+  const useFormField = function <V>(field: V) {
+    const update = useForceUpdate();
+    current.onSet(current.proxy, () => update(), { includeSubProperties: true });
+    return current.get(field);
+  };
+
   const context = useMemo<FormContextProps>(() => ({
     isReal: true,
-    original,
-    current,
+    original: original as any,
+    current: current as any,
     errors: new Records(),
     showAllErrors: Event.create({ raisePreviousEventsOnNewSubscribers: true }),
     onBeforeSave: Event.create({ mode: 'passthrough', }),
@@ -57,6 +63,7 @@ export function useForm<T extends AnyObject>({ data: providedData }: Props<T>) {
   return {
     data: current.proxy,
     get: current.get,
+    useFormField,
     Form,
     SaveButton: FormSaveButton,
     Toolbar: FormToolbar,

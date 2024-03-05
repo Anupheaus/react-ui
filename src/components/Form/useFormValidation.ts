@@ -36,13 +36,13 @@ export function useFormValidation(...delegates: ((helpers: ValidationHelpers) =>
     if (is.promise(result)) {
       const setErrorAndUpdate = (response: void | ReactNode | undefined) => { setError(response); update(); };
       result.then(setErrorAndUpdate, setErrorAndUpdate);
-      return 'Validation result pending...';
+      return true;
     } else {
       return result;
     }
-  }) as void | ReactNode | undefined;
+  }) as void | boolean | ReactNode | undefined;
 
   useLayoutEffect(() => setError(error), [error]);
 
-  return errors.get(id)?.message ?? null;
+  return (error === true ? (errors.get(id)?.message ?? 'Validation result pending...') : error) ?? null;
 }

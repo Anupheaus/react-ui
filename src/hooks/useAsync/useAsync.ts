@@ -1,4 +1,4 @@
-import { NotPromise, PromiseMaybe, Unsubscribe } from '@anupheaus/common';
+import { PromiseMaybe, UnPromise, Unsubscribe } from '@anupheaus/common';
 import { useMemo, useRef, useState } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
@@ -16,7 +16,7 @@ export type AsyncDelegate<ResultType = any> = ((...args: any[]) => PromiseMaybe<
 // type GetParametersOfDelegate<T> = T extends (state: UseAsyncState, ...args: infer R) => unknown ? R : never;
 
 export type UseAsyncTrigger<DelegateType extends AsyncDelegate> = (...args: Parameters<DelegateType>) => ReturnType<DelegateType>;
-export type UseAsyncResponse<T extends AsyncDelegate> = NotPromise<ReturnType<T>>;
+export type UseAsyncResponse<T extends AsyncDelegate> = UnPromise<ReturnType<T>>;
 export type UseAsyncCancel = () => void;
 export type UseAsyncCancelDelegate = (props: { requestId: string; }) => void;
 export type UseAsyncOnCancelled = (handler: UseAsyncCancelDelegate) => void;
@@ -38,7 +38,7 @@ export interface UseAsyncOptions {
 }
 
 export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateType, dependencies: unknown[] = [], { manuallyTriggered = false }: Props = {}): UseAsyncResult<DelegateType> {
-  const responseRef = useRef<NotPromise<ReturnType<DelegateType>>>();
+  const responseRef = useRef<UnPromise<ReturnType<DelegateType>>>();
   const lastRequestRef = useRef<string>('');
   const onLocalCancelledCallbacks = useRef(new Set<Unsubscribe>()).current;
   const onGlobalCancelledCallbacks = useRef(new Set<UseAsyncCancelDelegate>()).current;

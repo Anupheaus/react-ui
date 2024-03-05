@@ -1,8 +1,9 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
-import { useBooleanState } from '../../hooks';
+import { ReactNode, Ref, useEffect, useRef, useState } from 'react';
+import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
+import { is } from '@anupheaus/common';
 
 const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) => ({
   scroller: {
@@ -10,17 +11,18 @@ const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) =>
     overflow: 'hidden',
     flex: 'auto',
     position: 'relative',
-    flexDirection: 'inherit',
     maxHeight: '100%',
     maxWidth: '100%',
+    flexDirection: 'inherit',
+    gap: 'inherit',
   },
   scrollerContainer: {
-    ...track.normal,
     display: 'flex',
     overflow: 'overlay',
     flex: 'auto',
     position: 'relative',
     flexDirection: 'inherit',
+    gap: 'inherit',
     transitionProperty: 'background-color',
     ...transition,
     backgroundColor: 'rgba(0 0 0 / 0%)',
@@ -75,6 +77,7 @@ const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) =>
     flex: 'auto',
     height: 'fit-content',
     flexDirection: 'inherit',
+    gap: 'inherit',
   },
   scrollerContentEdge: {
     position: 'absolute',
@@ -143,6 +146,12 @@ const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) =>
   }
 }));
 
+export interface OnScrollEventData {
+  left: number;
+  top: number;
+  element: HTMLDivElement;
+}
+
 interface Props {
   className?: string;
   containerClassName?: string;
@@ -151,6 +160,8 @@ interface Props {
   offsetTop?: number;
   scrollTo?: number;
   children: ReactNode;
+  ref?: Ref<HTMLDivElement | null>;
+  onScroll?(event: OnScrollEventData): void;
 }
 
 export const Scroller = createComponent('Scroller', ({
@@ -159,8 +170,12 @@ export const Scroller = createComponent('Scroller', ({
   disableShadows = false,
   scrollTo,
   children,
+  ref,
+  onScroll,
 }: Props) => {
   const { css, join } = useStyles();
+  const unsubscribeRef = useRef<() => void>();
+  const lastScrollValuesRef = useRef<{ left?: number; top?: number; }>({});
   const scrollerElementRef = useRef<HTMLDivElement | null>(null);
   const scrollerContainerElementRef = useRef<HTMLDivElement | null>(null);
   const topElementRef = useRef<HTMLDivElement | null>(null);
@@ -172,6 +187,24 @@ export const Scroller = createComponent('Scroller', ({
   const [shadowOnLeft, setShadowOnLeft] = useState(false);
   const [shadowAtBottom, setShadowAtBottom] = useState(false);
   const [shadowOnRight, setShadowOnRight] = useState(false);
+
+  const saveScrollerContainerElement = useBound((element: HTMLDivElement | null) => {
+    if (ref != null) { if (is.function(ref)) ref(element); else (ref as any).current = element; }
+    scrollerContainerElementRef.current = element;
+    unsubscribeRef.current?.();
+    if (element != null && is.function(onScroll)) {
+      const eventHandler = () => {
+        const left = element.scrollLeft;
+        const top = element.scrollTop;
+        if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
+        const data = lastScrollValuesRef.current = { left, top };
+        onScroll?.({ ...data, element });
+      };
+      element.addEventListener('scroll', eventHandler);
+      unsubscribeRef.current = () => element.removeEventListener('scroll', eventHandler);
+      onScroll({ left: element.scrollLeft, top: element.scrollTop, element });
+    }
+  });
 
   useEffect(() => {
     if (scrollerElementRef.current == null) return;
@@ -201,7 +234,7 @@ export const Scroller = createComponent('Scroller', ({
 
   return (
     <Tag name="scroller" ref={scrollerElementRef} className={css.scroller} onMouseOver={setScrollbarVisible} onMouseLeave={setScrolbarInvisible}>
-      <Tag name="scroller-container" ref={scrollerContainerElementRef} className={join(css.scrollerContainer, isScrollbarVisible && 'is-scrollbar-visible', containerClassName)}>
+      <Tag name="scroller-container" ref={saveScrollerContainerElement} className={join(css.scrollerContainer, isScrollbarVisible && 'is-scrollbar-visible', containerClassName)}>
         <Tag name="scroller-content" className={join(css.scrollerContent, className)}>
           <Tag name="scroller-content-top" ref={topElementRef} className={join(css.scrollerContentEdge, css.scrollerContentTop)} />
           <Tag name="scroller-content-left" ref={leftElementRef} className={join(css.scrollerContentEdge, css.scrollerContentLeft)} />

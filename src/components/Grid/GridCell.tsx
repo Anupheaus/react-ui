@@ -1,41 +1,74 @@
-import { createLegacyStyles } from '../../theme/createStyles';
-import { ReactNode } from 'react';
+import { ComponentProps, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { GridColumn } from './GridModels';
-import { GridTheme } from './GridTheme';
+import { createStyles } from '../../theme';
+import { AnyObject, Record } from '@anupheaus/common';
+import { GridCellValue } from './GridCellValue';
+import { useGetGridColumnWidth } from './GridColumnWidths';
 
 interface Props {
   column: GridColumn;
-  isLastRow?: boolean;
-  children: ReactNode;
+  columnIndex: number;
+  rowIndex: number;
+  record?: Record;
 }
-const useStyles = createLegacyStyles(({ useTheme }, { isLastRow = false }: Props) => {
-  const { borders: { color: borderColor }, rows: { fontSize } } = useTheme(GridTheme);
-  return {
-    styles: {
-      gridCell: {
-        display: 'flex',
-        borderColor,
-        borderWidth: 0,
-        borderBottomWidth: isLastRow ? 0 : 1,
-        borderStyle: 'solid',
-        padding: '4px 8px',
-        fontSize,
-        cursor: 'default',
-      },
-    },
-  };
+const useStyles = createStyles({
+  gridCell: {
+    display: 'inline-block', // needed for ellipsis to work
+    borderWidth: 0,
+    padding: '4px 8px',
+    cursor: 'default',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    height: 'fit-content',
+  },
 });
 
 export const GridCell = createComponent('GridCell', ({
-  // column,
-  children,
+  column,
+  columnIndex,
+  rowIndex,
+  record,
 }: Props) => {
-  const { css } = useStyles();
+  const { css, join, useInlineStyle } = useStyles();
+  const width = useGetGridColumnWidth(columnIndex);
+
+  const content = useMemo(() => {
+    if (column.renderValue) {
+      return column.renderValue({
+        ...column,
+        rowIndex,
+        columnIndex,
+        record,
+        CellValue: ((props: ComponentProps<typeof GridCellValue>) => (
+          <GridCellValue {...column} record={record} rowIndex={rowIndex} columnIndex={columnIndex} {...props} />)
+        ) as unknown as typeof GridCellValue,
+      });
+    } else {
+      return (
+        <GridCellValue
+          {...column}
+          record={record}
+          rowIndex={rowIndex}
+          columnIndex={columnIndex}
+          value={record == null ? undefined : (record as AnyObject)[column.field]}
+        />
+      );
+    }
+  }, [column, columnIndex, rowIndex, record]);
+
+  const style = useInlineStyle(() => ({
+    width,
+    maxWidth: width,
+    minWidth: width,
+    textAlign: column.alignment,
+    justifyContent: column.alignment === 'right' ? 'flex-end' : column.alignment === 'center' ? 'center' : 'flex-start',
+  }), [width, column.alignment]);
+
   return (
-    <Tag name="grid-cell" className={css.gridCell}>
-      {children}
+    <Tag name="grid-cell" className={join(css.gridCell, column.className)} style={style}>
+      {content}
     </Tag>
   );
 });

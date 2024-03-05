@@ -10,6 +10,7 @@ import { Icon } from '../Icon';
 interface Props extends InternalTextProps<number | undefined> {
   min?: number;
   max?: number;
+  step?: number;
   endAdornments?: ReactElement[];
   hideIncreaseDecreaseButtons?: boolean;
 }
@@ -33,13 +34,14 @@ export const Number = createComponent('Number', ({
   value,
   min,
   max,
+  step = 1,
   error: providedError,
   onChange,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
-  const increase = useBound(() => onChange?.(to.number(value, 0) + 1));
-  const decrease = useBound(() => onChange?.(to.number(value, 0) - 1));
+  const increase = useBound(() => onChange?.(to.number(value, 0) + step));
+  const decrease = useBound(() => onChange?.(to.number(value, 0) - step));
 
   const buttons = useMemo(() => [
     ...(hideIncreaseDecreaseButtons ? [] : [
@@ -78,7 +80,9 @@ export const Number = createComponent('Number', ({
       inputClassName={join(css.number, hideIncreaseDecreaseButtons && css.hiddenButtons)}
       type={'number'}
       endAdornments={buttons}
+      useFloatingEndAdornments
       startAdornments={startButtons}
+      useFloatingStartAdornments
       error={error}
       onChange={onChange}
     />

@@ -1,45 +1,39 @@
 import { ReactNode, useContext, useState } from 'react';
 import { useBooleanState, useBound, useDOMRef } from '../../hooks';
-import { createLegacyStyles, TransitionTheme } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { useRipple } from '../Ripple';
-import { MenuTheme } from './MenuTheme';
 import { PopupMenuContext } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
+import { Skeleton } from '../Skeleton';
 
-const useStyles = createLegacyStyles(({ activePseudoClasses, useTheme }) => {
-  const { menuItem: { active, default: defaultTheme, padding, fontSize, fontWeight } } = useTheme(MenuTheme);
-  const transitionSettings = useTheme(TransitionTheme);
+const useStyles = createStyles(({ activePseudoClasses, menu: { menuItem: { normal: normalMenuItem, active: activeMenuItem } },
+  field: { value: { normal: normalField, active: activeField } }, transition
+}) => ({
+  menuItem: {
+    position: 'relative',
+    padding: 8,
+    cursor: 'default',
+    borderRadius: 4,
+    ...normalField,
+    ...normalMenuItem,
+  },
+  isInteractable: {
+    cursor: 'pointer',
+    ...transition,
+    transitionProperty: 'background-color, color',
 
-  return {
-    styles: {
-      menuItem: {
-        position: 'relative',
-        backgroundColor: defaultTheme.backgroundColor,
-        color: defaultTheme.color,
-        padding,
-        cursor: 'default',
-        fontSize,
-        fontWeight,
-      },
-      isInteractable: {
-        cursor: 'pointer',
-        ...transitionSettings,
-        transitionProperty: 'background-color, color',
-
-        [activePseudoClasses]: {
-          backgroundColor: active.backgroundColor,
-          color: active.color,
-        },
-      },
-      subMenuIcon: {
-        marginLeft: 4,
-      }
+    [activePseudoClasses]: {
+      ...activeField,
+      ...activeMenuItem,
     },
-  };
-});
+  },
+  subMenuIcon: {
+    marginLeft: 4,
+  }
+}));
 
 interface Props {
   className?: string;
@@ -82,7 +76,7 @@ export const MenuItem = createComponent('MenuItem', ({
     >
       <Ripple stayWithinContainer />
       <SubMenuProvider element={element} isVisible={isOver} onHasSubMenu={setHasSubMenu}>
-        {children}
+        <Skeleton type={'text'}>{children}</Skeleton>
         {hasSubMenu && <Icon name="sub-menu" size="small" className={css.subMenuIcon} />}
       </SubMenuProvider>
     </Flex>

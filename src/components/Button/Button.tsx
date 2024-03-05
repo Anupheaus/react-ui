@@ -23,78 +23,104 @@ export interface ButtonProps {
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
 
-const useStyles = createStyles(({ transition, action: { normal, disabled, active }, activePseudoClasses }) => ({
-  button: {
-    ...normal,
-    ...transition,
-    appearance: 'none',
-    borderStyle: 'none',
-    cursor: 'pointer',
-    position: 'relative',
-    overflow: 'hidden',
-    display: 'flex',
-    flex: 'none',
-    gap: 4,
-    borderRadius: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transitionProperty: 'background-color, color',
-    boxSizing: 'border-box',
-    outline: 'none',
+const useStyles = createStyles(({ transition, text, buttons: { default: defaultButton, bordered, hover }, activePseudoClasses }) => {
+
+  const defineVariant = (variant: typeof defaultButton) => ({
+    backgroundColor: variant.normal.backgroundColor,
+    color: variant.normal.textColor,
+    fontSize: variant.normal.textSize,
+    boxShadow: variant.normal.borderColor == null ? 'none' : `inset 0 0 0 1px ${variant.normal.borderColor}`,
+    borderRadius: variant.normal.borderRadius,
 
     '&:not(.is-read-only)': {
       [activePseudoClasses]: {
-        ...active,
+        backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
+        color: variant.active.textColor ?? variant.normal.textColor,
+        boxShadow: (variant.active.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.active.borderColor ?? variant.normal.borderColor}`,
+        borderRadius: variant.active.borderRadius ?? variant.normal.borderRadius,
       }
     },
+
     '&.is-read-only': {
-      ...disabled,
-      cursor: 'default',
+      backgroundColor: variant.disabled.backgroundColor ?? variant.normal.backgroundColor,
+      color: variant.disabled.textColor ?? variant.normal.textColor,
+      boxShadow: (variant.disabled.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.disabled.borderColor ?? variant.normal.borderColor}`,
+      borderRadius: variant.disabled.borderRadius ?? variant.normal.borderRadius,
     },
+  });
 
-    '&.is-icon-only': {
+  return {
+    button: {
+      appearance: 'none',
+      borderStyle: 'none',
+      cursor: 'pointer',
+      position: 'relative',
       overflow: 'hidden',
-      borderRadius: '50%',
-    },
+      display: 'flex',
+      flex: 'none',
+      gap: 4,
+      borderRadius: 4,
+      alignItems: 'center',
+      justifyContent: 'center',
+      transitionProperty: 'background-color, color',
+      boxSizing: 'border-box',
+      outline: 'none',
+      fontFamily: text.family,
+      fontSize: text.size,
+      fontWeight: text.weight,
+      color: text.color,
+      ...transition,
 
-    '&.is-loading': {
-      visibility: 'hidden',
-    },
-  },
-  size_variant_default: {
-    '&:not(.is-icon-only)': {
-      minHeight: 30,
-      padding: '6px 8px',
-    },
-    '&.is-icon-only': {
-      width: 30,
-      height: 30,
-      padding: 0,
-    },
-  },
-  size_variant_small: {
-    padding: '2px 4px',
+      '&:not(.is-read-only)': {
+        [activePseudoClasses]: {
+          '&.is-icon-only': {
+            overflow: 'hidden',
+            borderRadius: '50%',
+          },
+        }
+      },
+      '&.is-read-only': {
+        cursor: 'default',
+      },
 
-    '&.is-icon-only': {
-      padding: '1px 2px',
-      width: 22,
-      height: 22,
+      '&.is-icon-only': {
+        overflow: 'hidden',
+        borderRadius: '50%',
+      },
+
+      '&.is-loading': {
+        visibility: 'hidden',
+      },
     },
-  },
-  size_variant_large: {
-    minHeight: 34,
-    padding: '8px 16px 12px',
-  },
-  variant_default: {
-  },
-  variant_bordered: {
-    boxShadow: `inset 0 0 0 1px ${normal.borderColor}`,
-    backgroundColor: 'transparent',
-  },
-  variant_hover: {
-    backgroundColor: 'transparent',
-  },
-}));
+    size_variant_default: {
+      '&:not(.is-icon-only)': {
+        minHeight: 30,
+        padding: '6px 8px',
+      },
+      '&.is-icon-only': {
+        width: 30,
+        height: 30,
+        padding: 0,
+      },
+    },
+    size_variant_small: {
+      padding: '2px 4px',
+
+      '&.is-icon-only': {
+        padding: '1px 2px',
+        width: 20,
+        height: 20,
+      },
+    },
+    size_variant_large: {
+      minHeight: 34,
+      padding: '8px 16px 12px',
+    },
+    variant_default: defineVariant(defaultButton),
+    variant_bordered: defineVariant(bordered),
+    variant_hover: defineVariant(hover),
+  };
+});
 
 export const Button = createComponent('Button', ({
   className,

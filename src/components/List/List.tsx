@@ -1,144 +1,109 @@
-import { Fragment, ReactNode, useMemo, useState } from 'react';
-import { useBound } from '../../hooks';
+import { FunctionComponent, ReactNode } from 'react';
 import { ReactListItem } from '../../models';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { DraggedItem, DropArea, MouseMoveEvent } from '../DragAndDrop';
-import { Label } from '../Label';
-import { Scroller } from '../Scroller';
-import { Skeleton } from '../Skeleton';
-import { Tag } from '../Tag';
-import { ListTheme } from './ListTheme';
+import { Field } from '../Field';
+import { PromiseMaybe, Record, is } from '@anupheaus/common';
+import { InternalList, InternalListProps } from '../InternalList/InternalList';
+import { ListItemProps } from '../InternalList/ListItem';
+import { UseItemsActions } from '../../hooks/useItems';
+import { UseActions, useBound } from '../../hooks';
+import { Flex } from '../Flex';
+import { Button } from '../Button';
+import { Icon } from '../Icon';
 
-interface Props<T extends ReactListItem = ReactListItem> {
+export type ListOnRequest<T extends Record = ReactListItem> = Required<InternalListProps<T>>['onRequest'];
+export { ListItemProps };
+
+export type ListActions = UseItemsActions;
+
+type Props<T extends ReactListItem = ReactListItem> = Omit<InternalListProps<T>, 'actions'> & {
+  className?: string;
+  isOptional?: boolean;
+  hideOptionalLabel?: boolean;
   borderless?: boolean;
-  gap?: number;
-  items: T[];
+  padding?: number;
   label?: ReactNode;
   help?: ReactNode;
-  disableOverlay?: boolean;
+  width?: string | number;
+  wide?: boolean;
+  addButtonTooltip?: ReactNode;
+  renderItemsUsing?: FunctionComponent<ListItemProps<T>>;
+  actions?: UseActions<ListActions>;
   onChange?(items: T[]): void;
-}
+  onAdd?(): PromiseMaybe<T | void>;
+};
 
-const useStyles = createLegacyStyles(({ useTheme }, { borderless = false, gap = 0 }: Props) => {
-  const { borderColor, borderRadius, padding, backgroundColor } = useTheme(ListTheme);
-  return {
-    styles: {
-      list: {
-        display: 'flex',
-        flex: 'auto',
-        flexDirection: 'column',
-        position: 'relative',
-        gap: 8,
-        overflow: 'hidden',
-      },
-      listContainer: {
-        display: 'flex',
-        flex: 'auto',
-        position: 'relative',
-        borderRadius: borderless ? 0 : borderRadius,
-        borderColor,
-        borderWidth: 1,
-        boxShadow: borderless ? 'none' : `inset 0 0 0 1px ${borderColor}`,
-        overflow: 'hidden',
-        backgroundColor,
-      },
-      skeleton: {
-        borderRadius,
-        overflow: 'hidden',
-      },
-      scroller: {
-        display: 'flex',
-        zIndex: 1,
-      },
-      listItems: {
-        display: 'flex',
-        flex: 'auto',
-        flexDirection: 'column',
-        gap,
-        padding,
-      },
-      dropAreaOverlay: {
-        zIndex: 0,
-      },
-      dropPlaceholder: {
-        display: 'flex',
-        flex: 'none',
-        height: 0,
-        boxShadow: '0 0 2px 1px rgba(0 0 0 / 20%)',
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ list }, tools) => ({
+  list: {
+    display: 'flex',
+    flex: 'auto',
+    flexDirection: 'column',
+    position: 'relative',
+  },
+  listContent: {
+    overflow: 'unset',
+  },
+  listContainer: {
+    flexGrow: 1,
+    flexShrink: 1,
+    overflow: 'unset',
+  },
+  addButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  internalList: {
+    padding: `0 ${tools.gap(list.normal.gap, 4)}px`,
+  },
+}));
 
 export const List = createComponent('List', function <T extends ReactListItem = ReactListItem>({
-  items,
+  className,
   label,
+  isOptional,
+  hideOptionalLabel,
   help,
-  disableOverlay = false,
+  width,
+  wide,
+  renderItemsUsing: ItemComponent,
   onChange,
+  onAdd,
+  ...props
 }: Props<T>) {
-  const { css } = useStyles();
-  const [dropPlaceholderIndex, setDropPlaceholderIndex] = useState(-1);
+  const { css, join } = useStyles();
 
-  const dropPlaceholder = (<Tag name="list-items-drop-placeholder" className={css.dropPlaceholder} />);
+  const renderItem = useBound((itemProps: ListItemProps<T>) => ItemComponent == null ? null : <ItemComponent {...itemProps} />);
 
-  const renderedItems = useMemo(() => items.map((item, index) => (
-    <Fragment key={item.id}>
-      {dropPlaceholderIndex === index ? dropPlaceholder : null}
-      <>{item.label ?? item.text}</>
-      {dropPlaceholderIndex === items.length && index === items.length - 1 ? dropPlaceholder : null}
-    </Fragment>
-  )), [items, dropPlaceholderIndex]);
-
-  const handleDroppedItems = useBound((droppedItems: DraggedItem[]) => {
-    const droppedItemIds = droppedItems.ids();
-    const movedItems = items.filter(({ id }) => droppedItemIds.includes(id));
-    const idAtIndex = items[dropPlaceholderIndex]?.id;
-    const newItems = items.except(movedItems);
-    let newIndexOfId = newItems.findIndex(({ id }) => id === idAtIndex);
-    if (newIndexOfId === -1) newIndexOfId = dropPlaceholderIndex;
-    newItems.splice(newIndexOfId, 0, ...movedItems);
-    setDropPlaceholderIndex(-1);
-    onChange?.(newItems);
-  });
-
-  const handleValidateDraggedItems = useBound((draggedItems: DraggedItem<T>[]) => {
-    const itemIds = items.ids();
-    const draggedIds = draggedItems.ids();
-    return draggedIds.every(draggedId => itemIds.includes(draggedId));
-  });
-
-  const handleDraggedOverItem = useBound((item: DraggedItem<T>, draggedItems: DraggedItem<T>[], event: MouseMoveEvent) => {
-    const indexOfItem = items.findIndex(({ id }) => id === item.id);
-    setDropPlaceholderIndex(indexOfItem + (event.elementPctY > 50 && indexOfItem !== -1 ? 1 : 0));
-  });
-
-  const handleDraggedOut = useBound(() => {
-    setDropPlaceholderIndex(-1);
-  });
+  const handleAdd = useBound(async () => { await onAdd?.(); });
 
   return (
-    <Tag name="list" className={css.list}>
-      <Label help={help}>{label}</Label>
-      <Skeleton type={'full'} className={css.skeleton}>
-        <Tag name="list-container" className={css.listContainer}>
-          <DropArea
-            overlayClassName={css.dropAreaOverlay}
-            disableOverlay={disableOverlay}
-            onDroppedItems={handleDroppedItems}
-            onValidateDraggedItems={handleValidateDraggedItems}
-            onDraggingOverItem={handleDraggedOverItem}
-            onDraggedOut={handleDraggedOut}
-          >
-            <Scroller className={css.scroller}>
-              <Tag name="list-items" className={css.listItems}>
-                {renderedItems}
-              </Tag>
-            </Scroller>
-          </DropArea>
-        </Tag>
-      </Skeleton>
-    </Tag>
+    <Field
+      tagName="list"
+      label={label}
+      help={help}
+      className={css.list}
+      contentClassName={join(css.listContent, className)}
+      containerClassName={css.listContainer}
+      containerAdornments={is.function(onAdd) && (
+        <Flex tagName="list-actions" gap={4} valign="center" className={css.addButton}>
+          <Button variant="hover" size="small" iconOnly onSelect={handleAdd}><Icon name="add" size="small" /></Button>
+        </Flex>
+      )}
+      isOptional={isOptional}
+      hideOptionalLabel={hideOptionalLabel}
+      disableSkeleton
+      disableRipple
+      width={width}
+      wide={wide}
+    >
+      <InternalList
+        tagName="list-content"
+        {...props}
+        renderItem={ItemComponent != null ? renderItem : undefined}
+        contentClassName={css.internalList}
+      />
+    </Field>
   );
 });

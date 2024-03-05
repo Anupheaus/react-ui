@@ -1,9 +1,9 @@
 import { is, PromiseMaybe } from '@anupheaus/common';
 import { CSSProperties, MouseEvent, ReactNode, TransitionEvent, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer/polyfilled';
-import { useBatchUpdates, useBound, useDOMRef, useForceUpdate, useId } from '../../hooks';
-import { createLegacyStyles } from '../../theme';
-import { Button, IconButtonTheme } from '../Button';
+import { useBatchUpdates, useBound, useDOMRef, useForceUpdate, useId, useUpdatableState } from '../../hooks';
+import { createStyles, useTheme } from '../../theme';
+import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
@@ -11,80 +11,64 @@ import { useWindowDrag } from './useWindowDrag';
 import { WindowResizer } from './WindowResizer';
 import { WindowIdContext, WindowsManagerContext, WindowsManagerIdContext } from './WindowsContexts';
 import { InitialWindowPosition, WindowState } from './WindowsModels';
-import { WindowTheme } from './WindowTheme';
 import { Titlebar } from '../Titlebar';
 
-const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }, { minWidth, minHeight }: Props) => {
-  const { backgroundColor, textColor, fontSize, titleBar } = useTheme(WindowTheme);
-  return {
-    styles: {
-      window: {
-        position: 'absolute',
-        borderRadius: 8,
-        boxShadow: 'rgb(0 0 0 / 20%) 0px 3px 3px -2px, rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px',
-        overflow: 'hidden',
-        backgroundColor,
-        color: textColor,
-        fontSize,
-        cursor: 'default',
-        transform: 'scale(0.7)',
-        transitionProperty: 'opacity, transform, width, height, top, left, border-radius, filter',
-        transitionDuration: '400ms',
-        transitionTimingFunction: 'ease-in-out',
-        opacity: 0,
-        minWidth: minWidth ?? 170,
-        minHeight: minHeight ?? 100,
-        userSelect: 'none',
-        filter: 'blur(0px)',
-      },
-      isDraggableTitleBar: {
-        cursor: 'grab',
-      },
-      isDraggingTitleBar: {
-        cursor: 'grabbing',
-      },
-      title: {
-        display: 'inline-block',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        outline: 'none',
-        position: 'relative',
-        flex: 'auto',
-      },
-      content: {
-      },
-      isVisible: {
-        transform: 'scale(1)',
-        opacity: 1,
-      },
-      isMaximized: {
-        width: '100%!important',
-        height: '100%!important',
-        top: '0!important',
-        left: '0!important',
-        borderRadius: 0,
-      },
-      isNotFocused: {
-        filter: 'blur(2px)',
-      },
-      stopTransitions: {
-        transitionProperty: 'none',
+const useStyles = createStyles(({ windows: { window, content }, transitions }) => ({
+  window: {
+    position: 'absolute',
+    borderRadius: window.active.borderRadius,
+    boxShadow: window.active.shadow,
+    overflow: 'hidden',
+    cursor: 'default',
+    transform: 'scale(0.7)',
+    transitionProperty: 'opacity, transform, width, height, top, left, border-radius, filter',
+    transitionDuration: `${transitions.duration}ms`,
+    transitionTimingFunction: transitions.function,
+    opacity: 0,
+    minWidth: 170,
+    minHeight: 100,
+    userSelect: 'none',
+    filter: window.active.filter,
+    backgroundColor: window.active.backgroundColor,
+
+    '&.is-visible': {
+      transform: 'scale(1)',
+      opacity: 1,
+    },
+
+    '&.is-maximized': {
+      width: '100%!important',
+      height: '100%!important',
+      top: '0!important',
+      left: '0!important',
+      borderRadius: 0,
+    },
+
+    '&.stop-transitions': {
+      transitionProperty: 'none',
+    },
+
+    '&.is-not-focused': {
+      backgroundColor: window.inactive.backgroundColor ?? window.active.backgroundColor,
+      borderRadius: window.inactive.borderRadius ?? window.active.borderRadius,
+      boxShadow: window.inactive.shadow ?? window.active.shadow,
+      filter: window.inactive.filter ?? window.active.filter,
+
+      '& window-content': {
+        backgroundColor: content.inactive.backgroundColor ?? content.active.backgroundColor,
+        color: content.inactive.textColor ?? content.active.textColor,
+        fontSize: content.inactive.textSize ?? content.active.textSize,
+        fontWeight: content.inactive.textWeight ?? content.active.textWeight,
       },
     },
-    variants: {
-      windowControlIconButton: createThemeVariant(IconButtonTheme, {
-        default: {
-          backgroundColor: titleBar.backgroundColor,
-        },
-        active: {
-          backgroundColor: 'rgba(0 0 0 / 10%)',
-        },
-        borderRadius: 4,
-      }),
-    },
-  };
-});
+  },
+  content: {
+    backgroundColor: content.active.backgroundColor,
+    color: content.active.textColor,
+    fontSize: content.active.textSize,
+    fontWeight: content.active.textWeight,
+  },
+}));
 
 interface Props {
   id?: string;
@@ -139,16 +123,24 @@ export const Window = createComponent('Window', ({
   const windowId = useContext(WindowIdContext);
   const { css, join } = useStyles();
   const generatedId = useId();
-  const id = providedId ?? generatedId;
   const closingRef = useRef<() => void>();
-  const [state, setState] = useState<WindowState>(useMemo(() => ({ id, isMaximized: false, x: 0, y: 0, width: providedWidth, height: providedHeight, ...initialState }), []));
-  const { isMaximized, x, y, width, height } = state;
+  const [state, setState] = useUpdatableState<WindowState>(() => ({
+    id: providedId ?? generatedId,
+    isMaximized: false,
+    x: 0, y: 0,
+    width: providedWidth,
+    height: providedHeight,
+    ...initialState,
+  }), [providedId, providedWidth, providedHeight]);
+  const { id, isMaximized, x, y, width, height } = state;
   const isDraggable = !disableDrag && !isMaximized;
   const [isResizing, setIsResizing] = useState(false);
   const [isMaximising, setIsMaximising] = useState(false);
   const initialPositionHasBeenSetRef = useRef(false);
   const [focusIndex, setFocusIndex] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
+  const { theme, isValid } = useTheme();
+  const transitionDuration = isValid ? theme.transitions.duration : 400;
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
   const managerContexts = useContext(WindowsManagerContext);
   const { onAction, invoke } = managerContexts.get(managerId) ?? {};
@@ -163,10 +155,14 @@ export const Window = createComponent('Window', ({
 
   const closeWindow = useBound(async () => {
     if (await onClosing?.() === false) return;
-    await new Promise<void>(resolve => {
-      closingRef.current = resolve;
-      update();
-    });
+    if (isVisible) {
+      await new Promise<void>(resolve => {
+        closingRef.current = resolve;
+        update();
+        setTimeout(resolve, transitionDuration);
+      });
+    }
+    closingRef.current = undefined;
     invoke(id, 'closed');
     onClosed?.();
   });
@@ -301,6 +297,11 @@ export const Window = createComponent('Window', ({
 
   useEffect(() => setHasRendered(true), []);
 
+  useEffect(() => {
+    if (!shouldStopTransitions) return;
+    if (closingRef.current != null) closingRef.current();
+  }, [shouldStopTransitions]);
+
   return (
     <Flex
       ref={windowElementTarget}
@@ -310,10 +311,10 @@ export const Window = createComponent('Window', ({
       fixedSize
       className={join(
         css.window,
-        isVisible && css.isVisible,
-        isMaximized && css.isMaximized,
-        shouldStopTransitions && css.stopTransitions,
-        !isFocused && css.isNotFocused,
+        isVisible && 'is-visible',
+        isMaximized && 'is-maximized',
+        shouldStopTransitions && 'stop-transitions',
+        !isFocused && 'is-not-focused',
         className,
       )}
       style={style}

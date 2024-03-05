@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode, useContext } from 'react';
+import { CSSProperties, MouseEvent, ReactNode, useContext, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useUIState } from '../../providers/UIStateProvider';
 import { createLegacyStyles, createAnimationKeyFrame } from '../../theme';
@@ -91,7 +91,9 @@ interface Props {
   className?: string;
   contentClassName?: string;
   type?: 'full' | 'text' | 'circle';
+  useRandomWidth?: boolean;
   isVisible?: boolean;
+  style?: CSSProperties;
   children?: ReactNode;
   useAnimatedBorder?: boolean;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
@@ -101,7 +103,9 @@ export const Skeleton = createComponent('Skeleton', ({
   className,
   contentClassName,
   type = 'full',
+  useRandomWidth = false,
   isVisible,
+  style: providedStyle,
   children = null,
   useAnimatedBorder = false,
   onClick,
@@ -109,6 +113,15 @@ export const Skeleton = createComponent('Skeleton', ({
   const { css, join } = useStyles();
   const { isLoading } = useUIState({ isLoading: isVisible });
   const noSkeletons = useContext(SkeletonContexts.noSkeletons);
+
+  const style = useMemo<CSSProperties | undefined>(() => {
+    if (children != null || !useRandomWidth) return providedStyle;
+    return {
+      ...providedStyle,
+      width: `${20 + Math.round(Math.random() * 80)}%`,
+    };
+  }, [providedStyle, children, useRandomWidth]);
+  if (useRandomWidth && children == null) children = <span>&nbsp;</span>;
 
   if (!isLoading && children != null) return (<>{children}</>);
 
@@ -124,6 +137,7 @@ export const Skeleton = createComponent('Skeleton', ({
         css[`variant_${type}`],
         className
       )}
+      style={style}
     >
       {children != null && (useAnimatedBorder ? children : (
         <Tag
