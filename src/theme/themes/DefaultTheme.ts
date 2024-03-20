@@ -134,7 +134,7 @@ export const DefaultTheme: Theme = {
     }
   },
   pseudoClasses: {
-    active: '&:hover, &:active, &:focus, &:focus-visible',
+    active: '&:hover, &:active, &:focus, &:focus-visible, &.is-active',
     readOnly: '&.is-read-only',
   },
   dropDown: {
@@ -165,6 +165,35 @@ export const DefaultTheme: Theme = {
       },
     }
   },
+  avatar: {
+    normal: {
+      backgroundColor: '#C9E7F5',
+      shadow: true,
+    },
+    active: {},
+    readOnly: {
+      opacity: 0.7,
+    },
+  },
+  shadows: {
+    veryLight: '0 1px 2px rgba(0 0 0 / 10%), 0 2px 4px rgba(0 0 0 / 7%)',
+    light: '0 1px 2px rgba(0 0 0 / 15%), 0 3px 6px rgba(0 0 0 / 12%)',
+    medium: '0 1px 3px rgba(0 0 0 / 30%), 0 6px 12px rgba(0 0 0 / 24%)',
+    heavy: '0 3px 6px rgba(0 0 0 / 25%), 0 10px 20px rgba(0 0 0 / 20%)',
+    veryHeavy: '0 5px 9px rgba(0 0 0 / 30%), 0 14px 28px rgba(0 0 0 / 25%)',
+  },
+  icons: {
+    normal: {
+      opacity: 0.8,
+    },
+    active: {
+      opacity: 1,
+    },
+    readOnly: {
+      opacity: 0.7,
+    },
+  },
+
 
 
 

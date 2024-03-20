@@ -23,7 +23,7 @@ export interface ButtonProps {
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
 
-const useStyles = createStyles(({ transition, text, buttons: { default: defaultButton, bordered, hover }, activePseudoClasses }) => {
+const useStyles = createStyles(({ transition, text, buttons: { default: defaultButton, bordered, hover }, pseudoClasses }) => {
 
   const defineVariant = (variant: typeof defaultButton) => ({
     backgroundColor: variant.normal.backgroundColor,
@@ -33,7 +33,7 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
     borderRadius: variant.normal.borderRadius,
 
     '&:not(.is-read-only)': {
-      [activePseudoClasses]: {
+      [pseudoClasses.active]: {
         backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
         color: variant.active.textColor ?? variant.normal.textColor,
         boxShadow: (variant.active.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.active.borderColor ?? variant.normal.borderColor}`,
@@ -41,7 +41,7 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
       }
     },
 
-    '&.is-read-only': {
+    [pseudoClasses.readOnly]: {
       backgroundColor: variant.disabled.backgroundColor ?? variant.normal.backgroundColor,
       color: variant.disabled.textColor ?? variant.normal.textColor,
       boxShadow: (variant.disabled.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.disabled.borderColor ?? variant.normal.borderColor}`,
@@ -72,14 +72,14 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
       ...transition,
 
       '&:not(.is-read-only)': {
-        [activePseudoClasses]: {
+        [pseudoClasses.active]: {
           '&.is-icon-only': {
             overflow: 'hidden',
             borderRadius: '50%',
           },
         }
       },
-      '&.is-read-only': {
+      [pseudoClasses.readOnly]: {
         cursor: 'default',
       },
 

@@ -7,6 +7,7 @@ export interface ReactListItem extends ListItem {
   label?: ReactNode;
   iconName?: IconName;
   tooltip?: ReactNode;
+  className?: string;
   onSelect?(): void;
 }
 

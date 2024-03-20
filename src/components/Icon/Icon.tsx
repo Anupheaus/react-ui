@@ -1,10 +1,8 @@
-import { createLegacyStyles } from '../../theme/createStyles';
 import { Ref, useMemo } from 'react';
 import { createComponent } from '../Component';
-import type { IconType } from '../../theme';
+import { createStyles, type IconType } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
-import { IconTheme } from './IconTheme';
 import { IconDefinitions, LocalIconDefinitions } from './Icons';
 import { is } from '@anupheaus/common';
 
@@ -19,26 +17,32 @@ interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   onClick?(): void;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { opacity } = useTheme(IconTheme);
-  return {
-    styles: {
-      icon: {
-        display: 'flex',
-        opacity,
-        minWidth: 16,
-        minHeight: 16,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexGrow: 0,
-        flexShrink: 0,
-      },
-      clickable: {
-        cursor: 'pointer',
-      },
+const useStyles = createStyles(({ icons: { normal, active, readOnly }, pseudoClasses }, tools) => ({
+  icon: {
+    display: 'flex',
+    opacity: normal.opacity ?? 1,
+    minWidth: 16,
+    minHeight: 16,
+    maxWidth: '100%',
+    maxHeight: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 0,
+    flexShrink: 0,
+    ...tools.applyTransition('opacity'),
+
+    [pseudoClasses.active]: {
+      opacity: active.opacity ?? normal.opacity ?? 1,
     },
-  };
-});
+
+    [pseudoClasses.readOnly]: {
+      opacity: readOnly.opacity ?? normal.opacity ?? 1,
+    },
+  },
+  clickable: {
+    cursor: 'pointer',
+  },
+}));
 
 let augmentedIconDefinitions = LocalIconDefinitions;
 
@@ -64,7 +68,7 @@ const IconComponent = createComponent('Icon', function ({
     let iconFunc = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions];
     if (!is.function(iconFunc)) iconFunc = augmentedIconDefinitions['no-image'];
 
-    return iconFunc({ size: sizeAmount, color });
+    return iconFunc({ size: '100%', color });
   }, [name, color, sizeAmount]);
 
   return (

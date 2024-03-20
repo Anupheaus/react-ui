@@ -49,7 +49,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   ...props
 }: Props<T>) {
   const { css, join } = useInputStyles();
-  const { validate } = useValidation();
+  const { validate } = useValidation(`${tagName}-${props.label}`);
   const bind = useBinder();
 
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {

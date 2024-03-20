@@ -2,8 +2,8 @@ lockfileVersion: '6.0'
 
 dependencies:
   '@anupheaus/common':
-    specifier: ^0.0.34
-    version: 0.0.34
+    specifier: ^0.0.35
+    version: 0.0.35
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -227,8 +227,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anupheaus/common@0.0.34:
-    resolution: {integrity: sha512-ppeVwZVqa5IgAQMvSr/x1It+olRsel7spBMp3LDV9gTtclxj06Rdh5lN6gb0/Z2Pffi15+QlDq8znQ8SNM7BLA==, tarball: download/@anupheaus/common/0.0.34/837f154f8281127939db7bf4db2d3b888d500c26}
+  /@anupheaus/common@0.0.35:
+    resolution: {integrity: sha512-ryz2PrRCAy4p62RifOk+gmFy1P2YvbRg2jQJNqTrTlZB4xNCiuLI10AKMITpEGTr88b6ZHl8zEubdVu525xEpQ==, tarball: download/@anupheaus/common/0.0.35/0b9992e97e62f9232e6e000e03b317cfdc45a846}
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1

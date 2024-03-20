@@ -43,7 +43,7 @@ export const ListItem = createComponent('ListItem', <T extends ReactListItem>({
   }, [providedItem, item, index, renderItem]);
 
   return (
-    <Tag name="list-item" ref={ref} className={join(css.listItem, className)}>
+    <Tag name="list-item" ref={ref} className={join(css.listItem, className, item?.className)}>
       <UIState isLoading={isLoading || item == null}>
         {content}
       </UIState>

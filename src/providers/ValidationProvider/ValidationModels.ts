@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 
 export interface ValidationRecord extends Record {
   message: ReactNode;
+  validationId?: string;
 }
 
 export interface ValidationTools {

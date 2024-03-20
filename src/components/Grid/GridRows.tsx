@@ -66,14 +66,15 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   )), [columns]);
 
   return (
-    <Flex tagName="grid-rows" className={css.rows}>
-      <InternalList
-        onRequest={handleOnRequest}
-        disableShadowsOnScroller
-        onScroll={handleHorizontalScroll}
-        loadingItemComponent={LoadingComponent}
-        actions={actions}
-      />
-    </Flex>
+    // <Flex tagName="grid-rows" className={css.rows}>
+    <InternalList
+      tagName="grid-rows"
+      onRequest={handleOnRequest}
+      disableShadowsOnScroller
+      onScroll={handleHorizontalScroll}
+      actions={actions}
+      className={css.rows}
+    />
+    // </Flex>
   );
 });

@@ -12,23 +12,23 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-interface Props extends Omit<InternalDropDownProps, 'value' | 'onChange'> {
-  value?: string[];
-  onChange?(values: string[]): void;
+interface Props<T extends string> extends Omit<InternalDropDownProps<T>, 'value' | 'onChange'> {
+  value?: T[];
+  onChange?(values: T[]): void;
 }
 
-export const Chips = createComponent('Chips', ({ value, onChange, ...props }: Props) => {
+export const Chips = createComponent('Chips', function <T extends string = string>({ value, onChange, ...props }: Props<T>) {
   const { css } = useStyles();
 
-  const handleDelete = useBound((id: string) => {
+  const handleDelete = useBound((id: T) => {
     onChange?.((value ?? []).filter(itemId => itemId !== id));
   });
 
-  const handleSelected = useBound((id: string) => {
+  const handleSelected = useBound((id: T) => {
     onChange?.([...(value ?? []), id].distinct());
   });
 
-  const fakeValue = useMemo<ReactListItem>(() => ({
+  const renderedChips = useMemo<ReactListItem>(() => ({
     id: 'fake',
     text: '',
     label: (<>{(value ?? []).map(itemId => {
@@ -37,12 +37,12 @@ export const Chips = createComponent('Chips', ({ value, onChange, ...props }: Pr
         <Chip key={itemId} id={itemId} value={item} className={css.chip} onDelete={handleDelete} />
       );
     })}</>),
-  }), [value]);
+  }), [value, props.values]);
 
   return (
     <InternalDropDown
       {...props}
-      value={fakeValue}
+      value={renderedChips}
       tagName="chips"
       onChange={handleSelected}
     />

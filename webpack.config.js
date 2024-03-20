@@ -74,9 +74,9 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    // alias: {
-    //   '@anux/common': path.resolve(__dirname, '../common/src'),
-    // }
+    alias: {
+      '@anux/common': path.resolve(__dirname, '../common/src'),
+    }
   },
   stats: {
     assets: false,

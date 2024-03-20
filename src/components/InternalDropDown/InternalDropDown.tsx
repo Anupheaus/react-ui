@@ -26,7 +26,7 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 4,
-    padding: 4,
+    padding: '0 4px',
     boxSizing: 'border-box',
     overflow: 'hidden',
   },
@@ -35,19 +35,19 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
   },
 }));
 
-export interface InternalDropDownProps extends FieldProps {
-  value?: string | ReactListItem;
+export interface InternalDropDownProps<T extends string> extends FieldProps {
+  value?: T | ReactListItem;
   values?: ReactListItem[];
-  onChange?(id: string, item: ReactListItem): void;
+  onChange?(id: T, item: ReactListItem): void;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
 }
 
-interface Props extends InternalDropDownProps {
+interface Props<T extends string> extends InternalDropDownProps<T> {
   tagName: string;
   renderSelectedValue?(value: ReactListItem | undefined): ReactNode;
 }
 
-export const InternalDropDown = createComponent('InternalDropDown', ({
+export const InternalDropDown = createComponent('InternalDropDown', function <T extends string>({
   value: providedValue,
   values,
   isOptional,
@@ -56,22 +56,22 @@ export const InternalDropDown = createComponent('InternalDropDown', ({
   onChange,
   onBlur,
   ...props
-}: Props) => {
+}: Props<T>) {
   const { css, join } = useStyles();
   const value = useMemo(() => is.string(providedValue) ? values?.findById(providedValue) : is.listItem(providedValue) ? providedValue : undefined, [providedValue, values]);
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
   const innerRef = useDOMRef([props.ref, anchorRef, resizeTarget]);
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
-  const { validate } = useValidation();
+  const { validate } = useValidation(`${props.tagName}-${props.label}`);
 
   const handleSelect = useBound((item: ReactListItem | Promise<ReactListItem>) => {
     if (is.promise(item)) return;
     setIsClosed();
-    onChange?.(item.id, item);
+    onChange?.(item.id as T, item);
   });
 
-  const renderItem = useBound(({ index, item }: ListItemProps) => <SelectableListItem key={`${index}`} item={item} onSelect={handleSelect} />);
+  const renderItem = useBound(({ index, item }: ListItemProps) => <SelectableListItem key={`${index}`} index={index} item={item} onSelect={handleSelect} />);
 
   const selectedValue = useMemo(() => {
     if (is.function(renderSelectedValue)) return renderSelectedValue(value);

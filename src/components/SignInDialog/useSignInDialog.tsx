@@ -1,6 +1,5 @@
 import { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks';
-import { ReactListItem } from '../../models';
 import { createLegacyStyles } from '../../theme';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { Button } from '../Button';
@@ -9,7 +8,6 @@ import { DialogsManager, useDialog } from '../Dialog';
 import { DropDown } from '../DropDown';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
-import { useInputStyles } from '../InternalText/InputStyles';
 import { Password } from '../Password';
 import { PIN } from '../PIN';
 import { SignInCredentials, SignInCredentialType } from './SignInDialogModels';
@@ -46,7 +44,6 @@ export function useSignInDialog() {
     allowNewCredentials = false,
     onSignIn,
   }: Props) => {
-    const { css: inputCss } = useInputStyles();
     const { css } = useStyles();
     const listItems = useMemo(() => (credentials ?? []).map(({ email, signInRequired }) => ({
       id: email,
@@ -54,7 +51,7 @@ export function useSignInDialog() {
       signInRequired,
     })).concat(...(allowNewCredentials ? [newCredentialsItem] : [])), [credentials]);
     const passwordOrPinRef = useRef<HTMLInputElement | null>(null);
-    const [newCredentialsInputElement, saveNewCredentialsInputElement] = useState<HTMLInputElement | null>(null);
+    // const [newCredentialsInputElement, saveNewCredentialsInputElement] = useState<HTMLInputElement | null>(null);
 
     const [email, setEmail] = useState(listItems[0]?.id ?? '');
     const [passwordOrPin, setPasswordOrPin] = useState('');
@@ -73,7 +70,7 @@ export function useSignInDialog() {
     };
 
     const handleSignIn = useBound(async () => {
-      const actualEmail = email === newCredentialsId ? newCredentialsInputElement?.value ?? '' : email;
+      const actualEmail = email; //email === newCredentialsId ? newCredentialsInputElement?.value ?? '' : email;
       if (actualEmail.length === 0) { return setEmailError('Your email is required.'); }
       if (passwordOrPin.length === 0) { return setPasswordOrPinError(`Your ${signInCredentialType === 'pin' ? 'PIN' : 'password'} is required.`); }
       if (signInCredentialType === 'pin' && passwordOrPin.replace(/\s/g, '').length !== 4) { return setPasswordOrPinError('Your PIN must be 4 digits.'); }
@@ -84,19 +81,19 @@ export function useSignInDialog() {
       setSignInError(result);
     });
 
-    const renderEmail = useBound((item: ReactListItem | undefined) => {
-      if (item == null || item.id !== newCredentialsId) return;
-      return <input ref={saveNewCredentialsInputElement} type="email" className={inputCss.input} />;
-    });
+    // const renderEmail = useBound((item: ReactListItem | undefined) => {
+    //   if (item == null || item.id !== newCredentialsId) return;
+    //   return <input ref={saveNewCredentialsInputElement} type="email" className={inputCss.input} />;
+    // });
 
     useLayoutEffect(() => {
       setPasswordOrPin('');
       clearErrors();
     }, [signInCredentialType]);
 
-    useLayoutEffect(() => {
-      if (email === newCredentialsId) newCredentialsInputElement?.focus();
-    }, [email, newCredentialsInputElement]);
+    // useLayoutEffect(() => {
+    //   if (email === newCredentialsId) newCredentialsInputElement?.focus();
+    // }, [email, newCredentialsInputElement]);
 
     return (
       <DialogsManager>
@@ -105,7 +102,7 @@ export function useSignInDialog() {
             <Flex gap={24}>
               {icon ? icon : <Icon name="sign-in-dialog" size={48} />}
               <Flex gap={4} isVertical>
-                <DropDown label="Email" values={listItems} value={email} onChange={setEmail} width={250} error={emailError} renderSelectedValue={renderEmail} />
+                <DropDown label="Email" values={listItems} value={email} onChange={setEmail} width={250} error={emailError} /*renderSelectedValue={renderEmail}*/ />
                 {signInCredentialType === 'password' && <Password ref={passwordOrPinRef} label={'Password'} value={passwordOrPin} onChange={setPasswordOrPin} error={passwordOrPinError} initialFocus />}
                 {signInCredentialType === 'pin' && (
                   <PIN ref={passwordOrPinRef} label={'PIN'} value={passwordOrPin} onChange={setPasswordOrPin} onSubmit={handleSignIn} error={passwordOrPinError} initialFocus />

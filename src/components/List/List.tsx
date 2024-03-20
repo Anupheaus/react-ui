@@ -11,6 +11,7 @@ import { UseActions, useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
+import { ListItem } from './Items';
 
 export type ListOnRequest<T extends Record = ReactListItem> = Required<InternalListProps<T>>['onRequest'];
 export { ListItemProps };
@@ -74,7 +75,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
 }: Props<T>) {
   const { css, join } = useStyles();
 
-  const renderItem = useBound((itemProps: ListItemProps<T>) => ItemComponent == null ? null : <ItemComponent {...itemProps} />);
+  const renderItem = useBound((itemProps: ListItemProps<T>) => ItemComponent == null ? <ListItem {...itemProps} /> : <ItemComponent {...itemProps} />);
 
   const handleAdd = useBound(async () => { await onAdd?.(); });
 

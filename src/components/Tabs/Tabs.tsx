@@ -7,6 +7,7 @@ import { Flex } from '../Flex';
 import { Tag } from '../Tag';
 import { TabsContext, TabsContextProps, UpsertTabProps } from './TabsContext';
 import { TabsTheme } from './TabsTheme';
+import { TabButton, TabContent } from './Tab';
 
 const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
   const { backgroundColor, highlightHeight, hightlightColor, inactiveTab } = useTheme(TabsTheme);
@@ -59,27 +60,37 @@ interface Props extends TabsProps {
 }
 
 export const TabsComponent = createComponent('Tabs', ({
+  state,
   alwaysShowTabs = false,
   children,
 }: Props) => {
   const { css, variants, join } = useStyles();
   const [tabs, setTabs] = useState<UpsertTabProps[]>([]);
 
-  const isTabsHidden = (tabs.length <= 1 || tabs.every(({ hasLabel }) => !hasLabel)) && !alwaysShowTabs;
+  const isTabsHidden = (tabs.length <= 1 || tabs.every(({ label }) => label == null)) && !alwaysShowTabs;
 
-  const upsertTab = useBound((props: UpsertTabProps) => setTabs(innerTabs => innerTabs.upsert(props)));
+  const upsertTab = useBound((props: UpsertTabProps) => setTabs(innerTabs => {
+    const existingIndex = innerTabs.findIndex(({ id }) => id === props.id);
+    if (existingIndex === -1) return innerTabs.concat(props);
+    const copyOfTabs = innerTabs.slice();
+    copyOfTabs[existingIndex] = props;
+    return copyOfTabs;
+  }));
+
+  const removeTab = useBound((id: string) => setTabs(innerTabs => innerTabs.removeById(id)));
 
   const context = useMemo<TabsContextProps>(() => ({
     isValid: true,
     upsertTab,
+    removeTab,
   }), []);
 
-  const renderedTabButtons = useMemo(() => tabs.map(({ id, Button }, index) => (
-    <Button key={id} tabIndex={index} />
+  const renderedTabButtons = useMemo(() => tabs.map(({ id, label }, index) => (
+    <TabButton key={id} tabIndex={index} state={state} label={label} />
   )), [tabs]);
 
-  const renderedTabs = useMemo(() => tabs.map(({ id, Content }, index) => (
-    <Content key={id} tabIndex={index} />
+  const renderedTabs = useMemo(() => tabs.map(({ id, className, children: tabContent }, index) => (
+    <TabContent key={id} className={className} tabIndex={index} state={state}>{tabContent}</TabContent>
   )), [tabs]);
 
   return (

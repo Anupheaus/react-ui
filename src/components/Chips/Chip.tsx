@@ -49,7 +49,7 @@ export const Chip = createComponent('Chip', ({
   });
 
   return (
-    <Flex tagName="chip" className={join(css.chip, className)} gap={6} valign="center">
+    <Flex tagName="chip" className={join(css.chip, className)} gap={6} valign="center" disableGrow>
       <span>{ReactListItem.render(value)}</span>
       {onDelete && (
         <Button variant="hover" size="small" iconOnly onSelect={handleDelete}><Icon name="chip-delete" size={16} /></Button>

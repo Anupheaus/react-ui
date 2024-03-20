@@ -1,13 +1,13 @@
 import { ReactNode } from 'react';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { useFormValidation } from '../Form';
 import { Tag } from '../Tag';
 import { AssistiveLabelTheme } from './AssistiveLabelTheme';
+import { Error, is } from '@anupheaus/common';
 
 interface Props {
   className?: string;
-  error?: ReactNode | Error;
+  error?: ReactNode | globalThis.Error;
   children?: ReactNode;
 }
 
@@ -35,11 +35,14 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
 }: Props) => {
   const { css, join } = useStyles();
 
-  useFormValidation(
-    () => error != null ? (error instanceof Error ? error.message : error) : null,
-  );
-
-  if (children == null && error != null) children = error instanceof Error ? error.message : error;
+  if (children == null && error != null) {
+    if (is.string(error) || is.reactElement(error)) {
+      children = error;
+    } else {
+      const baseError = new Error({ error });
+      children = baseError.message;
+    }
+  }
 
   return (
     <Tag

@@ -67,6 +67,9 @@ interface ListTheme {
 
 interface ListItemTheme {
   backgroundColor?: string;
+  borderColor?: string;
+  borderWidth?: string | number;
+  borderRadius?: string | number;
   textColor?: string;
   textSize?: string | number;
   textWeight?: string | number;
@@ -97,7 +100,25 @@ interface ChipTheme {
   borderRadius?: string | number;
 }
 
+interface AvatarTheme {
+  backgroundColor?: string;
+  textColor?: string;
+  textWeight?: string | number;
+  opacity?: number;
+  shadow?: boolean | string;
+}
 
+interface ShadowsTheme {
+  veryLight: CSSProperties['boxShadow'];
+  light: CSSProperties['boxShadow'];
+  medium: CSSProperties['boxShadow'];
+  heavy: CSSProperties['boxShadow'];
+  veryHeavy: CSSProperties['boxShadow'];
+}
+
+interface IconTheme {
+  opacity: number;
+}
 
 export interface Theme {
   buttons: {
@@ -186,6 +207,19 @@ export interface Theme {
       readOnly: Partial<ChipTheme>;
     };
   };
+  avatar: {
+    normal: AvatarTheme;
+    active: Partial<AvatarTheme>;
+    readOnly: Partial<AvatarTheme>;
+  };
+  shadows: ShadowsTheme;
+  icons: {
+    normal: IconTheme;
+    active: Partial<IconTheme>;
+    readOnly: Partial<IconTheme>;
+  };
+
+
 
 
 

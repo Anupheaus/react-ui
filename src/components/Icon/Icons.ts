@@ -1,7 +1,7 @@
 import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa';
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
-  FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical,
+  FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser,
 } from 'react-icons/fi';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
 import { IconType } from '../../theme';
@@ -40,6 +40,7 @@ export const LocalIconDefinitions = {
   'add': FiPlus,
   'ellipsis-menu': FiMoreVertical,
   'chip-delete': FiX,
+  'user': FiUser,
 } satisfies IconDefinitions;
 
 export type IconName = keyof typeof LocalIconDefinitions;

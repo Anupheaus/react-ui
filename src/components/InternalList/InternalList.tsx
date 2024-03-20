@@ -11,31 +11,28 @@ import { ListItem, ListItemProps } from './ListItem';
 import { DataPagination, Record } from '@anupheaus/common';
 import { createStyles } from '../../theme';
 
-const useStyles = createStyles((theme, tools) => {
-  const { list, pseudoClasses } = theme;
-  return {
-    internalList: {
-      backgroundColor: list.normal.backgroundColor,
-      color: list.normal.textColor,
-      fontSize: list.normal.textSize,
+const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses }, tools) => ({
+  internalList: {
+    backgroundColor: normal.backgroundColor,
+    color: normal.textColor,
+    fontSize: normal.textSize,
 
-      [pseudoClasses.active]: {
-        backgroundColor: list.active.backgroundColor,
-        color: list.active.textColor,
-        fontSize: list.active.textSize,
-      },
+    [pseudoClasses.active]: {
+      backgroundColor: active.backgroundColor ?? normal.backgroundColor,
+      color: active.textColor ?? normal.textColor,
+      fontSize: active.textSize ?? normal.textSize,
+    },
 
-      [pseudoClasses.readOnly]: {
-        backgroundColor: list.readOnly.backgroundColor,
-        color: list.readOnly.textColor,
-        fontSize: list.readOnly.textSize,
-      },
+    [pseudoClasses.readOnly]: {
+      backgroundColor: readOnly.backgroundColor ?? normal.backgroundColor,
+      color: readOnly.textColor ?? normal.textColor,
+      fontSize: readOnly.textSize ?? normal.textSize,
     },
-    internalListContent: {
-      gap: tools.gap(theme.list.normal.gap, 4),
-    },
-  };
-});
+  },
+  internalListContent: {
+    gap: tools.gap(normal.gap, 4),
+  },
+}));
 
 export interface InternalListProps<T extends Record> {
   items?: T[];

@@ -43,3 +43,5 @@ export * from './Toolbar';
 export * from './ReadOnlyValue';
 export * from './Autocomplete';
 export * from './Chips';
+export * from './Avatar';
+export * from './Badge';
