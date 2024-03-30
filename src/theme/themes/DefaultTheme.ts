@@ -2,25 +2,27 @@ import Color from 'color';
 import { createTheme } from '../createTheme';
 import { Theme } from './ThemeModel';
 
+const defaultButtons: Theme['buttons']['default'] = {
+  normal: {
+    backgroundColor: 'rgba(0 0 0 / 15%)',
+    borderColor: 'transparent',
+    borderRadius: 4,
+  },
+  active: {
+    backgroundColor: 'rgba(0 0 0 / 25%)',
+    borderColor: 'transparent',
+    borderRadius: 4,
+  },
+  readOnly: {
+    backgroundColor: 'rgba(0 0 0 / 5%)',
+    borderColor: 'transparent',
+    borderRadius: 4,
+  },
+};
+
 export const DefaultTheme: Theme = {
   buttons: {
-    default: {
-      normal: {
-        backgroundColor: 'rgba(0 0 0 / 15%)',
-        borderColor: 'transparent',
-        borderRadius: 4,
-      },
-      active: {
-        backgroundColor: 'rgba(0 0 0 / 25%)',
-        borderColor: 'transparent',
-        borderRadius: 4,
-      },
-      disabled: {
-        backgroundColor: 'rgba(0 0 0 / 5%)',
-        borderColor: 'transparent',
-        borderRadius: 4,
-      },
-    },
+    default: defaultButtons,
     bordered: {
       normal: {
         backgroundColor: 'transparent',
@@ -32,7 +34,7 @@ export const DefaultTheme: Theme = {
         borderColor: 'rgba(0 0 0 / 25%)',
         borderRadius: 4,
       },
-      disabled: {
+      readOnly: {
         backgroundColor: 'transparent',
         borderColor: 'rgba(0 0 0 / 5%)',
         borderRadius: 4,
@@ -49,7 +51,7 @@ export const DefaultTheme: Theme = {
         borderColor: 'transparent',
         borderRadius: 4,
       },
-      disabled: {
+      readOnly: {
         backgroundColor: '#e3f2fd',
         borderColor: 'transparent',
         borderRadius: 4,
@@ -95,10 +97,10 @@ export const DefaultTheme: Theme = {
         backgroundColor: '#fff',
         borderRadius: 8,
         shadow: 'rgb(0 0 0 / 20%) 0px 3px 3px -2px, rgb(0 0 0 / 14%) 0px 3px 4px 0px, rgb(0 0 0 / 12%) 0px 1px 8px 0px',
-        filter: 'brightness(100%)',
+        filter: 'brightness(95%)',
       },
       inactive: {
-        filter: 'brightness(90%)',
+        filter: 'brightness(80%)',
       },
     },
     content: {
@@ -134,7 +136,7 @@ export const DefaultTheme: Theme = {
     }
   },
   pseudoClasses: {
-    active: '&:hover, &:active, &:focus, &:focus-visible, &.is-active',
+    active: '&:not(.is-read-only):hover, &:not(.is-read-only):active, &:not(.is-read-only):focus, &:not(.is-read-only):focus-visible, &:not(.is-read-only).is-active',
     readOnly: '&.is-read-only',
   },
   dropDown: {
@@ -193,7 +195,18 @@ export const DefaultTheme: Theme = {
       opacity: 0.7,
     },
   },
-
+  tabs: {
+    buttons: {
+      normal: {
+        activeStripPosition: 'bottom',
+        activeStripWidth: 2,
+        activeStripColor: 'transparent',
+      },
+      focused: {
+        activeStripColor: 'rgba(255 255 255 / 70%)',
+      }
+    },
+  },
 
 
 

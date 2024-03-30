@@ -92,7 +92,7 @@ export const RadioOption = createComponent('RadioOption', ({
     <Flex ref={rippleTarget} tagName="radio" valign="center" align="left" disableGrow className={join(css.radio, isLoading && css.isLoading)} gap={4} allowFocus
       onClickCapture={handleClick} onKeyUp={handleKeyUp}>
       <Tag name="radio-graphic-container" className={css.radioGraphicContainer}>
-        <Ripple stayWithinContainer ignoreMouseCoords className={css.ripple} />
+        <Ripple stayWithinContainer ignoreMouseCoords containerClassName={css.ripple} />
         <Skeleton type="circle">
           <Tag name="radio-graphic" className={join(css.radioGraphic, isSelected && css.toggledRadioGraphic)} />
         </Skeleton>

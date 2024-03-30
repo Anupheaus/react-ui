@@ -1,4 +1,4 @@
 export * from './useDialog';
 export * from './DialogTheme';
-export * from './DialogsManager';
+export * from './Dialogs';
 export * from './useConfirmationDialog';

@@ -5,8 +5,8 @@ import { useBinder, useBound } from '../../hooks';
 import { useDialog } from './useDialog';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
-import { DialogsManager } from './DialogsManager';
 import { StorybookComponent } from '../../Storybook';
+import { Dialogs } from './Dialogs';
 
 const meta: Meta<typeof DialogType> = {
   component: DialogType,
@@ -52,10 +52,10 @@ export const Default: Story = {
           })}>Close</Button>
         </Flex>
         <StorybookComponent width={1200} height={600} showComponentBorders>
-          <DialogsManager shouldBlurBackground isVertical>
+          <Dialogs shouldBlurBackground>
             <Flex tagName="background" className={css.background} />
             <Flex className={css.text}>This should be blurred!</Flex>
-            <Dialog title={'Test Dialog'} onClosed={handleClosed}>
+            <Dialog title={'Test Dialog'} allowCloseButton allowMaximizeButton onClosed={handleClosed}>
               <DialogContent>
                 This is the content of the Dialog
               </DialogContent>
@@ -63,7 +63,7 @@ export const Default: Story = {
                 <OkButton />
               </DialogActions>
             </Dialog>
-          </DialogsManager>
+          </Dialogs>
         </StorybookComponent>
       </Flex>
     );

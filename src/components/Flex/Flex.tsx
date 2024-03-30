@@ -3,6 +3,7 @@ import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref } from 're
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
+import { Tooltip } from '../Tooltip';
 
 const formatMaxWidthOrHeight = (maxDimension: number | string | boolean | undefined, maxBoth: boolean | undefined): string | number | undefined => {
   if (maxBoth === true || maxDimension === true) return '100%';
@@ -131,7 +132,16 @@ export const Flex = createComponent('Flex', ({
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }
 
-  return (
+  const applyTooltip = (element: ReactNode) => {
+    if (tooltip == null) return <>{element}</>;
+    return (
+      <Tooltip content={tooltip}>
+        {element}
+      </Tooltip>
+    );
+  };
+
+  return applyTooltip(
     <Tag
       name={tagName}
       {...props}

@@ -7,6 +7,7 @@ type UseField<Name extends string, ValueType> = Record<Name, ValueType> & Record
 type UseFieldWithDefault<Name extends string, ValueType> = UseField<Name, NonNullable<ValueType>>;
 
 export function useFields<SourceType>(source: SourceType | (() => SourceType), onChange: (updatedValue: SourceType) => void, dependencies: unknown[] = []) {
+  if (!is.function(source) && !dependencies.includes(source)) dependencies.push(source);
   const actualSource = useMemo(() => is.function(source) ? source() : source, dependencies);
 
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>): UseField<Name, ValueType>;

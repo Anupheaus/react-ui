@@ -31,6 +31,7 @@ interface Props {
 export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }: Props = {}) {
   const unhookFromElementRef = useRef<() => void>(() => void 0);
   const unhookFromDocumentRef = useRef<() => void>(() => void 0);
+  const hasDraggingStartedRef = useRef(false);
   const [movableRef, dragMovable] = useDOMRef();
 
   const hookToDocument = useBound((data: DragData) => {
@@ -39,7 +40,13 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
       // event.stopPropagation();
       const diffX = event.pageX - mouseStartingX;
       const diffY = event.pageY - mouseStartingY;
-      onDragging?.({ ...data, diffX, diffY });
+      const maxDiff = Math.max(Math.abs(diffX), Math.abs(diffY));
+      if (hasDraggingStartedRef.current) {
+        onDragging?.({ ...data, diffX, diffY });
+      } else if (maxDiff > 10) {
+        hasDraggingStartedRef.current = true;
+        onDragStart?.({ ...data, diffX, diffY });
+      }
     };
     const onMouseUp = (event: MouseEvent) => {
       // event.stopPropagation();
@@ -47,6 +54,7 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
       unhookFromDocumentRef.current();
       const diffX = event.pageX - mouseStartingX;
       const diffY = event.pageY - mouseStartingY;
+      hasDraggingStartedRef.current = false;
       onDragEnd?.({ ...data, diffX, diffY });
     };
 
@@ -75,10 +83,10 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
       const mouseStartingY = event.pageY;
       const movableElement = (movableRef.current ?? event.target) as HTMLElement;
       const data: DragData = { initiatorElement: targetElement, movableElement, mouseStartingX, mouseStartingY, originalTop, originalLeft, originalWidth, originalHeight };
-      onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
+      // onDragStart?.({ ...data, movableElement, diffX: 0, diffY: 0 });
       hookToDocument(data);
     },
-  }), [isEnabled, movableRef.current, onDragStart]);
+  }), [isEnabled, movableRef.current, /*onDragStart*/]);
 
   useOnChange(() => {
     if (isEnabled) return;

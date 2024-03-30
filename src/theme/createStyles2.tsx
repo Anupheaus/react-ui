@@ -1,9 +1,8 @@
 import { createMakeStyles, CSSObject } from 'tss-react';
 import { AnyObject, DeepPartial, is, MapOf } from '@anupheaus/common';
-import { CSSProperties, NamedExoticComponent, ReactNode, useContext, useMemo } from 'react';
+import { CSSProperties, useContext, useMemo } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { DefaultTheme } from './themes';
-import { ThemeProvider } from './ThemeProvider2';
 
 type BaseTheme = typeof DefaultTheme;
 
@@ -13,7 +12,7 @@ type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () =>
   css: { [K in keyof TStyles]: string; };
   theme: TTheme;
   tools: ThemeTools;
-  alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): NamedExoticComponent<{ children: ReactNode; }>;
+  alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme; // NamedExoticComponent<{ children: ReactNode; }>;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   toPx(value: number | string | undefined): string | undefined;
   useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties | undefined;
@@ -33,6 +32,31 @@ function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
         transitionProperty: propertyNames,
         transitionDuration: `${theme.transitions.duration}ms`,
         transitionTimingFunction: theme.transitions.function,
+      };
+    },
+    toPx(value: number | string | undefined, defaultValue: string): string {
+      if (value == null) return defaultValue;
+      if (is.number(value)) return `${value}px`;
+      if (is.string(value) && value.endsWith('px')) return value;
+      return value;
+    },
+    valueOf<T extends AnyObject | undefined>(target: T) {
+      return {
+        using<S extends keyof NonNullable<T>>(...keys: S[]) {
+          function andProperty<K extends keyof NonNullable<NonNullable<T>[S]>>(property: K): NonNullable<NonNullable<T>[S]>[K] | undefined;
+          function andProperty<K extends keyof NonNullable<NonNullable<T>[S]>>(property: K, defaultValue: NonNullable<NonNullable<NonNullable<T>[S]>[K]>): NonNullable<NonNullable<NonNullable<T>[S]>[K]>;
+          function andProperty<K extends keyof NonNullable<NonNullable<T>[S]>>(property: K, defaultValue?: NonNullable<NonNullable<NonNullable<T>[S]>[K]>) {
+            if (target == null) return;
+            for (const key of keys) {
+              const value = (target)[key]?.[property];
+              if (value != null) return value;
+            }
+            return defaultValue;
+          }
+          return {
+            andProperty,
+          };
+        },
       };
     },
   };
@@ -63,12 +87,10 @@ function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
       return {
         css: css as { [K in keyof TStyles]: string; },
         theme: themeInUse,
-        alterTheme: (delegate: (theme: TTheme) => DeepPartial<TTheme>): NamedExoticComponent<{ children: ReactNode; }> => useMemo(() => {
-          const alteredTheme = Object.merge({}, themeInUse, delegate(themeInUse as TTheme));
-          return ({ children }: { children: ReactNode; }) => (
-            <ThemeProvider theme={alteredTheme}>{children}</ThemeProvider>
-          );
-        }, [themeInUse]) as NamedExoticComponent<{ children: ReactNode; }>,
+        alterTheme: (delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme => {
+          const newTheme = delegate(themeInUse);
+          return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);
+        },
         join(...classNames: (string | boolean | undefined)[]): string | undefined {
           classNames = classNames.filter(is.not.empty);
           if (classNames.length <= 0) return;

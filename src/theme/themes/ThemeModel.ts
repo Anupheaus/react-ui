@@ -12,6 +12,7 @@ interface ButtonTheme {
   borderRadius: number;
   textColor?: string;
   textSize?: string | number;
+  rippleColor?: string;
 }
 
 interface TextTheme {
@@ -120,22 +121,28 @@ interface IconTheme {
   opacity: number;
 }
 
+interface TabButtonTheme extends ButtonTheme {
+  activeStripPosition: 'top' | 'bottom';
+  activeStripWidth: string | number;
+  activeStripColor: string;
+}
+
 export interface Theme {
   buttons: {
     default: {
       normal: ButtonTheme;
       active: Partial<ButtonTheme>;
-      disabled: Partial<ButtonTheme>;
+      readOnly: Partial<ButtonTheme>;
     };
     bordered: {
       normal: ButtonTheme;
       active: Partial<ButtonTheme>;
-      disabled: Partial<ButtonTheme>;
+      readOnly: Partial<ButtonTheme>;
     };
     hover: {
       normal: ButtonTheme;
       active: Partial<ButtonTheme>;
-      disabled: Partial<ButtonTheme>;
+      readOnly: Partial<ButtonTheme>;
     };
   },
   text: TextTheme;
@@ -217,6 +224,20 @@ export interface Theme {
     normal: IconTheme;
     active: Partial<IconTheme>;
     readOnly: Partial<IconTheme>;
+  };
+  tabs?: {
+    buttons?: {
+      normal?: Partial<TabButtonTheme>;
+      active?: Partial<TabButtonTheme>;
+      focused?: Partial<TabButtonTheme>;
+      focusedAndActive?: Partial<TabButtonTheme>;
+      readOnly?: Partial<TabButtonTheme>;
+    },
+    content?: {
+      normal?: WindowContentTheme;
+      active?: Partial<WindowContentTheme>;
+      readOnly?: Partial<WindowContentTheme>;
+    },
   };
 
 

@@ -1,5 +1,5 @@
 import { Children, createElement, isValidElement, ReactNode } from 'react';
-import { createStyles } from '../../theme';
+import { createStyles, ThemeProvider } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 
@@ -46,7 +46,7 @@ export const Titlebar = createComponent('Titlebar', ({
     })
     .removeNull();
 
-  const NewActionTheme = alterTheme(() => ({
+  const actionTheme = alterTheme(() => ({
     action: {
       normal: {
         backgroundColor: 'transparent',
@@ -59,12 +59,12 @@ export const Titlebar = createComponent('Titlebar', ({
 
   return (
     <Flex {...props} tagName="titlebar" className={join(css.titlebar, className)} valign="center" disableGrow>
-      <NewActionTheme>
+      <ThemeProvider theme={actionTheme}>
         {icon}
         {title != null && <Flex tagName="titlebar-title" className={css.title} valign="center">{title}</Flex>}
         <Flex tagName="titlebar-content" className={css.content} valign="center">{children}</Flex>
         {endAdornment != null && <Flex tagName="titlebar-end-adornment" className={css.endAdornment} disableGrow valign="center">{endAdornment}</Flex>}
-      </NewActionTheme>
+      </ThemeProvider>
     </Flex>
   );
 });

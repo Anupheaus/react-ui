@@ -1,5 +1,8 @@
+import { DeferredPromise } from '@anupheaus/common';
+
 export interface WindowState {
   id: string;
+  type: string;
   isMaximized?: boolean;
   x?: string | number;
   y?: string | number;
@@ -7,12 +10,23 @@ export interface WindowState {
   height?: string | number;
 }
 
-export interface WindowApi {
+export type NewWindowState = Omit<WindowState, 'id'> & { id?: string; };
+
+export interface WindowEvents {
   id: string;
-  closeWindow(): void;
-  restoreWindow(): void;
-  maximizeWindow(): void;
-  focus(): void;
+  allowClosing?: DeferredPromise;
+  closing?: DeferredPromise;
+  restoring?: DeferredPromise;
+  maximizing?: DeferredPromise;
+  focusing?: DeferredPromise;
+  opening?: DeferredPromise;
 }
 
 export type InitialWindowPosition = 'center';
+
+
+// export interface WindowCommands {
+//   addWindow(state: NewWindowState): void;
+//   openWindow(state: WindowState): void;
+//   closeWindow(id: string): void;
+// }

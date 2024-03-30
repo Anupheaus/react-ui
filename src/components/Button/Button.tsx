@@ -32,20 +32,19 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
     boxShadow: variant.normal.borderColor == null ? 'none' : `inset 0 0 0 1px ${variant.normal.borderColor}`,
     borderRadius: variant.normal.borderRadius,
 
-    '&:not(.is-read-only)': {
-      [pseudoClasses.active]: {
-        backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
-        color: variant.active.textColor ?? variant.normal.textColor,
-        boxShadow: (variant.active.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.active.borderColor ?? variant.normal.borderColor}`,
-        borderRadius: variant.active.borderRadius ?? variant.normal.borderRadius,
-      }
+
+    [pseudoClasses.active]: {
+      backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
+      color: variant.active.textColor ?? variant.normal.textColor,
+      boxShadow: (variant.active.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.active.borderColor ?? variant.normal.borderColor}`,
+      borderRadius: variant.active.borderRadius ?? variant.normal.borderRadius,
     },
 
     [pseudoClasses.readOnly]: {
-      backgroundColor: variant.disabled.backgroundColor ?? variant.normal.backgroundColor,
-      color: variant.disabled.textColor ?? variant.normal.textColor,
-      boxShadow: (variant.disabled.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.disabled.borderColor ?? variant.normal.borderColor}`,
-      borderRadius: variant.disabled.borderRadius ?? variant.normal.borderRadius,
+      backgroundColor: variant.readOnly.backgroundColor ?? variant.normal.backgroundColor,
+      color: variant.readOnly.textColor ?? variant.normal.textColor,
+      boxShadow: (variant.readOnly.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.readOnly.borderColor ?? variant.normal.borderColor}`,
+      borderRadius: variant.readOnly.borderRadius ?? variant.normal.borderRadius,
     },
   });
 
@@ -119,6 +118,20 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
     variant_default: defineVariant(defaultButton),
     variant_bordered: defineVariant(bordered),
     variant_hover: defineVariant(hover),
+
+    ripple: {
+      '&.variant-default': {
+        backgroundColor: defaultButton.normal.rippleColor,
+      },
+
+      '&.variant-bordered': {
+        backgroundColor: bordered.normal.rippleColor,
+      },
+
+      '&.variant-hover': {
+        backgroundColor: hover.normal.rippleColor,
+      },
+    },
   };
 });
 
@@ -172,7 +185,7 @@ export const Button = createComponent('Button', ({
       style={style}
       onClickCapture={handleClick}
     >
-      <Ripple isDisabled={isReadOnly || isLoading} />
+      <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />
       <NoSkeletons>
         {children}
       </NoSkeletons>

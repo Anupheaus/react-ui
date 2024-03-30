@@ -1,5 +1,5 @@
-import { useRef } from 'react';
+import { useUpdatableState } from '../useUpdatableState';
 
-export function useId(): string {
-  return useRef(Math.uniqueId()).current;
+export function useId(id?: string): string {
+  return useUpdatableState(() => id ?? Math.uniqueId(), [id])[0];
 }

@@ -1,107 +1,90 @@
-import { AnyObject, is } from '@anupheaus/common';
-import { Fragment, ReactNode, useContext, useMemo, useRef, useState } from 'react';
-import { useBound } from '../../hooks';
+import { ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { WindowsManagerContext, WindowsContext, WindowsContextProps, WindowIdContext, WindowsManagerIdContext } from './WindowsContexts';
+import { WindowManagerIdContext, WindowContext, WindowContextProps } from './WindowsContexts';
 import { WindowState } from './WindowsModels';
+import { WindowsManager } from './WindowsManager';
+import { useOnChange, useStorage } from '../../hooks';
+import { windowsUtils } from './WindowsUtils';
 
-interface Props {
-  managerId?: string;
+interface Props<StateType extends WindowState = WindowState> {
+  id?: string;
   className?: string;
   children?: ReactNode;
-  onStatesUpdated?(states: WindowState[]): void;
-  onCreateNewWindowFromState?(data: WindowState & AnyObject): ReactNode;
+  states?: StateType[];
+  localStorageKey?: string;
+  onChange?(states: StateType[]): void;
+  onCreate(state: StateType): ReactNode;
 }
 
-export const Windows = createComponent('Windows', ({
-  managerId: providedManagerId,
+export const Windows = createComponent('Windows', function <StateType extends WindowState = WindowState>({
+  id = 'default',
   className,
   children = null,
-  onStatesUpdated,
-  onCreateNewWindowFromState,
-}: Props) => {
-  const managerContexts = useContext(WindowsManagerContext);
-  const { id: managerId, invoke, onAction } = (providedManagerId ? managerContexts.get(providedManagerId) : Array.from(managerContexts.values()).last()) ?? {};
-  if (managerId == null || invoke == null || onAction == null) {
-    if (providedManagerId) throw new Error(`A WindowsManager component with id "${providedManagerId}" was not found.`);
-    throw new Error('Windows component must be a child of a WindowsManager component.');
-  }
-  const extraChildren = useRef(new Map<string, ReactNode>()).current;
-  const extraChildrenLinkedIds = useRef(new Map<string, string>()).current;
-  const [extraChildrenId, setExtraChildrenId] = useState('');
+  states: providedStates,
+  localStorageKey,
+  onChange,
+  onCreate,
+}: Props<StateType>) {
+  const manager = WindowsManager.get(id);
+  const { state: localStorage, setState: setLocalStorage } = useStorage<StateType[]>(localStorageKey ?? `windows.${id}`, { type: 'local' });
+  const [states, setStates] = useState<StateType[]>(useMemo(() => providedStates ?? localStorage ?? [], []));
+  const lastOnChangeRef = useRef<StateType[]>(states);
+  const orderedIdsRef = useRef<string[]>([]);
 
-  const context = useMemo<WindowsContextProps>(() => ({
-    isValid: true,
-    states: [],
-  }), []);
+  const updateSavedStates = (newStates: StateType[]) => {
+    if (localStorageKey != null) setLocalStorage(newStates);
+    onChange?.(newStates);
+  };
 
-  const updateWindowsOrdinalPositions = useBound(async () => {
-    await Promise.all(context.states.map(({ id }, index, arr) => invoke(id, 'updateOrdinal', index + 1, index === arr.length - 1)));
-  });
+  useLayoutEffect(() => manager.subscribeToStateChanges((newStates, reason) => {
+    if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates as StateType[]);
+    lastOnChangeRef.current = newStates as StateType[];
+    updateSavedStates(newStates as StateType[]);
+  }), [manager]);
 
-  onAction(managerId, 'open', config => {
-    const extraChild = onCreateNewWindowFromState?.(config);
-    if (extraChild === undefined)
-      throw new Error('A window was requested to be opened from state, but no "onCreateNewWindowFromState" property was provided or it did not provide a valid window.');
-    extraChildren.set(config.id, extraChild);
-    setExtraChildrenId(Math.uniqueId());
-  });
+  useOnChange(() => {
+    updateSavedStates(states);
+  }, [states]);
 
-  onAction(managerId, 'add', (id, content) => {
-    if (content == null) {
-      extraChildren.delete(id);
-    } else {
-      extraChildren.set(id, (
-        <WindowIdContext.Provider value={id}>
-          {content}
-        </WindowIdContext.Provider>
-      ));
-    }
-    setExtraChildrenId(Math.uniqueId());
-  });
+  /** Only on startup */
+  useMemo(() => {
+    manager.add(states);
+  }, []);
 
-  onAction('focus', async id => {
-    const stateIndex = context.states.findIndex(x => x.id === id);
-    if (stateIndex === -1 || stateIndex === context.states.length - 1) return;
-    context.states = context.states.move(stateIndex, context.states.length - 1);
-    await updateWindowsOrdinalPositions();
-    onStatesUpdated?.(context.states);
-  });
+  /** Saved States Changes */
+  useLayoutEffect(() => {
+    const newStates = providedStates ?? localStorage;
+    if (newStates == null || lastOnChangeRef.current === newStates) return;
+    manager.add(newStates);
+  }, [Object.hash(providedStates ?? localStorage ?? [])]);
 
-  onAction('link', (targetId, id, windowId) => { extraChildrenLinkedIds.set(id, windowId); });
-
-  onAction('updateState', async (_id, state) => {
-    const newStates = context.states.upsert(state);
-    if (is.deepEqual(newStates, context.states)) return;
-    const shouldUpdateWindowsOrdinalPositions = newStates.length !== context.states.length;
-    context.states = newStates;
-    if (shouldUpdateWindowsOrdinalPositions) await updateWindowsOrdinalPositions();
-    onStatesUpdated?.(context.states);
-  });
-
-  onAction('closed', async id => {
-    context.states = context.states.removeById(id);
-    const extraChildrenCountBefore = extraChildren.size;
-    const extraChildId = extraChildrenLinkedIds.get(id) ?? id;
-    extraChildren.delete(extraChildId);
-    await updateWindowsOrdinalPositions();
-    onStatesUpdated?.(context.states);
-    if (extraChildrenCountBefore !== extraChildren.size) setExtraChildrenId(Math.uniqueId());
-  });
-
-  const renderedExtraChildren = useMemo(() => Array.from(extraChildren.entries()).map(([id, content]) => (
-    <Fragment key={id}>{content}</Fragment>
-  )), [extraChildrenId]);
+  const windows = useMemo(() => {
+    const [orderedWindows, newOrderedIds] = windowsUtils.reorderWindows(states, orderedIdsRef.current);
+    orderedIdsRef.current = newOrderedIds;
+    return orderedWindows.map(state => {
+      const index = states.indexOf(state);
+      const window = onCreate(state);
+      if (window == null) return null;
+      const context: WindowContextProps = {
+        id: state.id,
+        index,
+        isFocused: index === states.length - 1,
+      };
+      return (
+        <WindowContext.Provider key={state.id} value={context}>
+          {onCreate?.(state) ?? null}
+        </WindowContext.Provider>
+      );
+    });
+  }, [states]);
 
   return (
     <Flex tagName="windows" className={className}>
-      <WindowsContext.Provider value={context}>
-        <WindowsManagerIdContext.Provider value={managerId}>
-          {children}
-          {renderedExtraChildren}
-        </WindowsManagerIdContext.Provider>
-      </WindowsContext.Provider>
+      <WindowManagerIdContext.Provider value={id}>
+        {children}
+        {windows}
+      </WindowManagerIdContext.Provider>
     </Flex>
   );
 });

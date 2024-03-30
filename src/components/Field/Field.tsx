@@ -23,7 +23,7 @@ export interface FieldProps {
   wide?: boolean;
 }
 
-const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal, active } } }) => ({
+const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, active } } }) => ({
   field: {
     display: 'flex',
     flexGrow: 0,
@@ -53,7 +53,7 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal,
     transitionDuration: '0.4s',
     transitionTimingFunction: 'ease',
 
-    [activePseudoClasses]: {
+    [pseudoClasses.active]: {
       ...active,
     },
   },
@@ -79,6 +79,9 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal,
     borderRadius: 0,
     borderWidth: 0,
     borderRightWidth: 1,
+  },
+  skeleton: {
+    borderRadius: normal.borderRadius,
   },
 }));
 
@@ -155,7 +158,7 @@ export const Field = createComponent('Field', ({
     if (disableSkeleton) return content;
     return (<>
       <NoSkeletons>{content}</NoSkeletons>
-      <Skeleton />
+      <Skeleton type="full" className={css.skeleton} />
     </>);
   };
 

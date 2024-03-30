@@ -1,11 +1,12 @@
 import { ReactNode, Ref, useEffect, useRef, useState } from 'react';
-import { useBooleanState, useBound } from '../../hooks';
+import { UseActions, useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { is } from '@anupheaus/common';
+import { useScrollbarStyles } from './ScrollbarStyles';
 
-const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) => ({
+const useStyles = createStyles(({ transition }) => ({
   scroller: {
     display: 'flex',
     overflow: 'hidden',
@@ -18,58 +19,58 @@ const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) =>
   },
   scrollerContainer: {
     display: 'flex',
-    overflow: 'overlay',
+    // overflow: 'overlay',
     flex: 'auto',
     position: 'relative',
     flexDirection: 'inherit',
     gap: 'inherit',
-    transitionProperty: 'background-color',
-    ...transition,
-    backgroundColor: 'rgba(0 0 0 / 0%)',
-    backgroundClip: 'text',
+    // transitionProperty: 'background-color',
+    // ...transition,
+    // backgroundColor: 'rgba(0 0 0 / 0%)',
+    // backgroundClip: 'text',
 
-    '&.is-scrollbar-visible': {
-      backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
-    },
+    // '&.is-scrollbar-visible': {
+    //   backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
+    // },
 
-    '@media(pointer: coarse)': {
-      backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
-    },
+    // '@media(pointer: coarse)': {
+    //   backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
+    // },
 
-    '&::-webkit-scrollbar': {
-      ...track.normal,
-      padding: 0,
-    },
-    '&::-webkit-scrollbar-track': {
-      ...track.normal,
-      padding: 0,
-    },
-    '&::-webkit-scrollbar-track-piece:vertical:start': {
-      marginTop: track.normal.paddingTop ?? track.normal.padding ?? 0,
-    },
-    '&::-webkit-scrollbar-track-piece:vertical:corner-present:end': {
-      marginBottom: track.normal.paddingBottom ?? track.normal.padding ?? 0,
-    },
-    '&::-webkit-scrollbar-track-piece:horizontal:start': {
-      marginLeft: track.normal.paddingLeft ?? track.normal.padding ?? 0,
-    },
-    '&::-webkit-scrollbar-track-piece:horizontal:corner-present:end': {
-      marginRight: track.normal.paddingRight ?? track.normal.padding ?? 0,
-    },
-    '&::-webkit-scrollbar-corner': {
-      backgroundColor: 'transparent',
-    },
-    '&::-webkit-scrollbar-thumb': {
-      borderRadius: 8,
-      minHeight: 40,
-      ...thumb.normal,
-      ...transition,
-      backgroundColor: 'inherit',
-      boxShadow: 'none',
-      border: 'solid 0px transparent',
-      borderWidth: track.normal.padding ?? 4,
-      backgroundClip: 'padding-box',
-    },
+    // '&::-webkit-scrollbar': {
+    //   ...track.normal,
+    //   padding: 0,
+    // },
+    // '&::-webkit-scrollbar-track': {
+    //   ...track.normal,
+    //   padding: 0,
+    // },
+    // '&::-webkit-scrollbar-track-piece:vertical:start': {
+    //   marginTop: track.normal.paddingTop ?? track.normal.padding ?? 0,
+    // },
+    // '&::-webkit-scrollbar-track-piece:vertical:corner-present:end': {
+    //   marginBottom: track.normal.paddingBottom ?? track.normal.padding ?? 0,
+    // },
+    // '&::-webkit-scrollbar-track-piece:horizontal:start': {
+    //   marginLeft: track.normal.paddingLeft ?? track.normal.padding ?? 0,
+    // },
+    // '&::-webkit-scrollbar-track-piece:horizontal:corner-present:end': {
+    //   marginRight: track.normal.paddingRight ?? track.normal.padding ?? 0,
+    // },
+    // '&::-webkit-scrollbar-corner': {
+    //   backgroundColor: 'transparent',
+    // },
+    // '&::-webkit-scrollbar-thumb': {
+    //   borderRadius: 8,
+    //   minHeight: 40,
+    //   ...thumb.normal,
+    //   ...transition,
+    //   backgroundColor: 'inherit',
+    //   boxShadow: 'none',
+    //   border: 'solid 0px transparent',
+    //   borderWidth: track.normal.padding ?? 4,
+    //   backgroundClip: 'padding-box',
+    // },
   },
   scrollerContent: {
     display: 'flex',
@@ -146,6 +147,10 @@ const useStyles = createStyles(({ scrollbars: { thumb, track }, transition }) =>
   }
 }));
 
+export interface ScrollerActions {
+  scrollTo(scrollTo: number | 'bottom'): void;
+}
+
 export interface OnScrollEventData {
   left: number;
   top: number;
@@ -158,9 +163,10 @@ interface Props {
   borderless?: boolean;
   disableShadows?: boolean;
   offsetTop?: number;
-  scrollTo?: number;
+  scrollTo?: number | 'bottom';
   children: ReactNode;
   ref?: Ref<HTMLDivElement | null>;
+  actions?: UseActions<ScrollerActions>;
   onScroll?(event: OnScrollEventData): void;
 }
 
@@ -171,9 +177,11 @@ export const Scroller = createComponent('Scroller', ({
   scrollTo,
   children,
   ref,
+  actions,
   onScroll,
 }: Props) => {
   const { css, join } = useStyles();
+  const { css: scrollbarsCss } = useScrollbarStyles();
   const unsubscribeRef = useRef<() => void>();
   const lastScrollValuesRef = useRef<{ left?: number; top?: number; }>({});
   const scrollerElementRef = useRef<HTMLDivElement | null>(null);
@@ -187,6 +195,16 @@ export const Scroller = createComponent('Scroller', ({
   const [shadowOnLeft, setShadowOnLeft] = useState(false);
   const [shadowAtBottom, setShadowAtBottom] = useState(false);
   const [shadowOnRight, setShadowOnRight] = useState(false);
+
+  const scrollToFunc = (value: number | 'bottom' | undefined): void => {
+    const element = scrollerContainerElementRef.current;
+    if (element == null || value == null) return;
+    element.scrollTo({ top: value === 'bottom' ? element.scrollHeight + 500 : value, behavior: 'smooth' });
+  };
+
+  actions?.({
+    scrollTo: scrollToFunc,
+  });
 
   const saveScrollerContainerElement = useBound((element: HTMLDivElement | null) => {
     if (ref != null) { if (is.function(ref)) ref(element); else (ref as any).current = element; }
@@ -228,13 +246,12 @@ export const Scroller = createComponent('Scroller', ({
   }, []);
 
   useEffect(() => {
-    if (scrollerContainerElementRef.current == null || scrollTo == null) return;
-    scrollerContainerElementRef.current.scrollTo({ top: scrollTo, behavior: 'smooth' });
+    scrollToFunc(scrollTo);
   }, [scrollTo, scrollerContainerElementRef.current]);
 
   return (
     <Tag name="scroller" ref={scrollerElementRef} className={css.scroller} onMouseOver={setScrollbarVisible} onMouseLeave={setScrolbarInvisible}>
-      <Tag name="scroller-container" ref={saveScrollerContainerElement} className={join(css.scrollerContainer, isScrollbarVisible && 'is-scrollbar-visible', containerClassName)}>
+      <Tag name="scroller-container" ref={saveScrollerContainerElement} className={join(css.scrollerContainer, scrollbarsCss.scrollbars, isScrollbarVisible && 'is-scrollbar-visible', containerClassName)}>
         <Tag name="scroller-content" className={join(css.scrollerContent, className)}>
           <Tag name="scroller-content-top" ref={topElementRef} className={join(css.scrollerContentEdge, css.scrollerContentTop)} />
           <Tag name="scroller-content-left" ref={leftElementRef} className={join(css.scrollerContentEdge, css.scrollerContentLeft)} />

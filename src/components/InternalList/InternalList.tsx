@@ -1,10 +1,10 @@
-import { ReactNode, useMemo, useRef } from 'react';
+import { ReactNode, useLayoutEffect, useMemo, useRef } from 'react';
 import { useBound } from '../../hooks/useBound';
 import { ReactListItem } from '../../models';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
-import { OnScrollEventData, Scroller } from '../Scroller';
-import { UseActions, useOnUnmount } from '../../hooks';
+import { OnScrollEventData, Scroller, ScrollerActions } from '../Scroller';
+import { UseActions, useActions, useOnUnmount } from '../../hooks';
 import { UseDataResponse } from '../../extensions';
 import { UseItemsActions, useItems } from '../../hooks/useItems';
 import { ListItem, ListItemProps } from './ListItem';
@@ -34,9 +34,13 @@ const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClas
   },
 }));
 
+export interface InternalListActions extends UseItemsActions {
+  scrollTo(value: number | 'bottom'): void;
+}
+
 export interface InternalListProps<T extends Record> {
   items?: T[];
-  actions?: UseActions<UseItemsActions>;
+  actions?: UseActions<InternalListActions>;
   onRequest?(pagination: DataPagination): UseDataResponse<T>;
 }
 
@@ -47,6 +51,7 @@ interface Props<T extends ReactListItem> extends InternalListProps<T> {
   disableShadowsOnScroller?: boolean;
   renderItem?(props: ListItemProps<T>): ReactNode;
   onScroll?(values: OnScrollEventData): void;
+  onItemsChange?(items: (T | Promise<T>)[]): void;
 }
 
 export const InternalList = createComponent('InternalList', <T extends ReactListItem>({
@@ -59,13 +64,21 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
   actions,
   onScroll,
   onRequest,
+  onItemsChange,
 }: Props<T>) => {
   const { css, tools, theme, join } = useStyles();
   const heightRef = useRef<number>(18);
   const containerRef = useRef<HTMLDivElement | null>();
   const lastScrollTopRef = useRef<number>(0);
   const hasUnmounted = useOnUnmount();
-  const { items, total, request: makeRequest, offset, limit } = useItems({ initialLimit: 50, onRequest, actions, items: providedItems });
+  const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
+  const { setActions: scrollerActions, scrollTo } = useActions<ScrollerActions>();
+  const { items, total, request: makeRequest, offset, limit } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems });
+
+  actions?.({
+    refresh,
+    scrollTo,
+  });
 
   const saveListItemHeight = useBound((element: HTMLDivElement | null) => {
     if (element == null || heightRef.current != null) return;
@@ -132,9 +145,13 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
     onScroll?.(values);
   });
 
+  useLayoutEffect(() => {
+    onItemsChange?.(items);
+  }, [items]);
+
   return (
     <Flex tagName={tagName} className={join(css.internalList, className)} isVertical maxWidth>
-      <Scroller onScroll={handleOnScroll} disableShadows={disableShadowsOnScroller} containerClassName={join(css.internalListContent, contentClassName)}>
+      <Scroller onScroll={handleOnScroll} actions={scrollerActions} disableShadows={disableShadowsOnScroller} containerClassName={join(css.internalListContent, contentClassName)}>
         {content}
       </Scroller>
     </Flex>

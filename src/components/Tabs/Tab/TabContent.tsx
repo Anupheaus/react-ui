@@ -1,5 +1,5 @@
-import { ReactNode, useRef, useState } from 'react';
-import { DistributedState, useDistributedState } from '../../../hooks';
+import { ReactNode, useState } from 'react';
+import { DistributedState, useBatchUpdates, useDistributedState } from '../../../hooks';
 import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
@@ -50,16 +50,16 @@ export const TabContent = createComponent('Tab', ({
   const { onChange, get } = useDistributedState(state);
   const { css, join } = useStyles();
   const [isFocused, setIsFocused] = useState(get() === tabIndex);
-  const directionRef = useRef('right');
+  const [direction, setDirection] = useState('right');
+  const batchUpdate = useBatchUpdates();
 
-  onChange(newIndex => {
-    directionRef.current = newIndex > tabIndex ? 'left' : 'right';
-    if (newIndex !== tabIndex && isFocused) setIsFocused(false);
-    if (newIndex === tabIndex && !isFocused) setIsFocused(true);
-  });
+  onChange(newIndex => batchUpdate(() => {
+    setDirection(newIndex > tabIndex ? 'left' : 'right');
+    setIsFocused(newIndex === tabIndex);
+  }));
 
   return (
-    <Tag name="tab" className={join(css.tabContent, !isFocused && `slide-${directionRef.current}`, isFocused && 'is-visible', className)}>
+    <Tag name="tab" className={join(css.tabContent, !isFocused && `slide-${direction}`, isFocused && 'is-visible', className)}>
       {children}
     </Tag>
   );

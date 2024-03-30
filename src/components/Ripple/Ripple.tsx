@@ -39,6 +39,7 @@ function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCo
 export interface RippleProps {
   isDisabled?: boolean;
   className?: string;
+  containerClassName?: string;
   stayWithinContainer?: boolean;
   ignoreMouseCoords?: boolean;
 }
@@ -87,6 +88,7 @@ const useStyles = createLegacyStyles(({ useTheme }) => {
 
 export const Ripple = createComponent('Ripple', ({
   className,
+  containerClassName,
   isDisabled = false,
   stayWithinContainer = false,
   ignoreMouseCoords = false,
@@ -114,13 +116,14 @@ export const Ripple = createComponent('Ripple', ({
     [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
 
   return (
-    <Tag ref={target} name="ui-ripple" className={join(css.Ripple, stayWithinContainer && css.stayWithinContainer, className)}>
+    <Tag ref={target} name="ui-ripple" className={join(css.Ripple, stayWithinContainer && css.stayWithinContainer, containerClassName)}>
       <Tag
         name="ui-ripple-animation"
         className={join(
           css.rippleAnimation,
           isActive && !isDisabled && css.isActive,
           !isActive && !isDisabled && beenActiveRef.current && css.isInActive,
+          className,
         )}
         style={rippleStyle}
       />

@@ -12,6 +12,11 @@
     "esModuleInterop": true,
     "incremental": true,
     "moduleResolution": "node",
+    "paths": {
+      "@anupheaus/common": [
+        "../common/src",
+      ],
+    },
     "lib": [
       "DOM",
       "ES2020"

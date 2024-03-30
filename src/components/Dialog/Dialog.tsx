@@ -1,9 +1,10 @@
-import { ComponentProps, useLayoutEffect } from 'react';
+import { ComponentProps, RefObject, useLayoutEffect } from 'react';
 import { createComponent } from '../Component';
-import { useWindows, Window } from '../Windows';
+import { Window } from '../Windows';
 import { createLegacyStyles } from '../../theme';
-import { DistributedState, useBound, useDistributedState, useId } from '../../hooks';
-import { DialogState } from './InternalDialogModels';
+import { PromiseMaybe } from '@anupheaus/common';
+import { DialogsManager } from './DialogsManager';
+import { useBound, useOnUnmount } from '../../hooks';
 
 export interface DialogProps extends Omit<ComponentProps<typeof Window>, 'id' | 'hideMaximizeButton' | 'hideCloseButton' | 'disableDrag' | 'disableResize' | 'initialPosition' | 'onClosing' | 'onClosed'> {
   allowMaximizeButton?: boolean;
@@ -11,13 +12,14 @@ export interface DialogProps extends Omit<ComponentProps<typeof Window>, 'id' | 
   allowDrag?: boolean;
   allowResize?: boolean;
   disableBlurBackground?: boolean;
-  onClosing?(reason: string): void;
+  onClosing?(reason: string): PromiseMaybe<boolean | void>;
   onClosed?(reason: string): void;
 }
 
 interface Props extends DialogProps {
-  id?: string;
-  state: DistributedState<DialogState>;
+  id: string;
+  managerId: string;
+  closeReasonRef: RefObject<string | undefined>;
 }
 
 const useStyles = createLegacyStyles({
@@ -36,39 +38,34 @@ export const Dialog = createComponent('Dialog', ({
   disableBlurBackground: ignored,
   onClosing,
   onClosed,
-  id: providedId,
-  state,
+  id,
+  managerId,
+  closeReasonRef,
   ...props
 }: Props) => {
-  const { getAndObserve: getDialogState } = useDistributedState(state);
-  const { isOpen, closeReason } = getDialogState();
-  const internalId = useId();
-  const id = providedId ?? internalId;
-  const { closeWindow, addWindow } = useWindows();
   const { css, join } = useStyles();
-  const handleClosing = useBound(() => onClosing?.(closeReason ?? 'unknown'));
-  const handleClosed = useBound(() => onClosed?.(closeReason ?? 'unknown'));
+  const manager = DialogsManager.get(managerId);
+
+  const handleClosing = useBound(() => onClosing?.(closeReasonRef.current ?? 'close'));
+  const handleClosed = useBound(() => onClosed?.(closeReasonRef.current ?? 'close'));
+
+  useOnUnmount(() => manager.remove(id));
 
   useLayoutEffect(() => {
-    if (isOpen) {
-      addWindow(
-        <Window
-          {...props}
-          id={id}
-          initialPosition={'center'}
-          contentClassName={join(css.dialogContent, props.contentClassName)}
-          hideMaximizeButton={!allowMaximizeButton}
-          hideCloseButton={!allowCloseButton}
-          disableDrag={!allowDrag}
-          disableResize={!allowResize}
-          onClosing={handleClosing}
-          onClosed={handleClosed}
-        />
-      );
-    } else {
-      closeWindow(id);
-    }
-  });
+    manager.save(id, (
+      <Window
+        {...props}
+        initialPosition={'center'}
+        contentClassName={join(css.dialogContent, props.contentClassName)}
+        hideMaximizeButton={!allowMaximizeButton}
+        hideCloseButton={!allowCloseButton}
+        disableDrag={!allowDrag}
+        disableResize={!allowResize}
+        onClosing={handleClosing}
+        onClosed={handleClosed}
+      />
+    ));
+  }); // do on every render
 
   return null;
 });

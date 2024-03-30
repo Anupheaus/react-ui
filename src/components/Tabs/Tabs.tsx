@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { DistributedState, useBound } from '../../hooks';
+import { DistributedState, useBound, useDistributedState } from '../../hooks';
 import { createLegacyStyles, ThemesProvider } from '../../theme';
 import { ButtonTheme } from '../Button';
 import { createComponent } from '../Component';
@@ -51,8 +51,10 @@ const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
 });
 
 export interface TabsProps {
+  className?: string;
   children: ReactNode;
   alwaysShowTabs?: boolean;
+  onChange?(index: number): void;
 }
 
 interface Props extends TabsProps {
@@ -60,14 +62,19 @@ interface Props extends TabsProps {
 }
 
 export const TabsComponent = createComponent('Tabs', ({
+  className,
   state,
   alwaysShowTabs = false,
   children,
+  onChange: providedOnChange,
 }: Props) => {
   const { css, variants, join } = useStyles();
   const [tabs, setTabs] = useState<UpsertTabProps[]>([]);
+  const { onChange } = useDistributedState(state);
 
   const isTabsHidden = (tabs.length <= 1 || tabs.every(({ label }) => label == null)) && !alwaysShowTabs;
+
+  onChange(index => providedOnChange?.(index));
 
   const upsertTab = useBound((props: UpsertTabProps) => setTabs(innerTabs => {
     const existingIndex = innerTabs.findIndex(({ id }) => id === props.id);
@@ -89,12 +96,12 @@ export const TabsComponent = createComponent('Tabs', ({
     <TabButton key={id} tabIndex={index} state={state} label={label} />
   )), [tabs]);
 
-  const renderedTabs = useMemo(() => tabs.map(({ id, className, children: tabContent }, index) => (
-    <TabContent key={id} className={className} tabIndex={index} state={state}>{tabContent}</TabContent>
+  const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent }, index) => (
+    <TabContent key={id} className={tabContentClassName} tabIndex={index} state={state}>{tabContent}</TabContent>
   )), [tabs]);
 
   return (
-    <Flex tagName="tabs" isVertical>
+    <Flex tagName="tabs" isVertical className={className}>
       <Tag name="hidden" className={css.hidden}>
         <TabsContext.Provider value={context}>
           {children}
