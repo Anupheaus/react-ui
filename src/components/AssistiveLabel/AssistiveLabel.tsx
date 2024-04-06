@@ -35,7 +35,7 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
 }: Props) => {
   const { css, join } = useStyles();
 
-  if (children == null && error != null) {
+  if (error != null) {
     if (is.string(error) || is.reactElement(error)) {
       children = error;
     } else {

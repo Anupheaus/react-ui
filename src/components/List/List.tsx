@@ -44,6 +44,7 @@ const useStyles = createStyles(({ list }, tools) => ({
     flex: 'auto',
     flexDirection: 'column',
     position: 'relative',
+    overflow: 'hidden',
   },
   listContent: {
     overflow: 'unset',

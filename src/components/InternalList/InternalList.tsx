@@ -11,11 +11,11 @@ import { ListItem, ListItemProps } from './ListItem';
 import { DataPagination, Record } from '@anupheaus/common';
 import { createStyles } from '../../theme';
 
-const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses }, tools) => ({
+const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }, tools) => ({
   internalList: {
     backgroundColor: normal.backgroundColor,
     color: normal.textColor,
-    fontSize: normal.textSize,
+    fontSize: normal.textSize ?? text.size,
 
     [pseudoClasses.active]: {
       backgroundColor: active.backgroundColor ?? normal.backgroundColor,

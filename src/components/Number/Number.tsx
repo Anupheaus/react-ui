@@ -72,6 +72,8 @@ export const Number = createComponent('Number', ({
     if (max != null && value > max) return `Value cannot be greater than ${max}`;
   }, [providedError, min, max, value]);
 
+  const handleChange = useBound((newValue: number | undefined) => onChange?.(to.number(newValue)));
+
   return (
     <InternalText
       {...props}
@@ -84,7 +86,7 @@ export const Number = createComponent('Number', ({
       startAdornments={startButtons}
       useFloatingStartAdornments
       error={error}
-      onChange={onChange}
+      onChange={handleChange}
     />
   );
 });
