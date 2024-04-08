@@ -1,7 +1,7 @@
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { GridColumn } from './GridModels';
-import { Record, UnPromise } from '@anupheaus/common';
+import { GridColumn, GridOnRequest } from './GridModels';
+import { Record } from '@anupheaus/common';
 import { UseActions, useBound } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { GridRow } from './GridRow';
@@ -9,8 +9,6 @@ import { OnScrollEventData } from '../Scroller';
 import { useRef } from 'react';
 import { InternalList } from '../InternalList/InternalList';
 import { ListActions, ListOnRequest } from '../List';
-
-export type GridOnRequest<T extends Record = Record> = (...args: Parameters<ListOnRequest<T>>) => Promise<Omit<UnPromise<ReturnType<ListOnRequest<T>>>, 'items'> & { records: T[]; }>;
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
   rows: {
