@@ -66,7 +66,7 @@ export const Drawer = createComponent('Drawer', ({
     paper: join(css.drawer, className),
   }), [className]);
 
-  const close = useBound((event?: {}, standardReason: DrawerCloseReasons = 'drawerClosed') => {
+  const close = useBound((_event?: {}, standardReason: DrawerCloseReasons = 'drawerClosed') => {
     if (standardReason === 'backdropClick' && disableBackdropClick === true) return;
     if (standardReason === 'escapeKeyDown' && disableEscapeKeyDown === true) return;
     if (onClose?.(standardReason) === false) return;

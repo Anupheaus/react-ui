@@ -4,7 +4,7 @@ import { GridColumn } from './GridModels';
 import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useState } from 'react';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { to } from '@anupheaus/common';
 import { GridOnRequest } from './GridRows';
 
@@ -42,7 +42,7 @@ const generateRecords = (count: number): DemoRecord[] => new Array(count).fill(0
   address: faker.location.streetAddress(),
 }));
 
-const records = generateRecords(100);
+// const records = generateRecords(100);
 
 const meta: Meta<typeof Grid> = {
   component: Grid,
@@ -64,7 +64,9 @@ export default meta;
 //   },
 // });
 
-export const Loading = createStory({
+type Story = StoryObj<typeof Grid>;
+
+export const Loading: Story = createStory({
   width: 1100,
   height: 200,
   render: () => {
@@ -75,6 +77,7 @@ export const Loading = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
 
@@ -88,7 +91,7 @@ export const Loading = createStory({
   },
 });
 
-export const RequestedRecords = createStory({
+export const RequestedRecords: Story = createStory({
   width: 700,
   height: 500,
   render: () => {
@@ -103,6 +106,7 @@ export const RequestedRecords = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
 
@@ -117,13 +121,13 @@ export const RequestedRecords = createStory({
   },
 });
 
-export const RequestedMinimumRecords = createStory({
+export const RequestedMinimumRecords: Story = createStory({
   width: 700,
   height: 200,
   render: () => {
     const [localColumns] = useState(columns);
 
-    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async pagination => {
+    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async () => {
       const newRecords = generateRecords(2);
       return {
         records: newRecords,
@@ -132,6 +136,7 @@ export const RequestedMinimumRecords = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
 

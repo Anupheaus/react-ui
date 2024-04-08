@@ -1,15 +1,14 @@
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { Flex } from '../Flex';
 import { GridColumn } from './GridModels';
 import { Record, UnPromise } from '@anupheaus/common';
 import { UseActions, useBound } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { GridRow } from './GridRow';
 import { OnScrollEventData } from '../Scroller';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { InternalList } from '../InternalList/InternalList';
-import { ListActions, ListItemProps, ListOnRequest } from '../List';
+import { ListActions, ListOnRequest } from '../List';
 
 export type GridOnRequest<T extends Record = Record> = (...args: Parameters<ListOnRequest<T>>) => Promise<Omit<UnPromise<ReturnType<ListOnRequest<T>>>, 'items'> & { records: T[]; }>;
 
@@ -61,9 +60,9 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
     onScrollLeft(event.left);
   });
 
-  const LoadingComponent = useMemo(() => createComponent('LoadingComponent', ({ index }: ListItemProps) => (
-    <GridRow columns={columns} rowIndex={index} />
-  )), [columns]);
+  // const LoadingComponent = useMemo(() => createComponent('LoadingComponent', ({ index }: ListItemProps) => (
+  //   <GridRow columns={columns} rowIndex={index} />
+  // )), [columns]);
 
   return (
     // <Flex tagName="grid-rows" className={css.rows}>

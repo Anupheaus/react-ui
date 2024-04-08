@@ -1,4 +1,3 @@
-import { AnyObject } from '@anupheaus/common';
 import { createContext } from 'react';
 import { Theme } from './themes';
 

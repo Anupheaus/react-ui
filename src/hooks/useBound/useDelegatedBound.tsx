@@ -10,7 +10,7 @@ interface LoopBoundCachedItemType {
   func: Function;
 }
 
-const replacer = (key: string, value: unknown) => is.function(value) ? value.toString() : value;
+const replacer = (_key: string, value: unknown) => is.function(value) ? value.toString() : value;
 
 export function useDelegatedBound<TFunc extends DelegatedBoundFunc>(delegate: TFunc): TFunc {
   const cache = useRef<Map<string, LoopBoundCachedItemType>>(new Map()).current;

@@ -24,8 +24,7 @@ interface Props extends ComponentProps<typeof Menu> {
 }
 
 export function usePopupMenu() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const setElementRef = useRef((element: HTMLElement | undefined) => void 0);
+  const setElementRef = useRef((_element: HTMLElement | undefined) => void 0);
   const openMenuRef = useRef<() => void>(() => void 0);
   const { isValid: isInPopup, close: closeParentPopup } = useContext(PopupMenuContext);
 

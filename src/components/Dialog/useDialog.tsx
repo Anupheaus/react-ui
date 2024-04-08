@@ -3,14 +3,24 @@ import { useBound, useDelegatedBound, useId } from '../../hooks';
 import { Button } from '../Button';
 import { DialogContent } from './DialogContent';
 import { DialogActions } from './DialogActions';
-import { createComponent } from '../Component';
+import { ReactUIComponent, createComponent } from '../Component';
 import { Dialog as DialogComponent } from './Dialog';
 import { defaultDialogManagerId } from './InternalDialogModels';
 import { DialogProps } from './Dialog';
 import { DeferredPromise, PromiseMaybe } from '@anupheaus/common';
 import { useWindows } from '../Windows';
 
-function internalUseDialog(id = defaultDialogManagerId) {
+export interface UseDialogApi {
+  openDialog: () => Promise<string>;
+  closeDialog: (reason?: string) => Promise<void>;
+  Dialog: ReactUIComponent<(props: DialogProps) => JSX.Element>;
+  DialogContent: ReactUIComponent<(props: ComponentProps<typeof DialogContent>) => JSX.Element>;
+  DialogActions: ReactUIComponent<(props: ComponentProps<typeof DialogActions>) => JSX.Element>;
+  OkButton: ReactUIComponent<(props: ComponentProps<typeof Button>) => JSX.Element>;
+  CancelButton: ReactUIComponent<(props: ComponentProps<typeof Button>) => JSX.Element>;
+}
+
+function internalUseDialog(id = defaultDialogManagerId): UseDialogApi {
   const { openWindow, closeWindow } = useWindows(id);
   const dialogId = useId();
   const dialogPromiseRef = useRef<DeferredPromise<string>>();
@@ -23,7 +33,7 @@ function internalUseDialog(id = defaultDialogManagerId) {
     dialogCloseReasonRef.current = undefined;
   });
 
-  const Dialog = useMemo(() => createComponent('Dialog', (props: DialogProps) => (
+  const Dialog: ReactUIComponent<(props: DialogProps) => JSX.Element> = useMemo(() => createComponent('Dialog', (props: DialogProps) => (
     <DialogComponent {...props} id={dialogId} managerId={id} closeReasonRef={dialogCloseReasonRef} onClosed={handleClosed(props.onClosed)} />
   )), []);
 
@@ -44,11 +54,11 @@ function internalUseDialog(id = defaultDialogManagerId) {
     await Promise.whenAllSettled([closeDialog(buttonId), onClick?.() as Promise<unknown>].removeNull());
   });
 
-  const OkButton = useMemo(() => createComponent('OkButton', (props: ComponentProps<typeof Button>) => (
+  const OkButton: ReactUIComponent<(props: ComponentProps<typeof Button>) => JSX.Element> = useMemo(() => createComponent('OkButton', (props: ComponentProps<typeof Button>) => (
     <Button {...props} onClick={handleClick('ok', props.onClick)}>{props.children ?? 'Okay'}</Button>
   )), []);
 
-  const CancelButton = useMemo(() => createComponent('CancelButton', (props: ComponentProps<typeof Button>) => (
+  const CancelButton: ReactUIComponent<(props: ComponentProps<typeof Button>) => JSX.Element> = useMemo(() => createComponent('CancelButton', (props: ComponentProps<typeof Button>) => (
     <Button {...props} onClick={handleClick('cancel', props.onClick)}>{props.children ?? 'Cancel'}</Button>
   )), []);
 
@@ -62,8 +72,6 @@ function internalUseDialog(id = defaultDialogManagerId) {
     CancelButton,
   };
 }
-
-export type UseDialogApi = ReturnType<typeof internalUseDialog>;
 
 export function useDialog(id?: string): UseDialogApi {
   return internalUseDialog(id);

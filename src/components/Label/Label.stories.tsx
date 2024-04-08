@@ -20,14 +20,14 @@ const config = {
   ),
 } satisfies Story;
 
-export const UIStates = createStorybookComponentStates(config);
+export const UIStates: Story = createStorybookComponentStates(config);
 UIStates.storyName = 'UI States';
 
-export const UIStatesWithOptional = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true } });
+export const UIStatesWithOptional: Story = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true } });
 UIStatesWithOptional.storyName = 'UI States as Optional';
 
-export const UIStatesWithHelp = createStorybookComponentStates({ ...config, args: { ...config.args, help: 'This is my help' } });
+export const UIStatesWithHelp: Story = createStorybookComponentStates({ ...config, args: { ...config.args, help: 'This is my help' } });
 UIStatesWithHelp.storyName = 'UI States with Help';
 
-export const UIStatesWithOptionalAndHelp = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true, help: 'This is my help' } });
+export const UIStatesWithOptionalAndHelp: Story = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true, help: 'This is my help' } });
 UIStatesWithOptionalAndHelp.storyName = 'UI States as Optional with Help';

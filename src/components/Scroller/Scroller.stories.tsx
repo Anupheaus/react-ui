@@ -9,7 +9,7 @@ export default meta;
 
 type Story = StoryObj<typeof Scroller>;
 
-export const config = {
+export const config: Story = {
   storyName: '',
   args: {
   },

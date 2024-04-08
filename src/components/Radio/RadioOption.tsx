@@ -3,7 +3,7 @@ import { KeyboardEvent } from 'react';
 import { DistributedState, useBound, useDistributedState } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { useUIState } from '../../providers';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Icon } from '../Icon';
@@ -11,53 +11,47 @@ import { useRipple } from '../Ripple';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Typography } from '../Typography';
-import { RadioTheme } from './RadioTheme';
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { default: { borderColor } } = useTheme(RadioTheme);
-  return {
-    styles: {
-      radio: {
-        cursor: 'pointer',
-      },
-      isLoading: {
-        cursor: 'default',
-      },
-      radioGraphicContainer: {
-        position: 'relative',
-        display: 'flex',
-        flex: 'none',
-        width: 20,
-        height: 20,
-      },
-      radioGraphic: {
-        position: 'relative',
-        display: 'flex',
-        flex: 'none',
-        width: 16,
-        height: 16,
-        borderWidth: 2,
-        borderStyle: 'solid',
-        borderColor,
-        borderRadius: '50%',
-      },
-      toggledRadioGraphic: {
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 3,
-          backgroundColor: borderColor,
-          borderRadius: '50%',
-          overflow: 'hidden',
-        },
-      },
-      ripple: {
-        inset: -4,
-        borderRadius: '50%',
-      },
+const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
+  radio: {
+    cursor: 'pointer',
+  },
+  isLoading: {
+    cursor: 'default',
+  },
+  radioGraphicContainer: {
+    position: 'relative',
+    display: 'flex',
+    flex: 'none',
+    width: 20,
+    height: 20,
+  },
+  radioGraphic: {
+    position: 'relative',
+    display: 'flex',
+    flex: 'none',
+    width: 16,
+    height: 16,
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: normal.borderColor,
+    borderRadius: '50%',
+  },
+  toggledRadioGraphic: {
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      inset: 3,
+      backgroundColor: normal.borderColor,
+      borderRadius: '50%',
+      overflow: 'hidden',
     },
-  };
-});
+  },
+  ripple: {
+    inset: -4,
+    borderRadius: '50%',
+  },
+}));
 
 interface Props {
   item: ReactListItem;

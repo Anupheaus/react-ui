@@ -13,6 +13,7 @@ module.exports = {
     path: path.resolve(__dirname, './dist'),
     libraryTarget: 'umd',
     library: 'react-ui',
+    clean: true,
   },
   module: {
     rules: [{

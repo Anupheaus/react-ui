@@ -1,7 +1,7 @@
-import { AnyObject, createProxyOf, Event, Records } from '@anupheaus/common';
+import { AnyObject, createProxyOf, Event, ProxyOf, Records } from '@anupheaus/common';
 import { useMemo, useRef } from 'react';
 import { useBound, useForceUpdate, useOnChange } from '../../hooks';
-import { createComponent } from '../Component';
+import { createComponent, ReactUIComponent } from '../Component';
 import { FormProps, Form as FormComponent } from './Form';
 import { FormContext, FormContextProps } from './FormContext';
 import { FormSaveButton } from './FormSaveButton';
@@ -11,7 +11,17 @@ interface Props<T extends AnyObject> {
   data: T;
 }
 
-export function useForm<T extends AnyObject>({ data: providedData }: Props<T>) {
+export interface UseForm<T extends AnyObject> {
+  data: ProxyOf<T>;
+  get<V>(field: V): any;
+  useFormField<V>(field: V): any;
+  Form: ReactUIComponent<(props: FormProps<T>) => JSX.Element>;
+  SaveButton: typeof FormSaveButton;
+  Toolbar: typeof FormToolbar;
+
+}
+
+export function useForm<T extends AnyObject>({ data: providedData }: Props<T>): UseForm<T> {
   const [original, current] = useMemo(() => [createProxyOf(Object.clone(providedData)), createProxyOf(Object.clone(providedData))], []);
   const onSave = useRef<FormContextProps['onSave']['current']>();
 
@@ -54,7 +64,7 @@ export function useForm<T extends AnyObject>({ data: providedData }: Props<T>) {
     save,
   }), [original, current]);
 
-  const Form = useMemo(() => createComponent('Form', (props: FormProps<T>) => (
+  const Form: ReactUIComponent<(props: FormProps<T>) => JSX.Element> = useMemo(() => createComponent('Form', (props: FormProps<T>) => (
     <FormContext.Provider value={context}>
       <FormComponent {...props} />
     </FormContext.Provider>

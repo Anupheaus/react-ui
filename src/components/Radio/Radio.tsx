@@ -1,13 +1,13 @@
 import { useMemo } from 'react';
 import { useDistributedState } from '../../hooks';
 import { ReactListItem } from '../../models';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Field, FieldProps } from '../Field';
 import { RadioOption } from './RadioOption';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   radioGroupOptions: {
     padding: 4,
     margin: -4,

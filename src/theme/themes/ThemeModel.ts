@@ -6,6 +6,12 @@ interface ThemeStateConfig {
   disabled: CSSProperties;
 }
 
+interface AssistiveLabelTheme {
+  fontSize: string | number;
+  fontWeight: string | number;
+  errorTextColor: string;
+}
+
 interface ButtonTheme {
   backgroundColor: string;
   borderColor?: string;
@@ -128,6 +134,11 @@ interface TabButtonTheme extends ButtonTheme {
 }
 
 export interface Theme {
+  assistiveLabel: {
+    normal: AssistiveLabelTheme;
+    active: Partial<AssistiveLabelTheme>;
+    readOnly: Partial<AssistiveLabelTheme>;
+  },
   buttons: {
     default: {
       normal: ButtonTheme;
@@ -189,6 +200,12 @@ export interface Theme {
     };
 
     selectableItem: {
+      normal: ListItemTheme;
+      active: Partial<ListItemTheme>;
+      readOnly: Partial<ListItemTheme>;
+    };
+
+    draggableItem: {
       normal: ListItemTheme;
       active: Partial<ListItemTheme>;
       readOnly: Partial<ListItemTheme>;

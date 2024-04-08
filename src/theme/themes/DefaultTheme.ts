@@ -21,6 +21,15 @@ const defaultButtons: Theme['buttons']['default'] = {
 };
 
 export const DefaultTheme: Theme = {
+  assistiveLabel: {
+    normal: {
+      fontSize: 12,
+      fontWeight: 400,
+      errorTextColor: '#b71313',
+    },
+    active: {},
+    readOnly: {},
+  },
   buttons: {
     default: defaultButtons,
     bordered: {
@@ -133,7 +142,17 @@ export const DefaultTheme: Theme = {
         backgroundColor: 'rgba(0 0 0 / 10%)',
       },
       readOnly: {},
-    }
+    },
+
+    draggableItem: {
+      normal: {
+        padding: '4px 8px',
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+      },
+      readOnly: {},
+    },
   },
   pseudoClasses: {
     active: '&:not(.is-read-only):hover, &:not(.is-read-only):active, &:not(.is-read-only):focus, &:not(.is-read-only):focus-visible, &:not(.is-read-only).is-active',

@@ -47,5 +47,5 @@ const config = (additionalProps: Partial<ComponentProps<typeof PIN>> = {}): Stor
   },
 });
 
-export const UIStates = createStorybookComponentStates({ ...config(), includeError: true });
-export const UIStatesNotCensored = createStorybookComponentStates({ ...config({ isCensored: false }), includeError: true });
+export const UIStates: Story = createStorybookComponentStates({ ...config(), includeError: true });
+export const UIStatesNotCensored: Story = createStorybookComponentStates({ ...config({ isCensored: false }), includeError: true });

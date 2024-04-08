@@ -1,3 +1,4 @@
+import { MemoExoticComponent } from 'react';
 import { ReCaptcha } from './Recaptcha';
 import makeAsyncScriptLoader from 'react-async-script';
 
@@ -12,7 +13,7 @@ function getURL() {
   return `https://${hostname}/recaptcha/enterprise.js?onload=${callbackName}&render=explicit`;
 }
 
-export const ReCaptchaWrapper = makeAsyncScriptLoader(getURL(), {
+export const ReCaptchaWrapper: MemoExoticComponent<typeof ReCaptcha> = makeAsyncScriptLoader(getURL(), {
   callbackName,
   globalName,
-})(ReCaptcha);
+})(ReCaptcha) as any;

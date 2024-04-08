@@ -91,10 +91,10 @@ export const Autocomplete = createComponent('Autocomplete', ({
   // }, [value, renderSelectedValue]);
 
 
-  const handleContainerSelect = useBound(() => {
-    if (isOpen) return;
-    setIsOpen();
-  });
+  // const handleContainerSelect = useBound(() => {
+  //   if (isOpen) return;
+  //   setIsOpen();
+  // });
 
   const handleItemClick = useBound((item: ReactListItem) => () => {
     item.onSelect?.();

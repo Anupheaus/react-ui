@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { ReactListItem } from '../../models';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
 import { List, ListOnRequest } from './List';
 import { useBound } from '../../hooks';
@@ -21,7 +21,9 @@ const meta: Meta<typeof List> = {
 };
 export default meta;
 
-export const LazyLoadedItems = createStory<typeof List>({
+type Story = StoryObj<typeof List>;
+
+export const LazyLoadedItems: Story = createStory<typeof List>({
   args: {
     label: 'List',
   },

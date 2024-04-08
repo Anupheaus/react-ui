@@ -30,29 +30,29 @@ const config = ({ children = 'Label', variant }: Props = {}) => ({
   },
 }) satisfies Story;
 
-export const UIStates = createStorybookComponentStates(config());
+export const UIStates: Story = createStorybookComponentStates(config());
 UIStates.storyName = 'UI States';
 
-export const UIStatesWithIcon = createStorybookComponentStates(config({ children: <><Icon name="drawer-close" />Label</> }));
+export const UIStatesWithIcon: Story = createStorybookComponentStates(config({ children: <><Icon name="drawer-close" />Label</> }));
 UIStatesWithIcon.storyName = 'UI States with Icon';
 
-export const UIStatesWithIconOnly = createStorybookComponentStates(config({ children: <Icon name="drawer-close" /> }));
+export const UIStatesWithIconOnly: Story = createStorybookComponentStates(config({ children: <Icon name="drawer-close" /> }));
 UIStatesWithIconOnly.storyName = 'UI States with Icon Only';
 
-export const UIStatesAsBorderOnlyVariant = createStorybookComponentStates(config({ variant: 'bordered' }));
+export const UIStatesAsBorderOnlyVariant: Story = createStorybookComponentStates(config({ variant: 'bordered' }));
 UIStatesAsBorderOnlyVariant.storyName = 'UI States as Bordered Variant';
 
-export const UIStatesAsBorderOnlyVariantWithIcon = createStorybookComponentStates(config({ variant: 'bordered', children: <><Icon name="drawer-close" />Label</> }));
+export const UIStatesAsBorderOnlyVariantWithIcon: Story = createStorybookComponentStates(config({ variant: 'bordered', children: <><Icon name="drawer-close" />Label</> }));
 UIStatesAsBorderOnlyVariantWithIcon.storyName = 'UI States as Bordered Variant with Icon';
 
-export const UIStatesAsBorderOnlyVariantWithIconOnly = createStorybookComponentStates(config({ variant: 'bordered', children: <Icon name="drawer-close" /> }));
+export const UIStatesAsBorderOnlyVariantWithIconOnly: Story = createStorybookComponentStates(config({ variant: 'bordered', children: <Icon name="drawer-close" /> }));
 UIStatesAsBorderOnlyVariantWithIconOnly.storyName = 'UI States as Bordered Variant with Icon Only';
 
-export const UIStatesAsHoverVariant = createStorybookComponentStates(config({ variant: 'hover' }));
+export const UIStatesAsHoverVariant: Story = createStorybookComponentStates(config({ variant: 'hover' }));
 UIStatesAsHoverVariant.storyName = 'UI States as Hover Variant';
 
-export const UIStatesAsHoverVariantWithIcon = createStorybookComponentStates(config({ variant: 'hover', children: <><Icon name="drawer-close" />Label</> }));
+export const UIStatesAsHoverVariantWithIcon: Story = createStorybookComponentStates(config({ variant: 'hover', children: <><Icon name="drawer-close" />Label</> }));
 UIStatesAsHoverVariantWithIcon.storyName = 'UI States as Hover Variant with Icon';
 
-export const UIStatesAsHoverVariantWithIconOnly = createStorybookComponentStates(config({ variant: 'hover', children: <Icon name="drawer-close" /> }));
+export const UIStatesAsHoverVariantWithIconOnly: Story = createStorybookComponentStates(config({ variant: 'hover', children: <Icon name="drawer-close" /> }));
 UIStatesAsHoverVariantWithIconOnly.storyName = 'UI States as Hover Variant with Icon Only';

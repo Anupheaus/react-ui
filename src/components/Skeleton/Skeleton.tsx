@@ -1,10 +1,9 @@
 import { CSSProperties, MouseEvent, ReactNode, useContext, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useUIState } from '../../providers/UIStateProvider';
-import { createLegacyStyles, createAnimationKeyFrame } from '../../theme';
+import { createAnimationKeyFrame, createStyles } from '../../theme';
 import { Tag } from '../Tag';
 import { SkeletonContexts } from './SkeletonContexts';
-import { SkeletonTheme } from './SkeletonTheme';
 import { AnimatingBorder } from '../AnimatingBorder';
 
 const animation = createAnimationKeyFrame({
@@ -16,76 +15,71 @@ const animation = createAnimationKeyFrame({
   },
 });
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { color } = useTheme(SkeletonTheme);
-  return {
-    styles: {
-      skeleton: {
-        position: 'relative',
-        display: 'flex',
-        visibility: 'hidden',
-        pointerEvents: 'none',
-        backgroundColor: color,
-        animationDuration: '1s',
-        animationDirection: 'alternate',
-        animationFillMode: 'both',
-        animationPlayState: 'paused',
-        animationIterationCount: 'infinite',
-        animationName: animation,
-      },
-      absolutePositioning: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      },
-      content: {
-        display: 'flex',
-        flex: 'auto',
-      },
-      isVisible: {
-        visibility: 'visible',
-        pointerEvents: 'all',
-        cursor: 'default',
-      },
-      isPulsing: {
-        animationPlayState: 'running',
-      },
-      isHidden: {
-        visibility: 'hidden',
-        pointerEvents: 'none',
-      },
-      usingAnimatedBorder: {
-        backgroundColor: 'transparent',
-        visibility: 'visible',
-      },
-      variant_full: {
+const useStyles = createStyles(({ skeleton }) => ({
+  skeleton: {
+    position: 'relative',
+    display: 'flex',
+    visibility: 'hidden',
+    pointerEvents: 'none',
+    backgroundColor: skeleton.color,
+    animationDuration: '1s',
+    animationDirection: 'alternate',
+    animationFillMode: 'both',
+    animationPlayState: 'paused',
+    animationIterationCount: 'infinite',
+    animationName: animation,
+  },
+  absolutePositioning: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  content: {
+    display: 'flex',
+    flex: 'auto',
+  },
+  isVisible: {
+    visibility: 'visible',
+    pointerEvents: 'all',
+    cursor: 'default',
+  },
+  isPulsing: {
+    animationPlayState: 'running',
+  },
+  isHidden: {
+    visibility: 'hidden',
+    pointerEvents: 'none',
+  },
+  usingAnimatedBorder: {
+    backgroundColor: 'transparent',
+    visibility: 'visible',
+  },
+  variant_full: {
 
-      },
-      variant_content_full: {
+  },
+  variant_content_full: {
 
-      },
+  },
 
-      variant_text: {
-        borderRadius: 4,
-        margin: '4px 0',
-      },
-      variant_content_text: {
-        margin: '-4px 0',
-      },
+  variant_text: {
+    borderRadius: 4,
+    margin: '4px 0',
+  },
+  variant_content_text: {
+    margin: '-4px 0',
+  },
 
-      variant_circle: {
-        borderRadius: '50%',
-      },
-      variant_content_circle: {
-      },
-      animatedBorder: {
-        visibility: 'visible',
-      },
-    },
-  };
-});
+  variant_circle: {
+    borderRadius: '50%',
+  },
+  variant_content_circle: {
+  },
+  animatedBorder: {
+    visibility: 'visible',
+  },
+}));
 
 interface Props {
   className?: string;

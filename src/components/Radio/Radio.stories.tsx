@@ -36,8 +36,8 @@ const config = (additionalProps: Partial<ComponentProps<typeof Radio>> = {}): St
   },
 });
 
-export const UIStates = createStorybookComponentStates({ ...config(), includeError: true });
+export const UIStates: Story = createStorybookComponentStates({ ...config(), includeError: true });
 UIStates.storyName = 'UI States';
 
-export const UIStatesHorizontal = createStorybookComponentStates({ ...config({ isHorizontal: true }), includeError: true });
+export const UIStatesHorizontal: Story = createStorybookComponentStates({ ...config({ isHorizontal: true }), includeError: true });
 UIStatesHorizontal.storyName = 'UI States (Horizontal)';

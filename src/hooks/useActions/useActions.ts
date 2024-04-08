@@ -49,7 +49,7 @@ function useActionsFunc<T extends {}>(): UseActionsApi<T> {
   });
 
   const getMappedActions = useBound((id: string | number) => new Proxy({}, {
-    get: (target, prop) => {
+    get: (_target, prop) => {
       if (prop === 'hasActions') return mappedActionsRef.current.has(id);
       return createActionInvoker(prop, () => mappedActionsRef.current.get(id));
     },
@@ -64,7 +64,7 @@ function useActionsFunc<T extends {}>(): UseActionsApi<T> {
   });
 
   return new Proxy({}, {
-    get: (target, prop) => {
+    get: (_target, prop) => {
       if (prop === 'hasActions') return actionsRef.current != null;
       if (prop === 'setActions') return setActions;
       if (prop === 'setMappedActions') return setMappedActions;

@@ -20,5 +20,5 @@ const config = {
   ),
 } satisfies Story;
 
-export const UIStates = createStorybookComponentStates({ ...config, includeError: true });
+export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
 UIStates.storyName = 'UI States';

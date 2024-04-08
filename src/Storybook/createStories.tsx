@@ -3,7 +3,7 @@ import { FunctionComponent, ReactNode, useMemo } from 'react';
 import { AnyObject, Event, MapOf, PromiseMaybe } from '@anupheaus/common';
 import { within, userEvent } from '@storybook/testing-library';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
-import { StorybookComponent } from './StorybookComponent';
+// import { StorybookComponent } from './StorybookComponent';
 import { Typography } from '@mui/material';
 import { TestHookOnRenderProps } from './StorybookModels';
 import { createRootThemeProvider } from '../theme/createRootThemeProvider';
@@ -117,11 +117,11 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
     let InternalComponent: FunctionComponent | undefined;
     const storyName = path.concat(key).join('.');
     const storyId = path.concat(key).join('.');
-    let notes: ReactNode = null;
+    // let notes: ReactNode = null;
     let title: ReactNode = path.concat(key).join(' ');
     let test: StoryConfig<T>['test'] | undefined;
-    let width: string | number | undefined;
-    let height: string | number | undefined;
+    // let width: string | number | undefined;
+    // let height: string | number | undefined;
     let delaySnapshot: number | undefined;
     let diffThreshold: number | undefined;
     let wrapInStorybookComponent = true;
@@ -132,10 +132,10 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
       (value as any).storyName = storyName;
     } else if (isStoryConfig(value)) {
       InternalComponent = value.component as FunctionComponent;
-      notes = value.notes;
+      // notes = value.notes;
       title = value.title ?? title;
-      width = value.width;
-      height = value.height;
+      // width = value.width;
+      // height = value.height;
       diffThreshold = value.chromatic?.diffThreshold;
       test = value.test ?? undefined;
       delaySnapshot = value?.chromatic?.delaySnapshot;
@@ -178,9 +178,9 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
                     </>);
                   } else {
                     return (
-                      <StorybookComponent title={title} notes={notes} width={width} height={height}>
-                        <InternalComponent {...props} />
-                      </StorybookComponent>
+                      //<StorybookComponent title={title} notes={notes} width={width} height={height}>
+                      <InternalComponent {...props} />
+                      // </StorybookComponent>
                     );
                   }
                 })()}

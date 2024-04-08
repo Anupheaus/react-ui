@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
 import { InternalList } from './InternalList';
 import { ReactListItem } from '../../models';
@@ -23,7 +23,9 @@ const meta: Meta<typeof InternalList> = {
 };
 export default meta;
 
-export const Loading = createStory<typeof InternalList>({
+type Story = StoryObj<typeof InternalList>;
+
+export const Loading: Story = createStory<typeof InternalList>({
   args: {
 
   },
@@ -40,7 +42,7 @@ export const Loading = createStory<typeof InternalList>({
   },
 });
 
-export const StaticItems = createStory<typeof InternalList>({
+export const StaticItems: Story = createStory<typeof InternalList>({
   args: {
 
   },
@@ -53,7 +55,7 @@ export const StaticItems = createStory<typeof InternalList>({
   },
 });
 
-export const LazyLoadedItems = createStory<typeof InternalList>({
+export const LazyLoadedItems: Story = createStory<typeof InternalList>({
   args: {
 
   },

@@ -21,14 +21,14 @@ const config = (additionalProps: Partial<ComponentProps<typeof Icon>> = {}): any
   ),
 }) as Story;
 
-export const UIStatesSmall = createStorybookComponentStates(config({ size: 'small' }));
+export const UIStatesSmall: Story = createStorybookComponentStates(config({ size: 'small' }));
 UIStatesSmall.storyName = 'UI States (Small)';
 
-export const UIStatesNormal = createStorybookComponentStates(config({ size: 'normal' }));
+export const UIStatesNormal: Story = createStorybookComponentStates(config({ size: 'normal' }));
 UIStatesNormal.storyName = 'UI States (Normal)';
 
-export const UIStatesLarge = createStorybookComponentStates(config({ size: 'large' }));
+export const UIStatesLarge: Story = createStorybookComponentStates(config({ size: 'large' }));
 UIStatesLarge.storyName = 'UI States (Large)';
 
-export const UIStatesAndIsClickable = createStorybookComponentStates(config({ onClick: () => void 0 }));
+export const UIStatesAndIsClickable: Story = createStorybookComponentStates(config({ onClick: () => void 0 }));
 UIStatesAndIsClickable.storyName = 'UI States (Clickable)';

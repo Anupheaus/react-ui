@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { AssistiveLabelTheme } from './AssistiveLabelTheme';
 import { Error, is } from '@anupheaus/common';
 
 interface Props {
@@ -11,22 +10,17 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { errorTextColor, fontSize, fontWeight } = useTheme(AssistiveLabelTheme);
-  return {
-    styles: {
-      assistiveLabel: {
-        fontSize,
-        fontWeight,
-        cursor: 'default',
-        width: 'max-content',
-      },
-      isError: {
-        color: errorTextColor,
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ assistiveLabel: { normal } }) => ({
+  assistiveLabel: {
+    fontSize: normal.fontSize,
+    fontWeight: normal.fontWeight,
+    cursor: 'default',
+    width: 'max-content',
+  },
+  isError: {
+    color: normal.errorTextColor,
+  },
+}));
 
 export const AssistiveLabel = createComponent('AssistiveLabel', ({
   className,

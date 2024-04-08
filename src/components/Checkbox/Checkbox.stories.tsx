@@ -28,14 +28,14 @@ const config = ({ children = 'Label', labelPosition }: Props = {}) => ({
   },
 }) satisfies Story;
 
-export const UIStates = createStorybookComponentStates({ ...config(), includeError: true });
+export const UIStates: Story = createStorybookComponentStates({ ...config(), includeError: true });
 UIStates.storyName = 'UI States (Right Align)';
 
-export const UIStatesLeftAlign = createStorybookComponentStates({ ...config({ labelPosition: 'left' }), includeError: true });
+export const UIStatesLeftAlign: Story = createStorybookComponentStates({ ...config({ labelPosition: 'left' }), includeError: true });
 UIStatesLeftAlign.storyName = 'UI States (Left Align)';
 
-export const UIStatesTopAlign = createStorybookComponentStates({ ...config({ labelPosition: 'top' }), includeError: true });
+export const UIStatesTopAlign: Story = createStorybookComponentStates({ ...config({ labelPosition: 'top' }), includeError: true });
 UIStatesTopAlign.storyName = 'UI States (Top Align)';
 
-export const UIStatesBottomAlign = createStorybookComponentStates({ ...config({ labelPosition: 'bottom' }), includeError: true });
+export const UIStatesBottomAlign: Story = createStorybookComponentStates({ ...config({ labelPosition: 'bottom' }), includeError: true });
 UIStatesBottomAlign.storyName = 'UI States (Bottom Align)';

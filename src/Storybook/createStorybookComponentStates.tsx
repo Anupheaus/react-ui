@@ -41,7 +41,7 @@ type NewStoryObj<P extends AnyObject> = StoryObj<P> & {
   height?: string | number;
 };
 
-export function createStorybookComponentStates<P extends AnyObject>(story: NewStoryObj<P>) {
+export function createStorybookComponentStates<P extends AnyObject>(story: NewStoryObj<P>): StoryObj<P> {
   const { includeError, width, height } = story;
   story.args = {
     ...story.args,
