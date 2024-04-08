@@ -1,12 +1,11 @@
 import { createStory } from '../../Storybook';
 import { Grid } from './Grid';
-import { GridColumn } from './GridModels';
+import { GridColumn, GridOnRequest } from './GridModels';
 import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { to } from '@anupheaus/common';
-import { GridOnRequest } from './GridRows';
 
 interface DemoRecord {
   id: string;
