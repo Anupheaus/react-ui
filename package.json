@@ -5,6 +5,9 @@
   "repository": "https://github.com/Anupheaus/react-ui.git",
   "author": "Anupheaus",
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "private": false,
   "scripts": {
     "start": "storybook dev -p 6006",
