@@ -13,6 +13,7 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
     padding: 0,
     appearance: 'none',
     pointerEvents: 'all',
+    width: '100%',
   },
 }));
 
