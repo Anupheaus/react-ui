@@ -1,4 +1,4 @@
-import { ReactNode, useLayoutEffect, useMemo, useRef } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks/useBound';
 import { ReactListItem } from '../../models';
 import { Flex } from '../Flex';
@@ -49,6 +49,7 @@ interface Props<T extends ReactListItem> extends InternalListProps<T> {
   className?: string;
   contentClassName?: string;
   disableShadowsOnScroller?: boolean;
+  delayRenderingItems?: boolean;
   renderItem?(props: ListItemProps<T>): ReactNode;
   onScroll?(values: OnScrollEventData): void;
   onItemsChange?(items: (T | Promise<T>)[]): void;
@@ -60,6 +61,7 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
   contentClassName,
   disableShadowsOnScroller = false,
   items: providedItems,
+  delayRenderingItems = false,
   renderItem,
   actions,
   onScroll,
@@ -74,6 +76,7 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo } = useActions<ScrollerActions>();
   const { items, total, request: makeRequest, offset, limit } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems });
+  const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
 
   actions?.({
     refresh,
@@ -118,7 +121,7 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
 
     return (<>
       <Flex tagName="lazy-load-header" style={headerStyle} disableGrow />
-      {items
+      {(allowedToRenderItems ? items : [])
         .map((item, index) => {
           const itemIndex = offset + index;
           if (item == null) throw new Error(`Item at index ${itemIndex} is not a deferred promise or an item.`);
@@ -134,7 +137,7 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
         })}
       <Flex tagName="lazy-load-footer" style={footerStyle} disableGrow />
     </>);
-  }, [items, total, offset, limit]);
+  }, [allowedToRenderItems, items, total, offset, limit]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => {
     containerRef.current = values.element;
@@ -148,6 +151,11 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
   useLayoutEffect(() => {
     onItemsChange?.(items);
   }, [items]);
+
+  useEffect(() => {
+    if (allowedToRenderItems) return;
+    setAllowedToRenderItems(true);
+  }, []);
 
   return (
     <Flex tagName={tagName} className={join(css.internalList, className)} isVertical maxWidth>

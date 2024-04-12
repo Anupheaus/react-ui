@@ -79,16 +79,6 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
         fontWeight: content.inactive.textWeight ?? content.active.textWeight,
       },
     },
-
-    '&.initial-position-center': {
-      // left: '50%!important',
-      // top: '50%!important',
-      // marginLeft: 'auto',
-      // marginRight: 'auto',
-      // '--translateX': '-50%',
-      // '--translateY': '-50%',
-      // transform: 'translate(-50%, -50%)',
-    },
   },
   titlebar: {
     zIndex: 1,

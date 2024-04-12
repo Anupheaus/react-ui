@@ -33,6 +33,7 @@ type Props<T extends ReactListItem = ReactListItem> = Omit<InternalListProps<T>,
   wide?: boolean;
   addButtonTooltip?: ReactNode;
   renderItemsUsing?: FunctionComponent<ListItemProps<T>>;
+  delayRenderingItems?: boolean;
   actions?: UseActions<ListActions>;
   onChange?(items: T[]): void;
   onAdd?(): PromiseMaybe<T | void>;
@@ -76,6 +77,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
   width,
   wide,
   renderItemsUsing: ItemComponent,
+  delayRenderingItems,
   onAdd,
   ...props
 }: Props<T>) {
@@ -122,6 +124,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
         renderItem={ItemComponent != null ? renderItem : undefined}
         contentClassName={css.internalList}
         onItemsChange={handleItemsChanged}
+        delayRenderingItems={delayRenderingItems}
       />
     </Field>
   );

@@ -37,13 +37,12 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     const stateChanges: Partial<WindowState> = {};
     if (width == null && actualWidth != null) { stateChanges.width = actualWidth; width = actualWidth; }
     if (height == null && actualHeight != null) { stateChanges.height = actualHeight; height = actualHeight; }
-    if (x == null) {
+    if (x == null && actualWidth != null) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
-          const { width: boundingWidth } = windowElementRef.current.getBoundingClientRect();
           const maxWidth = parent.clientWidth;
-          stateChanges.x = Math.round((maxWidth - boundingWidth) / 2);
+          stateChanges.x = Math.round((maxWidth - actualWidth) / 2);
           x = stateChanges.x;
         }
       } else {
@@ -51,13 +50,12 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
         stateChanges.x = 0;
       }
     }
-    if (y == null) {
+    if (y == null && actualHeight != null) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
-          const { height: boundingHeight } = windowElementRef.current.getBoundingClientRect();
           const maxHeight = parent.clientHeight;
-          stateChanges.y = Math.round((maxHeight - boundingHeight) / 2);
+          stateChanges.y = Math.round((maxHeight - actualHeight) / 2);
           y = stateChanges.y;
         }
       } else {
@@ -70,6 +68,16 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
       if (Object.keys(stateChanges).length > 0) setState(stateChanges);
     });
   }); // do after every render
+
+  useEffect(() => {
+    if (preparationClassName === undefined) return;
+    if (actualWidth !== width || actualHeight !== height) {
+      batchUpdates(() => {
+        setInitialDimensionsHaveBeenSet(false);
+        setPreparationClassName('preparing');
+      });
+    }
+  }, [initialDimensionsHaveBeenSet, preparationClassName, actualWidth, actualHeight, width, height]);
 
   useEffect(() => {
     if (!initialDimensionsHaveBeenSet) return;
