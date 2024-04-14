@@ -28,6 +28,7 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
 
 export interface GridRowsProps<RecordType extends Record> {
   columns: GridColumn<RecordType>[];
+  delayRendering?: boolean;
   actions?: UseActions<ListActions>;
   onRequest: GridOnRequest<RecordType>;
   onScrollLeft(value: number): void;
@@ -35,6 +36,7 @@ export interface GridRowsProps<RecordType extends Record> {
 
 export const GridRows = createComponent('GridRows', function <RecordType extends Record>({
   columns,
+  delayRendering = false,
   actions,
   onRequest,
   onScrollLeft,
@@ -71,6 +73,7 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
       onScroll={handleHorizontalScroll}
       actions={actions}
       className={css.rows}
+      delayRenderingItems={delayRendering}
     />
     // </Flex>
   );

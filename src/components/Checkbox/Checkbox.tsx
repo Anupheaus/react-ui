@@ -66,6 +66,7 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal:
     height: 16,
     margin: 0,
     padding: 0,
+    cursor: 'pointer',
   },
   checkboxAreaChecked: {
     position: 'absolute',

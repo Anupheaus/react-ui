@@ -133,6 +133,10 @@ interface TabButtonTheme extends ButtonTheme {
   activeStripColor: string;
 }
 
+interface TabButtonsContainerTheme {
+  backgroundColor: string;
+}
+
 export interface Theme {
   assistiveLabel: {
     normal: AssistiveLabelTheme;
@@ -242,15 +246,16 @@ export interface Theme {
     active: Partial<IconTheme>;
     readOnly: Partial<IconTheme>;
   };
-  tabs?: {
-    buttons?: {
+  tabs: {
+    buttons: {
+      container: TabButtonsContainerTheme;
       normal?: Partial<TabButtonTheme>;
       active?: Partial<TabButtonTheme>;
       focused?: Partial<TabButtonTheme>;
       focusedAndActive?: Partial<TabButtonTheme>;
       readOnly?: Partial<TabButtonTheme>;
     },
-    content?: {
+    content: {
       normal?: WindowContentTheme;
       active?: Partial<WindowContentTheme>;
       readOnly?: Partial<WindowContentTheme>;

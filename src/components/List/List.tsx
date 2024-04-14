@@ -34,6 +34,7 @@ type Props<T extends ReactListItem = ReactListItem> = Omit<InternalListProps<T>,
   addButtonTooltip?: ReactNode;
   renderItemsUsing?: FunctionComponent<ListItemProps<T>>;
   delayRenderingItems?: boolean;
+  error?: ReactNode;
   actions?: UseActions<ListActions>;
   onChange?(items: T[]): void;
   onAdd?(): PromiseMaybe<T | void>;
@@ -78,6 +79,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
   wide,
   renderItemsUsing: ItemComponent,
   delayRenderingItems,
+  error: providedError,
   onAdd,
   ...props
 }: Props<T>) {
@@ -111,7 +113,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
           <Button variant="hover" size="small" iconOnly onSelect={handleAdd}><Icon name="add" size="small" /></Button>
         </Flex>
       )}
-      error={error}
+      error={providedError ?? error}
       isOptional={isOptional}
       hideOptionalLabel={hideOptionalLabel}
       disableRipple

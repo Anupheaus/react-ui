@@ -6,7 +6,7 @@ import { TabComponent, TabProps } from './Tab';
 import { TabsProps, TabsComponent } from './Tabs';
 
 export function useTabs() {
-  const { state, set, get } = useDistributedState(() => 0);
+  const { state, set, get, getAndObserve } = useDistributedState(() => 0);
 
   const selectTab = useBound((index: number | ((currentIndex: number) => number)) => {
     if (is.number(index)) {
@@ -23,5 +23,6 @@ export function useTabs() {
     Tabs,
     Tab,
     selectTab,
+    get selectedTabIndex() { return getAndObserve(); },
   };
 }

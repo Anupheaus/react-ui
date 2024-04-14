@@ -216,6 +216,9 @@ export const DefaultTheme: Theme = {
   },
   tabs: {
     buttons: {
+      container: {
+        backgroundColor: 'rgba(0 0 0 / 5%)',
+      },
       normal: {
         activeStripPosition: 'bottom',
         activeStripWidth: 2,
@@ -224,6 +227,9 @@ export const DefaultTheme: Theme = {
       focused: {
         activeStripColor: 'rgba(255 255 255 / 70%)',
       }
+    },
+    content: {
+
     },
   },
 

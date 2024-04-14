@@ -4,6 +4,7 @@ import { ReactNode, createContext } from 'react';
 export interface UpsertTabProps {
   id: string;
   // hasLabel: boolean;
+  ordinalPosition?: number;
   className?: string;
   label: ReactNode;
   children: ReactNode;

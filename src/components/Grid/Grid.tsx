@@ -56,6 +56,7 @@ interface Props<RecordType extends Record> {
   unitName?: string;
   columns: GridColumn<RecordType>[];
   removeLabel?: string;
+  delayRenderingRows?: boolean;
   actions?: UseActions<GridActions>;
   onRequest: GridRowsProps<RecordType>['onRequest'];
   onAdd?(): void;
@@ -68,6 +69,7 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
   columns: providedColumns,
   unitName = 'record',
   removeLabel,
+  delayRenderingRows,
   actions,
   onRequest,
   onAdd,
@@ -102,7 +104,7 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
     >
       <GridColumnWidthProvider>
         <GridHeader columns={columns} actions={setActions} />
-        <GridRows columns={columns} actions={actions} onRequest={wrapRequest} onScrollLeft={handleScrollLeft} />
+        <GridRows columns={columns} actions={actions} onRequest={wrapRequest} onScrollLeft={handleScrollLeft} delayRendering={delayRenderingRows} />
         <UIState isLoading={recordsLoading}>
           <GridFooter totalRecords={totalRecords} unitName={unitName} onAdd={onAdd} />
         </UIState>

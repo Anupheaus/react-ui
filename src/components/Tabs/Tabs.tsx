@@ -6,13 +6,16 @@ import { Flex } from '../Flex';
 import { Tag } from '../Tag';
 import { TabsContext, TabsContextProps, UpsertTabProps } from './TabsContext';
 import { TabButton, TabContent } from './Tab';
+import { UIState } from '../../providers';
 
-const useStyles = createStyles({
+const useStyles = createStyles(({ tabs }) => ({
   hidden: {
     display: 'none',
   },
   tabsButtons: {
     position: 'relative',
+    backgroundColor: tabs.buttons.container.backgroundColor,
+
     '&::before': {
       content: '""',
       position: 'absolute',
@@ -28,7 +31,7 @@ const useStyles = createStyles({
   tabsButtonsHidden: {
     display: 'none',
   },
-});
+}));
 
 export interface TabsProps {
   className?: string;
@@ -57,11 +60,14 @@ export const TabsComponent = createComponent('Tabs', ({
   onChange(index => providedOnChange?.(index));
 
   const upsertTab = useBound((props: UpsertTabProps) => setTabs(innerTabs => {
-    const existingIndex = innerTabs.findIndex(({ id }) => id === props.id);
-    if (existingIndex === -1) return innerTabs.concat(props);
-    const copyOfTabs = innerTabs.slice();
-    copyOfTabs[existingIndex] = props;
-    return copyOfTabs;
+    const newTabs = (() => {
+      const existingIndex = innerTabs.findIndex(({ id }) => id === props.id);
+      if (existingIndex === -1) return innerTabs.concat(props);
+      const copyOfTabs = innerTabs.slice();
+      copyOfTabs[existingIndex] = props;
+      return copyOfTabs;
+    })();
+    return newTabs.orderBy(tab => tab.ordinalPosition ?? ((newTabs.indexOf(tab) + 1) * 1000));
   }));
 
   const removeTab = useBound((id: string) => setTabs(innerTabs => innerTabs.removeById(id)));
@@ -88,7 +94,9 @@ export const TabsComponent = createComponent('Tabs', ({
         </TabsContext.Provider>
       </Tag>
       <Flex tagName="tabs-buttons" disableGrow className={join(css.tabsButtons, isTabsHidden && css.tabsButtonsHidden)}>
-        {renderedTabButtons}
+        <UIState isReadOnly={false}>
+          {renderedTabButtons}
+        </UIState>
       </Flex>
       <Tag name="tabs-content" className={css.tabsContent}>
         {renderedTabs}

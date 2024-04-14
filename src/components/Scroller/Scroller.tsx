@@ -19,58 +19,14 @@ const useStyles = createStyles(({ transition }) => ({
   },
   scrollerContainer: {
     display: 'flex',
-    // overflow: 'overlay',
     flex: 'auto',
     position: 'relative',
     flexDirection: 'inherit',
     gap: 'inherit',
-    // transitionProperty: 'background-color',
-    // ...transition,
-    // backgroundColor: 'rgba(0 0 0 / 0%)',
-    // backgroundClip: 'text',
 
-    // '&.is-scrollbar-visible': {
-    //   backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
-    // },
-
-    // '@media(pointer: coarse)': {
-    //   backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
-    // },
-
-    // '&::-webkit-scrollbar': {
-    //   ...track.normal,
-    //   padding: 0,
-    // },
-    // '&::-webkit-scrollbar-track': {
-    //   ...track.normal,
-    //   padding: 0,
-    // },
-    // '&::-webkit-scrollbar-track-piece:vertical:start': {
-    //   marginTop: track.normal.paddingTop ?? track.normal.padding ?? 0,
-    // },
-    // '&::-webkit-scrollbar-track-piece:vertical:corner-present:end': {
-    //   marginBottom: track.normal.paddingBottom ?? track.normal.padding ?? 0,
-    // },
-    // '&::-webkit-scrollbar-track-piece:horizontal:start': {
-    //   marginLeft: track.normal.paddingLeft ?? track.normal.padding ?? 0,
-    // },
-    // '&::-webkit-scrollbar-track-piece:horizontal:corner-present:end': {
-    //   marginRight: track.normal.paddingRight ?? track.normal.padding ?? 0,
-    // },
-    // '&::-webkit-scrollbar-corner': {
-    //   backgroundColor: 'transparent',
-    // },
-    // '&::-webkit-scrollbar-thumb': {
-    //   borderRadius: 8,
-    //   minHeight: 40,
-    //   ...thumb.normal,
-    //   ...transition,
-    //   backgroundColor: 'inherit',
-    //   boxShadow: 'none',
-    //   border: 'solid 0px transparent',
-    //   borderWidth: track.normal.padding ?? 4,
-    //   backgroundClip: 'padding-box',
-    // },
+    '&.prevent-unrequired-growth': {
+      height: 0,
+    },
   },
   scrollerContent: {
     display: 'flex',
@@ -166,6 +122,7 @@ interface Props {
   scrollTo?: number | 'bottom';
   children: ReactNode;
   ref?: Ref<HTMLDivElement | null>;
+  preventContentFromDeterminingHeight?: boolean;
   actions?: UseActions<ScrollerActions>;
   onScroll?(event: OnScrollEventData): void;
 }
@@ -177,6 +134,7 @@ export const Scroller = createComponent('Scroller', ({
   scrollTo,
   children,
   ref,
+  preventContentFromDeterminingHeight = false,
   actions,
   onScroll,
 }: Props) => {
@@ -210,17 +168,19 @@ export const Scroller = createComponent('Scroller', ({
     if (ref != null) { if (is.function(ref)) ref(element); else (ref as any).current = element; }
     scrollerContainerElementRef.current = element;
     unsubscribeRef.current?.();
-    if (element != null && is.function(onScroll)) {
-      const eventHandler = () => {
-        const left = element.scrollLeft;
-        const top = element.scrollTop;
-        if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
-        const data = lastScrollValuesRef.current = { left, top };
-        onScroll?.({ ...data, element });
-      };
-      element.addEventListener('scroll', eventHandler);
-      unsubscribeRef.current = () => element.removeEventListener('scroll', eventHandler);
-      onScroll({ left: element.scrollLeft, top: element.scrollTop, element });
+    if (element != null) {
+      if (is.function(onScroll)) {
+        const eventHandler = () => {
+          const left = element.scrollLeft;
+          const top = element.scrollTop;
+          if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
+          const data = lastScrollValuesRef.current = { left, top };
+          onScroll?.({ ...data, element });
+        };
+        element.addEventListener('scroll', eventHandler);
+        unsubscribeRef.current = () => element.removeEventListener('scroll', eventHandler);
+        onScroll({ left: element.scrollLeft, top: element.scrollTop, element });
+      }
     }
   });
 
@@ -251,7 +211,17 @@ export const Scroller = createComponent('Scroller', ({
 
   return (
     <Tag name="scroller" ref={scrollerElementRef} className={css.scroller} onMouseOver={setScrollbarVisible} onMouseLeave={setScrolbarInvisible}>
-      <Tag name="scroller-container" ref={saveScrollerContainerElement} className={join(css.scrollerContainer, scrollbarsCss.scrollbars, isScrollbarVisible && 'is-scrollbar-visible', containerClassName)}>
+      <Tag
+        name="scroller-container"
+        ref={saveScrollerContainerElement}
+        className={join(
+          css.scrollerContainer,
+          scrollbarsCss.scrollbars,
+          isScrollbarVisible && 'is-scrollbar-visible',
+          preventContentFromDeterminingHeight && 'prevent-unrequired-growth',
+          containerClassName,
+        )}
+      >
         <Tag name="scroller-content" className={join(css.scrollerContent, className)}>
           <Tag name="scroller-content-top" ref={topElementRef} className={join(css.scrollerContentEdge, css.scrollerContentTop)} />
           <Tag name="scroller-content-left" ref={leftElementRef} className={join(css.scrollerContentEdge, css.scrollerContentLeft)} />

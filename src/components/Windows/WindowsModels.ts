@@ -8,6 +8,7 @@ export interface WindowState {
   y?: string | number;
   width?: string | number;
   height?: string | number;
+  isPersistable?: boolean;
 }
 
 export type NewWindowState = Omit<WindowState, 'id'> & { id?: string; };

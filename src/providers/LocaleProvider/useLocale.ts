@@ -62,11 +62,17 @@ export function useLocale() {
     return Intl.NumberFormat([settings.locale], { style: 'decimal', maximumFractionDigits: decimalPlaces }).format(value);
   });
 
+  const formatPercentage = useBound((value: number | undefined, decimalPlaces = 0): string | undefined => {
+    if (!is.number(value)) return;
+    return Intl.NumberFormat([settings.locale], { style: 'percent', maximumFractionDigits: decimalPlaces }).format(value);
+  });
+
   return {
     isValidISODate,
     toDate,
     formatDate,
     formatCurrency,
     formatNumber,
+    formatPercentage,
   };
 }

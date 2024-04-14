@@ -6,6 +6,7 @@ import { TabsContext } from '../TabsContext';
 export interface TabProps {
   className?: string;
   label?: ReactNode;
+  ordinalPosition?: number;
   children: ReactNode;
 }
 
@@ -24,6 +25,7 @@ interface Props extends TabProps {
 export const TabComponent = createComponent('Tab', ({
   className,
   label,
+  ordinalPosition,
   children,
 }: Props) => {
   const id = useId();
@@ -35,6 +37,7 @@ export const TabComponent = createComponent('Tab', ({
     upsertTab({
       id,
       label,
+      ordinalPosition,
       className,
       children,
     });

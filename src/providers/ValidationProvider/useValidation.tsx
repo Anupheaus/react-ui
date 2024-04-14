@@ -1,4 +1,4 @@
-import { ComponentProps, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { ComponentProps, ReactNode, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../../components/Component';
 import { Collection, PromiseMaybe, Records, is } from '@anupheaus/common';
 import { ValidationRecord, ValidationTools } from './ValidationModels';
@@ -21,9 +21,40 @@ export function useValidation(id?: string) {
   const errors = useRef(new Records<ValidationRecord>()).current;
   const invalidSections = useRef(new Collection<string>()).current;
   const highlightErrorsCallbacks = useCallbacks<(shouldHighlight: boolean) => void>();
+  const errorsAreHighlightedRef = useRef(false);
+
+  const highlightValidationErrors = useBound(() => {
+    highlightErrorsCallbacks.invoke(true);
+  });
 
   const createValidateSection = () => {
     return createComponent('ValidationSection', (props: ComponentProps<typeof ValidateSectionComponent>) => {
+      const parentContext = useContext(ValidationContext);
+
+      if (parentContext.isReal) {
+        parentContext.highlightErrorsCallbacks.register(shouldHighlight => {
+          if (!shouldHighlight || errorsAreHighlightedRef.current === true) return;
+          errorsAreHighlightedRef.current = true;
+          highlightValidationErrors();
+        });
+      }
+
+      useLayoutEffect(() => {
+        if (!parentContext.isReal) return;
+        errors.toArray().forEach(err => parentContext.errors.upsert(err));
+        invalidSections.toArray().forEach(sect => parentContext.invalidSections.add(sect));
+        const unsubscribes = [
+          errors.onAdded(errs => parentContext.errors.upsert(errs)),
+          errors.onRemoved(errs => parentContext.errors.remove(errs)),
+          errors.onUpdated(errs => parentContext.errors.upsert(errs)),
+          errors.onCleared(errs => parentContext.errors.remove(errs)),
+          invalidSections.onAdded(sects => parentContext.invalidSections.add(sects)),
+          invalidSections.onRemoved(sects => parentContext.invalidSections.remove(sects)),
+          invalidSections.onCleared(sects => parentContext.invalidSections.remove(sects)),
+        ];
+        return () => unsubscribes.forEach(unsub => unsub());
+      }, [parentContext]);
+
       const context = useMemo<ValidationContextProps>(() => ({
         isReal: true,
         errors,
@@ -39,10 +70,6 @@ export function useValidation(id?: string) {
   };
 
   const getInvalidSections = useBound(() => invalidSections.get());
-
-  const highlightValidationErrors = useBound(() => {
-    highlightErrorsCallbacks.invoke(true);
-  });
 
   const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
     const validateId = useId();

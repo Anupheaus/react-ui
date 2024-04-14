@@ -15,10 +15,12 @@ const useStyles = createStyles(() => ({
     transitionTimingFunction: 'ease',
     overflow: 'hidden',
     pointerEvents: 'none',
+    zIndex: -1,
 
     '&.is-visible': {
       opacity: 1,
       pointerEvents: 'all',
+      zIndex: 0,
     },
 
     '&.slide-left': {

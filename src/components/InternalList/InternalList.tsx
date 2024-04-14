@@ -40,6 +40,7 @@ export interface InternalListActions extends UseItemsActions {
 
 export interface InternalListProps<T extends Record> {
   items?: T[];
+  preventContentFromDeterminingHeight?: boolean;
   actions?: UseActions<InternalListActions>;
   onRequest?(pagination: DataPagination): UseDataResponse<T>;
 }
@@ -62,6 +63,7 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
   disableShadowsOnScroller = false,
   items: providedItems,
   delayRenderingItems = false,
+  preventContentFromDeterminingHeight,
   renderItem,
   actions,
   onScroll,
@@ -154,12 +156,21 @@ export const InternalList = createComponent('InternalList', <T extends ReactList
 
   useEffect(() => {
     if (allowedToRenderItems) return;
-    setAllowedToRenderItems(true);
+    setTimeout(() => {
+      if (hasUnmounted()) return;
+      setAllowedToRenderItems(true);
+    }, 100);
   }, []);
 
   return (
     <Flex tagName={tagName} className={join(css.internalList, className)} isVertical maxWidth>
-      <Scroller onScroll={handleOnScroll} actions={scrollerActions} disableShadows={disableShadowsOnScroller} containerClassName={join(css.internalListContent, contentClassName)}>
+      <Scroller
+        onScroll={handleOnScroll}
+        actions={scrollerActions}
+        disableShadows={disableShadowsOnScroller}
+        containerClassName={join(css.internalListContent, contentClassName)}
+        preventContentFromDeterminingHeight={preventContentFromDeterminingHeight}
+      >
         {content}
       </Scroller>
     </Flex>
