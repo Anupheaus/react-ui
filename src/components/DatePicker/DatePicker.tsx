@@ -44,12 +44,12 @@ export type DateTimeMode = 'date' | 'time' | 'datetime';
 
 interface PropsAllowClear {
   allowClear: true;
-  onChange?(value: Date | undefined): void;
+  onChange?(value: DateTime | undefined): void;
 }
 
 interface PropsDisallowClear {
   allowClear?: false;
-  onChange?(value: Date): void;
+  onChange?(value: DateTime): void;
 }
 
 type PropsAllowDisallowClear = PropsAllowClear | PropsDisallowClear;
@@ -59,9 +59,9 @@ type Props = PropsAllowDisallowClear & FieldProps & {
   format?: string;
   endAdornment?: ReactNode;
   labelEndAdornment?: ReactNode;
-  maxDate?: Date;
-  minDate?: Date;
-  value?: string | Date;
+  maxDate?: DateTime;
+  minDate?: DateTime;
+  value?: string | Date | DateTime;
   onDialogClosed?(): void;
 };
 
@@ -73,10 +73,16 @@ export const DatePicker = createComponent('DateTime', ({
   ...props
 }: Props) => {
   const { css } = useStyles();
-  const value = useMemo(() => typeof (rawValue) === 'string' ? DateTime.fromISO(rawValue) : (rawValue instanceof Date ? DateTime.fromJSDate(rawValue) : undefined), [rawValue]);
+  const value = useMemo(() => typeof (rawValue) === 'string'
+    ? DateTime.fromISO(rawValue)
+    : (DateTime.isDateTime(rawValue)
+      ? rawValue
+      : (rawValue instanceof Date
+        ? DateTime.fromJSDate(rawValue)
+        : undefined)), [rawValue]);
   const handleChange = useBound((newValue: Date | null) => {
     const newDateTime = (newValue ?? undefined) as unknown as DateTime | undefined;
-    onChange?.(newDateTime?.toJSDate() as Date);
+    onChange?.(newDateTime as DateTime);
   });
 
   return (
