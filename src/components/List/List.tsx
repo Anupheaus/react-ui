@@ -84,7 +84,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
   ...props
 }: Props<T>) {
   const { css, join } = useStyles();
-  const { validate } = useValidation();
+  const { validate } = useValidation(`list-${label}`);
   const [hasItems, setHasItems] = useState(false);
 
   const renderItem = useBound((itemProps: ListItemProps<T>) => ItemComponent == null ? <ListItem {...itemProps} /> : <ItemComponent {...itemProps} />);

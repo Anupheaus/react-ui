@@ -5,6 +5,7 @@ import { UseCallbacks } from '../../hooks';
 
 export interface ValidationContextProps {
   isReal: boolean;
+  name: string;
   errors: Records<ValidationRecord>;
   invalidSections: Collection<string>;
   highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>;
@@ -12,6 +13,7 @@ export interface ValidationContextProps {
 
 export const ValidationContext = createContext<ValidationContextProps>({
   isReal: false,
+  name: '',
   errors: new Records(),
   invalidSections: new Collection(),
   highlightErrorsCallbacks: null as any,

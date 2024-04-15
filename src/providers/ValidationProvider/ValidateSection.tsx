@@ -1,38 +1,41 @@
-import { ReactNode, useContext, useMemo, useRef } from 'react';
+import { ReactNode, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { createComponent } from '../../components/Component';
 import { ValidationContext, ValidationContextProps } from './ValidationContext';
 import { ValidationRecord } from './ValidationModels';
-import { Collection, Records, Unsubscribe } from '@anupheaus/common';
-import { useCallbacks } from '../../hooks';
+import { Collection, Records } from '@anupheaus/common';
+import { UseCallbacks } from '../../hooks';
 
-interface Props {
+export interface ValidateSectionProps {
   name: string;
   children: ReactNode;
 }
 
+interface Props extends ValidateSectionProps {
+  errors: Records<ValidationRecord>;
+  invalidSections: Collection<string>;
+  highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>;
+}
+
 export const ValidateSection = createComponent('ValidateSection', ({
   name,
+  errors: hookErrors,
+  invalidSections,
+  highlightErrorsCallbacks,
   children,
 }: Props) => {
-  const parentContext = useContext(ValidationContext);
-  const errors = new Records<ValidationRecord>();
-  const invalidSections = new Collection<string>();
-  const errorsUnsubscribeRef = useRef<Unsubscribe>(() => void 0);
-  const invalidSectionsUnsubscribeRef = useRef<Unsubscribe>(() => void 0);
-  const highlightErrorsCallbacks = useCallbacks<(shouldHighlightErrors: boolean) => void>();
+  const errors = useRef(new Records<ValidationRecord>()).current;
 
-  if (parentContext.isReal) parentContext.highlightErrorsCallbacks.register(highlightErrorsCallbacks.invoke);
-
-  useMemo(() => {
-    errorsUnsubscribeRef.current();
-    invalidSectionsUnsubscribeRef.current();
-    if (!parentContext.isReal) return;
-
-    errorsUnsubscribeRef.current = errors.onModified((records, reason) => {
+  useLayoutEffect(() => {
+    if (errors.length > 0) {
+      hookErrors.upsert(errors.toArray());
+      invalidSections.add(name);
+    }
+    // listen on errors
+    return errors.onModified((records, reason) => {
       switch (reason) {
-        case 'add': parentContext.errors.upsert(records); break;
-        case 'remove': parentContext.errors.remove(records); break;
-        case 'clear': parentContext.errors.clear(); break;
+        case 'add': hookErrors.upsert(records); break;
+        case 'remove': hookErrors.remove(records); break;
+        case 'clear': hookErrors.clear(); break;
       }
       if (errors.length > 0) {
         invalidSections.add(name);
@@ -40,24 +43,20 @@ export const ValidateSection = createComponent('ValidateSection', ({
         invalidSections.remove(name);
       }
     });
-    parentContext.errors.upsert(errors.toArray());
+  }, []);
 
-    invalidSectionsUnsubscribeRef.current = invalidSections.onModified((sections, reason) => {
-      switch (reason) {
-        case 'add': parentContext.invalidSections.add(sections); break;
-        case 'remove': parentContext.invalidSections.remove(sections); break;
-        case 'clear': parentContext.invalidSections.clear(); break;
-      }
-    });
-    parentContext.invalidSections.add(invalidSections.get());
-  }, [parentContext]);
+  useEffect(() => () => {
+    hookErrors.remove(errors.ids());
+    invalidSections.remove(name);
+  }, []);
 
   const context = useMemo<ValidationContextProps>(() => ({
     isReal: true,
+    name,
     errors,
     invalidSections,
     highlightErrorsCallbacks,
-  }), []);
+  }), [name]);
 
   return (
     <ValidationContext.Provider value={context}>

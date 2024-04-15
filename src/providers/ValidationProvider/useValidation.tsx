@@ -1,10 +1,10 @@
-import { ComponentProps, ReactNode, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ReactNode, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../../components/Component';
 import { Collection, PromiseMaybe, Records, is } from '@anupheaus/common';
 import { ValidationRecord, ValidationTools } from './ValidationModels';
-import { ValidationContext, ValidationContextProps } from './ValidationContext';
-import { ValidateSection as ValidateSectionComponent } from './ValidateSection';
+import { ValidateSection as ValidateSectionComponent, ValidateSectionProps } from './ValidateSection';
 import { useBound, useCallbacks, useForceUpdate, useId } from '../../hooks';
+import { subscribeToParentValidation } from './subscribeToParentValidation';
 
 function createTools(): ValidationTools {
   return {
@@ -22,67 +22,31 @@ export function useValidation(id?: string) {
   const invalidSections = useRef(new Collection<string>()).current;
   const highlightErrorsCallbacks = useCallbacks<(shouldHighlight: boolean) => void>();
   const errorsAreHighlightedRef = useRef(false);
+  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks);
 
   const highlightValidationErrors = useBound(() => {
+    if (errorsAreHighlightedRef.current === true) return;
+    errorsAreHighlightedRef.current = true;
     highlightErrorsCallbacks.invoke(true);
   });
 
-  const createValidateSection = () => {
-    return createComponent('ValidationSection', (props: ComponentProps<typeof ValidateSectionComponent>) => {
-      const parentContext = useContext(ValidationContext);
-
-      if (parentContext.isReal) {
-        parentContext.highlightErrorsCallbacks.register(shouldHighlight => {
-          if (!shouldHighlight || errorsAreHighlightedRef.current === true) return;
-          errorsAreHighlightedRef.current = true;
-          highlightValidationErrors();
-        });
-      }
-
-      useLayoutEffect(() => {
-        if (!parentContext.isReal) return;
-        errors.toArray().forEach(err => parentContext.errors.upsert(err));
-        invalidSections.toArray().forEach(sect => parentContext.invalidSections.add(sect));
-        const unsubscribes = [
-          errors.onAdded(errs => parentContext.errors.upsert(errs)),
-          errors.onRemoved(errs => parentContext.errors.remove(errs)),
-          errors.onUpdated(errs => parentContext.errors.upsert(errs)),
-          errors.onCleared(errs => parentContext.errors.remove(errs)),
-          invalidSections.onAdded(sects => parentContext.invalidSections.add(sects)),
-          invalidSections.onRemoved(sects => parentContext.invalidSections.remove(sects)),
-          invalidSections.onCleared(sects => parentContext.invalidSections.remove(sects)),
-        ];
-        return () => unsubscribes.forEach(unsub => unsub());
-      }, [parentContext]);
-
-      const context = useMemo<ValidationContextProps>(() => ({
-        isReal: true,
-        errors,
-        invalidSections,
-        highlightErrorsCallbacks,
-      }), []);
-      return (
-        <ValidationContext.Provider value={context}>
-          <ValidateSectionComponent {...props} />
-        </ValidationContext.Provider>
-      );
-    });
-  };
+  const ValidateSection = useMemo(() => createComponent('ValidateSection', (props: ValidateSectionProps) => (
+    <ValidateSectionComponent {...props} errors={errors} invalidSections={invalidSections} highlightErrorsCallbacks={highlightErrorsCallbacks} />
+  )), []);
 
   const getInvalidSections = useBound(() => invalidSections.get());
 
   const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
     const validateId = useId();
     const [highlight, setHighlight] = useState(false);
-    const { isReal, errors: validationErrors, highlightErrorsCallbacks: localHighlightErrorsCallbacks } = useContext(ValidationContext);
     const update = useForceUpdate();
-    if (isReal) localHighlightErrorsCallbacks.register(setHighlight);
+    highlightErrorsCallbacks.register(setHighlight);
 
     const setError = (error: void | ReactNode | undefined) => {
       if (error != null) {
-        validationErrors.upsert({ id: validateId, message: error, validationId: id });
+        errors.upsert({ id: validateId, message: error, validationId: id });
       } else {
-        validationErrors.remove(validateId);
+        errors.remove(validateId);
       }
     };
 
@@ -100,10 +64,6 @@ export function useValidation(id?: string) {
 
     const enableErrors = useBound(() => setHighlight(true));
 
-    useEffect(() => () => {
-      validationErrors.remove(validateId);
-    });
-
     return {
       error: highlight === true ? ((error === true ? (errors.get(validateId)?.message ?? 'Validation result pending...') : error) ?? null) : null,
       enableErrors,
@@ -118,9 +78,10 @@ export function useValidation(id?: string) {
   const getErrors = useBound(() => errors.toArray());
 
   return {
-    get ValidateSection() { return useMemo(() => createValidateSection(), []); },
+    ValidateSection,
     getInvalidSections,
     highlightValidationErrors,
+    /* Using isValid will enable the error highlighting */
     isValid,
     validate,
     getErrors,
