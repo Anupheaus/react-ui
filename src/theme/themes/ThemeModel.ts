@@ -137,6 +137,24 @@ interface TabButtonsContainerTheme {
   backgroundColor: string;
 }
 
+interface DatePickerPopupContentTheme {
+  backgroundColor: string;
+  textColor: string;
+  borderRadius: number;
+  shadow: string;
+}
+
+interface DatePickerPopupHeaderTheme {
+  backgroundColor: string;
+  textColor: string;
+  shadow: string;
+}
+
+interface DatePickerPopupContentDaysTheme {
+  backgroundColor: string;
+  textColor: string;
+}
+
 export interface Theme {
   assistiveLabel: {
     normal: AssistiveLabelTheme;
@@ -261,7 +279,17 @@ export interface Theme {
       readOnly?: Partial<WindowContentTheme>;
     },
   };
-
+  datePicker?: {
+    popup?: {
+      header?: Partial<DatePickerPopupHeaderTheme>;
+      content?: Partial<DatePickerPopupContentTheme>;
+      days?: {
+        selected?: Partial<DatePickerPopupContentDaysTheme>;
+        today?: Partial<DatePickerPopupContentDaysTheme>;
+        hover?: Partial<DatePickerPopupContentDaysTheme>;
+      };
+    };
+  };
 
 
 

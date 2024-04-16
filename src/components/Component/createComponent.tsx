@@ -27,8 +27,8 @@ function defaultCompareProps(debug: boolean, name: string, topLevelProps: any,) 
         const whitelistFunctions = topLevelProps['data-whitelist-functions'];
         if (is.array(whitelistFunctions) && whitelistFunctions.includes(propertyName)) return false;
         // eslint-disable-next-line no-console
-        // console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
-        //   `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component.`, { topLevelProps, newProps });
+        console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
+          `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component.`, { topLevelProps, newProps });
       }
       return false;
     }
@@ -44,7 +44,7 @@ function defaultCompareProps(debug: boolean, name: string, topLevelProps: any,) 
     }
     if (is.plainObject(prevProps)) {
       if (Object.keys(prevProps).length !== Object.keys(newProps).length) return false;
-      return Object.keys(prevProps).every(key => defaultCompareProps(debug, name, topLevelProps)(prevProps[key], newProps[key], key));
+      return Object.keys(prevProps).every(key => defaultCompareProps(debug, name, newProps)(prevProps[key], newProps[key], key));
     }
     // eslint-disable-next-line no-console
     // console.warn('Assuming these props are not equal', { prevProps, newProps });

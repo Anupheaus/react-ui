@@ -59,6 +59,10 @@ function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
         },
       };
     },
+    makeImportant(value: string | undefined): string | undefined {
+      if (value == null) return;
+      return `${value} !important`;
+    },
   };
 }
 

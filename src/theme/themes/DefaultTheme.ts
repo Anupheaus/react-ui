@@ -232,6 +232,21 @@ export const DefaultTheme: Theme = {
 
     },
   },
+  // datePicker: {
+  //   popup: {
+  //     header: {
+  //       backgroundColor: 'blue',
+  //     },
+  //     content: {
+  //       backgroundColor: 'red',
+  //     },
+  //     days: {
+  //       selected: {
+  //         backgroundColor: 'green',
+  //       },
+  //     },
+  //   },
+  // },
 
 
 

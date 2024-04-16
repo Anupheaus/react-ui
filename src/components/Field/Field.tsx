@@ -101,6 +101,7 @@ interface Props extends FieldProps {
   disableRipple?: boolean;
   style?: CSSProperties;
   hideOptionalLabel?: boolean;
+  minWidth?: string | number;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
   onContainerSelect?(): void;
 }
@@ -129,11 +130,12 @@ export const Field = createComponent('Field', ({
   disableSkeleton = false,
   disableRipple = false,
   hideOptionalLabel,
+  minWidth,
   onBlur,
   onContainerSelect,
   ...props
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, useInlineStyle, toPx } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
   const { isLoading } = useUIState();
@@ -199,8 +201,13 @@ export const Field = createComponent('Field', ({
     );
   };
 
+  const style = useInlineStyle(() => ({
+    minWidth: toPx(minWidth),
+    ...props.style,
+  }), [minWidth, props.style]);
+
   return (
-    <Tag {...props} name={tagName} className={join(css.field, width != null && 'is-set-width', className)} width={width ?? (wide === true ? '100%' : undefined)}>
+    <Tag {...props} name={tagName} className={join(css.field, width != null && 'is-set-width', className)} width={width ?? (wide === true ? '100%' : undefined)} style={style}>
       <Label isOptional={hideOptionalLabel ? false : isOptional} help={help}>{label}</Label>
       {wrapContent(children)}
       <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
