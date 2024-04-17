@@ -4,7 +4,7 @@ import { Flex } from '../Flex';
 import { WindowManagerIdContext, WindowContext, WindowContextProps } from './WindowsContexts';
 import { WindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
-import { useOnChange, useStorage } from '../../hooks';
+import { useOnChange, useOnUnmount, useStorage } from '../../hooks';
 import { windowsUtils } from './WindowsUtils';
 
 interface Props<StateType extends WindowState = WindowState> {
@@ -38,6 +38,7 @@ export const Windows = createComponent('Windows', function <StateType extends Wi
   };
 
   useLayoutEffect(() => manager.subscribeToStateChanges((newStates, reason) => {
+    console.log('Windows.onChange', { newStates, reason });
     if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates as StateType[]);
     lastOnChangeRef.current = newStates as StateType[];
     updateSavedStates(newStates as StateType[]);
@@ -78,6 +79,10 @@ export const Windows = createComponent('Windows', function <StateType extends Wi
       );
     });
   }, [states]);
+
+  useOnUnmount(() => {
+    manager.clear();
+  });
 
   return (
     <Flex tagName="windows" className={className}>

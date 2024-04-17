@@ -28,8 +28,14 @@ export class WindowsManager {
 
   @bind
   public async open(state: WindowState): Promise<void> {
-    if (this.#windows.get(state.id) != null) return this.focus(state.id);
+    console.log('open', { state });
+    if (this.#windows.get(state.id) != null) {
+      console.log('already open');
+      return this.focus(state.id);
+    }
+    console.log('opening');
     return this.#createEvent(state.id, 'opening', () => {
+      console.log('added');
       this.#windows.add(state);
     });
   }
@@ -67,6 +73,10 @@ export class WindowsManager {
 
   public add(states: WindowState[]) {
     this.#windows.add(states);
+  }
+
+  public clear(): void {
+    this.#windows.clear();
   }
 
   @bind
@@ -158,7 +168,7 @@ export class WindowsManager {
         // eslint-disable-next-line no-console
         console.warn(`Event ${event} for window ${id} took too long to resolve.`);
         deferred.resolve();
-      }, 1000);
+      }, 4000);
     }
     try {
       callback?.();

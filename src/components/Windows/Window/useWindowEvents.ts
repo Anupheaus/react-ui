@@ -35,6 +35,7 @@ export function useWindowEvents({ manager, windowElementRef, id, onClosing, onCl
     if (windowElementRef.current == null) return;
 
     const genericHandler = (_isCancelled: boolean) => (event: TransitionEvent) => {
+      console.log('transitionend', { propertyName: event.propertyName, target: event.target, element: windowElementRef.current, isUnmounted: isUnmounted(), isCancelled: _isCancelled });
       if (event.target !== windowElementRef.current || windowElementRef.current == null || isUnmounted()) return;
       switch (event.propertyName) {
         case 'filter': {
