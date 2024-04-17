@@ -1,9 +1,9 @@
-import { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref, useMemo } from 'react';
+import { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref, useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
-import { useBinder, useBooleanState, useBound } from '../../hooks';
+import { useBinder, useBooleanState, useBound, useDOMRef } from '../../hooks';
 import { Field, FieldProps } from '../Field';
 import { useInputStyles } from './InputStyles';
-import { useValidation } from '../../providers';
+import { useUIState, useValidation } from '../../providers';
 import { useScrollbarStyles } from '../Scroller/ScrollbarStyles';
 
 export interface InternalTextProps<TValue = unknown> extends FieldProps {
@@ -16,6 +16,7 @@ export interface InternalTextProps<TValue = unknown> extends FieldProps {
   useFloatingStartAdornments?: boolean;
   maxLength?: number;
   transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
+  invalidValueMessage?: ReactNode;
   onChange?(value: TValue): void;
   onFocus?(event: FocusEvent<HTMLInputElement>): void;
   onClick?(event: MouseEvent<HTMLInputElement>): void;
@@ -28,6 +29,8 @@ interface Props<TValue = unknown> extends InternalTextProps<TValue> {
   tagName: string;
   inputClassName?: string;
   multiline?: number;
+  allowDecimals?: boolean;
+  allowNegatives?: boolean;
   type: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
 }
 
@@ -42,6 +45,8 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   ref: innerRef,
   isOptional,
   requiredMessage,
+  allowDecimals = false,
+  allowNegatives = false,
   multiline,
   onChange,
   onFocus,
@@ -53,8 +58,11 @@ export const InternalText = createComponent('InternalText', function <T = unknow
 }: Props<T>) {
   const { css, join } = useInputStyles();
   const { css: scrollbarCss } = useScrollbarStyles();
+  const { isReadOnly } = useUIState();
   const [isScrollbarVisible, setScrollbarVisible, setScrolbarInvisible] = useBooleanState();
   const { validate } = useValidation(`${tagName}-${props.label}`);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const ref = useDOMRef([innerRef, inputRef]);
   const bind = useBinder();
   const isMultiline = (multiline ?? 0) > 1;
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {
@@ -68,11 +76,23 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     onBlur?.(event);
   });
 
+  const handleKeyDown = useBound((event: KeyboardEvent<HTMLInputElement>) => {
+    switch (type) {
+      case 'number': {
+        if (event.key === 'e') return event.preventDefault();
+        if (event.key === '.' && !allowDecimals) return event.preventDefault();
+        if (event.key === '-' && !allowNegatives) return event.preventDefault();
+        break;
+      }
+    }
+    onKeyDown?.(event);
+  });
+
   const containerClassName = isMultiline ? css.textAreaFieldContainer : undefined;
 
   const inputOrTextArea = isMultiline
     ? <textarea
-      ref={innerRef as Ref<HTMLTextAreaElement>}
+      ref={ref}
       className={join(css.textArea, scrollbarCss.scrollbars, css[`textTransform_${transform}`], isScrollbarVisible && 'is-scrollbar-visible', inputClassName)}
       value={(value ?? '') as any}
       maxLength={maxLength}
@@ -80,15 +100,16 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       onFocus={onFocus as any}
       onBlurCapture={handleOnBlur as any}
       onClick={onClick as any}
-      onKeyDown={onKeyDown as any}
+      onKeyDown={handleKeyDown as any}
       onKeyUp={onKeyUp as any}
       onMouseOver={setScrollbarVisible}
       onMouseLeave={setScrolbarInvisible}
       autoFocus={initialFocus}
       rows={multiline}
+      disabled={isReadOnly}
     />
     : <input
-      ref={innerRef}
+      ref={ref}
       type={type}
       className={join(css.input, css[`textTransform_${transform}`], inputClassName)}
       value={(value ?? '') as any}
@@ -97,10 +118,10 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       onFocus={onFocus}
       onBlurCapture={handleOnBlur}
       onClick={onClick}
-      onKeyDown={onKeyDown}
+      onKeyDown={handleKeyDown}
       onKeyUp={onKeyUp}
       autoFocus={initialFocus}
-
+      disabled={isReadOnly}
       {...passwordManagerAttributes}
     />;
 

@@ -1,18 +1,21 @@
-import { to } from '@anupheaus/common';
+import { is, to } from '@anupheaus/common';
 import { ReactElement, useMemo } from 'react';
 import { createComponent } from '../Component';
-import { useBound } from '../../hooks';
+import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { InternalText, InternalTextProps } from '../InternalText';
 import { Icon } from '../Icon';
+import { useLocale, useUIState } from '../../providers';
 
 interface Props extends InternalTextProps<number | undefined> {
   min?: number;
   max?: number;
   step?: number;
   endAdornments?: ReactElement[];
-  hideIncreaseDecreaseButtons?: boolean;
+  allowDecimals?: boolean | number;
+  allowNegatives?: boolean;
+  type?: 'number' | 'currency' | 'percent' | 'count'; // | 'phoneNumber';
 }
 
 const useStyles = createStyles({
@@ -21,48 +24,91 @@ const useStyles = createStyles({
       WebkitAppearance: 'none',
       margin: 0,
     },
-    textAlign: 'center',
-  },
-  hiddenButtons: {
-    'padding': '0 4px',
+
+    '&.reduced-padding': {
+      padding: '0 4px',
+    },
+
+    '&.number-mode': {
+    },
+
+    '&.count-mode': {
+      textAlign: 'center',
+    },
+
+    '&.currency-mode': {
+      textAlign: 'right',
+    },
+
+    '&.percent-mode': {
+      textAlign: 'center',
+    },
   },
 });
 
+function allowDecimalsResult(allowDecimals: boolean | number | undefined, type: Props['type']): boolean {
+  if (allowDecimals === true) return true;
+  if (is.number(allowDecimals)) return (allowDecimals ?? 0) > 0;
+  if (type === 'currency') return true;
+  return false;
+}
+
 export const Number = createComponent('Number', ({
   endAdornments: providedEndAdornments,
-  hideIncreaseDecreaseButtons = false,
   value,
   min,
   max,
   step = 1,
   error: providedError,
+  type = 'number',
+  allowDecimals,
   onChange,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
+  const { isReadOnly } = useUIState();
+  const { formatCurrency, formatPercentage } = useLocale();
   const increase = useBound(() => onChange?.(to.number(value, 0) + step));
   const decrease = useBound(() => onChange?.(to.number(value, 0) - step));
+  const [isBlurred, setIsBlurred, setIsNotBlurred] = useBooleanState(true);
+  const blurredValue = useMemo(() => {
+    switch (type) {
+      case 'currency': return formatCurrency(value);
+      case 'percent': return formatPercentage((value ?? 0) / 100, is.boolean(allowDecimals) ? (allowDecimals === true ? 2 : 0) : is.number(allowDecimals) ? allowDecimals : 0);
+      default: return value;
+    }
+  }, [value, type]);
 
-  const buttons = useMemo(() => [
-    ...(hideIncreaseDecreaseButtons ? [] : [
-      <Button
-        key="increase"
-        onClick={increase}
-      >
-        <Icon name="number-increase" size="small" />
-      </Button>
-    ]),
-    ...(providedEndAdornments ?? []),
-  ], [providedEndAdornments]);
+  const startAdornments = useMemo(() => {
+    switch (type) {
+      case 'count': case 'percent': return [
+        ...(isReadOnly ? [] : [
+          <Button
+            key="decrease"
+            onClick={decrease}
+          >
+            <Icon name="number-decrease" size="small" />
+          </Button>
+        ]),
+      ];
+    }
+  }, []);
 
-  const startButtons = useMemo(() => hideIncreaseDecreaseButtons ? [] : [
-    <Button
-      key="decrease"
-      onClick={decrease}
-    >
-      <Icon name="number-decrease" size="small" />
-    </Button>,
-  ], []);
+  const endAdornments = useMemo(() => {
+    switch (type) {
+      case 'count': case 'percent': return [
+        ...(isReadOnly ? [] : [
+          <Button
+            key="increase"
+            onClick={increase}
+          >
+            <Icon name="number-increase" size="small" />
+          </Button>
+        ]),
+        ...(providedEndAdornments ?? []),
+      ];
+    }
+  }, [providedEndAdornments, type]);
 
   const error = useMemo(() => {
     if (providedError) return providedError;
@@ -77,16 +123,20 @@ export const Number = createComponent('Number', ({
   return (
     <InternalText
       {...props}
-      value={value}
+      value={isBlurred ? blurredValue : value}
       tagName={'number'}
-      inputClassName={join(css.number, hideIncreaseDecreaseButtons && css.hiddenButtons)}
-      type={'number'}
-      endAdornments={buttons}
+      inputClassName={join(css.number, `${type}-mode`, type !== 'count' && 'reduced-padding')}
+      type={isBlurred ? 'text' : 'number'}
+      endAdornments={endAdornments}
       useFloatingEndAdornments
-      startAdornments={startButtons}
+      startAdornments={startAdornments}
       useFloatingStartAdornments
       error={error}
       onChange={handleChange}
+      onBlur={setIsBlurred}
+      onFocus={setIsNotBlurred}
+      allowDecimals={allowDecimalsResult(allowDecimals, type)}
+      allowNegatives={type === 'currency' || type === 'percent'}
     />
   );
 });

@@ -23,6 +23,12 @@ export interface FieldProps {
   wide?: boolean;
 }
 
+function validateAdornments(adornments: ReactNode | ReactNode[]): boolean {
+  if (adornments == null) return false;
+  if (adornments instanceof Array) return adornments.length > 0;
+  return true;
+}
+
 const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, active } } }) => ({
   field: {
     display: 'flex',
@@ -171,7 +177,7 @@ export const Field = createComponent('Field', ({
         onFocus={wrappedShowToolbars} onBlur={delayedHideToolbars}>
         <Ripple isDisabled={disableRipple} />
         {wrapInSkeletons(<>
-          {startAdornments instanceof Array && (
+          {validateAdornments(startAdornments) && (
             <Toolbar
               className={css.toolbarAtStart}
               isFloating={useFloatingStartAdornments ? 'left' : false}
@@ -185,7 +191,7 @@ export const Field = createComponent('Field', ({
           <Tag name={`${tagName}-content-container`} className={join(css.fieldContent, contentClassName)} onClick={onContainerSelect}>
             {children}
           </Tag>
-          {endAdornments != null && (
+          {validateAdornments(endAdornments) && (
             <Toolbar
               className={css.toolbarAtEnd}
               isFloating={useFloatingEndAdornments}

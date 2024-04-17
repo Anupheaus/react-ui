@@ -21,37 +21,33 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
-  webpackFinal: config => {
-    const a = {
-      ...config,
-      resolve: {
-        ...config.resolve,
-        alias: {
-          ...config.resolve?.alias,
-          '@anupheaus/common': path.resolve(__dirname, '../../common/src'),
-        },
+  webpackFinal: config => ({
+    ...config,
+    resolve: {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        '@anupheaus/common': path.resolve(__dirname, '../../common/src'),
       },
-      module: {
-        ...config.module,
-        rules: [{
-          test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
-        }, {
-          test: /\.tsx?$/i,
-          loader: 'ts-loader',
-          options: {
-            onlyCompileBundledFiles: true,
-            transpileOnly: true,
-            compilerOptions: {
-              noEmit: false,
-            },
+    },
+    module: {
+      ...config.module,
+      rules: [{
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      }, {
+        test: /\.tsx?$/i,
+        loader: 'ts-loader',
+        options: {
+          onlyCompileBundledFiles: true,
+          transpileOnly: true,
+          compilerOptions: {
+            noEmit: false,
           },
-        }],
-      },
-    };
-    console.log(a);
-    return a;
-  },
+        },
+      }],
+    },
+  }),
 };
 
 export default config;
