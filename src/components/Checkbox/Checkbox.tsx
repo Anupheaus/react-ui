@@ -14,8 +14,11 @@ interface Props extends ComponentProps<typeof Label> {
   labelPosition?: 'left' | 'right' | 'top' | 'bottom';
   assistiveText?: ReactNode;
   children?: ReactNode;
+  width?: string | number;
+  minWidth?: string | number;
   onChange?(value: boolean): void;
 }
+
 const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal: fieldNormal } }, action: { normal: actionNormal }, transition }) => ({
   checkbox: {
     display: 'flex',
@@ -117,10 +120,12 @@ export const Checkbox = createComponent('Checkbox', ({
   label,
   labelPosition = 'right',
   assistiveText,
+  width,
+  minWidth,
   children = null,
   onChange,
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, useInlineStyle } = useStyles();
   const handleValueChanged = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.checked));
   const toggleValue = useBound((event: MouseEvent) => {
     event.stopPropagation();
@@ -129,8 +134,13 @@ export const Checkbox = createComponent('Checkbox', ({
 
   const preventPropagation = useBound((event: MouseEvent) => event.stopPropagation());
 
+  const style = useInlineStyle(() => ({
+    minWidth: minWidth ?? width,
+    width
+  }), [width, minWidth]);
+
   return (
-    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], className)}>
+    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], className)} style={style}>
       <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`])}>
         <Skeleton className={css.skeleton}>
           <Tag name="checkbox-area" className={join(css.checkboxArea, className)} onClick={toggleValue}>
