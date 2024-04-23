@@ -11,8 +11,8 @@ import { Skeleton } from '../Skeleton';
 import { is } from '@anupheaus/common';
 
 const useStyles = createStyles(({ menu: { menuItem: { normal: normalMenuItem, active: activeMenuItem } },
-  field: { value: { normal: normalField, active: activeField } }, transition, pseudoClasses
-}) => ({
+  field: { value: { normal: normalField, active: activeField } }, pseudoClasses
+}, { applyTransition }) => ({
   menuItem: {
     position: 'relative',
     padding: 8,
@@ -20,8 +20,7 @@ const useStyles = createStyles(({ menu: { menuItem: { normal: normalMenuItem, ac
     borderRadius: 4,
     ...normalField,
     ...normalMenuItem,
-    ...transition,
-    transitionProperty: 'background-color, color',
+    ...applyTransition('background-color, color'),
 
     [pseudoClasses.active]: {
       ...activeField,
@@ -57,17 +56,21 @@ export const MenuItem = createComponent('MenuItem', ({
   children,
   onSelect,
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, theme, join } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const [isOver, setIsOver, setIsNotOver] = useBooleanState(false);
   const [element, setElement] = useState<HTMLDivElement>();
   const target = useDOMRef([rippleTarget, setElement]);
   const [hasSubMenu, setHasSubMenu] = useState(false);
-  const { close } = useContext(PopupMenuContext);
+  const { isValid, close } = useContext(PopupMenuContext);
 
   const handleSelect = useBound(() => {
-    close();
-    onSelect?.();
+    if (isValid) {
+      close();
+      setTimeout(() => onSelect?.(), theme.transitions.duration);
+    } else {
+      onSelect?.();
+    }
   });
 
   return (

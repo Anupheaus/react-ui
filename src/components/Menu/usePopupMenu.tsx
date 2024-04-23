@@ -93,14 +93,9 @@ export function usePopupMenu() {
 
     const targetElementWidth = useWidthOfTargetElement ? width : undefined;
 
-    const handleIsOver = useBound(() => batchUpdate(() => {
-      setIsOver();
-      if (propsIsOpen == null) setIsOpen(true);
-    }));
+    const handleIsOver = useBound(() => { setIsOver(); });
 
-    const handleIsNotOver = useBound(() => batchUpdate(() => {
-      setIsNotOver();
-    }));
+    const handleIsNotOver = useBound(() => { setIsNotOver(); });
 
     const anchorOrigin = useMemo<PopoverOrigin>(() => ({
       horizontal: targetAnchorPosition === 'topLeft' || targetAnchorPosition === 'bottomLeft' ? offsetPosition : (width ?? 0) - offsetPosition,
