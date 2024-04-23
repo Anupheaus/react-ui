@@ -28,16 +28,8 @@ export class WindowsManager {
 
   @bind
   public async open(state: WindowState): Promise<void> {
-    console.log('open', { state });
-    if (this.#windows.get(state.id) != null) {
-      console.log('already open');
-      return this.focus(state.id);
-    }
-    console.log('opening');
-    return this.#createEvent(state.id, 'opening', () => {
-      console.log('added');
-      this.#windows.add(state);
-    });
+    if (this.#windows.get(state.id) != null) { return this.focus(state.id); }
+    return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }
 
   public subscribeToStateChanges(callback: (states: WindowState[], reason: RecordsModifiedReason) => void): Unsubscribe;

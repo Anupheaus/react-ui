@@ -177,7 +177,7 @@ export const Button = createComponent('Button', ({
         css.button,
         isReadOnly && 'is-read-only',
         isIconOnly && 'is-icon-only',
-        isLoading && 'is-loading',
+        isLoading && !useAnimatedBorderEffectRef.current && 'is-loading',
         css[`size_variant_${size}`],
         css[`variant_${variant}`],
         className,

@@ -38,7 +38,6 @@ export const Windows = createComponent('Windows', function <StateType extends Wi
   };
 
   useLayoutEffect(() => manager.subscribeToStateChanges((newStates, reason) => {
-    console.log('Windows.onChange', { newStates, reason });
     if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates as StateType[]);
     lastOnChangeRef.current = newStates as StateType[];
     updateSavedStates(newStates as StateType[]);
@@ -73,7 +72,7 @@ export const Windows = createComponent('Windows', function <StateType extends Wi
         isFocused: index === states.length - 1,
       };
       return (
-        <WindowContext.Provider key={state.id} value={context}>
+        <WindowContext.Provider key={`${state.id}-${state.type}`} value={context}>
           {onCreate?.(state) ?? null}
         </WindowContext.Provider>
       );

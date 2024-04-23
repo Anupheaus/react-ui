@@ -35,6 +35,7 @@ type Props<T extends ReactListItem = ReactListItem> = Omit<InternalListProps<T>,
   renderItemsUsing?: FunctionComponent<ListItemProps<T>>;
   delayRenderingItems?: boolean;
   error?: ReactNode;
+  adornments?: ReactNode;
   actions?: UseActions<ListActions>;
   onChange?(items: T[]): void;
   onAdd?(): PromiseMaybe<T | void>;
@@ -56,7 +57,7 @@ const useStyles = createStyles(({ list }, tools) => ({
     flexShrink: 1,
     overflow: 'unset',
   },
-  addButton: {
+  adornments: {
     position: 'absolute',
     top: 0,
     right: 0,
@@ -80,6 +81,7 @@ export const List = createComponent('List', function <T extends ReactListItem = 
   renderItemsUsing: ItemComponent,
   delayRenderingItems,
   error: providedError,
+  adornments,
   onAdd,
   ...props
 }: Props<T>) {
@@ -109,7 +111,8 @@ export const List = createComponent('List', function <T extends ReactListItem = 
       contentClassName={join(css.listContent, contentClassName)}
       containerClassName={join(css.listContainer, containerClassName)}
       containerAdornments={is.function(onAdd) && (
-        <Flex tagName="list-actions" gap={4} valign="center" className={css.addButton}>
+        <Flex tagName="list-actions" gap={4} valign="center" className={css.adornments}>
+          {adornments}
           <Button variant="hover" size="small" iconOnly onSelect={handleAdd}><Icon name="add" size="small" /></Button>
         </Flex>
       )}

@@ -23,6 +23,8 @@ const useStyles = createStyles(({ icons: { normal, active, readOnly }, pseudoCla
     opacity: normal.opacity ?? 1,
     minWidth: 16,
     minHeight: 16,
+    width: 'min-content',
+    height: 'min-content',
     maxWidth: '100%',
     maxHeight: '100%',
     alignItems: 'center',

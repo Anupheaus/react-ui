@@ -15,11 +15,6 @@
       "DOM",
       "ES2020"
     ],
-    "paths": {
-      "@anupheaus/react-ui": [
-        "../react-ui/src"
-      ]
-    },
     "target": "es6",
     "sourceMap": true,
     "jsx": "react-jsx"

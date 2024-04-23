@@ -108,6 +108,8 @@ export const DatePicker = createComponent('DateTime', ({
   className,
   value: rawValue,
   minWidth = 110,
+  minDate,
+  maxDate,
   onChange,
   format,
   ...props
@@ -172,6 +174,8 @@ export const DatePicker = createComponent('DateTime', ({
           format={format}
           slotProps={slotProps}
           open={isPickerOpen}
+          minDate={minDate}
+          maxDate={maxDate}
           onClose={closePicker}
         />
         {/* <Icon name='calendar' /> */}

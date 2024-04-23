@@ -46,6 +46,7 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
   const [error, setError] = useState<Error>();
   const isLoadingRef = useRef(false);
   const update = useForceUpdate();
+  const doNotCallUpdateRef = useRef(true);
 
   const isUnmounted = useOnUnmount(() => {
     cancel();
@@ -89,6 +90,7 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
       const result = delegate.call(state, ...args);
       if (result instanceof Promise) {
         isLoadingRef.current = true;
+        if (!doNotCallUpdateRef.current) update();
         result.then(value => {
           if (requestId !== lastRequestRef.current || isUnmounted()) return;
           isLoadingRef.current = false;
@@ -110,6 +112,8 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
     if (manuallyTriggered || trigger.length !== 0) return;
     trigger(...[] as any);
   }, dependencies);
+
+  doNotCallUpdateRef.current = false;
 
   return {
     trigger,
