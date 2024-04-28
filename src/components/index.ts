@@ -26,7 +26,7 @@ export * from './UserProfileMenu';
 export * from './Tabs';
 export * from './Grid';
 export * from './DropDown';
-// export * from './SignInDialog';
+export * from './ActionsToolbar';
 export * from './Typography';
 export * from './Notifications';
 export * from './Form';
