@@ -51,12 +51,7 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
     onScrollLeft(event.left);
   });
 
-  // const LoadingComponent = useMemo(() => createComponent('LoadingComponent', ({ index }: ListItemProps) => (
-  //   <GridRow columns={columns} rowIndex={index} />
-  // )), [columns]);
-
   return (
-    // <Flex tagName="grid-rows" className={css.rows}>
     <InternalList<RecordType>
       tagName="grid-rows"
       onRequest={handleOnRequest}
@@ -69,6 +64,5 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
     >
       <GridRow columns={columns} />
     </InternalList>
-    // </Flex>
   );
 });
