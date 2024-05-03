@@ -9,8 +9,8 @@ import { Icon } from '../Icon';
 import { Field, FieldProps } from '../Field';
 import { useValidation } from '../../providers';
 import { is } from '@anupheaus/common';
-import { InternalList } from '../InternalList/InternalList';
-import { ListItemProps, SelectableListItem } from '../List';
+import { InternalList } from '../InternalList';
+import { ListItem } from '../List';
 
 const useStyles = createStyles(({ menu: { normal } }) => ({
   dropDown: {
@@ -70,8 +70,6 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     setIsClosed();
     onChange?.(item.id as T, item);
   });
-
-  const renderItem = useBound(({ index, item }: ListItemProps) => <SelectableListItem key={`${index}`} index={index} item={item} onSelect={handleSelect} />);
 
   const selectedValue = useMemo(() => {
     if (is.function(renderSelectedValue)) return renderSelectedValue(value);
@@ -143,8 +141,9 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
           tagName={`${props.tagName}-list`}
           items={values}
           className={css.dropDownListContent}
-          renderItem={renderItem}
-        />
+        >
+          <ListItem onSelect={handleSelect} />
+        </InternalList>
       </Popover>
     </Field>
   );

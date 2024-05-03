@@ -1,7 +1,8 @@
 import { ReactNode } from 'react';
 import { GridCellValue } from './GridCellValue';
-import { DataFilterValueTypes, Record, UnPromise } from '@anupheaus/common';
+import { DataFilterValueTypes, Record } from '@anupheaus/common';
 import { ListOnRequest } from '../List';
+import { UseDataResponse } from '../../extensions';
 
 export interface GridColumnCommonProps {
   id: string;
@@ -25,4 +26,7 @@ export interface GridColumn<T extends Record = Record> extends GridColumnCommonP
   renderValue?(props: GridRenderValueProps<T>): ReactNode;
 }
 
-export type GridOnRequest<T extends Record = Record> = (...args: Parameters<ListOnRequest<T>>) => Promise<Omit<UnPromise<ReturnType<ListOnRequest<T>>>, 'items'> & { records: T[]; }>;
+type ChangeItemsToRecords<Func extends (response: UseDataResponse<any>) => void> = Func extends (response: UseDataResponse<infer T>) => void
+  ? (response: Omit<UseDataResponse<T>, 'items'> & { records: T[]; }) => void : never;
+
+export type GridOnRequest<T extends Record = Record> = (request: Parameters<ListOnRequest<T>>[0], response: ChangeItemsToRecords<Parameters<ListOnRequest<T>>[1]>) => void;

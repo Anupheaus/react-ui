@@ -1,4 +1,4 @@
-import { ListItem, is } from '@anupheaus/common';
+import { ListItem, Record, is } from '@anupheaus/common';
 import { ReactNode } from 'react';
 import { IconName } from '../components/Icon/Icons';
 import { Skeleton } from '../components/Skeleton';
@@ -18,19 +18,9 @@ export namespace ReactListItem {
       if (item.label != null) return item.label;
       if (is.not.empty(item.text)) return item.text;
     }
-    return <Skeleton type="text" useRandomWidth />;
+    return <Skeleton type="text" useRandomWidth isVisible />;
   }
 
 }
-// export namespace ListItems {
-//   export function convertToReactListItems<T extends TypographyComponent<TypographyTypes>>(listItems: ListItem[], typographicType: TypographyTypeIds<T>): ReactListItem[] {
-//     return listItems.map(listItem => {
-//       return {
-//         label: (
-//           <Typography type={typographicType}>{listItem.text}</Typography>
-//         ),
-//         ...listItem,
-//       };
-// });
-//   }
-// }
+
+export type ListItemType = string | Record | ReactListItem;

@@ -96,12 +96,14 @@ export const RequestedRecords: Story = createStory({
   render: () => {
     const [localColumns] = useState(columns);
 
-    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async pagination => {
+    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async ({ requestId, pagination }, response) => {
       const newRecords = generateRecords(pagination.limit);
-      return {
+      await Promise.delay(5000);
+      response({
+        requestId,
         records: newRecords,
         total: 10000,
-      };
+      });
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {

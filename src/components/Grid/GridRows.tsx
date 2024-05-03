@@ -3,11 +3,10 @@ import { createComponent } from '../Component';
 import { GridColumn, GridOnRequest } from './GridModels';
 import { Record } from '@anupheaus/common';
 import { UseActions, useBound } from '../../hooks';
-import { ReactListItem } from '../../models';
 import { GridRow } from './GridRow';
 import { OnScrollEventData } from '../Scroller';
 import { useRef } from 'react';
-import { InternalList } from '../InternalList/InternalList';
+import { InternalList } from '../InternalList';
 import { ListActions, ListOnRequest } from '../List';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
@@ -44,15 +43,7 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   const { css } = useStyles();
   const lastScrollLeftRef = useRef(0);
 
-  const handleOnRequest = useBound<ListOnRequest>(async pagination => {
-    const { records: data, total } = await onRequest(pagination);
-    const items = data.map((record, rowIndex): ReactListItem => ({
-      id: record.id,
-      text: '',
-      label: (<GridRow key={record.id} columns={columns} record={record} rowIndex={rowIndex} />),
-    }));
-    return { items, total };
-  });
+  const handleOnRequest = useBound<ListOnRequest<RecordType>>((pagination, response) => onRequest(pagination, ({ requestId, records, total }) => response({ items: records, total, requestId })));
 
   const handleHorizontalScroll = useBound((event: OnScrollEventData) => {
     if (event.left === lastScrollLeftRef.current) return;
@@ -66,7 +57,7 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
 
   return (
     // <Flex tagName="grid-rows" className={css.rows}>
-    <InternalList
+    <InternalList<RecordType>
       tagName="grid-rows"
       onRequest={handleOnRequest}
       disableShadowsOnScroller
@@ -74,7 +65,10 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
       actions={actions}
       className={css.rows}
       delayRenderingItems={delayRendering}
-    />
+      gap={0}
+    >
+      <GridRow columns={columns} />
+    </InternalList>
     // </Flex>
   );
 });

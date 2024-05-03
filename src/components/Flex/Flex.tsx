@@ -69,7 +69,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   testId?: string;
   tooltip?: ReactNode;
   allowFocus?: boolean;
-  ref?: Ref<HTMLDivElement>;
+  ref?: Ref<HTMLDivElement | null>;
 }
 
 export const Flex = createComponent('Flex', ({

@@ -28,33 +28,34 @@ const useStyles = createStyles(({ skeleton }) => ({
     animationPlayState: 'paused',
     animationIterationCount: 'infinite',
     animationName: animation,
-  },
-  absolutePositioning: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+
+    '&.is-visible': {
+      visibility: 'visible',
+      pointerEvents: 'all',
+      cursor: 'default',
+    },
+
+    '&.is-absolute-positioned': {
+      position: 'absolute',
+      inset: 0,
+    },
+
+    '&.is-using-animated-border': {
+      backgroundColor: 'transparent',
+      visibility: 'visible',
+    },
+
+    '&.is-pulsing': {
+      animationPlayState: 'running',
+    },
   },
   content: {
     display: 'flex',
     flex: 'auto',
-  },
-  isVisible: {
-    visibility: 'visible',
-    pointerEvents: 'all',
-    cursor: 'default',
-  },
-  isPulsing: {
-    animationPlayState: 'running',
-  },
-  isHidden: {
-    visibility: 'hidden',
-    pointerEvents: 'none',
-  },
-  usingAnimatedBorder: {
-    backgroundColor: 'transparent',
-    visibility: 'visible',
+    '&.is-hidden': {
+      visibility: 'hidden',
+      pointerEvents: 'none',
+    },
   },
   variant_full: {
 
@@ -124,10 +125,10 @@ export const Skeleton = createComponent('Skeleton', ({
       name="skeleton"
       className={join(
         css.skeleton,
-        children == null && css.absolutePositioning,
-        isLoading && !noSkeletons && css.isVisible,
-        useAnimatedBorder && css.usingAnimatedBorder,
-        isLoading && !noSkeletons && !useAnimatedBorder && css.isPulsing,
+        children == null && 'is-absolute-positioned',
+        isLoading && !noSkeletons && 'is-visible',
+        useAnimatedBorder && 'is-using-animated-border',
+        isLoading && !noSkeletons && !useAnimatedBorder && 'is-pulsing',
         css[`variant_${type}`],
         className
       )}
@@ -136,7 +137,7 @@ export const Skeleton = createComponent('Skeleton', ({
       {children != null && (useAnimatedBorder ? children : (
         <Tag
           name="skeleton-content"
-          className={join(css.content, css[`variant_content_${type}`], isLoading && css.isHidden, contentClassName)}
+          className={join(css.content, css[`variant_content_${type}`], isLoading && 'is-hidden', contentClassName)}
           onClick={onClick}
         >
           {children}

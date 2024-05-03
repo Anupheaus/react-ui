@@ -8,7 +8,7 @@ import { GridHeader, GridHeaderActions } from './GridHeader';
 import { GridFooter } from './GridFooter';
 import { GridRows, GridRowsProps } from './GridRows';
 import { GridColumnWidthProvider } from './GridColumnWidths';
-import { UseActions, useActions, useBound, useOnUnmount } from '../../hooks';
+import { UseActions, useActions, useBatchUpdates, useBound, useOnUnmount } from '../../hooks';
 import { UIState } from '../../providers';
 import { useColumns } from './useColumns';
 import { ListActions } from '../List';
@@ -83,15 +83,16 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
   const [recordsLoading, setRecordsLoading] = useState(false);
   const { setActions, onScrollLeft } = useActions<GridHeaderActions>();
   const hasUnmounted = useOnUnmount();
+  const batchUpdates = useBatchUpdates();
 
-  const wrapRequest = useBound<GridOnRequest<RecordType>>(async pagination => {
-    setRecordsLoading(true);
-    const response = await onRequest(pagination);
-    if (!hasUnmounted()) {
-      setTotalRecords(response.total);
+  const wrapRequest = useBound<GridOnRequest<RecordType>>((request, response) => {
+    setRecordsLoading(totalRecords == null);
+    onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
+      if (hasUnmounted()) return;
+      setTotalRecords(total);
       setRecordsLoading(false);
-    }
-    return response;
+      response({ requestId, records, total });
+    }));
   });
 
   const handleScrollLeft = useBound((value: number) => onScrollLeft(value));

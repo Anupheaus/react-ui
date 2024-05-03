@@ -1,12 +1,13 @@
-import { DeferredPromise, Record, is } from '@anupheaus/common';
+import { DeferredPromise, is } from '@anupheaus/common';
 import { FullPagination } from './UseItemsModels';
+import { ListItemType } from '../../models';
 
-interface Props<T extends Record> extends FullPagination {
+interface Props<T extends ListItemType> extends FullPagination {
   total?: number;
   cachedItems: (DeferredPromise<T> | T)[];
 }
 
-function findRequestsWithin<T extends Record>({ offset, limit, cachedItems }: Props<T>) {
+function findRequestsWithin<T extends ListItemType>({ offset, limit, cachedItems }: Props<T>) {
   let currentRequest: FullPagination = { offset, limit: 0 };
   const requests: FullPagination[] = [];
   for (let index = offset; index < offset + limit; index++) {
@@ -24,7 +25,7 @@ function findRequestsWithin<T extends Record>({ offset, limit, cachedItems }: Pr
   return requests;
 }
 
-export function breakDownRequests<T extends Record>(props: Props<T>) {
+export function breakDownRequests<T extends ListItemType>(props: Props<T>) {
   const { offset, limit, total } = props;
   let isFinished = false;
   let requests: FullPagination[] = [];

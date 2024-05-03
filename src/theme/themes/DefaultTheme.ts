@@ -129,8 +129,14 @@ export const DefaultTheme: Theme = {
     readOnly: {},
 
     item: {
-      normal: {},
-      active: {},
+      normal: {
+        borderRadius: 4,
+        borderWidth: 0,
+        padding: '4px 8px',
+      },
+      active: {
+        backgroundColor: 'rgba(0 0 0 / 10%)',
+      },
       readOnly: {},
     },
 

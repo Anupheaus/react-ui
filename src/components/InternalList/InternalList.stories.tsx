@@ -3,10 +3,9 @@ import { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
 import { InternalList } from './InternalList';
 import { ReactListItem } from '../../models';
-import { DataPagination } from '@anupheaus/common';
 import { useBound } from '../../hooks';
 import { ComponentProps } from 'react';
-import { ListOnRequest } from '../List';
+import { MockListItem } from './MockListItem';
 
 faker.seed(10121);
 
@@ -32,12 +31,12 @@ export const Loading: Story = createStory<typeof InternalList>({
   width: 240,
   height: 300,
   render: () => {
-    const handleRequest = useBound<ListOnRequest>(async () => {
-      return new Promise(() => void 0);
-    });
+    const handleRequest = useBound(() => void 0);
 
     return (
-      <InternalList tagName="internal-list" onRequest={handleRequest} />
+      <InternalList tagName="internal-list" onRequest={handleRequest}>
+        <MockListItem />
+      </InternalList>
     );
   },
 });
@@ -50,7 +49,9 @@ export const StaticItems: Story = createStory<typeof InternalList>({
   height: 300,
   render: () => {
     return (
-      <InternalList tagName="internal-list" items={staticItems} />
+      <InternalList tagName="internal-list" items={staticItems}>
+        <MockListItem />
+      </InternalList>
     );
   },
 });
@@ -62,17 +63,19 @@ export const LazyLoadedItems: Story = createStory<typeof InternalList>({
   width: 240,
   height: 300,
   render: () => {
-    const request = useBound<Required<ComponentProps<typeof InternalList>>['onRequest']>(async (pagination: DataPagination) => {
+    const request = useBound<Required<ComponentProps<typeof InternalList>>['onRequest']>(async ({ requestId, pagination }, response) => {
       await Promise.delay(1500);
-      return {
+      response({
+        requestId,
         items: staticItems.slice(pagination.offset, (pagination.offset ?? 0) + pagination.limit),
         total: staticItems.length,
-        offset: 0,
-        ...pagination,
-      };
+      });
     });
+
     return (
-      <InternalList tagName="internal-list" onRequest={request} />
+      <InternalList tagName="internal-list" onRequest={request}>
+        <MockListItem />
+      </InternalList>
     );
   },
 });

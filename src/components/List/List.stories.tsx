@@ -4,7 +4,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
 import { List, ListOnRequest } from './List';
 import { useBound } from '../../hooks';
-import { SelectableListItem } from './Items';
+import { ListItem } from './Items';
 
 faker.seed(10121);
 
@@ -23,7 +23,7 @@ export default meta;
 
 type Story = StoryObj<typeof List>;
 
-export const LazyLoadedItems: Story = createStory<typeof List>({
+export const LazyLoadListItems: Story = createStory<typeof List>({
   args: {
     label: 'List',
   },
@@ -35,24 +35,60 @@ export const LazyLoadedItems: Story = createStory<typeof List>({
       window.alert('Add');
     });
 
-    const handleRequest = useBound<ListOnRequest>(async ({ offset = 0, limit }) => {
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) => {
       await Promise.delay(2000);
-      return {
+      respondWith({
+        requestId,
         items: staticItems.slice(offset, offset + limit),
         total: staticItems.length,
-        offset,
-        limit,
-      };
+      });
     });
 
     return (
       <List
         label={'List'}
         {...props}
-        renderItemsUsing={SelectableListItem}
         onRequest={handleRequest}
         onAdd={handleAdd}
-      />
+      >
+        <ListItem />
+      </List>
+    );
+  },
+});
+
+export const LazyLoadSelectableListItems: Story = createStory<typeof List>({
+  args: {
+    label: 'List',
+  },
+  width: 200,
+  height: 300,
+  render: props => {
+    const handleAdd = useBound(() => {
+      // eslint-disable-next-line no-alert
+      window.alert('Add');
+    });
+
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) => {
+      await Promise.delay(2000);
+      respondWith({
+        requestId,
+        items: staticItems.slice(offset, offset + limit),
+        total: staticItems.length,
+      });
+    });
+
+    const handleClick = useBound(() => void 0);
+
+    return (
+      <List
+        label={'List'}
+        {...props}
+        onRequest={handleRequest}
+        onAdd={handleAdd}
+      >
+        <ListItem onSelect={handleClick} />
+      </List>
     );
   },
 });
