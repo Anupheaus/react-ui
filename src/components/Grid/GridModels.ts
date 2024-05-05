@@ -29,4 +29,6 @@ export interface GridColumn<T extends Record = Record> extends GridColumnCommonP
 type ChangeItemsToRecords<Func extends (response: UseDataResponse<any>) => void> = Func extends (response: UseDataResponse<infer T>) => void
   ? (response: Omit<UseDataResponse<T>, 'items'> & { records: T[]; }) => void : never;
 
-export type GridOnRequest<T extends Record = Record> = (request: Parameters<ListOnRequest<T>>[0], response: ChangeItemsToRecords<Parameters<ListOnRequest<T>>[1]>) => void;
+export type GridOnRequest<T extends Record | string = Record> = (request: Parameters<ListOnRequest<T>>[0], response: ChangeItemsToRecords<Parameters<ListOnRequest<T>>[1]>) => void;
+
+export type GridUseRecordHook<T extends Record> = (id: string | undefined) => { record: T | undefined; isLoading: boolean; error?: Error; };

@@ -1,13 +1,14 @@
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { GridColumn, GridOnRequest } from './GridModels';
+import { GridColumn, GridOnRequest, GridUseRecordHook } from './GridModels';
 import { Record } from '@anupheaus/common';
 import { UseActions, useBound } from '../../hooks';
-import { GridRow } from './GridRow';
 import { OnScrollEventData } from '../Scroller';
-import { useRef } from 'react';
+import { ReactNode, useRef } from 'react';
 import { InternalList } from '../InternalList';
 import { ListActions, ListOnRequest } from '../List';
+import { GridColumnsContext } from './GridColumnsContext';
+import { GridRowRenderer } from './GridRowRenderer';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
   rows: {
@@ -28,14 +29,18 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
 export interface GridRowsProps<RecordType extends Record> {
   columns: GridColumn<RecordType>[];
   delayRendering?: boolean;
+  children?: ReactNode;
+  useRecordHook?: GridUseRecordHook<RecordType>;
   actions?: UseActions<ListActions>;
-  onRequest: GridOnRequest<RecordType>;
+  onRequest: GridOnRequest<RecordType | string>;
   onScrollLeft(value: number): void;
 }
 
 export const GridRows = createComponent('GridRows', function <RecordType extends Record>({
   columns,
   delayRendering = false,
+  useRecordHook,
+  children,
   actions,
   onRequest,
   onScrollLeft,
@@ -43,7 +48,8 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   const { css } = useStyles();
   const lastScrollLeftRef = useRef(0);
 
-  const handleOnRequest = useBound<ListOnRequest<RecordType>>((pagination, response) => onRequest(pagination, ({ requestId, records, total }) => response({ items: records, total, requestId })));
+  const handleOnRequest = useBound<ListOnRequest<RecordType>>((pagination, response) =>
+    onRequest(pagination, ({ requestId, records, total }) => response({ items: records as RecordType[], total, requestId })));
 
   const handleHorizontalScroll = useBound((event: OnScrollEventData) => {
     if (event.left === lastScrollLeftRef.current) return;
@@ -52,17 +58,19 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   });
 
   return (
-    <InternalList<RecordType>
-      tagName="grid-rows"
-      onRequest={handleOnRequest}
-      disableShadowsOnScroller
-      onScroll={handleHorizontalScroll}
-      actions={actions}
-      className={css.rows}
-      delayRenderingItems={delayRendering}
-      gap={0}
-    >
-      <GridRow columns={columns} />
-    </InternalList>
+    <GridColumnsContext.Provider value={columns}>
+      <InternalList<RecordType>
+        tagName="grid-rows"
+        onRequest={handleOnRequest}
+        disableShadowsOnScroller
+        onScroll={handleHorizontalScroll}
+        actions={actions}
+        className={css.rows}
+        delayRenderingItems={delayRendering}
+        gap={0}
+      >
+        {children ?? <GridRowRenderer useRecordHook={useRecordHook} />}
+      </InternalList>
+    </GridColumnsContext.Provider>
   );
 });

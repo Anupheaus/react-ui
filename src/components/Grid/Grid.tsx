@@ -1,8 +1,8 @@
 import { createComponent } from '../Component';
-import { useRef, useState } from 'react';
+import { ReactNode, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
-import { GridColumn, GridOnRequest } from './GridModels';
+import { GridColumn, GridOnRequest, GridUseRecordHook } from './GridModels';
 import { Record } from '@anupheaus/common';
 import { GridHeader, GridHeaderActions } from './GridHeader';
 import { GridFooter } from './GridFooter';
@@ -57,6 +57,8 @@ interface Props<RecordType extends Record> {
   columns: GridColumn<RecordType>[];
   removeLabel?: string;
   delayRenderingRows?: boolean;
+  children?: ReactNode;
+  useRecordHook?: GridUseRecordHook<RecordType>;
   actions?: UseActions<GridActions>;
   onRequest: GridRowsProps<RecordType>['onRequest'];
   onAdd?(): void;
@@ -70,6 +72,8 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
   unitName = 'record',
   removeLabel,
   delayRenderingRows,
+  children,
+  useRecordHook,
   actions,
   onRequest,
   onAdd,
@@ -85,7 +89,7 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
   const hasUnmounted = useOnUnmount();
   const batchUpdates = useBatchUpdates();
 
-  const wrapRequest = useBound<GridOnRequest<RecordType>>((request, response) => {
+  const wrapRequest = useBound<GridOnRequest<RecordType | string>>((request, response) => {
     setRecordsLoading(totalRecords == null);
     onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
       if (hasUnmounted()) return;
@@ -105,7 +109,9 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
     >
       <GridColumnWidthProvider>
         <GridHeader columns={columns} actions={setActions} />
-        <GridRows columns={columns} actions={actions} onRequest={wrapRequest} onScrollLeft={handleScrollLeft} delayRendering={delayRenderingRows} />
+        <GridRows columns={columns} actions={actions} onRequest={wrapRequest} onScrollLeft={handleScrollLeft} useRecordHook={useRecordHook} delayRendering={delayRenderingRows}>
+          {children}
+        </GridRows>
         <UIState isLoading={recordsLoading}>
           <GridFooter totalRecords={totalRecords} unitName={unitName} onAdd={onAdd} />
         </UIState>

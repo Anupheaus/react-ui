@@ -6,6 +6,7 @@ import { ReactListItem } from '../../models';
 import { useBound } from '../../hooks';
 import { ComponentProps } from 'react';
 import { MockListItem } from './MockListItem';
+import { is } from '@anupheaus/common';
 
 faker.seed(10121);
 
@@ -75,6 +76,32 @@ export const LazyLoadedItems: Story = createStory<typeof InternalList>({
     return (
       <InternalList tagName="internal-list" onRequest={request}>
         <MockListItem />
+      </InternalList>
+    );
+  },
+});
+
+export const LazyLoadedStrings: Story = createStory<typeof InternalList>({
+  args: {
+
+  },
+  width: 240,
+  height: 300,
+  render: () => {
+    const request = useBound<Required<ComponentProps<typeof InternalList>>['onRequest']>(async ({ requestId, pagination }, response) => {
+      await Promise.delay(1500);
+      response({
+        requestId,
+        items: staticItems.slice(pagination.offset, (pagination.offset ?? 0) + pagination.limit).ids(),
+        total: staticItems.length,
+      });
+    });
+
+    const handleRenderItem = useBound((id: string | undefined) => is.string(id) ? staticItems.findById(id) : undefined);
+
+    return (
+      <InternalList tagName="internal-list" onRequest={request}>
+        <MockListItem onRenderItem={handleRenderItem} />
       </InternalList>
     );
   },

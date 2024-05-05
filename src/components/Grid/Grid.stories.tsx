@@ -3,9 +3,9 @@ import { Grid } from './Grid';
 import { GridColumn, GridOnRequest } from './GridModels';
 import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { to } from '@anupheaus/common';
+import { is, to } from '@anupheaus/common';
 
 interface DemoRecord {
   id: string;
@@ -147,6 +147,48 @@ export const RequestedMinimumRecords: Story = createStory({
         unitName="people"
         onRequest={handleRequest}
         onEdit={handleOnEdit}
+      />
+    );
+  },
+});
+
+export const GridUsingRecordIds: Story = createStory({
+  width: 700,
+  height: 500,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const generatedRecords = useMemo(() => generateRecords(2000), []);
+
+    const handleRequest = useBound<GridOnRequest<string>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      const newRecords = generatedRecords.slice(offset, offset + limit);
+      response({
+        requestId,
+        records: newRecords.ids(),
+        total: generatedRecords.length,
+      });
+    });
+
+    const useRecordHook = useBound((recordId: string | undefined) => {
+      const record = is.string(recordId) ? generatedRecords.findById(recordId) : undefined;
+      const [state, setState] = useState({ record: undefined as DemoRecord | undefined, isLoading: true });
+      setTimeout(() => {
+        setState({ record, isLoading: false });
+      }, 2000);
+      return state;
+    });
+
+    const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
+      console.log('Edit record:', record);
+    });
+
+    return (
+      <Grid
+        columns={localColumns}
+        unitName="people"
+        onRequest={handleRequest}
+        onEdit={handleOnEdit}
+        useRecordHook={useRecordHook}
       />
     );
   },

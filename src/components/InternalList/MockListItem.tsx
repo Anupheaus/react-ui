@@ -5,6 +5,7 @@ import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { UIState } from '../../providers';
 import { useListItem } from './useListItem';
+import { is } from '@anupheaus/common';
 
 const useStyles = createStyles({
   listItem: {
@@ -18,14 +19,18 @@ const useStyles = createStyles({
 interface Props {
   className?: string;
   ref?: Ref<HTMLDivElement | null>;
+  onRenderItem?(id: string | undefined): ReactListItem | undefined;
 }
 
 export const MockListItem = createComponent('MockListItem', ({
   className,
   ref,
+  onRenderItem,
 }: Props) => {
-  const { item, index, isLoading } = useListItem<ReactListItem>();
+  const { item: providedItem, index, isLoading } = useListItem<ReactListItem>();
+  const loadedItem = onRenderItem?.(is.string(providedItem) ? providedItem : undefined);
   const { css, join } = useStyles();
+  const item = loadedItem ?? providedItem;
 
   const content = useMemo(() => {
     return ReactListItem.render(item);

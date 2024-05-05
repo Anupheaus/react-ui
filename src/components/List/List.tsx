@@ -1,9 +1,9 @@
 import { ReactNode, useState } from 'react';
-import { ReactListItem } from '../../models';
+import { ListItemType, ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Field } from '../Field';
-import { PromiseMaybe, Record, is } from '@anupheaus/common';
+import { PromiseMaybe, is } from '@anupheaus/common';
 import { InternalList, InternalListActions, InternalListProps } from '../InternalList';
 import { UseActions, useBound } from '../../hooks';
 import { Flex } from '../Flex';
@@ -11,7 +11,7 @@ import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useValidation } from '../../providers';
 
-export type ListOnRequest<T extends Record = ReactListItem> = Required<InternalListProps<T>>['onRequest'];
+export type ListOnRequest<T extends ListItemType = ReactListItem> = Required<InternalListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 

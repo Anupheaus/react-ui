@@ -20,10 +20,12 @@ export type UseAsyncResponse<T extends AsyncDelegate> = UnPromise<ReturnType<T>>
 export type UseAsyncCancel = () => void;
 export type UseAsyncCancelDelegate = (props: { requestId: string; }) => void;
 export type UseAsyncOnCancelled = (handler: UseAsyncCancelDelegate) => void;
-export interface UseAsyncResult<DelegateType extends AsyncDelegate> {
-  response: UseAsyncResponse<DelegateType> | undefined;
+export interface UseAsyncSimpleResult<T> {
+  response: T | undefined;
   isLoading: boolean;
   error?: Error;
+}
+export interface UseAsyncResult<DelegateType extends AsyncDelegate> extends UseAsyncSimpleResult<UseAsyncResponse<DelegateType>> {
   trigger: UseAsyncTrigger<DelegateType>;
   cancel: UseAsyncCancel;
   onCancelled: UseAsyncOnCancelled;

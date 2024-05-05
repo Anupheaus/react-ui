@@ -5,8 +5,6 @@ import { GridColumn } from './GridModels';
 import { GridCell } from './GridCell';
 import { useMemo } from 'react';
 import { createStyles } from '../../theme';
-import { useListItem } from '../InternalList';
-import { UIState } from '../../providers';
 
 const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   row: {
@@ -21,15 +19,18 @@ const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   },
 }));
 
-interface Props {
+interface Props<RecordType extends Record> {
+  record?: RecordType;
+  index: number;
   columns: GridColumn[];
 }
 
 export const GridRow = createComponent('GridRow', <RecordType extends Record>({
+  record,
+  index,
   columns,
-}: Props) => {
+}: Props<RecordType>) => {
   const { css } = useStyles();
-  const { item: record, index, isLoading } = useListItem<RecordType>();
 
   const content = useMemo(() => columns.map((column, columnIndex) => (
     <GridCell key={`${column.id}${record == null ? '' : `${record.id}`}`} column={column} columnIndex={columnIndex} record={record} rowIndex={index} />
@@ -37,9 +38,7 @@ export const GridRow = createComponent('GridRow', <RecordType extends Record>({
 
   return (
     <Flex tagName="grid-row" className={css.row}>
-      <UIState isLoading={isLoading}>
-        {content}
-      </UIState>
+      {content}
     </Flex>
   );
 });

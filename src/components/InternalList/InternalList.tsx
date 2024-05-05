@@ -93,7 +93,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
     if (listHeight === 0) return;
     let visibleOffset = itemHeight <= 0 ? 0 : Math.ceil((scrollAmount / itemHeight) - 1);
     if (visibleOffset < 0) visibleOffset = 0;
-    let visibleCount = itemHeight <= 0 ? 10 : Math.ceil(listHeight / itemHeight) + 2;
+    let visibleCount = itemHeight <= 0 ? 10 : Math.ceil(listHeight / 18) + 2;
     if (visibleCount < 0) visibleCount = 0;
     if (visibleOffset + visibleCount > innerTotal) {
       if (innerTotal < visibleCount) {
@@ -144,7 +144,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
     if (containerElement == null || total == null) return;
     const scrollHeight = containerElement.scrollHeight;
     const itemHeight = Math.ceil(scrollHeight / total);
-    heightRef.current = itemHeight;
+    heightRef.current = Math.max(18, itemHeight);
   }, [containerElement?.scrollHeight, total]);
 
   useEffect(() => {
