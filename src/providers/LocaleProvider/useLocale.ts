@@ -1,8 +1,9 @@
 import { useContext } from 'react';
 import { LocaleContext } from './LocaleContext';
 import { useBound } from '../../hooks';
-import { DateTime, DateTimeFormatOptions } from 'luxon';
-import { FormatDateProps } from './LocaleModels';
+import type { DateTimeFormatOptions } from 'luxon';
+import { DateTime } from 'luxon';
+import type { FormatDateProps } from './LocaleModels';
 import { is } from '@anupheaus/common';
 
 const isoDateRegex = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i;

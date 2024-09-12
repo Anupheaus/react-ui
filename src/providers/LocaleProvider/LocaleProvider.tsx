@@ -1,8 +1,10 @@
-import { ReactNode, useMemo } from 'react';
+import type { ReactNode } from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../../components/Component';
-import { LocaleContext, LocaleContextProps } from './LocaleContext';
+import type { LocaleContextProps } from './LocaleContext';
+import { LocaleContext } from './LocaleContext';
 import { Settings } from 'luxon';
-import { LocaleSettings } from './LocaleModels';
+import type { LocaleSettings } from './LocaleModels';
 import { useBound } from '../../hooks/useBound';
 
 interface Props {

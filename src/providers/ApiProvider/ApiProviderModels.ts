@@ -1,5 +1,6 @@
-import { AnyObject, ListItems } from '@anupheaus/common';
-import { ReactListItem } from '../../models';
+import type { AnyObject } from '@anupheaus/common';
+import { ListItems } from '@anupheaus/common';
+import type { ReactListItem } from '../../models';
 
 export interface Api {
   get<T>(url: string): Promise<T>;

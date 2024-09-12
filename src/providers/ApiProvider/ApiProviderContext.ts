@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { Api } from './ApiProviderModels';
+import type { Api } from './ApiProviderModels';
 
 export interface ApiProviderContextProps extends Api {
   isValid: boolean;

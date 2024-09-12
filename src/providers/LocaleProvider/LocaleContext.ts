@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { LocaleSettings } from './LocaleModels';
+import type { LocaleSettings } from './LocaleModels';
 
 export interface LocaleContextProps {
   settings: LocaleSettings;

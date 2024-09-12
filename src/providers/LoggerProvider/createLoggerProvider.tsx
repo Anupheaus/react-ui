@@ -1,9 +1,11 @@
-import { Context, ReactNode, useContext, useMemo } from 'react';
+import type { Context, ReactNode } from 'react';
+import { useContext, useMemo } from 'react';
 import { createComponent } from '../../components/Component';
-import { Logger, is } from '@anupheaus/common';
+import type { Logger } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
 
 
-interface Props {
+export interface LoggerProviderProps {
   children?: ReactNode;
   subLogName?: string;
 }
@@ -12,7 +14,7 @@ export function createLoggerProvider(ContextComponent: Context<Logger>, logger: 
   return createComponent('LoggerProvider', ({
     children = null,
     subLogName,
-  }: Props) => {
+  }: LoggerProviderProps) => {
     const currentLogger = useContext(ContextComponent) ?? logger;
 
     const newLogger = useMemo(() => is.not.empty(subLogName) ? currentLogger.createSubLogger(subLogName) : currentLogger, [currentLogger, subLogName]);

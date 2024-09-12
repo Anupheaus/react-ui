@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { useId } from '../../hooks';
 import { ApiProviderContext } from './ApiProviderContext';
-import { Api } from './ApiProviderModels';
+import type { Api } from './ApiProviderModels';
 
 export function useApi() {
   const { isValid, registerStatusCodeHandler, ...api } = useContext(ApiProviderContext);
