@@ -21,6 +21,7 @@ const useStyles = createStyles({
     cursor: 'default',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
     height: 'fit-content',
   },
 });

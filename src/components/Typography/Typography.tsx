@@ -13,6 +13,8 @@ const useStyles = createLegacyStyles({
     display: 'inline-block',
     justifyContent: 'inherit',
     alignItems: 'inherit',
+    cursor: 'default',
+    userSelect: 'none',
   },
   fullWidth: {
     width: '100%',

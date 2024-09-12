@@ -33,22 +33,39 @@ export function useLocale() {
     if (type === 'long' && settings.longDateFormat != null) return luxonDate.toFormat(settings.longDateFormat);
     if (type === 'short' && settings.shortDateFormat != null) return luxonDate.toFormat(settings.shortDateFormat);
     const options: DateTimeFormatOptions = {};
-    switch (type) {
-      case 'long':
-        if (settings.longDateFormat) return luxonDate.toFormat(settings.longDateFormat);
-        options.dateStyle = 'long';
-        break;
-      case 'short':
-        if (settings.shortDateFormat) return luxonDate.toFormat(settings.shortDateFormat);
-        options.dateStyle = 'short';
-        break;
-      case 'readable':
-        options.day = 'numeric';
-        options.month = 'long';
-        options.year = 'numeric';
-        break;
+    if (props?.mode === 'date' || props?.mode === 'datetime') {
+      switch (type) {
+        case 'long':
+          if (settings.longDateFormat) return luxonDate.toFormat(settings.longDateFormat);
+          options.dateStyle = 'long';
+          break;
+        case 'short':
+          if (settings.shortDateFormat) return luxonDate.toFormat(settings.shortDateFormat);
+          options.dateStyle = 'short';
+          break;
+        case 'readable':
+          options.day = 'numeric';
+          options.month = 'long';
+          options.year = 'numeric';
+          break;
+      }
     }
-    if (props?.includeTime === true) options.timeStyle = 'short';
+    if (props?.mode === 'time' || props?.mode === 'datetime') {
+      if (settings.timeFormat) return luxonDate.toFormat(settings.timeFormat);
+      switch (type) {
+        case 'long':
+          options.timeStyle = 'long';
+          break;
+        case 'short':
+          options.timeStyle = 'short';
+          break;
+        case 'readable':
+          options.hour12 = true;
+          options.hour = '2-digit';
+          options.minute = '2-digit';
+          break;
+      }
+    }
     return luxonDate.toLocaleString(options);
   });
 

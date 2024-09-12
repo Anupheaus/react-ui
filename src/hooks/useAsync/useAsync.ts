@@ -103,6 +103,7 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
       } else {
         responseRef.current = result;
         isLoadingRef.current = false;
+        if (!doNotCallUpdateRef.current) update();
       }
       return result;
     } catch (err) {

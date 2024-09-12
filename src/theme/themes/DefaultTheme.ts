@@ -74,6 +74,12 @@ export const DefaultTheme: Theme = {
     weight: 400,
     color: '#000',
   },
+  error: {
+    family: 'Roboto',
+    size: 14,
+    weight: 400,
+    color: '#b71313',
+  },
   fields: {
     label: {
       normal: {
@@ -358,10 +364,6 @@ export const DefaultTheme: Theme = {
       fontSize: 12,
       fontWeight: 400,
     },
-  },
-  error: {
-    backgroundColor: 'red',
-    color: '#b71313',
   },
   surface: {
     general: {

@@ -63,6 +63,8 @@ function lineUpEntries(entries: readonly CalendarEntryRecord[]): [ColumnEntry[],
 
 interface Props {
   date: Date;
+  startHour: number;
+  endHour: number;
   entries: readonly CalendarEntryRecord[];
   hourHeight: number;
   onSelect(entry: CalendarEntryRecord): void;
@@ -70,6 +72,7 @@ interface Props {
 
 export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', ({
   date,
+  startHour,
   entries,
   hourHeight,
   onSelect,
@@ -88,8 +91,8 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
 
     const innerRenderedEntities = linedUpEntries
       .map((linedUpEntry, index) => {
-        const top = calendarDayUtils.getOffset(linedUpEntry.entry.endDate == null ? startOfDay : linedUpEntry.entry.startDate, hourHeight);
-        const height = calendarDayUtils.getOffset(linedUpEntry.entry.endDate ?? endOfDay, hourHeight) - top;
+        const top = calendarDayUtils.getOffset(linedUpEntry.entry.endDate == null ? startOfDay : linedUpEntry.entry.startDate, hourHeight, startHour);
+        const height = calendarDayUtils.getOffset(linedUpEntry.entry.endDate ?? endOfDay, hourHeight, startHour) - top;
         const left = `${(linedUpEntry.column - 1) * columnWidth}%`;
         const width = `${(linedUpEntry.isLastColumn ? maxColumns - (linedUpEntry.column - 1) : 1) * columnWidth}%`;
         return (
@@ -116,7 +119,7 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
     const firstEntry = entries[0]?.startDate;
     if (firstEntry != null && firstEntry < startOfDay) innerTopOffset = -((24 - firstEntry.getHours()) * hourHeight);
     return [innerRenderedEntities, innerTopOffset];
-  }, [entries, date, onSelect]);
+  }, [entries, date, startHour, onSelect]);
 
   const style = useInlineStyle(() => ({
     top: topOffset,

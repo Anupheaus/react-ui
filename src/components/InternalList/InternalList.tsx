@@ -4,11 +4,12 @@ import { ListItemType } from '../../models';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
 import { OnScrollEventData, Scroller, ScrollerActions } from '../Scroller';
-import { UseActions, useActions, useBatchUpdates, useOnUnmount } from '../../hooks';
+import { UseActions, useActions, useBatchUpdates, useOnChange, useOnUnmount } from '../../hooks';
 import { UseDataRequest, UseDataResponse } from '../../extensions';
 import { UseItemsActions, useItems } from '../../hooks/useItems';
 import { createStyles } from '../../theme';
 import { ListItemContext } from './Context';
+import { is } from '@anupheaus/common';
 
 const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }) => ({
   internalList: {
@@ -38,7 +39,8 @@ export interface InternalListProps<T extends ListItemType> {
   items?: T[];
   gap?: ComponentProps<typeof Flex>['gap'];
   actions?: UseActions<InternalListActions>;
-  onRequest?(request: UseDataRequest, response: (data: UseDataResponse<T>) => void): void;
+  onRequest?(request: UseDataRequest, response: (data: UseDataResponse<T>) => void): Promise<void>;
+  onError?(error: Error): void;
 }
 
 interface Props<T extends ListItemType> extends InternalListProps<T> {
@@ -66,6 +68,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   actions,
   onScroll,
   onRequest,
+  onError,
 }: Props<T>) => {
   const { css, join } = useStyles();
   const heightRef = useRef<number>();
@@ -74,7 +77,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   const hasUnmounted = useOnUnmount();
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo } = useActions<ScrollerActions>();
-  const { items, total, request, offset, limit } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems });
+  const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems });
   const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
   const batchUpdates = useBatchUpdates();
 
@@ -91,25 +94,27 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
     const itemHeight = heightRef.current ?? 1;
     const innerTotal = total ?? 500;
     if (listHeight === 0) return;
-    let visibleOffset = itemHeight <= 0 ? 0 : Math.ceil((scrollAmount / itemHeight) - 1);
-    if (visibleOffset < 0) visibleOffset = 0;
     let visibleCount = itemHeight <= 0 ? 10 : Math.ceil(listHeight / 18) + 2;
     if (visibleCount < 0) visibleCount = 0;
-    if (visibleOffset + visibleCount > innerTotal) {
+    let requestOffset = itemHeight <= 0 ? 0 : (Math.ceil((scrollAmount / itemHeight) - 1) - visibleCount);
+    if (requestOffset < 0) requestOffset = 0;
+    let requestLimit = visibleCount * 2;
+    if (requestOffset + requestLimit > innerTotal) {
       if (innerTotal < visibleCount) {
-        visibleOffset = 0;
-        visibleCount = innerTotal;
+        requestOffset = 0;
+        requestLimit = innerTotal;
       } else {
-        visibleOffset = innerTotal - visibleCount;
+        requestLimit = innerTotal - requestOffset;
       }
     }
-    request({ offset: visibleOffset + 0, limit: visibleCount });
+    if (requestOffset < 0) requestOffset = 0;
+    request({ offset: requestOffset + 0, limit: requestLimit });
   };
 
   const [header, footer] = useMemo(() => {
     const itemHeight = heightRef.current ?? 0;
     const innerTotal = total ?? limit;
-    if (innerTotal == null || itemHeight == null) return [null, null];
+    if (innerTotal === 0 || itemHeight === 0) return [null, null];
     const headerStyle = { height: `${offset * itemHeight}px` };
     const footerStyle = { height: `${(innerTotal - offset - limit) * itemHeight}px` };
     return [
@@ -154,6 +159,11 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
       setAllowedToRenderItems(true);
     }, 100);
   }, []);
+
+  useOnChange(() => {
+    if (error == null || !is.function(onError)) return;
+    onError(error);
+  }, [error]);
 
   return (
     <Flex tagName={tagName} className={join(css.internalList, className)} isVertical maxWidth gap={gap}>

@@ -179,6 +179,7 @@ export interface Theme {
     };
   },
   text: TextTheme;
+  error: TextTheme;
   fields: {
     label: {
       normal: FieldLabelTheme;
@@ -312,7 +313,6 @@ export interface Theme {
     value: ThemeStateConfig;
     assistiveText: CSSProperties;
   };
-  error: CSSProperties;
   surface: {
     general: ThemeStateConfig;
     asAContainer: ThemeStateConfig;

@@ -23,10 +23,14 @@ const useStyles = createStyles(({ field: { value: { normal } } }) => ({
 
 interface Props {
   hourHeight: number;
+  startHour: number;
+  endHour: number;
 }
 
 export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
   hourHeight,
+  startHour,
+  endHour,
 }: Props) => {
   const { css, useInlineStyle } = useStyles();
 
@@ -36,8 +40,8 @@ export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
   }), [hourHeight]);
 
   const renderedHours = useMemo(() => {
-    return Array(24).fill(0).map((_, index) => {
-      const hour = `${index.toString().padStart(2, '0')}:00`;
+    return Array(endHour - startHour).fill(0).map((_, index) => {
+      const hour = `${(index + startHour).toString().padStart(2, '0')}:00`;
       return (
         <Flex tagName="calendar-day-view-hour" key={hour} className={css.hour} style={style}>
           {hour}

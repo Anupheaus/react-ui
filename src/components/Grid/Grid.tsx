@@ -1,5 +1,5 @@
 import { createComponent } from '../Component';
-import { ReactNode, useRef, useState } from 'react';
+import { ComponentProps, ReactNode, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
 import { GridColumn, GridOnRequest, GridUseRecordHook } from './GridModels';
@@ -50,20 +50,18 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
   },
 }));
 
-interface Props<RecordType extends Record> {
+type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
+type FooterProps = ComponentProps<typeof GridFooter>;
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd'> {
   className?: string;
   records?: RecordType[];
-  unitName?: string;
   columns: GridColumn<RecordType>[];
-  removeLabel?: string;
   delayRenderingRows?: boolean;
+  unitName?: string;
   children?: ReactNode;
   useRecordHook?: GridUseRecordHook<RecordType>;
   actions?: UseActions<GridActions>;
   onRequest: GridRowsProps<RecordType>['onRequest'];
-  onAdd?(): void;
-  onEdit?(record: RecordType): void;
-  onRemove?(record: RecordType): void;
 }
 
 export const Grid = createComponent('Grid', function <RecordType extends Record>({
@@ -81,17 +79,18 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
   onRemove,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
-  const { columns } = useColumns({ providedColumns, unitName, removeLabel, onEdit, onRemove });
+  const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
   const gridElementRef = useRef<HTMLDivElement | null>(null);
   const [totalRecords, setTotalRecords] = useState<number>();
   const [recordsLoading, setRecordsLoading] = useState(false);
   const { setActions, onScrollLeft } = useActions<GridHeaderActions>();
   const hasUnmounted = useOnUnmount();
   const batchUpdates = useBatchUpdates();
+  const [error, setError] = useState<Error>();
 
-  const wrapRequest = useBound<GridOnRequest<RecordType | string>>((request, response) => {
+  const wrapRequest = useBound<GridOnRequest<RecordType | string>>(async (request, response) => {
     setRecordsLoading(totalRecords == null);
-    onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
+    await onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
       if (hasUnmounted()) return;
       setTotalRecords(total);
       setRecordsLoading(false);
@@ -101,6 +100,12 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
 
   const handleScrollLeft = useBound((value: number) => onScrollLeft(value));
 
+  const handleError = useBound((e: Error) => batchUpdates(() => {
+    setError(e);
+    setRecordsLoading(false);
+    setTotalRecords(0);
+  }));
+
   return (
     <Tag
       ref={gridElementRef}
@@ -109,11 +114,19 @@ export const Grid = createComponent('Grid', function <RecordType extends Record>
     >
       <GridColumnWidthProvider>
         <GridHeader columns={columns} actions={setActions} />
-        <GridRows columns={columns} actions={actions} onRequest={wrapRequest} onScrollLeft={handleScrollLeft} useRecordHook={useRecordHook} delayRendering={delayRenderingRows}>
+        <GridRows
+          columns={columns}
+          actions={actions}
+          onRequest={wrapRequest}
+          onError={handleError}
+          onScrollLeft={handleScrollLeft}
+          useRecordHook={useRecordHook}
+          delayRendering={delayRenderingRows}
+        >
           {children}
         </GridRows>
         <UIState isLoading={recordsLoading}>
-          <GridFooter totalRecords={totalRecords} unitName={unitName} onAdd={onAdd} />
+          <GridFooter totalRecords={totalRecords} unitName={unitName} error={error} onAdd={onAdd} />
         </UIState>
       </GridColumnWidthProvider>
     </Tag>

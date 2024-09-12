@@ -1,14 +1,14 @@
-import { ComponentProps, useMemo, useRef } from 'react';
+import { ComponentProps, useContext, useMemo, useRef } from 'react';
 import { useBound, useDelegatedBound, useId } from '../../hooks';
 import { Button } from '../Button';
 import { DialogContent } from './DialogContent';
 import { DialogActions } from './DialogActions';
 import { ReactUIComponent, createComponent } from '../Component';
 import { Dialog as DialogComponent } from './Dialog';
-import { defaultDialogManagerId } from './InternalDialogModels';
 import { DialogProps } from './Dialog';
-import { DeferredPromise, PromiseMaybe } from '@anupheaus/common';
+import { DeferredPromise, InternalError, PromiseMaybe } from '@anupheaus/common';
 import { useWindows } from '../Windows';
+import { DialogManagerContext } from './DialogContexts';
 
 export interface UseDialogApi {
   openDialog: () => Promise<string>;
@@ -20,8 +20,11 @@ export interface UseDialogApi {
   CancelButton: ReactUIComponent<(props: ComponentProps<typeof Button>) => JSX.Element>;
 }
 
-function internalUseDialog(id = defaultDialogManagerId): UseDialogApi {
-  const { openWindow, closeWindow } = useWindows(id);
+function internalUseDialog(providedId?: string): UseDialogApi {
+  const { isValid, id } = useContext(DialogManagerContext);
+  if (!isValid) throw new InternalError('useDialog can only be used within a Dialogs component');
+  const managerId = providedId ?? id;
+  const { openWindow, closeWindow } = useWindows(managerId);
   const dialogId = useId();
   const dialogPromiseRef = useRef<DeferredPromise<string>>();
   const dialogCloseReasonRef = useRef<string>();

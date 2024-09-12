@@ -3,10 +3,11 @@ export interface LocaleSettings {
   currency: string;
   shortDateFormat?: string;
   longDateFormat?: string;
+  timeFormat?: string;
 }
 
 export interface FormatDateProps {
   type?: 'short' | 'long' | 'readable';
-  includeTime?: boolean;
+  mode?: 'date' | 'time' | 'datetime';
   format?: string;
 }

@@ -16,13 +16,22 @@ const useStyles = createStyles({
   },
 });
 
-interface Props {
+interface DayViewProps {
+  view: 'day';
+  startHour?: number;
+  endHour?: number;
+}
+
+interface MonthViewProps {
+  view?: 'month';
+}
+
+type Props = (DayViewProps | MonthViewProps) & {
   className?: string;
-  view?: 'month' | 'day';
   viewingDate?: Date;
   entries?: readonly CalendarEntryRecord[];
   onSelect?(entry: CalendarEntryRecord): void;
-}
+};
 
 export const Calendar = createComponent('Calendar', ({
   className,
@@ -30,13 +39,14 @@ export const Calendar = createComponent('Calendar', ({
   viewingDate = new Date(),
   entries = Array.empty<CalendarEntryRecord>(),
   onSelect = Function.empty(),
+  ...props
 }: Props) => {
   const { css } = useStyles();
 
   const renderedView = (() => {
     switch (view) {
       case 'month': return <CalendarMonthView entries={entries} viewingDate={viewingDate} />;
-      case 'day': return <CalendarDayView className={className} entries={entries} viewingDate={viewingDate} onSelect={onSelect} />;
+      case 'day': return <CalendarDayView {...props} className={className} entries={entries} viewingDate={viewingDate} onSelect={onSelect} />;
     }
   })();
 

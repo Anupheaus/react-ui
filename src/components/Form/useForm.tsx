@@ -1,81 +1,34 @@
-import { AnyObject, createProxyOf, Event, ProxyOf, Records } from '@anupheaus/common';
-import { useMemo, useRef } from 'react';
-import { useBound, useForceUpdate, useOnChange } from '../../hooks';
-import { createComponent, ReactUIComponent } from '../Component';
-import { FormProps, Form as FormComponent } from './Form';
-import { FormContext, FormContextProps } from './FormContext';
-import { FormSaveButton } from './FormSaveButton';
-import { FormToolbar } from './FormToolbar';
+import { AnyObject, is } from '@anupheaus/common';
+import { useMemo } from 'react';
+import { ReactUIComponent, createComponent } from '../Component';
+import { useDistributedState } from '../../hooks';
+import { InternalFormState } from './InternalFormModels';
+import { FormField as FormFieldComponent, FieldComponent, FormFieldProps } from './FormField';
+import { createUseFormField } from './useFormField';
 
-interface Props<T extends AnyObject> {
-  data: T;
-}
+export function useForm<T extends AnyObject>(data?: T, onChange?: (data: T) => void) {
+  const { state, get, onChange: onStateDataChanged } = useDistributedState<InternalFormState<T>>(() => ({ data: (data ?? {}) as T, originalData: (data ?? {}) as T }), [data]);
 
-export interface UseForm<T extends AnyObject> {
-  data: ProxyOf<T>;
-  get<V>(field: V): any;
-  useFormField<V>(field: V): any;
-  Form: ReactUIComponent<(props: FormProps<T>) => JSX.Element>;
-  SaveButton: typeof FormSaveButton;
-  Toolbar: typeof FormToolbar;
+  onStateDataChanged(newData => onChange?.(newData.data as T));
 
-}
+  const useFormField = createUseFormField<T>(state);
 
-export function useForm<T extends AnyObject>({ data: providedData }: Props<T>): UseForm<T> {
-  const [original, current] = useMemo(() => [createProxyOf(Object.clone(providedData)), createProxyOf(Object.clone(providedData))], []);
-  const onSave = useRef<FormContextProps['onSave']['current']>();
+  const FormField = useMemo<ReactUIComponent<<F extends FieldComponent>(props: FormFieldProps<F, T>) => JSX.Element>>(() => 
+    createComponent('FormField', <F extends FieldComponent>(props: FormFieldProps<F, T>) => (
+      <FormFieldComponent<F, T> {...props} state={state} useFormField={useFormField as any} />
+    )), [state]);
 
-  const setOriginalAndCurrentTo = (newData: T) => {
-    current.set(current.proxy, Object.clone(newData));
-    original.set(original.proxy, Object.clone(newData));
+  const getCurrent = () => get().data;
+  
+  const isDirty = ()=>{
+    const { data: currentData, originalData } = get();
+    return !is.deepEqual(currentData, originalData);
   };
-
-  useOnChange(() => {
-    setOriginalAndCurrentTo(providedData);
-  }, [providedData]);
-
-  const save = useBound(async () => {
-    Event.raise(context.showAllErrors);
-    if (context.errors.length > 0) return;
-    let dataToSave = current.get(current.proxy) as unknown;
-    if (Event.getSubscriptionCountFor(context.onBeforeSave) > 0) {
-      dataToSave = await Event.raise(context.onBeforeSave, dataToSave);
-      if (dataToSave == null) return;
-    }
-    const newData = onSave.current ? await onSave.current(dataToSave) : dataToSave;
-    if (newData == null) return;
-    setOriginalAndCurrentTo(newData as T);
-  });
-
-  const useFormField = function <V>(field: V) {
-    const update = useForceUpdate();
-    current.onSet(current.proxy, () => update(), { includeSubProperties: true });
-    return current.get(field);
-  };
-
-  const context = useMemo<FormContextProps>(() => ({
-    isReal: true,
-    original: original as any,
-    current: current as any,
-    errors: new Records(),
-    showAllErrors: Event.create({ raisePreviousEventsOnNewSubscribers: true }),
-    onBeforeSave: Event.create({ mode: 'passthrough', }),
-    onSave,
-    save,
-  }), [original, current]);
-
-  const Form: ReactUIComponent<(props: FormProps<T>) => JSX.Element> = useMemo(() => createComponent('Form', (props: FormProps<T>) => (
-    <FormContext.Provider value={context}>
-      <FormComponent {...props} />
-    </FormContext.Provider>
-  )), []);
 
   return {
-    data: current.proxy,
-    get: current.get,
+    FormField,
+    getCurrent,
+    isDirty,
     useFormField,
-    Form,
-    SaveButton: FormSaveButton,
-    Toolbar: FormToolbar,
   };
 }

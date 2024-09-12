@@ -3,10 +3,10 @@ import { createComponent } from '../../components/Component';
 import { ValidationContext, ValidationContextProps } from './ValidationContext';
 import { ValidationRecord } from './ValidationModels';
 import { Collection, Records } from '@anupheaus/common';
-import { UseCallbacks } from '../../hooks';
+import { UseCallbacks, useId } from '../../hooks';
 
 export interface ValidateSectionProps {
-  name: string;
+  id?: string;
   children: ReactNode;
 }
 
@@ -17,18 +17,19 @@ interface Props extends ValidateSectionProps {
 }
 
 export const ValidateSection = createComponent('ValidateSection', ({
-  name,
+  id: providedId,
   errors: hookErrors,
   invalidSections,
   highlightErrorsCallbacks,
   children,
 }: Props) => {
+  const id = providedId ?? useId();
   const errors = useRef(new Records<ValidationRecord>()).current;
 
   useLayoutEffect(() => {
     if (errors.length > 0) {
       hookErrors.upsert(errors.toArray());
-      invalidSections.add(name);
+      invalidSections.add(id);
     }
     // listen on errors
     return errors.onModified((records, reason) => {
@@ -38,25 +39,25 @@ export const ValidateSection = createComponent('ValidateSection', ({
         case 'clear': hookErrors.clear(); break;
       }
       if (errors.length > 0) {
-        invalidSections.add(name);
+        invalidSections.add(id);
       } else {
-        invalidSections.remove(name);
+        invalidSections.remove(id);
       }
     });
   }, []);
 
   useEffect(() => () => {
     hookErrors.remove(errors.ids());
-    invalidSections.remove(name);
+    invalidSections.remove(id);
   }, []);
 
   const context = useMemo<ValidationContextProps>(() => ({
     isReal: true,
-    name,
+    id,
     errors,
     invalidSections,
     highlightErrorsCallbacks,
-  }), [name]);
+  }), [id]);
 
   return (
     <ValidationContext.Provider value={context}>

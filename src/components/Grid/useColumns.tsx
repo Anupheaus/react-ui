@@ -1,5 +1,5 @@
 import { Record } from '@anupheaus/common';
-import { useMemo } from 'react';
+import { ComponentProps, useMemo } from 'react';
 import { GridColumn } from './GridModels';
 import { GridRowActionColumn } from './GridRowActionColumn';
 import { createStyles } from '../../theme';
@@ -19,15 +19,11 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
   },
 }));
 
-interface AddActionColumnProps {
+interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof GridRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel'> {
   css: ReturnType<typeof useStyles>['css'];
-  unitName: string;
-  removeLabel?: string;
-  onEdit?(record: Record): void;
-  onRemove?(record: Record): void;
 }
 
-function addActionColumn({ css, unitName, removeLabel, onEdit, onRemove }: AddActionColumnProps): GridColumn[] {
+function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel, onEdit, onRemove }: AddActionColumnProps<RecordType>): GridColumn[] {
   if (onEdit == null && onRemove == null) return [];
   return [{
     id: 'grid-actions',
@@ -48,12 +44,8 @@ function addActionColumn({ css, unitName, removeLabel, onEdit, onRemove }: AddAc
   }];
 }
 
-interface Props<RecordType extends Record> {
+interface Props<RecordType extends Record> extends Omit<AddActionColumnProps<RecordType>, 'css'> {
   providedColumns: GridColumn<RecordType>[];
-  unitName: string;
-  removeLabel?: string;
-  onEdit?(record: Record): void;
-  onRemove?(record: Record): void;
 }
 
 export function useColumns<RecordType extends Record>({

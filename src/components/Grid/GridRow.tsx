@@ -37,7 +37,7 @@ export const GridRow = createComponent('GridRow', <RecordType extends Record>({
   )), [columns, record, index]);
 
   return (
-    <Flex tagName="grid-row" className={css.row}>
+    <Flex tagName="grid-row" className={css.row} disableGrow>
       {content}
     </Flex>
   );

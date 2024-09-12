@@ -1,25 +1,25 @@
-import { Record } from '@anupheaus/common';
+import { PromiseMaybe, Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
 import { EllipsisMenu, MenuItem } from '../Menu';
 import { useDialog } from '../Dialog';
 import { useMemo } from 'react';
 
-interface Props {
-  record: Record | undefined;
+interface Props<RecordType extends Record> {
+  record: RecordType | undefined;
   rowIndex: number;
   unitName: string;
   removeLabel?: string;
-  onRemove?(record: Record, index: number): void;
+  onRemove?(record: RecordType, index: number): PromiseMaybe<void>;
 }
 
-export const GridRowMenuAction = createComponent('GridRowMenuAction', ({
+export const GridRowMenuAction = createComponent('GridRowMenuAction', <RecordType extends Record>({
   record,
   rowIndex,
   unitName,
   removeLabel = 'Delete',
   onRemove,
-}: Props) => {
+}: Props<RecordType>) => {
   const { Dialog: RemoveRecordConfirmationDialog, DialogActions: RemoveRecordConfirmationDialogActions, DialogContent: RemoveRecordConfirmationDialogContent,
     OkButton: RemoveRecordConfirmationOkButton, CancelButton: RemoveRecordConfirmationCancelButton,
     openDialog: openRemoveRecordConfirmationDialog } = useDialog();
@@ -27,7 +27,7 @@ export const GridRowMenuAction = createComponent('GridRowMenuAction', ({
   const removeRecord = useBound(async () => {
     if ((await openRemoveRecordConfirmationDialog()) !== 'ok') return;
     if (record == null || onRemove == null) return;
-    onRemove(record, rowIndex);
+    return onRemove(record, rowIndex);
   });
 
   const title = useMemo(() => (<>{removeLabel.toPascalCase()} {unitName.toPascalCase()}?</>), [removeLabel, unitName]);

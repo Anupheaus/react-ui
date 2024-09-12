@@ -1,11 +1,11 @@
-import { ReactNode, useState } from 'react';
-import { useBound } from '../../hooks';
+import { ReactNode, useMemo, useState } from 'react';
+import { useBound, useId } from '../../hooks';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { Windows, WindowState } from '../Windows';
-import { defaultDialogManagerId } from './InternalDialogModels';
 import { DialogRenderer } from './DialogRenderer';
+import { DialogManagerContext, DialogManagerContextProps } from './DialogContexts';
 
 const useStyles = createLegacyStyles({
   dialogs: {
@@ -48,23 +48,28 @@ interface Props {
 }
 
 export const Dialogs = createComponent('Dialogs', ({
-  id = defaultDialogManagerId,
+  id,
   shouldBlurBackground = false,
   children,
 }: Props) => {
+  const managerId = id ?? useId();
   const { css, join } = useStyles();
   const [areDialogsOpen, setAreDialogsOpen] = useState(false);
+
+  const context = useMemo<DialogManagerContextProps>(() => ({ id: managerId, isValid: true }), [managerId]);
 
   const handleStatesChanged = useBound((states: WindowState[]) => {
     setAreDialogsOpen(states.length > 0);
   });
 
-  const renderDialog = useBound((state: WindowState) => (<DialogRenderer managerId={id} state={state} />));
+  const renderDialog = useBound((state: WindowState) => (<DialogRenderer managerId={managerId} state={state} />));
 
   return (
     <Tag name="dialogs" className={join(css.dialogs, shouldBlurBackground && areDialogsOpen && 'blur-background')}>
-      {children}
-      <Windows id={id} className={css.windows} onCreate={renderDialog} onChange={handleStatesChanged} />
+      <DialogManagerContext.Provider value={context}>
+        {children}
+      </DialogManagerContext.Provider>
+      <Windows id={managerId} className={css.windows} onCreate={renderDialog} onChange={handleStatesChanged} />
     </Tag >
   );
 });

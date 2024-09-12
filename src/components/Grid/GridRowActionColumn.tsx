@@ -1,4 +1,3 @@
-import { Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { GridRenderValueProps } from './GridModels';
@@ -7,7 +6,8 @@ import { GridRowMenuAction } from './GridRowMenuAction';
 import { createStyles } from '../../theme';
 import { useSetGridColumnWidth } from './GridColumnWidths';
 import { useOnResize } from '../../hooks';
-import { useLayoutEffect, useRef } from 'react';
+import { ComponentProps, useLayoutEffect, useRef } from 'react';
+import { Record } from '@anupheaus/common';
 
 const useStyles = createStyles(({ surface: { shadows: { light } } }) => ({
   gridRowActions: {
@@ -37,14 +37,10 @@ const useStyles = createStyles(({ surface: { shadows: { light } } }) => ({
   },
 }));
 
-interface Props extends GridRenderValueProps {
-  onEdit?(record: Record, rowIndex: number): void;
-  onRemove?(record: Record, rowIndex: number): void;
-  unitName: string;
-  removeLabel?: string;
-}
+interface Props<RecordType extends Record> extends GridRenderValueProps<RecordType>,
+  Pick<ComponentProps<typeof GridRowEditAction<RecordType>>, 'onEdit'>, Pick<ComponentProps<typeof GridRowMenuAction<RecordType>>, 'onRemove' | 'unitName' | 'removeLabel'> { }
 
-export const GridRowActionColumn = createComponent('GridRowActionColumn', ({
+export const GridRowActionColumn = createComponent('GridRowActionColumn', <RecordType extends Record>({
   record,
   columnIndex,
   rowIndex,
@@ -52,7 +48,7 @@ export const GridRowActionColumn = createComponent('GridRowActionColumn', ({
   onRemove,
   unitName,
   removeLabel,
-}: Props) => {
+}: Props<RecordType>) => {
   const { css } = useStyles();
   const { width, target } = useOnResize({ observeWidthOnly: true });
   const setWidth = useSetGridColumnWidth(columnIndex);
