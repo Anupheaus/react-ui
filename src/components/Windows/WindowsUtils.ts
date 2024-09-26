@@ -1,4 +1,4 @@
-import { WindowState } from './WindowsModels';
+import type { WindowState } from './WindowsModels';
 
 function reorderWindows<StateType extends WindowState = WindowState>(states: StateType[], previousOrder: string[]): [StateType[], string[]] {
   let oldStates = states.slice();

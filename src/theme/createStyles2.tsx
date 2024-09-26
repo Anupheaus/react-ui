@@ -1,8 +1,12 @@
-import { createMakeStyles, CSSObject } from 'tss-react';
-import { AnyObject, DeepPartial, is, MapOf } from '@anupheaus/common';
-import { CSSProperties, useContext, useMemo } from 'react';
+import type { CSSObject } from 'tss-react';
+import { createMakeStyles } from 'tss-react';
+import type { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { CSSProperties } from 'react';
+import { useContext, useMemo } from 'react';
 import { ThemeContext } from './ThemeContext';
 import { DefaultTheme } from './themes';
+import Color from 'color';
 
 type BaseTheme = typeof DefaultTheme;
 
@@ -62,6 +66,9 @@ function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
     makeImportant(value: string | undefined): string | undefined {
       if (value == null) return;
       return `${value} !important`;
+    },
+    modifyColor(color: string) {
+      return Color(color);
     },
   };
 }

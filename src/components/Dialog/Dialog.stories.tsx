@@ -1,12 +1,13 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Dialog as DialogType } from './Dialog';
 import { createStyles } from '../../theme';
-import { useBinder, useBound } from '../../hooks';
-import { useDialog } from './useDialog';
+import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { StorybookComponent } from '../../Storybook';
 import { Dialogs } from './Dialogs';
+import { createDialog } from './createDialog';
+import { useConfirmationDialog } from './useConfirmationDialog';
 
 const meta: Meta<typeof DialogType> = {
   component: DialogType,
@@ -28,41 +29,50 @@ const useStyles = createStyles({
   },
 });
 
+const useTestDialog = createDialog('TestDialog', ({ Dialog, Content, Actions, OkButton }) => () => (
+  <Dialog title={'Test Dialog'}>
+    <Content>
+      This is the content of the Dialog
+    </Content>
+    <Actions>
+      <OkButton />
+    </Actions>
+  </Dialog>
+));
+
+
 export const Default: Story = {
   args: {
   },
   render: () => {
     const { css } = useStyles();
-    const bind = useBinder();
-    const { Dialog, DialogContent, DialogActions, openDialog, closeDialog, OkButton } = useDialog();
+    const { TestDialog, openTestDialog } = useTestDialog();
+    const { ConfirmationDialog, openConfirmationDialog } = useConfirmationDialog();
 
-    const handleClosed = useBound((reason: string) => {
+    const onOpen = useBound(async () => {
+      const result = await openTestDialog();
       // eslint-disable-next-line no-console
-      console.log('Dialog closed', reason);
+      console.log('Dialog closed with result:', result);
+    });
+
+    const onConfirm = useBound(async () => {
+      const result = await openConfirmationDialog('Confirm?', 'Are you sure?');
+      // eslint-disable-next-line no-console
+      console.log('Confirmation dialog closed with result:', result);
     });
 
     return (
       <Flex tagName="dialog-test" valign="top" align="left" isVertical>
         <Flex gap={4}>
-          <Button onClick={bind(async () => {
-            await openDialog();
-          })}>Open</Button>
-          <Button onClick={bind(() => {
-            closeDialog('blah');
-          })}>Close</Button>
+          <Button onClick={onOpen}>Open</Button>
+          <Button onClick={onConfirm}>Confirm</Button>
         </Flex>
         <StorybookComponent width={1200} height={600} showComponentBorders>
           <Dialogs shouldBlurBackground>
             <Flex tagName="background" className={css.background} />
             <Flex className={css.text}>This should be blurred!</Flex>
-            <Dialog title={'Test Dialog'} allowCloseButton allowMaximizeButton onClosed={handleClosed}>
-              <DialogContent>
-                This is the content of the Dialog
-              </DialogContent>
-              <DialogActions>
-                <OkButton />
-              </DialogActions>
-            </Dialog>
+            <TestDialog />
+            <ConfirmationDialog />
           </Dialogs>
         </StorybookComponent>
       </Flex>

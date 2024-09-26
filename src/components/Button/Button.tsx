@@ -5,9 +5,11 @@ import { useBound, useForceUpdate } from '../../hooks';
 import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { createStyles } from '../../theme';
-import { Children, CSSProperties, KeyboardEvent, MouseEvent, ReactNode, Ref, useRef } from 'react';
+import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
+import { Children, useRef } from 'react';
 import { Tag } from '../Tag';
-import { is, PromiseMaybe } from '@anupheaus/common';
+import type { PromiseMaybe } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
 import { Icon } from '../Icon';
 import { useUIState } from '../../providers';
 

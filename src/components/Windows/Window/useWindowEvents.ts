@@ -1,15 +1,16 @@
-import { RefObject, useEffect, useLayoutEffect, useState } from 'react';
-import { WindowsManager } from '../WindowsManager';
+import type { RefObject } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import type { WindowsManager } from '../WindowsManager';
 import { useOnUnmount } from '../../../hooks';
-import { PromiseMaybe } from '@anupheaus/common';
+import type { PromiseMaybe } from '@anupheaus/common';
 
 interface Props {
   manager: WindowsManager;
   windowElementRef: RefObject<HTMLElement>;
   id: string;
-  onClosing: (() => PromiseMaybe<void | boolean>) | undefined;
-  onClosed: (() => void) | undefined;
-  onFocus: ((isFocused: boolean) => void) | undefined;
+  onClosing?(reason?: string): PromiseMaybe<void | boolean>;
+  onClosed?(reason?: string): void;
+  onFocus?(isFocused: boolean): void;
 }
 
 export function useWindowEvents({ manager, windowElementRef, id, onClosing, onClosed, onFocus }: Props) {
@@ -21,7 +22,8 @@ export function useWindowEvents({ manager, windowElementRef, id, onClosing, onCl
     return manager.subscribeToEventChanges(id, async events => {
       if (events.allowClosing != null) {
         const promise = events.allowClosing;
-        const result = await onClosing?.();
+        const state = manager.get(id);
+        const result = await onClosing?.(state.closingReason);
         if (result === false) promise.reject();
         else promise.resolve();
       }
@@ -36,13 +38,14 @@ export function useWindowEvents({ manager, windowElementRef, id, onClosing, onCl
 
     const genericHandler = (_isCancelled: boolean) => (event: TransitionEvent) => {
       if (event.target !== windowElementRef.current || windowElementRef.current == null || isUnmounted()) return;
+      const state = manager.has(id) ? manager.get(id) : null;
       switch (event.propertyName) {
         case 'filter': {
           if (manager.endEvent(id, 'focusing')) onFocus?.(manager.isFocused(id));
           break;
         }
         case 'opacity': {
-          if (manager.endEvent(id, 'closing')) onClosed?.();
+          if (manager.endEvent(id, 'closing')) onClosed?.(state?.closingReason);
           break;
         }
         case 'transform': {

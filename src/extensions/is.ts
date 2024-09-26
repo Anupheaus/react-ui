@@ -1,5 +1,6 @@
 import { is } from '@anupheaus/common';
-import { isValidElement, Component, ReactElement, RefObject } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import { isValidElement, Component } from 'react';
 import type { LegacyTheme } from '../theme/themeModels';
 
 declare module '@anupheaus/common' {
@@ -19,7 +20,7 @@ function isObjectRef<T = any>(value: unknown): value is RefObject<T> {
 
 is.reactElement = isValidElement;
 is.reactRef = isObjectRef;
-is.reactComponent = (value): value is Component => value instanceof Component;
+is.reactComponent = (value): value is Component => value instanceof Component || (typeof (value) === 'object' && value != null && '$$typeof' in value && typeof (value.$$typeof) === 'symbol');
 is.theme = (value: unknown): value is LegacyTheme => is.plainObject<LegacyTheme>(value) && is.not.empty(value.id) && is.plainObject(value.definition) && is.function(value.createVariant);
 is.fixedCSSDimension = (value: string | number | undefined): boolean => {
   if (is.number(value)) return true;

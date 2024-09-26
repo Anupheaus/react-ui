@@ -1,53 +1,88 @@
-import { AnyObject, DeferredPromise, PromiseState, Records, RecordsModifiedReason, Unsubscribe, bind, is } from '@anupheaus/common';
-import { WindowEvents, WindowState } from './WindowsModels';
+import type { AnyObject, RecordsModifiedReason, Unsubscribe } from '@anupheaus/common';
+import { DeferredPromise, PromiseState, Records, bind } from '@anupheaus/common';
+import type { WindowEvents, WindowState } from './WindowsModels';
+import { windowsDefinitionsManager } from './WindowDefinitionsManager';
+import type { ActiveWindowState } from './InternalWindowModels';
 
 const windowManagers = new Map<string, WindowsManager>();
 
 (window as AnyObject).windows = windowManagers;
 
 export class WindowsManager {
-  private constructor() {
+  private constructor(id: string, instanceId: string) {
     this.#windows = new Records();
     this.#events = new Records();
     this.#disabledNotifications = false;
+    this.#id = id;
+    this.#instanceId = instanceId;
   }
 
   #windows: Records<WindowState>;
   #events: Records<WindowEvents>;
   #disabledNotifications: boolean;
+  #id: string;
+  #instanceId: string;
 
   public get entries() { return this.#windows.toArray(); }
+  public get instanceId() { return this.#instanceId; }
 
   public static get(id: string) {
+    const manager = windowManagers.get(id);
+    if (manager == null) throw new Error(`Window manager with id "${id}" not found.`);
+    return manager;
+  }
+
+  public static getOrCreate(id: string, instanceId: string) {
     const existingManager = windowManagers.get(id);
-    if (existingManager) return existingManager;
-    const newManager = new WindowsManager();
-    windowManagers.set(id, newManager);
-    return newManager;
+    if (existingManager != null) {
+      if (existingManager.instanceId !== instanceId) throw new Error(`A Windows component with id "${id}" already exists.`);
+      return existingManager;
+    } else {
+      const newManager = new WindowsManager(id, instanceId);
+      windowManagers.set(id, newManager);
+      return newManager;
+    }
+  }
+
+  public static remove(id: string) {
+    windowManagers.delete(id);
+    windowsDefinitionsManager.removeInstance(id);
+  }
+
+  public getArgs<Args extends unknown[]>(id: string): Args {
+    const state = this.#windows.get(id);
+    if (state == null) throw new Error(`Window with id "${id}" not found when trying to retrieve the args.`);
+    return state.args as Args;
   }
 
   @bind
   public async open(state: WindowState): Promise<void> {
     if (this.#windows.get(state.id) != null) { return this.focus(state.id); }
+    windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId, state.definitionInstanceId ?? 'default');
     return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }
 
-  public subscribeToStateChanges(callback: (states: WindowState[], reason: RecordsModifiedReason) => void): Unsubscribe;
-  public subscribeToStateChanges(id: string, callback: (state: WindowState, reason: RecordsModifiedReason) => void): Unsubscribe;
+  public subscribeToStateChanges(id: string, callback: (state: ActiveWindowState, reason: RecordsModifiedReason) => void): Unsubscribe;
+  public subscribeToStateChanges(callback: (states: ActiveWindowState[], reason: RecordsModifiedReason) => void): Unsubscribe;
   @bind
   public subscribeToStateChanges(...args: unknown[]): Unsubscribe {
-    const callback = is.function(args[0]) ? args[0] : is.function(args[1]) ? args[1] : undefined;
-    const id = is.string(args[0]) ? args[0] : undefined;
-    if (callback == null) return () => void 0;
-    return this.#windows.onModified((states, reason) => {
-      if (id == null) {
-        callback(this.#windows.toArray(), reason);
-      } else {
-        if (reason === 'reorder' || this.#disabledNotifications) return;
-        const updatedState = states.findById(id);
-        if (updatedState != null) callback(updatedState, reason);
-      }
-    });
+    if (args.length === 1) {
+      const callback = args[0] as (states: ActiveWindowState[], reason: RecordsModifiedReason) => void;
+      return this.#windows.onModified((_, reason, allStates) => {
+        if (this.#disabledNotifications) return;
+        callback(allStates.map(state => this.#ensureGetId(state.id)), reason);
+      });
+    } else if (args.length === 2) {
+      const id = args[0] as string;
+      const callback = args[1] as (state: ActiveWindowState, reason: RecordsModifiedReason) => void;
+      return this.#windows.onModified((states, reason, allStates) => {
+        if (this.#disabledNotifications) return;
+        const state = (allStates.findById(id) != null ? this.#ensureGetId(id) : states.findById(id)) as ActiveWindowState | WindowState | undefined;
+        if (state == null) return;
+        callback({ isFocused: false, index: 0, ...state }, reason);
+      });
+    }
+    throw new Error('Invalid arguments provided to subscribeToStateChanges.');
   }
 
   public subscribeToEventChanges(id: string, callback: (events: WindowEvents) => void): Unsubscribe {
@@ -87,8 +122,9 @@ export class WindowsManager {
   }
 
   @bind
-  public async close(id: string): Promise<void> {
-    this.#ensureGetId(id);
+  public async close(id: string, reason?: string): Promise<void> {
+    const state = this.#ensureGetId(id);
+    this.#windows.update({ ...state, closingReason: reason });
     try {
       await this.#createEvent(id, 'allowClosing');
     } catch {
@@ -118,7 +154,7 @@ export class WindowsManager {
 
   public onFocused(id: string, callback: (isFocused: boolean) => void): Unsubscribe {
     return this.#windows.onModified((_, reason) => {
-      if (reason === 'reorder') callback(this.#windows.ids().last() === id);
+      if (reason === 'reorder') callback(this.isFocused(id));
     });
   }
 
@@ -126,8 +162,12 @@ export class WindowsManager {
     return this.#windows.ids().last() === id;
   }
 
-  public get(id: string): WindowState {
+  public get(id: string): ActiveWindowState {
     return this.#ensureGetId(id);
+  }
+
+  public has(id: string): boolean {
+    return this.#windows.has(id);
   }
 
   public endEvent(id: string, event: keyof Omit<WindowEvents, 'id'>): boolean {
@@ -170,13 +210,21 @@ export class WindowsManager {
     }
   }
 
-  #ensureGetId(id: string): WindowState {
+  #ensureGetId(id: string): ActiveWindowState {
     const state = this.#windows.get(id);
-    if (state == null) throw new Error(`Window with id ${id} not found.`);
-    return state;
+    if (state == null) throw new Error(`Window with id "${id}" not found.`);
+    const ids = this.#windows.ids();
+    const index = ids.indexOf(id);
+    const isFocused = ids.last() === id;
+    return {
+      ...state,
+      index,
+      isFocused,
+    };
   }
 
   #removeWindow(id: string) {
+    windowsDefinitionsManager.removeInstance(id);
     this.#windows.remove(id);
     const events = this.#events.get(id);
     this.#events.remove(id);

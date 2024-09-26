@@ -1,5 +1,7 @@
-import { ReactNode, useState } from 'react';
-import { DistributedState, useBound, useDistributedState } from '../../../hooks';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import type { DistributedState } from '../../../hooks';
+import { useBound, useDistributedState } from '../../../hooks';
 import { ThemeProvider, createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Button } from '../../Button';

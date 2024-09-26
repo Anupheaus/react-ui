@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@anupheaus/common':
-    specifier: ^0.1.9
-    version: 0.1.9
+    specifier: ^0.1.14
+    version: 0.1.14
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -231,8 +231,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anupheaus/common@0.1.9:
-    resolution: {integrity: sha512-HLYqfv+2Nw1GS5Ut4/cMgiJiYtBfvbORQSKfluAmupwIqC66tUDlPHrdmvPCx33j+Nv13MDqdZTGIcEwKbSXbg==}
+  /@anupheaus/common@0.1.14:
+    resolution: {integrity: sha512-pf+Vjc60mrNOY0KwMnJ/a+48H8EyuAXw4c+tJncttROO7xMkdr9fEh1qvaCQUBUjSxrefhxF7CGE1g5faW2qKw==}
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1
@@ -10059,7 +10059,7 @@ packages:
     resolution: {integrity: sha512-oWb1Z6mkHIskLzEJ/XWX0srkpkTQ7vaopMQkyaEIoq0fmtFVxOthb8cCxeT+p3ynTdkk/RZwbgG4brR5BeWECw==}
     engines: {node: '>= 4.0'}
     os: [darwin]
-    deprecated: The v1 package contains DANGEROUS / INSECURE binaries. Upgrade to safe fsevents v2
+    deprecated: Upgrade to fsevents v2 to mitigate potential security issues
     requiresBuild: true
     dependencies:
       bindings: 1.5.0

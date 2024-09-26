@@ -1,5 +1,6 @@
-import { CSSProperties, RefObject, useEffect, useMemo, useState } from 'react';
-import { InitialWindowPosition, WindowState } from '../WindowsModels';
+import type { CSSProperties, RefObject } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { InitialWindowPosition, WindowState } from '../WindowsModels';
 import { useBatchUpdates, useOnUnmount } from '../../../hooks';
 
 interface Props {
@@ -70,7 +71,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
   }); // do after every render
 
   useEffect(() => {
-    if (preparationClassName === undefined) return;
+    if (preparationClassName === undefined || isMaximized === true) return;
     if (actualWidth !== width || actualHeight !== height) {
       batchUpdates(() => {
         setInitialDimensionsHaveBeenSet(false);

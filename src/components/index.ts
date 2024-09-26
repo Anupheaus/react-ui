@@ -46,4 +46,3 @@ export * from './Chips';
 export * from './Avatar';
 export * from './Badge';
 export * from './Countdown';
-export * from './Dialog_New';

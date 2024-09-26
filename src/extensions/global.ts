@@ -1,5 +1,5 @@
-import { DataPagination } from '@anupheaus/common';
-import { ReactNode } from 'react';
+import type { DataPagination } from '@anupheaus/common';
+import type { ReactNode } from 'react';
 
 export type AddChildren<TProps extends {}> = TProps extends { children: unknown; } ? TProps : TProps & { children?: ReactNode; };
 

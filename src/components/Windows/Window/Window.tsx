@@ -1,5 +1,6 @@
-import { PromiseMaybe } from '@anupheaus/common';
-import { ReactNode, useContext, useLayoutEffect, useRef, useState } from 'react';
+import type { PromiseMaybe } from '@anupheaus/common';
+import type { ReactNode } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer/polyfilled';
 import { useBound, useDOMRef } from '../../../hooks';
 import { createStyles } from '../../../theme';
@@ -9,10 +10,10 @@ import { Flex } from '../../Flex';
 import { Icon } from '../../Icon';
 import { useWindowDrag } from '../useWindowDrag';
 import { WindowResizer } from '../WindowResizer';
-import { InitialWindowPosition } from '../WindowsModels';
+import type { InitialWindowPosition } from '../WindowsModels';
 import { Titlebar } from '../../Titlebar';
 import { WindowsManager } from '../WindowsManager';
-import { WindowManagerIdContext, WindowContext } from '../WindowsContexts';
+import { WindowContext } from '../WindowsContexts';
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
 import { useWindowDimensions } from './useWindowDimensions';
@@ -83,12 +84,6 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
   titlebar: {
     zIndex: 1,
   },
-  content: {
-    backgroundColor: content.active.backgroundColor,
-    color: content.active.textColor,
-    fontSize: content.active.textSize,
-    fontWeight: content.active.textWeight,
-  },
 }));
 
 interface Props {
@@ -108,14 +103,13 @@ interface Props {
   windowControls?: ReactNode;
   width?: string | number;
   height?: string | number;
-  onClosing?(): PromiseMaybe<boolean | void>;
-  onClosed?(): void;
+  onClosing?(reason?: string): PromiseMaybe<boolean | void>;
+  onClosed?(reason?: string): void;
   onFocus?(isFocused: boolean): void;
 }
 
 export const Window = createComponent('Window', ({
   className,
-  contentClassName,
   title,
   icon = null,
   initialPosition,
@@ -134,11 +128,10 @@ export const Window = createComponent('Window', ({
   onClosed,
   onFocus,
 }: Props) => {
-  const managerId = useContext(WindowManagerIdContext);
-  const { id: stateId, index: windowIndex, isFocused } = useContext(WindowContext);
+  const { id, managerId } = useContext(WindowContext);
   const manager = WindowsManager.get(managerId);
-  const [state, setState] = useWindowState(manager, stateId, providedWidth, providedHeight);
-  const { id, isMaximized: savedIsMaximized } = state;
+  const [state, setState] = useWindowState(manager, id, providedWidth, providedHeight);
+  const { isMaximized: savedIsMaximized, index: windowIndex, isFocused } = state;
   const isMaximized = savedIsMaximized ?? providedIsMaximized;
   const isDraggable = !disableDrag && !isMaximized;
   const { css, join } = useStyles();
@@ -154,7 +147,7 @@ export const Window = createComponent('Window', ({
   });
 
   const focus = useBound(() => manager.focus(id));
-  const closeWindow = useBound(() => manager.close(id));
+  const closeWindow = useBound(() => manager.close(id, 'x'));
   const maximizeWindow = useBound(() => manager.maximize(id));
   const restoreWindow = useBound(() => manager.restore(id));
   const handleMouseDown = useBound(() => focus());
@@ -222,9 +215,7 @@ export const Window = createComponent('Window', ({
           {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
         </>}
       />
-      <Flex tagName="window-content" className={join(css.content, contentClassName)} disableOverflow>
-        {children}
-      </Flex>
+      {children}
       <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
     </Flex >
   );

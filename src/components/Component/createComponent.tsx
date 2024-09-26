@@ -1,6 +1,7 @@
 import '../../extensions/is';
 import { Error, is, to } from '@anupheaus/common';
-import { forwardRef, FunctionComponent, isValidElement, memo, NamedExoticComponent, ReactNode, Ref } from 'react';
+import type { FunctionComponent, NamedExoticComponent, ReactNode, Ref } from 'react';
+import { forwardRef, isValidElement, memo } from 'react';
 import { createComponentOverrides } from './createComponentOverrides';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
@@ -67,7 +68,7 @@ function setName(func: FunctionComponent<{}>, name: string) {
   func.displayName = name;
 }
 
-export type ReactUIComponent<TFunc extends (props: any) => JSX.Element | null> = TFunc & {
+export type ReactUIComponent<TFunc extends (props: any) => JSX.Element | null = (() => JSX.Element | null)> = TFunc & {
   Overrides: NamedExoticComponent<Partial<Parameters<TFunc>[0]> & { children: ReactNode; }>;
 };
 

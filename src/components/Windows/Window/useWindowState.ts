@@ -1,11 +1,12 @@
 import { useLayoutEffect } from 'react';
-import { WindowsManager } from '../WindowsManager';
+import type { WindowsManager } from '../WindowsManager';
 import { useUpdatableState } from '../../../hooks';
-import { WindowState } from '../WindowsModels';
+import type { WindowState } from '../WindowsModels';
 import { is } from '@anupheaus/common';
+import type { ActiveWindowState } from '../InternalWindowModels';
 
 export function useWindowState(manager: WindowsManager, id: string, width: number | string | undefined, height: number | string | undefined) {
-  const [state, setState] = useUpdatableState<WindowState>(() => {
+  const [state, setState] = useUpdatableState<ActiveWindowState>(() => {
     const initialState = manager.get(id);
     return {
       ...initialState,

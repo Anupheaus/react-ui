@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 interface ThemeStateConfig {
   normal: CSSProperties;
@@ -59,6 +59,11 @@ interface WindowContentTheme {
   textSize?: string | number;
   textColor?: string;
   textWeight?: string | number;
+  padding?: string | number;
+}
+
+interface WindowActionsTheme {
+  padding?: string | number;
 }
 
 interface GapsTheme {
@@ -206,6 +211,7 @@ export interface Theme {
       active: WindowContentTheme;
       inactive: Partial<WindowContentTheme>;
     };
+    actions: WindowActionsTheme;
   };
   transitions: {
     duration: number;
