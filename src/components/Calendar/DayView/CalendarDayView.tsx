@@ -1,12 +1,14 @@
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 import { Scroller } from '../../Scroller';
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarDayViewHours } from './CalendarDayViewHours';
 import { createStyles } from '../../../theme';
 import { CalendarDayViewEntries } from './CalendarDayViewEntries';
 import { calendarDayUtils } from './CalendarDayUtils';
+import type { ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
+import { Label } from '../../Label';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal } } }) => ({
   dayView: {
@@ -17,6 +19,7 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal } } }) => ({
 
 interface Props {
   className?: string;
+  label?: ReactNode;
   entries: readonly CalendarEntryRecord[];
   viewingDate: Date;
   hourHeight?: number;
@@ -27,26 +30,30 @@ interface Props {
 
 export const CalendarDayView = createComponent('CalendarDayView', ({
   className,
+  label,
   entries,
   viewingDate,
   hourHeight = 60,
-  startHour: rawStartHour = 0,
-  endHour: rawEndHour = 24,
+  startHour: rawStartHour,
+  endHour: rawEndHour,
   onSelect,
 }: Props) => {
   const { css, join } = useStyles();
   const calendarDayViewElementRef = useRef<HTMLDivElement | null>(null);
 
   const { startHour, endHour } = useMemo(() => {
-    if (entries.length === 0) return { startHour: rawStartHour, endHour: rawEndHour };
-    let earliestAppointmentHour = entries.map(entry => entry.startDate.getHours()).min();
+    const providedStartHour = rawStartHour == null ? 0 : Math.between(rawStartHour, 0, 23);
+    const providedEndHour = rawEndHour == null ? 24 : Math.between(rawEndHour, 1, 24);
+
+    if (entries.length === 0) return { startHour: providedStartHour, endHour: providedEndHour };
+    const earliestAppointmentHour = entries.map(entry => entry.startDate.getHours()).min();
     let lastAppointmentHour = entries.map(entry => (entry.endDate?.getHours() ?? 0) + ((entry.endDate?.getMinutes() ?? 0) > 0 ? 1 : 0)).max();
     if (lastAppointmentHour > 24) lastAppointmentHour = 24;
-    if (earliestAppointmentHour > 0) earliestAppointmentHour -= 1;
-    if (lastAppointmentHour < 24) lastAppointmentHour += 1;
+    // if (earliestAppointmentHour > 0) earliestAppointmentHour -= 1;
+    // if (lastAppointmentHour < 24) lastAppointmentHour += 1;
     return {
-      startHour: earliestAppointmentHour < rawStartHour ? earliestAppointmentHour : rawStartHour,
-      endHour: lastAppointmentHour > rawEndHour ? lastAppointmentHour : rawEndHour,
+      startHour: (rawStartHour == null || earliestAppointmentHour < providedStartHour) ? earliestAppointmentHour : providedStartHour,
+      endHour: (rawEndHour == null || lastAppointmentHour > providedEndHour) ? lastAppointmentHour : providedEndHour,
     };
   }, [rawStartHour, rawEndHour, entries]);
 
@@ -57,11 +64,14 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   }, [viewingDate, hourHeight, calendarDayViewElementRef.current]);
 
   return (
-    <Flex tagName="calendar-day-view" ref={calendarDayViewElementRef} className={join(css.dayView, className)} maxHeight>
-      <Scroller scrollTo={scrollTo}>
-        <CalendarDayViewHours hourHeight={hourHeight} startHour={startHour} endHour={endHour} />
-        <CalendarDayViewEntries entries={entries} date={viewingDate} hourHeight={hourHeight} startHour={startHour} endHour={endHour} onSelect={onSelect} />
-      </Scroller>
+    <Flex tagName="calendar-day-view" className={join(css.dayView, className)} gap={4} maxHeight isVertical>
+      <Label>{label}</Label>
+      <Flex tagName="calendar-day-view-scrolling-area" ref={calendarDayViewElementRef} maxHeight disableOverflow>
+        <Scroller scrollTo={scrollTo}>
+          <CalendarDayViewHours hourHeight={hourHeight} startHour={startHour} endHour={endHour} />
+          <CalendarDayViewEntries entries={entries} date={viewingDate} hourHeight={hourHeight} startHour={startHour} endHour={endHour} onSelect={onSelect} />
+        </Scroller>
+      </Flex>
     </Flex>
   );
 });

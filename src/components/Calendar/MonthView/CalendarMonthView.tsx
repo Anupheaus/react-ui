@@ -1,6 +1,6 @@
 import { createLegacyStyles } from '../../../theme/createStyles';
 import { Tag } from '../../Tag';
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarTheme } from '../CalendarTheme';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';

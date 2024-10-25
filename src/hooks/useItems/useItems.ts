@@ -1,12 +1,13 @@
-import { DataPagination, DeferredPromise, Error, is } from '@anupheaus/common';
-import { UseDataRequest, UseDataResponse } from '../../extensions';
+import type { DataPagination, DeferredPromise } from '@anupheaus/common';
+import { Error, is } from '@anupheaus/common';
+import type { UseDataRequest, UseDataResponse } from '../../extensions';
 import { useLayoutEffect, useMemo, useRef } from 'react';
-import { FullPagination } from './UseItemsModels';
+import type { FullPagination } from './UseItemsModels';
 import { useForceUpdate } from '../useForceUpdate';
 import { useDebounce } from '../useDebounce';
-import { UseActions } from '../useActions';
+import type { UseActions } from '../useActions';
 import { makeOnRequest } from './makeOnRequest';
-import { ListItemType } from '../../models';
+import type { ListItemType } from '../../models';
 
 export interface UseItemsActions {
   refresh(): void;

@@ -1,21 +1,25 @@
-import { ReactNode, useState } from 'react';
-import { ListItemType, ReactListItem } from '../../models';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import type { ListItemType, ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Field } from '../Field';
-import { PromiseMaybe, is } from '@anupheaus/common';
-import { InternalList, InternalListActions, InternalListProps } from '../InternalList';
-import { UseActions, useBound } from '../../hooks';
+import type { PromiseMaybe } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { InternalListActions, InternalListProps } from '../InternalList';
+import { InternalList } from '../InternalList';
+import type { UseActions } from '../../hooks';
+import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useValidation } from '../../providers';
 
-export type ListOnRequest<T extends ListItemType = ReactListItem> = Required<InternalListProps<T>>['onRequest'];
+export type ListOnRequest<T extends ListItemType = ListItemType> = Required<InternalListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 
-type Props<T extends ReactListItem = ReactListItem> = Omit<InternalListProps<T>, 'actions'> & {
+type Props<T extends ListItemType = ListItemType> = Omit<InternalListProps<T>, 'actions'> & {
   className?: string;
   containerClassName?: string;
   contentClassName?: string;
@@ -64,7 +68,7 @@ const useStyles = createStyles(({ list }, tools) => ({
   },
 }));
 
-export const List = createComponent('List', function <T extends ReactListItem = ReactListItem>({
+export const List = createComponent('List', function <T extends ListItemType = ListItemType>({
   className,
   containerClassName,
   contentClassName,

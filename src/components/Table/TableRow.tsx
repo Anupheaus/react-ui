@@ -1,8 +1,8 @@
-import { Record } from '@anupheaus/common';
+import type { Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { GridColumn } from './GridModels';
-import { GridCell } from './GridCell';
+import type { TableColumn } from './TableModels';
+import { TableCell } from './TableCell';
 import { useMemo } from 'react';
 import { createStyles } from '../../theme';
 
@@ -22,10 +22,10 @@ const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
 interface Props<RecordType extends Record> {
   record?: RecordType;
   index: number;
-  columns: GridColumn[];
+  columns: TableColumn[];
 }
 
-export const GridRow = createComponent('GridRow', <RecordType extends Record>({
+export const TableRow = createComponent('TableRow', <RecordType extends Record>({
   record,
   index,
   columns,
@@ -33,11 +33,11 @@ export const GridRow = createComponent('GridRow', <RecordType extends Record>({
   const { css } = useStyles();
 
   const content = useMemo(() => columns.map((column, columnIndex) => (
-    <GridCell key={`${column.id}${record == null ? '' : `${record.id}`}`} column={column} columnIndex={columnIndex} record={record} rowIndex={index} />
+    <TableCell key={`${column.id}${record == null ? '' : `${record.id}`}`} column={column} columnIndex={columnIndex} record={record} rowIndex={index} />
   )), [columns, record, index]);
 
   return (
-    <Flex tagName="grid-row" className={css.row} disableGrow>
+    <Flex tagName="table-row" className={css.row} disableGrow>
       {content}
     </Flex>
   );

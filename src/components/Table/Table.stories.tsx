@@ -1,10 +1,10 @@
 import { createStory } from '../../Storybook';
-import { Grid } from './Grid';
-import { GridColumn, GridOnRequest } from './GridModels';
+import { Table } from './Table';
+import type { TableColumn, TableOnRequest } from './TableModels';
 import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useMemo, useState } from 'react';
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { is, to } from '@anupheaus/common';
 
 interface DemoRecord {
@@ -18,7 +18,7 @@ interface DemoRecord {
   address: string;
 }
 
-const columns: GridColumn<DemoRecord>[] = [
+const columns: TableColumn<DemoRecord>[] = [
   { id: '1', field: 'name', label: 'Name', type: 'string', width: 150 },
   { id: '2', field: 'age', label: 'Age (really long label)', type: 'number', width: 60, alignment: 'right' },
   { id: '3', field: 'salary', label: 'Salary', type: 'currency', width: 100, alignment: 'right' },
@@ -43,27 +43,12 @@ const generateRecords = (count: number): DemoRecord[] => new Array(count).fill(0
 
 // const records = generateRecords(100);
 
-const meta: Meta<typeof Grid> = {
-  component: Grid,
+const meta: Meta<typeof Table> = {
+  component: Table,
 };
 export default meta;
 
-// export const StaticRecords = createStory({
-//   width: 500,
-//   height: 200,
-//   render: () => {
-//     const [localColumns] = useState(columns);
-
-//     return (
-//       <Grid
-//         columns={localColumns}
-//         records={records}
-//       />
-//     );
-//   },
-// });
-
-type Story = StoryObj<typeof Grid>;
+type Story = StoryObj<typeof Table>;
 
 export const Loading: Story = createStory({
   width: 1100,
@@ -71,7 +56,7 @@ export const Loading: Story = createStory({
   render: () => {
     const [localColumns] = useState(columns);
 
-    const handleRequest = useBound<GridOnRequest>(async () => {
+    const handleRequest = useBound<TableOnRequest>(async () => {
       return new Promise(() => void 0);
     });
 
@@ -81,7 +66,7 @@ export const Loading: Story = createStory({
     });
 
     return (
-      <Grid
+      <Table
         columns={localColumns}
         onRequest={handleRequest}
         onEdit={handleOnEdit}
@@ -96,7 +81,7 @@ export const RequestedRecords: Story = createStory({
   render: () => {
     const [localColumns] = useState(columns);
 
-    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async ({ requestId, pagination }, response) => {
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination }, response) => {
       const newRecords = generateRecords(pagination.limit);
       await Promise.delay(5000);
       response({
@@ -112,7 +97,7 @@ export const RequestedRecords: Story = createStory({
     });
 
     return (
-      <Grid
+      <Table
         columns={localColumns}
         unitName="people"
         onRequest={handleRequest}
@@ -128,12 +113,13 @@ export const RequestedMinimumRecords: Story = createStory({
   render: () => {
     const [localColumns] = useState(columns);
 
-    const handleRequest = useBound<GridOnRequest<DemoRecord>>(async () => {
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async (request, response) => {
       const newRecords = generateRecords(2);
-      return {
+      response({
         records: newRecords,
         total: 2,
-      };
+        requestId: request.requestId,
+      });
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
@@ -142,7 +128,7 @@ export const RequestedMinimumRecords: Story = createStory({
     });
 
     return (
-      <Grid
+      <Table
         columns={localColumns}
         unitName="people"
         onRequest={handleRequest}
@@ -152,14 +138,14 @@ export const RequestedMinimumRecords: Story = createStory({
   },
 });
 
-export const GridUsingRecordIds: Story = createStory({
+export const TableUsingRecordIds: Story = createStory({
   width: 700,
   height: 500,
   render: () => {
     const [localColumns] = useState(columns);
     const generatedRecords = useMemo(() => generateRecords(2000), []);
 
-    const handleRequest = useBound<GridOnRequest<string>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+    const handleRequest = useBound<TableOnRequest<string>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       const newRecords = generatedRecords.slice(offset, offset + limit);
       response({
         requestId,
@@ -183,7 +169,7 @@ export const GridUsingRecordIds: Story = createStory({
     });
 
     return (
-      <Grid
+      <Table
         columns={localColumns}
         unitName="people"
         onRequest={handleRequest}

@@ -1,5 +1,5 @@
 import { createWindow } from '../Windows/createWindow';
-import { WindowsManager, type WindowDefinition, type WindowDefinitionUtils } from '../Windows';
+import { type WindowDefinition, type WindowDefinitionUtils } from '../Windows';
 import { useWindow } from '../Windows/useWindow';
 import { Dialog } from './Dialog';
 import { useId, useOnUnmount, useTimeout } from '../../hooks';
@@ -10,6 +10,7 @@ import type { ReactUIComponent } from '../Component';
 import { createComponent } from '../Component';
 import type { AnyObject } from '@anupheaus/common';
 import { PromiseState } from '@anupheaus/common';
+import { WindowsManager } from '../Windows/WindowsManager';
 
 export interface DialogDefinitionUtils extends Omit<WindowDefinitionUtils, 'Window'> {
   Dialog: typeof Dialog;

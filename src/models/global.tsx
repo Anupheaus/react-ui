@@ -1,6 +1,7 @@
-import { ListItem, Record, is } from '@anupheaus/common';
-import { ReactNode } from 'react';
-import { IconName } from '../components/Icon/Icons';
+import type { ListItem, Record } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { ReactNode } from 'react';
+import type { IconName } from '../components/Icon/Icons';
 import { Skeleton } from '../components/Skeleton';
 
 export interface ReactListItem extends ListItem {

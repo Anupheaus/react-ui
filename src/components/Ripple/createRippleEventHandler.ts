@@ -1,8 +1,8 @@
 import { useRef } from 'react';
-import { DistributedStateApi } from '../../hooks';
+import type { DistributedStateApi } from '../../hooks';
 import { useBound } from '../../hooks/useBound';
 import { useOnUnmount } from '../../hooks/useOnUnmount';
-import { RippleConfig, RippleState } from './RippleModels';
+import type { RippleConfig, RippleState } from './RippleModels';
 
 export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
   const unhookRef = useRef<() => void>(() => void 0);

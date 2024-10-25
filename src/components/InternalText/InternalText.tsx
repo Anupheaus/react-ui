@@ -1,7 +1,9 @@
-import { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref, useMemo, useRef } from 'react';
+import type { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
+import { useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
 import { useBinder, useBooleanState, useBound, useDOMRef } from '../../hooks';
-import { Field, FieldProps } from '../Field';
+import type { FieldProps } from '../Field';
+import { Field } from '../Field';
 import { useInputStyles } from './InputStyles';
 import { useUIState, useValidation } from '../../providers';
 import { useScrollbarStyles } from '../Scroller/ScrollbarStyles';
@@ -17,6 +19,7 @@ export interface InternalTextProps<TValue = unknown> extends FieldProps {
   maxLength?: number;
   transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
   invalidValueMessage?: ReactNode;
+  placeholder?: string;
   onChange?(value: TValue): void;
   onFocus?(event: FocusEvent<HTMLInputElement>): void;
   onClick?(event: MouseEvent<HTMLInputElement>): void;
@@ -48,6 +51,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   allowDecimals = false,
   allowNegatives = false,
   multiline,
+  placeholder,
   onChange,
   onFocus,
   onBlur,
@@ -76,6 +80,10 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     onBlur?.(event);
   });
 
+  const handleOnFocus = useBound((event: FocusEvent<HTMLInputElement>) => {
+    onFocus?.(event);
+  });
+
   const handleKeyDown = useBound((event: KeyboardEvent<HTMLInputElement>) => {
     switch (type) {
       case 'number': {
@@ -97,7 +105,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       value={(value ?? '') as any}
       maxLength={maxLength}
       onChange={bind(event => onChange?.(event.target.value as any))}
-      onFocus={onFocus as any}
+      onFocus={handleOnFocus as any}
       onBlurCapture={handleOnBlur as any}
       onClick={onClick as any}
       onKeyDown={handleKeyDown as any}
@@ -107,6 +115,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       autoFocus={initialFocus}
       rows={multiline}
       disabled={isReadOnly}
+      placeholder={placeholder}
     />
     : <input
       ref={ref}
@@ -115,13 +124,14 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       value={(value ?? '') as any}
       maxLength={maxLength}
       onChange={bind(event => onChange?.(event.target.value as any))}
-      onFocus={onFocus}
+      onFocus={handleOnFocus}
       onBlurCapture={handleOnBlur}
       onClick={onClick}
       onKeyDown={handleKeyDown}
       onKeyUp={onKeyUp}
       autoFocus={initialFocus}
       disabled={isReadOnly}
+      placeholder={placeholder}
       {...passwordManagerAttributes}
     />;
 

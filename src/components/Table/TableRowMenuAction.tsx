@@ -12,7 +12,7 @@ interface Props<RecordType extends Record> {
   onRemove?(record: RecordType, index: number): PromiseMaybe<void>;
 }
 
-export const GridRowMenuAction = createComponent('GridRowMenuAction', <RecordType extends Record>({
+export const TableRowMenuAction = createComponent('TableRowMenuAction', <RecordType extends Record>({
   record,
   rowIndex,
   unitName,

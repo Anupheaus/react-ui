@@ -1,4 +1,4 @@
-import { ChangeEvent, ComponentProps, MouseEvent, ReactNode } from 'react';
+import type { ChangeEvent, ComponentProps, MouseEvent, ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { ErrorIcon } from '../../errors';
 import { Label } from '../Label';

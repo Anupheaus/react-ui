@@ -1,10 +1,12 @@
-import { CSSProperties, ReactNode, useMemo } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { useMemo } from 'react';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
-import { Function } from 'ts-toolbelt';
-import { LocalTypographicDefinitions, TypographyTypes } from './Typographies';
+import type { Function } from 'ts-toolbelt';
+import type { TypographyTypes } from './Typographies';
+import { LocalTypographicDefinitions } from './Typographies';
 
 const useStyles = createLegacyStyles({
   typography: {
@@ -13,7 +15,7 @@ const useStyles = createLegacyStyles({
     display: 'inline-block',
     justifyContent: 'inherit',
     alignItems: 'inherit',
-    cursor: 'default',
+    cursor: 'inherit',
     userSelect: 'none',
   },
   fullWidth: {

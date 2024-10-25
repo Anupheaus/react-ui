@@ -1,4 +1,5 @@
-import { DataFilterValueTypes, is, to } from '@anupheaus/common';
+import type { DataFilterValueTypes } from '@anupheaus/common';
+import { is, to } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { useMemo } from 'react';
 import { useLocale, useUIState } from '../../providers';
@@ -29,7 +30,7 @@ interface Props {
   value: unknown;
 }
 
-export const GridCellValue = createComponent('GridCellValue', function ({
+export const TableCellValue = createComponent('TableCellValue', function ({
   type,
   value,
 }: Props) {

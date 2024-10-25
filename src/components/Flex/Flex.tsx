@@ -1,5 +1,5 @@
 import { is, to } from '@anupheaus/common';
-import { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
+import type { CSSProperties, DOMAttributes, HTMLAttributes, ReactNode, Ref } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';

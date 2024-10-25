@@ -1,134 +1,73 @@
+import type { CSSProperties } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { createComponent } from '../Component';
-import { ComponentProps, ReactNode, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
-import { GridColumn, GridOnRequest, GridUseRecordHook } from './GridModels';
-import { Record } from '@anupheaus/common';
-import { GridHeader, GridHeaderActions } from './GridHeader';
-import { GridFooter } from './GridFooter';
-import { GridRows, GridRowsProps } from './GridRows';
-import { GridColumnWidthProvider } from './GridColumnWidths';
-import { UseActions, useActions, useBatchUpdates, useBound, useOnUnmount } from '../../hooks';
-import { UIState } from '../../providers';
-import { useColumns } from './useColumns';
-import { ListActions } from '../List';
+import type { GridSpecContextProps } from './GridSpecContext';
+import { GridSpecContext } from './GridSpecContext';
+import { useForceUpdate, useMap, useOnResize } from '../../hooks';
 
-export interface GridActions extends ListActions {
-
-}
-
-const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
+const useStyles = createStyles(({ gaps }) => ({
   grid: {
-    display: 'flex',
-    flex: 'auto',
-    position: 'relative',
-    width: '100%',
-    borderRadius: 4,
-    overflow: 'hidden',
-    flexDirection: 'column',
-    boxSizing: 'border-box',
+    display: 'grid',
 
-    '& *': {
-      boxSizing: 'border-box',
+    '&.gap-fields': {
+      rowGap: gaps.fields,
+      columnGap: gaps.fields,
     },
-  },
-  rows: {
-    flex: 'auto',
-    overflow: 'hidden',
-    ...container,
-
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      boxShadow: 'inset 0 0 6px rgba(0 0 0 / 24%)',
-      pointerEvents: 'none',
-    },
-  },
-  rowScroller: {
-
   },
 }));
 
-type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
-type FooterProps = ComponentProps<typeof GridFooter>;
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd'> {
-  className?: string;
-  records?: RecordType[];
-  columns: GridColumn<RecordType>[];
-  delayRenderingRows?: boolean;
-  unitName?: string;
-  children?: ReactNode;
-  useRecordHook?: GridUseRecordHook<RecordType>;
-  actions?: UseActions<GridActions>;
-  onRequest: GridRowsProps<RecordType>['onRequest'];
+interface GridSpecType {
+  width: number;
+  columns: number;
 }
 
-export const Grid = createComponent('Grid', function <RecordType extends Record>({
+interface Props {
+  tagName?: string;
+  className?: string;
+  gap?: 'fields' | number;
+  columns: number;
+  children?: ReactNode;
+}
+
+export const Grid = createComponent('Grid', ({
+  tagName = 'grid',
   className,
-  columns: providedColumns,
-  unitName = 'record',
-  removeLabel,
-  delayRenderingRows,
+  columns,
+  gap,
   children,
-  useRecordHook,
-  actions,
-  onRequest,
-  onAdd,
-  onEdit,
-  onRemove,
-}: Props<RecordType>) {
+}: Props) => {
   const { css, join } = useStyles();
-  const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
-  const gridElementRef = useRef<HTMLDivElement | null>(null);
-  const [totalRecords, setTotalRecords] = useState<number>();
-  const [recordsLoading, setRecordsLoading] = useState(false);
-  const { setActions, onScrollLeft } = useActions<GridHeaderActions>();
-  const hasUnmounted = useOnUnmount();
-  const batchUpdates = useBatchUpdates();
-  const [error, setError] = useState<Error>();
+  const { target, width: containerWidth } = useOnResize();
+  const specs = useMap<string, GridSpecType>();
+  const refresh = useForceUpdate();
 
-  const wrapRequest = useBound<GridOnRequest<RecordType | string>>(async (request, response) => {
-    setRecordsLoading(totalRecords == null);
-    await onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
-      if (hasUnmounted()) return;
-      setTotalRecords(total);
-      setRecordsLoading(false);
-      response({ requestId, records, total });
-    }));
-  });
+  const context = useMemo<GridSpecContextProps>(() => ({
+    isValid: true,
+    setSpec: (id, width, internalColumns) => {
+      specs.set(id, { width, columns: internalColumns });
+      refresh();
+    },
+    deleteSpec: id => {
+      specs.delete(id);
+      refresh();
+    },
+  }), []);
 
-  const handleScrollLeft = useBound((value: number) => onScrollLeft(value));
+  const actualColumns = containerWidth == null ? columns : (specs.toValuesArray().orderBy(({ width }) => width).find(({ width }) => width >= containerWidth)?.columns ?? columns);
 
-  const handleError = useBound((e: Error) => batchUpdates(() => {
-    setError(e);
-    setRecordsLoading(false);
-    setTotalRecords(0);
-  }));
+  const styles = useMemo<CSSProperties>(() => ({
+    gridTemplateColumns: `repeat(${actualColumns}, 1fr)`,
+    rowGap: gap !== 'fields' ? gap : undefined,
+    columnGap: gap !== 'fields' ? gap : undefined,
+  }), [actualColumns, gap]);
 
   return (
-    <Tag
-      ref={gridElementRef}
-      name="grid"
-      className={join(css.grid, className)}
-    >
-      <GridColumnWidthProvider>
-        <GridHeader columns={columns} actions={setActions} />
-        <GridRows
-          columns={columns}
-          actions={actions}
-          onRequest={wrapRequest}
-          onError={handleError}
-          onScrollLeft={handleScrollLeft}
-          useRecordHook={useRecordHook}
-          delayRendering={delayRenderingRows}
-        >
-          {children}
-        </GridRows>
-        <UIState isLoading={recordsLoading}>
-          <GridFooter totalRecords={totalRecords} unitName={unitName} error={error} onAdd={onAdd} />
-        </UIState>
-      </GridColumnWidthProvider>
-    </Tag>
+    <GridSpecContext.Provider value={context}>
+      <Tag name={tagName} ref={target} className={join(css.grid, gap === 'fields' && 'gap-fields', className)} style={styles}>
+        {children}
+      </Tag>
+    </GridSpecContext.Provider>
   );
 });

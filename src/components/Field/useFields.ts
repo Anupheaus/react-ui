@@ -1,4 +1,5 @@
-import { AnyObject, DeepPartial, is } from '@anupheaus/common';
+import type { AnyObject, DeepPartial } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
 import { useBatchUpdates, useBound, useId } from '../../hooks';
 import { useMemo, useRef } from 'react';
 
@@ -10,7 +11,7 @@ type ValueTypeOf<Name extends keyof SourceType, SourceType> = SourceType[Name];
 
 type StringKeyOf<T> = keyof T extends string ? keyof T : never;
 
-export function useFields<SourceType>(source: SourceType | (() => SourceType), onChange: (updatedValue: SourceType) => void, dependencies: unknown[] = []) {
+function internalUseFields<SourceType>(source: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies: unknown[] = []) {
   if (!is.function(source) && !dependencies.includes(source)) dependencies.push(source);
   const actualSource = useMemo(() => is.function(source) ? source() : source, dependencies);
   const batchUpdate = useBatchUpdates();
@@ -27,12 +28,12 @@ export function useFields<SourceType>(source: SourceType | (() => SourceType), o
     if (!is.function(onGet)) onGet = (value: SourceType) => (value as AnyObject)[name] as ValueType;
     if (!is.function(onSet)) onSet = (value: ValueType) => ({ [name]: value ?? null } as unknown as DeepPartial<SourceType>);
 
-    const value = onGet(batchUpdateRef.current) ?? defaultValue?.();
+    const value = (batchUpdateRef.current != null ? onGet(batchUpdateRef.current) : undefined) ?? defaultValue?.();
 
     const setValue = useBound((updatedValue: ValueType) => {
       const changes = onSet!(updatedValue ?? defaultValue?.() as ValueType);
       batchUpdateRef.current = Object.merge({}, batchUpdateRef.current, changes);
-      batchUpdate.onComplete(id, () => onChange(batchUpdateRef.current));
+      batchUpdate.onComplete(id, () => onChange?.(batchUpdateRef.current));
     });
 
     return {
@@ -42,4 +43,13 @@ export function useFields<SourceType>(source: SourceType | (() => SourceType), o
   }
 
   return useField;
+}
+
+// eslint-disable-next-line max-len
+export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
+// eslint-disable-next-line max-len
+export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
+export function useFields<SourceType>(source: SourceType | (() => SourceType), onChange: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
+export function useFields<SourceType>(source: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies?: unknown[]) {
+  return internalUseFields<SourceType>(source, onChange, dependencies);
 }

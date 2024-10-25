@@ -1,6 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material';
-import { ReactNode } from 'react';
-import { CSSInterpolation, GlobalStyles } from 'tss-react';
+import type { ReactNode } from 'react';
+import type { CSSInterpolation } from 'tss-react';
+import { GlobalStyles } from 'tss-react';
 import { createComponent } from '../components/Component';
 
 const muiTheme = createTheme();

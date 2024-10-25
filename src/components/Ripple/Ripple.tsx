@@ -1,11 +1,12 @@
-import { CSSProperties, useLayoutEffect, useMemo, useRef } from 'react';
+import type { CSSProperties } from 'react';
+import { useLayoutEffect, useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { useDOMRef } from '../../hooks/useDOMRef';
-import { RippleConfig, RippleState } from './RippleModels';
-import { DistributedState, useDistributedState } from '../../hooks';
-import { createLegacyStyles, createAnimationKeyFrame } from '../../theme';
-import { RippleTheme } from './RippleTheme';
+import type { RippleConfig, RippleState } from './RippleModels';
+import type { DistributedState } from '../../hooks';
+import { useDistributedState } from '../../hooks';
+import { createAnimationKeyFrame, createStyles } from '../../theme';
 
 function getMarginFrom(element: HTMLElement) {
   const { top, left } = window.getComputedStyle(element);
@@ -49,42 +50,37 @@ interface Props extends RippleProps {
   rippleConfig: DistributedState<RippleConfig>;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { color } = useTheme(RippleTheme);
-  return {
-    styles: {
-      Ripple: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
-      },
-      stayWithinContainer: {
-        overflow: 'hidden',
-      },
-      rippleAnimation: {
-        position: 'absolute',
-        borderRadius: '50%',
-        transform: 'scale(0)',
-        animationFillMode: 'forwards',
-        animationDuration: '800ms',
-        animationTimingFunction: 'ease-out',
-        backgroundColor: color,
-        pointerEvents: 'none',
-      },
-      isActive: {
-        animationName: activeKeyFrame,
-      },
-      isInActive: {
-        animationDuration: '400ms',
-        animationName: inactiveKeyFrame,
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ ripple }) => ({
+  ripple: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+    pointerEvents: 'none',
+  },
+  stayWithinContainer: {
+    overflow: 'hidden',
+  },
+  rippleAnimation: {
+    position: 'absolute',
+    borderRadius: '50%',
+    transform: 'scale(0)',
+    animationFillMode: 'forwards',
+    animationDuration: '800ms',
+    animationTimingFunction: 'ease-out',
+    backgroundColor: ripple?.color || 'rgba(0, 0, 0, 0.2)',
+    pointerEvents: 'none',
+  },
+  isActive: {
+    animationName: activeKeyFrame,
+  },
+  isInActive: {
+    animationDuration: '400ms',
+    animationName: inactiveKeyFrame,
+  },
+}));
 
 export const Ripple = createComponent('Ripple', ({
   className,
@@ -116,7 +112,7 @@ export const Ripple = createComponent('Ripple', ({
     [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
 
   return (
-    <Tag ref={target} name="ui-ripple" className={join(css.Ripple, stayWithinContainer && css.stayWithinContainer, containerClassName)}>
+    <Tag ref={target} name="ui-ripple" className={join(css.ripple, stayWithinContainer && css.stayWithinContainer, containerClassName)}>
       <Tag
         name="ui-ripple-animation"
         className={join(

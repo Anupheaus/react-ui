@@ -1,10 +1,10 @@
 import { useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
-import { GridHeaderCell } from './GridHeaderCell';
-import { GridColumn } from './GridModels';
+import { TableHeaderCell } from './TableHeaderCell';
+import type { TableColumn } from './TableModels';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
-import { UseActions } from '../../hooks';
+import type { UseActions } from '../../hooks';
 
 const useStyles = createStyles(({ toolbar: { normal: toolbar } }) => ({
   header: {
@@ -16,26 +16,26 @@ const useStyles = createStyles(({ toolbar: { normal: toolbar } }) => ({
   },
 }));
 
-export interface GridHeaderActions {
+export interface TableHeaderActions {
   onScrollLeft(value: number): void;
 }
 
 interface Props {
-  columns: GridColumn[];
-  actions: UseActions<GridHeaderActions>;
+  columns: TableColumn[];
+  actions: UseActions<TableHeaderActions>;
 }
 
-export const GridHeader = createComponent('GridHeader', ({
+export const TableHeader = createComponent('TableHeader', ({
   columns,
   actions,
 }: Props) => {
   const { css } = useStyles();
-  const gridHeaderCellsRef = useRef<HTMLDivElement | null>(null);
+  const tableHeaderCellsRef = useRef<HTMLDivElement | null>(null);
 
   const headerCells = useMemo(() => {
     return columns
       .map((column, index) => (
-        <GridHeaderCell
+        <TableHeaderCell
           key={column.id}
           column={column}
           columnIndex={index}
@@ -45,8 +45,8 @@ export const GridHeader = createComponent('GridHeader', ({
 
   actions({
     onScrollLeft: value => {
-      if (gridHeaderCellsRef.current == null) return;
-      gridHeaderCellsRef.current.style.transform = `translateX(${-value}px)`;
+      if (tableHeaderCellsRef.current == null) return;
+      tableHeaderCellsRef.current.style.transform = `translateX(${-value}px)`;
     },
   });
 
@@ -55,8 +55,8 @@ export const GridHeader = createComponent('GridHeader', ({
   // }), [scrollLeft]);
 
   return (
-    <Flex tagName="grid-header" className={css.header}>
-      <Flex tagName="grid-header-cells" ref={gridHeaderCellsRef} valign="center" maxWidthAndHeight>
+    <Flex tagName="table-header" className={css.header}>
+      <Flex tagName="table-header-cells" ref={tableHeaderCellsRef} valign="center" maxWidthAndHeight>
         {headerCells}
       </Flex>
     </Flex>

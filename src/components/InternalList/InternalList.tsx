@@ -1,12 +1,16 @@
-import { ComponentProps, ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks/useBound';
-import { ListItemType } from '../../models';
+import type { ListItemType } from '../../models';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
-import { OnScrollEventData, Scroller, ScrollerActions } from '../Scroller';
-import { UseActions, useActions, useBatchUpdates, useOnChange, useOnUnmount } from '../../hooks';
-import { UseDataRequest, UseDataResponse } from '../../extensions';
-import { UseItemsActions, useItems } from '../../hooks/useItems';
+import type { OnScrollEventData, ScrollerActions } from '../Scroller';
+import { Scroller } from '../Scroller';
+import type { UseActions } from '../../hooks';
+import { useActions, useBatchUpdates, useOnChange, useOnUnmount } from '../../hooks';
+import type { UseDataRequest, UseDataResponse } from '../../extensions';
+import type { UseItemsActions } from '../../hooks/useItems';
+import { useItems } from '../../hooks/useItems';
 import { createStyles } from '../../theme';
 import { ListItemContext } from './Context';
 import { is } from '@anupheaus/common';
@@ -37,6 +41,7 @@ export interface InternalListActions extends UseItemsActions {
 
 export interface InternalListProps<T extends ListItemType> {
   items?: T[];
+  createNewItem?: ReactNode;
   gap?: ComponentProps<typeof Flex>['gap'];
   actions?: UseActions<InternalListActions>;
   onRequest?(request: UseDataRequest, response: (data: UseDataResponse<T>) => void): Promise<void>;
@@ -59,6 +64,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   tagName,
   className,
   gap = 4,
+  createNewItem,
   contentClassName,
   disableShadowsOnScroller = false,
   items: providedItems,
@@ -176,6 +182,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
       >
         {header}
         {content}
+        {createNewItem}
         {footer}
       </Scroller>
     </Flex>

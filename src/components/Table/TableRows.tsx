@@ -1,14 +1,16 @@
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { GridColumn, GridOnRequest, GridUseRecordHook } from './GridModels';
-import { Record } from '@anupheaus/common';
-import { UseActions, useBound } from '../../hooks';
-import { OnScrollEventData } from '../Scroller';
-import { ReactNode, useRef } from 'react';
+import type { TableColumn, TableOnRequest, TableUseRecordHook } from './TableModels';
+import type { Record } from '@anupheaus/common';
+import type { UseActions } from '../../hooks';
+import { useBound } from '../../hooks';
+import type { OnScrollEventData } from '../Scroller';
+import type { ReactNode } from 'react';
+import { useRef } from 'react';
 import { InternalList } from '../InternalList';
-import { ListActions, ListOnRequest } from '../List';
-import { GridColumnsContext } from './GridColumnsContext';
-import { GridRowRenderer } from './GridRowRenderer';
+import type { ListActions, ListOnRequest } from '../List';
+import { TableColumnsContext } from './TableColumnsContext';
+import { TableRowRenderer } from './TableRowRenderer';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
   rows: {
@@ -26,18 +28,18 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
   },
 }));
 
-export interface GridRowsProps<RecordType extends Record> {
-  columns: GridColumn<RecordType>[];
+export interface TableRowsProps<RecordType extends Record> {
+  columns: TableColumn<RecordType>[];
   delayRendering?: boolean;
   children?: ReactNode;
-  useRecordHook?: GridUseRecordHook<RecordType>;
+  useRecordHook?: TableUseRecordHook<RecordType>;
   actions?: UseActions<ListActions>;
-  onRequest: GridOnRequest<RecordType | string>;
+  onRequest: TableOnRequest<RecordType | string>;
   onScrollLeft(value: number): void;
   onError?(error: Error): void;
 }
 
-export const GridRows = createComponent('GridRows', function <RecordType extends Record>({
+export const TableRows = createComponent('TableRows', function <RecordType extends Record>({
   columns,
   delayRendering = false,
   useRecordHook,
@@ -46,7 +48,7 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   onRequest,
   onScrollLeft,
   onError,
-}: GridRowsProps<RecordType>) {
+}: TableRowsProps<RecordType>) {
   const { css } = useStyles();
   const lastScrollLeftRef = useRef(0);
 
@@ -59,9 +61,9 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
   });
 
   return (
-    <GridColumnsContext.Provider value={columns}>
+    <TableColumnsContext.Provider value={columns}>
       <InternalList<RecordType>
-        tagName="grid-rows"
+        tagName="table-rows"
         onRequest={handleOnRequest}
         disableShadowsOnScroller
         onScroll={handleHorizontalScroll}
@@ -71,8 +73,8 @@ export const GridRows = createComponent('GridRows', function <RecordType extends
         gap={0}
         onError={onError}
       >
-        {children ?? <GridRowRenderer useRecordHook={useRecordHook} />}
+        {children ?? <TableRowRenderer useRecordHook={useRecordHook} />}
       </InternalList>
-    </GridColumnsContext.Provider>
+    </TableColumnsContext.Provider>
   );
 });

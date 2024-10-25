@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useContext, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound, useCallbacks } from '../../hooks';
 
@@ -13,7 +14,7 @@ interface Props {
   children: ReactNode;
 }
 
-export const GridColumnWidthProvider = createComponent('GridColumnWidthProvider', ({
+export const TableColumnWidthProvider = createComponent('TableColumnWidthProvider', ({
   children,
 }: Props) => {
   const columnWidths = useRef(new Map<number, number>()).current;
@@ -50,12 +51,12 @@ export const GridColumnWidthProvider = createComponent('GridColumnWidthProvider'
   );
 });
 
-export function useSetGridColumnWidth(index: number) {
+export function useSetTableColumnWidth(index: number) {
   const { setColumnWidth } = useContext(Context);
   return useBound((newWidth: number) => setColumnWidth(index, newWidth));
 }
 
-export function useGetGridColumnWidth(index: number) {
+export function useGetTableColumnWidth(index: number) {
   const [width, setLocalWidth] = useState<number>();
   const { onColumnWidthChange } = useContext(Context);
   onColumnWidthChange(index, setLocalWidth);

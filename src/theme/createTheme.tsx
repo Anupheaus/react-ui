@@ -1,4 +1,4 @@
-import { DeepPartial } from '@anupheaus/common';
+import type { DeepPartial } from '@anupheaus/common';
 import type { LegacyTheme, ThemeConfig, ThemeDefinition, ThemeIcons } from './themeModels';
 
 export function createTheme<D extends ThemeDefinition, I extends ThemeIcons>(config: ThemeConfig<D, I>): LegacyTheme<D, I> {

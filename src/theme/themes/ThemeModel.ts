@@ -279,12 +279,12 @@ export interface Theme {
       focused?: Partial<TabButtonTheme>;
       focusedAndActive?: Partial<TabButtonTheme>;
       readOnly?: Partial<TabButtonTheme>;
-    },
+    };
     content: {
       normal?: WindowContentTheme;
       active?: Partial<WindowContentTheme>;
       readOnly?: Partial<WindowContentTheme>;
-    },
+    };
   };
   datePicker?: {
     popup?: {
@@ -296,6 +296,9 @@ export interface Theme {
         hover?: Partial<DatePickerPopupContentDaysTheme>;
       };
     };
+  };
+  ripple?: {
+    color?: string;
   };
 
 

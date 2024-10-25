@@ -1,4 +1,5 @@
-import { CSSProperties, FocusEvent, ReactNode, Ref, useRef } from 'react';
+import type { CSSProperties, FocusEvent, ReactNode, Ref } from 'react';
+import { useRef } from 'react';
 import { createComponent } from '../Component';
 import { useRipple } from '../Ripple';
 import { Tag } from '../Tag';
@@ -15,6 +16,7 @@ export interface FieldProps {
   label?: ReactNode;
   width?: string | number;
   isOptional?: boolean;
+  hideOptionalLabel?: boolean;
   requiredMessage?: ReactNode;
   help?: ReactNode;
   assistiveHelp?: ReactNode;
@@ -106,7 +108,6 @@ interface Props extends FieldProps {
   disableSkeleton?: boolean;
   disableRipple?: boolean;
   style?: CSSProperties;
-  hideOptionalLabel?: boolean;
   minWidth?: string | number;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
   onContainerSelect?(): void;

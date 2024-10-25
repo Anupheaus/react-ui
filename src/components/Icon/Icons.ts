@@ -4,7 +4,7 @@ import {
   FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser,
 } from 'react-icons/fi';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
-import { IconType } from '../../theme';
+import type { IconType } from '../../theme';
 
 export interface IconDefinitions {
   [key: string]: IconType;
@@ -16,9 +16,9 @@ export const LocalIconDefinitions = {
   'window-close': FiX,
   'window-maximize': FiMaximize,
   'window-restore': FiMinimize,
-  'grid-column-selection': FiColumns,
-  'grid-refresh': FiRefreshCw,
-  'grid-edit': FiEdit2,
+  'table-column-selection': FiColumns,
+  'table-refresh': FiRefreshCw,
+  'table-edit': FiEdit2,
   'no-image': FiImage,
   'button-apply': FiCheck,
   'error': FiAlertCircle,

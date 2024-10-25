@@ -1,11 +1,12 @@
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { CalendarEntryRecord } from './CalendarModels';
+import type { CalendarEntryRecord } from './CalendarModels';
 import { CalendarMonthView } from './MonthView';
 import { CalendarEntrySelectionProvider } from './CalendarEntrySelectionProvider';
 import { CalendarEntryHighlightProvider } from './CalenderEntryHighlightProvider';
 import { createStyles } from '../../theme';
 import { CalendarDayView } from './DayView';
+import type { ReactNode } from 'react';
 
 const useStyles = createStyles({
   calendar: {
@@ -20,6 +21,7 @@ interface DayViewProps {
   view: 'day';
   startHour?: number;
   endHour?: number;
+  hourHeight?: number;
 }
 
 interface MonthViewProps {
@@ -27,6 +29,7 @@ interface MonthViewProps {
 }
 
 type Props = (DayViewProps | MonthViewProps) & {
+  label?: ReactNode;
   className?: string;
   viewingDate?: Date;
   entries?: readonly CalendarEntryRecord[];
@@ -41,19 +44,19 @@ export const Calendar = createComponent('Calendar', ({
   onSelect = Function.empty(),
   ...props
 }: Props) => {
-  const { css } = useStyles();
+  const { css, join } = useStyles();
 
   const renderedView = (() => {
     switch (view) {
       case 'month': return <CalendarMonthView entries={entries} viewingDate={viewingDate} />;
-      case 'day': return <CalendarDayView {...props} className={className} entries={entries} viewingDate={viewingDate} onSelect={onSelect} />;
+      case 'day': return <CalendarDayView {...props} entries={entries} viewingDate={viewingDate} onSelect={onSelect} />;
     }
   })();
 
   return (
     <CalendarEntryHighlightProvider>
       <CalendarEntrySelectionProvider>
-        <Tag name="calendar" className={css.calendar}>
+        <Tag name="calendar" className={join(css.calendar, className)}>
           {renderedView}
         </Tag>
       </CalendarEntrySelectionProvider>

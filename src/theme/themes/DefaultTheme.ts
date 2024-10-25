@@ -267,7 +267,6 @@ export const DefaultTheme: Theme = {
   // },
 
 
-
   animation: {
     animationDuration: '400ms',
     animationTimingFunction: 'ease',

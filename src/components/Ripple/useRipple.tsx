@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { createRippleEventHandler } from './createRippleEventHandler';
-import { Ripple as RippleComponent, RippleProps } from './Ripple';
-import { RippleConfig, RippleState } from './RippleModels';
+import type { RippleProps } from './Ripple';
+import { Ripple as RippleComponent } from './Ripple';
+import type { RippleConfig, RippleState } from './RippleModels';
 import { useDistributedState } from '../../hooks';
 import { createComponent } from '../Component';
 

@@ -48,7 +48,7 @@ export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
         </Flex>
       );
     });
-  }, [style]);
+  }, [style, startHour, endHour]);
 
   return (
     <Flex tagName="calendar-day-view-hours" className={css.hours} isVertical>

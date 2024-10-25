@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 import { createStyles } from '../../../theme';
 import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
@@ -105,7 +105,7 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
             <Flex
               tagName="calendar-day-view-entry-content"
               className={css.entryContent}
-              style={{ backgroundColor: theme.dataPaletteColors[index % theme.dataPaletteColors.length] }}
+              style={{ backgroundColor: linedUpEntry.entry.color ?? theme.dataPaletteColors[index % theme.dataPaletteColors.length] }}
               onClick={event => {
                 event.stopPropagation();
                 onSelect(linedUpEntry.entry);

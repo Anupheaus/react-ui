@@ -1,7 +1,9 @@
 import { createComponent } from '../components/Component';
-import { ReactNode, useMemo } from 'react';
-import { ThemeContext, ThemeContextProps } from './ThemeContext';
-import { Theme } from './themes';
+import type { ReactNode } from 'react';
+import { useMemo } from 'react';
+import type { ThemeContextProps } from './ThemeContext';
+import { ThemeContext } from './ThemeContext';
+import type { Theme } from './themes';
 
 interface Props<ThemeType extends Theme> {
   theme: ThemeType;

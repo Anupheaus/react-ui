@@ -18,6 +18,7 @@ export interface ButtonProps {
   ref?: Ref<HTMLButtonElement>;
   variant?: 'default' | 'bordered' | 'hover',
   size?: 'default' | 'small' | 'large';
+  align?: 'left' | 'middle' | 'right';
   style?: CSSProperties;
   iconOnly?: boolean;
   children?: ReactNode;
@@ -92,6 +93,17 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
       '&.is-loading': {
         visibility: 'hidden',
       },
+
+      '&.left-align': {
+        justifyContent: 'flex-start',
+      },
+      '&.right-align': {
+        justifyContent: 'flex-end',
+      },
+      '&.middle-align': {
+        justifyContent: 'center',
+      },
+
     },
     size_variant_default: {
       '&:not(.is-icon-only)': {
@@ -141,6 +153,7 @@ export const Button = createComponent('Button', ({
   className,
   children = null,
   variant = 'default',
+  align = 'middle',
   ref,
   size,
   iconOnly: providedIconOnly,
@@ -179,6 +192,7 @@ export const Button = createComponent('Button', ({
         css.button,
         isReadOnly && 'is-read-only',
         isIconOnly && 'is-icon-only',
+        `${align}-align`,
         isLoading && !useAnimatedBorderEffectRef.current && 'is-loading',
         css[`size_variant_${size}`],
         css[`variant_${variant}`],

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createComponent } from '../components/Component';
 import { RecordsProvider } from '../providers/RecordsProvider';
 import { ThemeRecordTypeId } from './InternalThemeModels';
