@@ -4,3 +4,4 @@ export * from './RecordsProvider';
 export * from './LocaleProvider';
 export * from './ValidationProvider';
 export * from './LoggerProvider';
+export * from './SubscriptionProvider';

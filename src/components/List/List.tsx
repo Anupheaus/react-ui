@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import type { ListItemType, ReactListItem } from '../../models';
+import type { ListItemType } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Field } from '../Field';
