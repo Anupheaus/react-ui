@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@anupheaus/common':
-    specifier: ^0.1.14
-    version: 0.1.14
+    specifier: ^0.1.19
+    version: 0.1.19
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -231,8 +231,8 @@ packages:
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
 
-  /@anupheaus/common@0.1.14:
-    resolution: {integrity: sha512-pf+Vjc60mrNOY0KwMnJ/a+48H8EyuAXw4c+tJncttROO7xMkdr9fEh1qvaCQUBUjSxrefhxF7CGE1g5faW2qKw==}
+  /@anupheaus/common@0.1.19:
+    resolution: {integrity: sha512-6KBW2uL8LQ71rfmJHWDHgWOL9Z4JNs2q3RLYym1nq7aLK4Ebju0vnJmcL3uqipsku+vCjJ2O40Z+xXc+FPS9GQ==}
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1
