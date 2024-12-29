@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import type { Subscription } from './createSubscription';
-import { subscriptionInternal, type SubscriptionContext } from './subscriptionInternals';
+import { subscriptionContexts, subscriptionInternal, type SubscriptionContext } from './subscriptionInternals';
 import { createComponent } from '../../components/Component';
 import { useBound, useMap } from '../../hooks';
 import { is } from '@anupheaus/common';
@@ -30,7 +30,8 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
   });
 
   const Provider = useMemo(() => {
-    const Context = Reflect.get(subscription, '_context');
+    const Context = subscriptionContexts.get(subscription);
+    if (Context == null) throw new Error('Context not found for the subscription provided.');
     return createComponent('SubscriptionProvider', ({
       children,
       onSubscribed,
