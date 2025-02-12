@@ -19,7 +19,7 @@ export const TableRowMenuAction = createComponent('TableRowMenuAction', <RecordT
   removeLabel = 'Delete',
   onRemove,
 }: Props<RecordType>) => {
-  const { openConfirmationDialog } = useConfirmationDialog();
+  const { openConfirmationDialog, ConfirmationDialog } = useConfirmationDialog();
 
   const removeRecord = useBound(async () => {
     const title = `${removeLabel.toPascalCase()} ${unitName.toPascalCase()}?`;
@@ -35,5 +35,6 @@ export const TableRowMenuAction = createComponent('TableRowMenuAction', <RecordT
     <EllipsisMenu buttonSize="small">
       {onRemove != null && <MenuItem onSelect={removeRecord}>{removeLabel.toPascalCase()}</MenuItem>}
     </EllipsisMenu>
+    <ConfirmationDialog />
   </>);
 });

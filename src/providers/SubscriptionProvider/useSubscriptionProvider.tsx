@@ -4,11 +4,12 @@ import type { Subscription } from './createSubscription';
 import { subscriptionContexts, subscriptionInternal, type SubscriptionContext } from './subscriptionInternals';
 import { createComponent } from '../../components/Component';
 import { useBound, useMap } from '../../hooks';
+import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 
 interface Props<SubscribePayload, InvokePayload> {
   children: ReactNode;
-  onSubscribed?(id: string, payload: SubscribePayload, callback: (payload: InvokePayload) => void, groupId?: string, groupCreated?: boolean): void;
+  onSubscribed?(id: string, payload: SubscribePayload, callback: (payload: InvokePayload) => void, groupId?: string, groupCreated?: boolean): PromiseMaybe<void>;
   onUnsubscribed?(id: string, groupId?: string, groupDestroyed?: boolean): void;
 }
 
@@ -21,10 +22,9 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
 
   const invoke = useBound((payload: InvokePayload, groupId?: string) => {
     const callbacksToInvoke = (() => {
-      if (is.not.empty(groupId)) return (groupedCallbacks.get(groupId) ?? new Set()).toArray().map(id => subscriptionCallbacks.get(id)).removeNull();
+      if (is.not.empty(groupId)) return Array.from((groupedCallbacks.get(groupId) ?? new Set()).entries()).map(([id]) => subscriptionCallbacks.get(id)).removeNull();
       return subscriptionCallbacks.toValuesArray();
     })();
-
     callbacksToInvoke.forEach(callback => callback(payload));
     lastInvocationPayload.set(groupId, payload);
   });
@@ -56,7 +56,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
         onUnsubscribed?.(id, groupId, groupDestroyed);
       });
 
-      const subscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['subscribe']>((id, payload, callback, groupId) => {
+      const subscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['subscribe']>(async (id, payload, callback, groupId) => {
         subscriptionCallbacks.set(id, callback);
         if (idToGroup.has(id)) {
           if (idToGroup.get(id) !== groupId) unsubscribe(id);
@@ -70,7 +70,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
           group.add(id);
           idToGroup.set(id, groupId);
         }
-        onSubscribed?.(id, payload, callback, groupId, groupCreated);
+        await onSubscribed?.(id, payload, callback, groupId, groupCreated);
         switch (onSubscribingCallbackAction) {
           case 'callWithLastPayload': {
             const lastPayload = lastInvocationPayload.get(groupId);

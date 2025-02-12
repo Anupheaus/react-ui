@@ -1,6 +1,6 @@
-import { AnyObject } from '@anupheaus/common';
+// import { AnyObject } from '@anupheaus/common';
 
-export interface InternalFormState<T extends AnyObject = AnyObject> {
-  data: Partial<T>;
-  originalData: Partial<T>;
-}
+// export interface InternalFormState<T extends AnyObject = AnyObject> {
+//   data: Partial<T>;
+//   originalData: Partial<T>;
+// }

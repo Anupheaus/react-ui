@@ -29,7 +29,7 @@ export * from './DropDown';
 export * from './ActionsToolbar';
 export * from './Typography';
 export * from './Notifications';
-export * from './Form';
+// export * from './Form';
 export * from './Radio';
 export * from './Carousel';
 export * from './ParallaxScrollers';

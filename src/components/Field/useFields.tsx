@@ -1,11 +1,28 @@
-import type { AnyObject, DeepPartial } from '@anupheaus/common';
+import type { AnyObject, DeepPartial, PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { useBatchUpdates, useBound, useId } from '../../hooks';
+import type { FunctionComponent } from 'react';
 import { useMemo, useRef } from 'react';
+import type { ReactUIComponent } from '../Component';
+import { createComponent } from '../Component';
+
+type FieldValueProps = { value?: any; onChange?(newValue: any): PromiseMaybe<void>; };
+
+export type FieldComponent<P extends FieldValueProps = FieldValueProps> = FunctionComponent<P> | ReactUIComponent<(props: P) => JSX.Element | null>;
+
+type GetValueTypeFrom<P extends FieldValueProps> = NonNullable<P['value']>;
+
+export type FieldComponentProps<SourceType, ComponentProps extends AnyObject> = {
+  component: FieldComponent<ComponentProps>;
+  field: StringKeyOf<SourceType>;
+  defaultValue?: GetValueTypeFrom<ComponentProps> | (() => GetValueTypeFrom<ComponentProps>);
+} & Omit<ComponentProps, 'defaultValue' | 'field' | 'value' | 'onChange'>;
+
 
 type UseField<Name extends string, ValueType> = Record<Name, ValueType> & Record<`set${Capitalize<Name>}`, (updatedValue: ValueType) => void>;
 
 type UseFieldWithDefault<Name extends string, ValueType> = UseField<Name, NonNullable<ValueType>>;
+
 
 type ValueTypeOf<Name extends keyof SourceType, SourceType> = SourceType[Name];
 
@@ -24,6 +41,8 @@ function internalUseFields<SourceType>(source: (SourceType | undefined) | (() =>
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>): UseField<Name, ValueType>;
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>,
     defaultValue: () => ValueType): UseFieldWithDefault<Name, ValueType>;
+  function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>,
+    defaultValue?: () => ValueType): UseFieldWithDefault<Name, ValueType>;
   function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>, defaultValue?: () => ValueType) {
     if (!is.function(onGet)) onGet = (value: SourceType) => (value as AnyObject)[name] as ValueType;
     if (!is.function(onSet)) onSet = (value: ValueType) => ({ [name]: value ?? null } as unknown as DeepPartial<SourceType>);
@@ -42,7 +61,23 @@ function internalUseFields<SourceType>(source: (SourceType | undefined) | (() =>
     };
   }
 
-  return useField;
+  const Field = useMemo<ReactUIComponent<<ComponentProps extends AnyObject>(_props: FieldComponentProps<SourceType, ComponentProps>) => null | JSX.Element>>(() =>
+    createComponent('UseFieldsFieldComponent', ({ component: Component, field, defaultValue, ...props }) => {
+      const { [field]: value, [`set${field.toPascalCase()}`]: setValue } = useField(field, undefined, undefined, defaultValue) as AnyObject;
+
+      return (
+        <Component 
+          {...props as any} 
+          value={value} 
+          onChange={setValue}
+        />
+      );
+    }), []);
+
+  return {
+    useField,
+    Field,
+  };
 }
 
 // eslint-disable-next-line max-len

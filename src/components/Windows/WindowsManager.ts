@@ -123,11 +123,12 @@ export class WindowsManager {
 
   @bind
   public async close(id: string, reason?: string): Promise<void> {
-    const state = this.#ensureGetId(id);
-    this.#windows.update({ ...state, closingReason: reason });
+    if (this.#isClosing(id)) return;
+    this.#windows.update(id, state => ({ ...state, closingReason: reason }));
     try {
       await this.#createEvent(id, 'allowClosing');
     } catch {
+      this.#windows.update(id, state => ({ ...state, closingReason: undefined }));
       return;
     }
     await this.#createEvent(id, 'closing');
@@ -139,7 +140,7 @@ export class WindowsManager {
     const state = this.#ensureGetId(id);
     if (state.isMaximized === true) return;
     await Promise.whenAllSettled([this.focus(id), this.#createEvent(id, 'maximizing', () => {
-      this.#windows.update({ ...state, isMaximized: true });
+      this.#windows.update(id, s => ({ ...s, isMaximized: true }));
     })]);
   }
 
@@ -148,7 +149,7 @@ export class WindowsManager {
     const state = this.#ensureGetId(id);
     if (state.isMaximized === false) return;
     await Promise.whenAllSettled([this.focus(id), this.#createEvent(id, 'restoring', () => {
-      this.#windows.update({ ...state, isMaximized: false });
+      this.#windows.update(id, s => ({ ...s, isMaximized: false }));
     })]);
   }
 
@@ -234,6 +235,17 @@ export class WindowsManager {
     events.maximizing?.resolve();
     events.opening?.resolve();
     events.restoring?.resolve();
+  }
+
+  #isClosing(id: string) {
+    const state = this.#windows.get(id);
+    if (state != null && state.closingReason != null) return true;
+    const events = this.#events.get(id);
+    const allowClosing = events?.allowClosing;
+    if (allowClosing != null && allowClosing.state === PromiseState.Pending) return true;
+    const closing = events?.closing;
+    if (closing != null && closing.state !== PromiseState.Rejected) return true;
+    return false;
   }
 
 }

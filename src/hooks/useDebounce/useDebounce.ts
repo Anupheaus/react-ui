@@ -10,7 +10,7 @@ export function useDebounce<TFunc extends Function>(delegate: TFunc, ms: number,
   const hasUnmounted = useOnUnmount(() => clearTimeout(timeoutToken.current));
   const wrappedDelegate = useBound(delegate);
 
-  return ((...args: unknown[]) => {
+  return useBound((...args: unknown[]) => {
     if (longestMs === 0 || (Date.now() - lastTimeOccurredRef.current) < longestMs) clearTimeout(timeoutToken.current);
     timeoutToken.current = setTimeout(() => {
       if (hasUnmounted()) return;

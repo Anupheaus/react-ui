@@ -113,7 +113,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   return (
     <Tag
       ref={tableElementRef}
-      name="table"
+      name="react-table" // called react-table instead of table to ignore errors about table-rows not being a valid descendent of table.
       className={join(css.table, className)}
     >
       <TableColumnWidthProvider>
