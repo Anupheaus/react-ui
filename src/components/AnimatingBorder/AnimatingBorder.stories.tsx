@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { AnimatingBorder } from './AnimatingBorder';
 import { StorybookComponent } from '../../Storybook';
 import { createStyles } from '../../theme';

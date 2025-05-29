@@ -1,6 +1,6 @@
 import { useBound } from '../../hooks';
 import { WindowsManager } from './WindowsManager';
-import { WindowState } from './WindowsModels';
+import type { WindowState } from './WindowsModels';
 
 export function useWindows<StateType extends WindowState = WindowState>(id = 'default') {
   const manager = WindowsManager.get(id);

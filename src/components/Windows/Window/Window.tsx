@@ -87,6 +87,7 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
 }));
 
 interface Props {
+  id?: string;
   className?: string;
   contentClassName?: string;
   title?: ReactNode;
@@ -109,6 +110,7 @@ interface Props {
 }
 
 export const Window = createComponent('Window', ({
+  id: providedId,
   className,
   title,
   icon = null,
@@ -128,8 +130,9 @@ export const Window = createComponent('Window', ({
   onClosed,
   onFocus,
 }: Props) => {
-  const { id, managerId } = useContext(WindowContext);
+  const { id: contextId, managerId } = useContext(WindowContext);
   const manager = WindowsManager.get(managerId);
+  const id = providedId ?? contextId;
   const [state, setState] = useWindowState(manager, id, providedWidth, providedHeight);
   const { isMaximized: savedIsMaximized, index: windowIndex, isFocused } = state;
   const isMaximized = savedIsMaximized ?? providedIsMaximized;

@@ -1,4 +1,5 @@
-import { CSSProperties, MouseEvent, ReactNode, useContext, useMemo } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
+import { useContext, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useUIState } from '../../providers/UIStateProvider';
 import { createAnimationKeyFrame, createStyles } from '../../theme';
@@ -64,6 +65,15 @@ const useStyles = createStyles(({ skeleton }) => ({
 
   },
 
+  variant_outline: {
+    backgroundColor: 'transparent',
+    border: '1px solid',
+    borderColor: skeleton.color,
+  },
+  variant_content_outline: {
+
+  },
+
   variant_text: {
     borderRadius: 4,
     margin: '4px 0',
@@ -85,7 +95,7 @@ const useStyles = createStyles(({ skeleton }) => ({
 interface Props {
   className?: string;
   contentClassName?: string;
-  type?: 'full' | 'text' | 'circle';
+  type?: 'full' | 'text' | 'circle' | 'outline';
   useRandomWidth?: boolean;
   isVisible?: boolean;
   style?: CSSProperties;

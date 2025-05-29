@@ -1,10 +1,10 @@
-import type { AnimationEvent, CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { useMemo, useRef } from 'react';
 import { createAnimationKeyFrame, createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { createPortal } from 'react-dom';
-import { useBound } from '../../hooks';
+import { useTimeout } from '../../hooks';
 
 const fadeOutKeyframes = createAnimationKeyFrame({
   from: { opacity: 1 },
@@ -39,19 +39,22 @@ export const FadingOut = createComponent('FadingOut', ({
 }: Props) => {
   const { css } = useStyles();
   const elementRef = useRef<HTMLDivElement>(null);
+  const startedAnimationRef = useRef<number>();
 
   const renderedContent = useMemo(() => ({
     __html: content,
   }), [content]);
 
-  const onAnimationEnd = useBound((event: AnimationEvent) => {
-    if (event.target !== elementRef.current) return;
+  useTimeout(() => {
     onCompleted(id);
-  });
+  }, duration, { dependencies: [duration], triggerOnUnmount: true });
 
-  const style = useMemo<CSSProperties>(() => ({
-    animationDuration: `${duration}ms`,
-  }), [duration]);
+  const style = useMemo<CSSProperties>(() => {
+    startedAnimationRef.current = Date.now();
+    return {
+      animationDuration: `${duration}ms`,
+    };
+  }, [duration]);
 
-  return createPortal(<Tag ref={elementRef} name="fading-out" data-fader-id={id} className={css.fadingOut} dangerouslySetInnerHTML={renderedContent} onAnimationEnd={onAnimationEnd} style={style} />, element);
+  return createPortal(<Tag ref={elementRef} name="fading-out" data-fader-id={id} className={css.fadingOut} dangerouslySetInnerHTML={renderedContent} style={style} />, element);
 });

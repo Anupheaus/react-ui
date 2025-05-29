@@ -232,22 +232,21 @@ export const DefaultTheme: Theme = {
       opacity: 0.7,
     },
   },
-  tabs: {
-    buttons: {
-      container: {
-        backgroundColor: 'rgba(0 0 0 / 5%)',
-      },
-      normal: {
-        activeStripPosition: 'bottom',
-        activeStripWidth: 2,
-        activeStripColor: 'transparent',
-      },
-      focused: {
-        activeStripColor: 'rgba(255 255 255 / 70%)',
-      }
+  configurator: {
+    header: {
+      backgroundColor: '#efefef',
+      textColor: '#000',
     },
-    content: {
-
+    item: {
+      backgroundColor: '#d2d2d2',
+      textColor: '#000',
+    },
+    subItem: {
+      backgroundColor: '#bcbcbc',
+      textColor: '#000',
+    },
+    slice: {
+      backgroundColor: '#ada7fd',
     },
   },
   // datePicker: {

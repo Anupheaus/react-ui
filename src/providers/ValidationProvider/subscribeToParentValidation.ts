@@ -1,6 +1,6 @@
-import { Collection, Records } from '@anupheaus/common';
-import { UseCallbacks } from '../../hooks';
-import { ValidationRecord } from './ValidationModels';
+import type { Collection, Records } from '@anupheaus/common';
+import type { UseCallbacks } from '../../hooks';
+import type { ValidationRecord } from './ValidationModels';
 import { useContext, useLayoutEffect, useRef } from 'react';
 import { ValidationContext } from './ValidationContext';
 

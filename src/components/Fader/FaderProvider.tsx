@@ -12,11 +12,15 @@ interface FadeData {
 
 interface Props {
   duration?: number;
+  fadeInDuration?: number;
+  fadeOutDuration?: number;
   children?: ReactNode;
 }
 
 export const FaderProvider = createComponent('FaderProvider', ({
-  duration = 1000,
+  duration,
+  fadeInDuration,
+  fadeOutDuration,
   children,
 }: Props) => {
   const fadeData = useMap<string, FadeData>();
@@ -24,7 +28,7 @@ export const FaderProvider = createComponent('FaderProvider', ({
 
   const context = useMemo<FaderContextProps>(() => ({
     isValid: true,
-    duration,
+    duration: fadeInDuration ?? duration ?? 1000,
     updateFadeData: (id, element) => {
       if (element.parentElement == null) throw new Error('Fader element must have a parent');
       fadeData.set(id, { id, element: element.parentElement, content: element.innerHTML });
@@ -42,7 +46,7 @@ export const FaderProvider = createComponent('FaderProvider', ({
 
   const onCompleted = useBound((id: string) => { setFadingOutData(v => v.removeById(id)); });
 
-  const fadingOutChildren = useMemo(() => fadingOutData.map(data => (<FadingOut key={data.id} {...data} duration={duration} onCompleted={onCompleted} />)), [fadingOutData, duration]);
+  const fadingOutChildren = useMemo(() => fadingOutData.map(data => (<FadingOut key={data.id} {...data} duration={fadeOutDuration ?? duration ?? 1000} onCompleted={onCompleted} />)), [fadingOutData, duration]);
 
   return (
     <FaderContext.Provider value={context}>

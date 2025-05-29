@@ -1,6 +1,7 @@
 import type { DeferredPromise } from '@anupheaus/common';
-import type { Window, WindowAction, WindowActions, WindowContent, WindowOkAction } from './Window';
+import type { Window, WindowAction, WindowContent, WindowOkAction } from './Window';
 import type { ReactUIComponent } from '../Component';
+import type { ActionsToolbar } from '../ActionsToolbar';
 
 export interface InitialWindowState {
   isMaximized?: boolean;
@@ -8,15 +9,15 @@ export interface InitialWindowState {
   y?: string | number;
   width?: string | number;
   height?: string | number;
-  isPersistable?: boolean;
 }
 
 export interface WindowState<Args extends unknown[] = any> extends InitialWindowState {
   id: string;
   definitionId: string;
-  definitionInstanceId?: string;
+  managerId?: string;
   args: Args;
-  closingReason?: string;
+  closingResponse?: unknown;
+  isPersistable?: boolean;
 }
 
 export type NewWindowState = Omit<WindowState, 'id'> & { id?: string; };
@@ -33,39 +34,38 @@ export interface WindowEvents {
 
 export type InitialWindowPosition = 'center';
 
-export interface WindowDefinitionUtils {
+export interface WindowDefinitionUtils<CloseResponseType = string | undefined> {
   Content: typeof WindowContent;
-  Actions: typeof WindowActions;
+  Actions: typeof ActionsToolbar;
   Window: typeof Window;
   Action: typeof WindowAction;
   OkButton: typeof WindowOkAction;
   id: string;
-  close(reason?: string): Promise<void>;
-  // CancelButton: typeof DialogAction;
+  close(response?: CloseResponseType): Promise<void>;
 }
 
-export type WindowDefinition<Args extends unknown[] = any> =
-  (utils: WindowDefinitionUtils) => (...args: Args) => JSX.Element | null;
+export type WindowDefinition<Args extends unknown[] = any, CloseResponseType = string | undefined> =
+  (utils: WindowDefinitionUtils<CloseResponseType>) => (...args: Args) => JSX.Element | null;
 
 export interface WindowDefinitionProps {
-  instanceId?: string;
+  doNotPersist?: boolean;
 }
 
-export type UseWindowApiWithId<Name extends string, Args extends unknown[]> =
-  { [key in `open${Name}`]: (id: string, ...args: [...Args, initialState?: InitialWindowState]) => Promise<string | undefined>; } &
-  { [key in `close${Name}`]: (id: string, reason?: string) => Promise<void>; } &
+export type UseWindowApiWithId<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> =
+  { [key in `open${Name}`]: (id: string, ...args: [...Args, initialState?: InitialWindowState]) => Promise<CloseResponseType>; } &
+  { [key in `close${Name}`]: (id: string, response?: CloseResponseType) => Promise<void>; } &
   { [key in `focus${Name}`]: (id: string) => Promise<void>; } &
   { [key in `restore${Name}`]: (id: string) => Promise<void>; } &
   { [key in `maximize${Name}`]: (id: string) => Promise<void>; } &
   { [key in Name]: ReactUIComponent<(props: WindowDefinitionProps) => JSX.Element>; };
 
-export type UseWindowApi<Name extends string, Args extends unknown[]> =
-  { [key in `open${Name}`]: (...args: [...Args, initialState?: InitialWindowState]) => Promise<string | undefined>; } &
-  { [key in `close${Name}`]: (reason?: string) => Promise<void>; } &
+export type UseWindowApi<Name extends string, Args extends unknown[], CloseResponseType = string | undefined, WindowProps extends {} = {}> =
+  { [key in `open${Name}`]: (...args: [...Args, initialState?: InitialWindowState]) => Promise<CloseResponseType>; } &
+  { [key in `close${Name}`]: (response?: CloseResponseType) => Promise<void>; } &
   { [key in `focus${Name}`]: () => Promise<void>; } &
   { [key in `restore${Name}`]: () => Promise<void>; } &
   { [key in `maximize${Name}`]: () => Promise<void>; } &
-  { [key in Name]: ReactUIComponent<(props: WindowDefinitionProps) => JSX.Element>; };
+  { [key in Name]: ReactUIComponent<(props: WindowDefinitionProps & WindowProps) => JSX.Element>; };
 
 export type ReactUIWindow<Name extends string = string, Args extends unknown[] = unknown[]> = ReactUIComponent<() => JSX.Element> & {
   name: Name,

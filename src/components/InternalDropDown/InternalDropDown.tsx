@@ -1,13 +1,16 @@
-import { PaperProps, Popover, PopoverOrigin } from '@mui/material';
-import { FocusEvent, ReactNode, useMemo, useRef } from 'react';
+import type { PaperProps, PopoverOrigin } from '@mui/material';
+import { Popover } from '@mui/material';
+import type { FocusEvent, ReactNode } from 'react';
+import { useMemo, useRef } from 'react';
 import { useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
 import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
-import { Field, FieldProps } from '../Field';
-import { useValidation } from '../../providers';
+import type { FieldProps } from '../Field';
+import { Field } from '../Field';
+import { useUIState, useValidation } from '../../providers';
 import { is } from '@anupheaus/common';
 import { InternalList } from '../InternalList';
 import { ListItem } from '../List';
@@ -38,6 +41,7 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
 export interface InternalDropDownProps<T extends string> extends FieldProps {
   value?: T | ReactListItem;
   values?: ReactListItem[];
+  endAdornments?: ReactNode;
   onChange?(id: T, item: ReactListItem): void;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
 }
@@ -52,12 +56,14 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   values,
   isOptional,
   requiredMessage = 'Please select a value',
+  endAdornments: providedEndAdornments,
   renderSelectedValue,
   onChange,
   onBlur,
   ...props
 }: Props<T>) {
   const { css, join } = useStyles();
+  const { isReadOnly } = useUIState();
   const value = useMemo(() => is.string(providedValue) ? values?.findById(providedValue) : is.listItem(providedValue) ? providedValue : undefined, [providedValue, values]);
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
@@ -76,8 +82,8 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     return ReactListItem.render(value);
   }, [value, renderSelectedValue]);
 
-  const handleContainerSelect = useBound(() => {
-    if (isOpen) return;
+  const openDropDown = useBound(() => {
+    if (isReadOnly || isOpen) return;
     setIsOpen();
   });
 
@@ -93,11 +99,14 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     if (!isOpen) enableErrors();
   });
 
-  const endAdornments = useMemo(() => [(
-    <Button key="dropdown-open" onSelect={setIsOpen} iconOnly={false}>
-      <Icon name="dropdown" />
-    </Button>
-  )], []);
+  const endAdornments = useMemo(() => (
+    <>
+      <Button key="dropdown-open" onSelect={openDropDown}>
+        <Icon name="dropdown" />
+      </Button>
+      {providedEndAdornments}
+    </>
+  ), [providedEndAdornments]);
 
   const anchorOrigin = useMemo<PopoverOrigin>(() => ({
     horizontal: 'right',
@@ -125,7 +134,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
       className={join(css.dropDown, props.className)}
       contentClassName={css.dropDownContent}
       endAdornments={endAdornments}
-      onContainerSelect={handleContainerSelect}
+      onContainerSelect={openDropDown}
       onBlur={handleOnBlur}
     >
       {selectedValue}

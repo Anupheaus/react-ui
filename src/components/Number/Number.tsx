@@ -1,10 +1,12 @@
 import { is, to } from '@anupheaus/common';
-import { ReactElement, useMemo } from 'react';
+import type { ReactElement } from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
-import { InternalText, InternalTextProps } from '../InternalText';
+import type { InternalTextProps } from '../InternalText';
+import { InternalText } from '../InternalText';
 import { Icon } from '../Icon';
 import { useLocale, useUIState } from '../../providers';
 

@@ -1,37 +1,48 @@
-import { ReactNode, useMemo, useState } from 'react';
-import { DistributedState, useBound, useDistributedState } from '../../hooks';
+import type { ReactNode } from 'react';
+import { useMemo, useState } from 'react';
+import type { DistributedState } from '../../hooks';
+import { useBound, useDistributedState } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Tag } from '../Tag';
-import { TabsContext, TabsContextProps, UpsertTabProps } from './TabsContext';
+import type { TabsContextProps, UpsertTabProps } from './TabsContext';
+import { TabsContext } from './TabsContext';
 import { TabButton, TabContent } from './Tab';
 import { UIState } from '../../providers';
 
-const useStyles = createStyles(({ tabs }) => ({
-  hidden: {
-    display: 'none',
-  },
-  tabsButtons: {
-    position: 'relative',
-    backgroundColor: tabs.buttons.container.backgroundColor,
+const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { normal: { backgroundColor: activeButtonBackgroundColor } } } }) => {
 
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
+  return {
+    hidden: {
+      display: 'none',
     },
-  },
-  tabsContent: {
-    display: 'grid',
-    gridTemplateColumns: '1fr',
-    flexGrow: 1,
-    overflow: 'hidden',
-  },
-  tabsButtonsHidden: {
-    display: 'none',
-  },
-}));
+    tabsButtons: {
+      position: 'relative',
+      borderBottomStyle: 'solid',
+      borderBottomWidth: buttons?.stripWidth ?? 1,
+      borderBottomColor: buttons?.stripColor ?? activeButtonBackgroundColor ?? 'rgba(0 0 0 / 5%)',
+
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+      },
+
+      '&.is-hidden': {
+        display: 'none',
+      },
+
+    },
+    tabsContent: {
+      display: 'grid',
+      position: 'relative',
+      gridTemplateColumns: '1fr',
+      flexGrow: 1,
+      overflow: 'hidden',
+    },
+  };
+});
 
 export interface TabsProps {
   className?: string;
@@ -78,12 +89,19 @@ export const TabsComponent = createComponent('Tabs', ({
     removeTab,
   }), []);
 
-  const renderedTabButtons = useMemo(() => tabs.map(({ id, label }, index) => (
-    <TabButton key={id} tabIndex={index} state={state} label={label} />
+  const renderedTabButtons = useMemo(() => tabs.map(({ id, label, testId }, index) => (
+    <TabButton key={id} tabIndex={index} state={state} label={label} testId={testId} />
   )), [tabs]);
 
-  const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent }, index) => (
-    <TabContent key={id} className={tabContentClassName} tabIndex={index} state={state}>{tabContent}</TabContent>
+  const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, contentProps }, index) => (
+    <TabContent
+      key={id}
+      className={tabContentClassName}
+      tabIndex={index}
+      state={state}
+      noPadding={noPadding}
+      contentProps={contentProps}
+    >{tabContent}</TabContent>
   )), [tabs]);
 
   return (
@@ -93,7 +111,7 @@ export const TabsComponent = createComponent('Tabs', ({
           {children}
         </TabsContext.Provider>
       </Tag>
-      <Flex tagName="tabs-buttons" disableGrow className={join(css.tabsButtons, isTabsHidden && css.tabsButtonsHidden)}>
+      <Flex tagName="tabs-buttons" disableGrow className={join(css.tabsButtons, isTabsHidden && 'is-hidden')}>
         <UIState isReadOnly={false}>
           {renderedTabButtons}
         </UIState>

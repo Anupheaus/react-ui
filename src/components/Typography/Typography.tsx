@@ -7,6 +7,7 @@ import { Tag } from '../Tag';
 import type { Function } from 'ts-toolbelt';
 import type { TypographyTypes } from './Typographies';
 import { LocalTypographicDefinitions } from './Typographies';
+import { useUIState } from '../../providers';
 
 const useStyles = createLegacyStyles({
   typography: {
@@ -27,6 +28,7 @@ let augmentedTypographicDefinitions = LocalTypographicDefinitions as TypographyT
 
 interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> {
   className?: string;
+  tagName?: string;
   type?: keyof T;
   size?: number | string;
   weight?: number | string;
@@ -37,13 +39,16 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
   opacity?: number;
   fullWidth?: boolean;
   align?: CSSProperties['textAlign'];
+  valign?: CSSProperties['verticalAlign'];
   style?: CSSProperties;
   children: ReactNode;
+  disableWrap?: boolean;
   onClick?(): void;
 }
 
 const TypographyComponent = createComponent('Typography', ({
   className,
+  tagName,
   type,
   size,
   weight,
@@ -54,10 +59,13 @@ const TypographyComponent = createComponent('Typography', ({
   color,
   fullWidth,
   align,
+  valign,
   style: providedStyle,
+  disableWrap = false,
   children,
   onClick,
 }: Props<typeof LocalTypographicDefinitions>) => {
+  const { isLoading } = useUIState();
   const { css, join } = useStyles();
   const typeStyle = type != null ? augmentedTypographicDefinitions[type] : undefined;
 
@@ -73,14 +81,18 @@ const TypographyComponent = createComponent('Typography', ({
         : typeof (result) === 'number' ? `0 0 ${result}px rgba(0 0 0 / 50%)`
           : result)(shadow ?? typeStyle?.shadow),
     textAlign: align,
+    verticalAlign: valign,
     opacity: opacity ?? typeStyle?.opacity,
+    whiteSpace: disableWrap ? 'nowrap' : 'normal',
     ...providedStyle,
-  }), [typeStyle, align, size, opacity, weight, name, spacing, shadow, color, providedStyle]);
+  }), [typeStyle, align, valign, size, opacity, weight, name, spacing, shadow, color, providedStyle]);
+
+  const isEmpty = children == null || (typeof (children) === 'string' && children.trim().length === 0);
 
   return (
     <Skeleton type="text">
-      <Tag name="typography" className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style} onClick={onClick}>
-        {children}
+      <Tag name={tagName ?? 'typography'} className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style} onClick={onClick}>
+        {isLoading && isEmpty ? 'Loading...' : children}
       </Tag>
     </Skeleton>
   );

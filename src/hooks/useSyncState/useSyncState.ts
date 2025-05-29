@@ -23,7 +23,7 @@ export function useSyncState<S>(initialState?: () => S): SyncState<S | undefined
     })();
     if (is.deepEqual(stateRef.current, newState)) return;
     stateRef.current = newState;
-    refresh();
+    refresh({ lazy: true });
   });
 
   const getState = useBound(() => stateRef.current);

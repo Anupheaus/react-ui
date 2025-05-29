@@ -1,7 +1,7 @@
 import { Collection, Records } from '@anupheaus/common';
 import { createContext } from 'react';
-import { ValidationRecord } from './ValidationModels';
-import { UseCallbacks } from '../../hooks';
+import type { ValidationRecord } from './ValidationModels';
+import type { UseCallbacks } from '../../hooks';
 
 export interface ValidationContextProps {
   isReal: boolean;

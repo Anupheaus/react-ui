@@ -7,6 +7,7 @@ import { useBound } from '../../hooks';
 import { Skeleton } from '../Skeleton';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { createStyles } from '../../theme';
+import { useUIState } from '../../providers';
 
 interface Props extends ComponentProps<typeof Label> {
   value?: boolean;
@@ -19,7 +20,7 @@ interface Props extends ComponentProps<typeof Label> {
   onChange?(value: boolean): void;
 }
 
-const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal: fieldNormal } }, action: { normal: actionNormal }, transition }) => ({
+const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, action: { normal: actionNormal }, transition, pseudoClasses }) => ({
   checkbox: {
     display: 'flex',
     flexGrow: 0,
@@ -28,18 +29,19 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal:
     justifyContent: 'center',
     alignItems: 'flex-start',
     flexDirection: 'column',
+    '--checkbox-cursor': 'pointer',
     // '--checkbox-color': 'transparent',
 
     // [activePseudoClasses]: {
     //   '--checkbox-color': actionNormal.backgroundColor,
     // },
+
+    [pseudoClasses.readOnly]: {
+      '--checkbox-cursor': 'default',
+    },
   },
   checkboxIsChecked: {
-    // '--checkbox-color': checkedColor,
-
-    [activePseudoClasses]: {
-      // '--checkbox-color': activeColor,
-    },
+    // '--checkbox-color': checkedColor,    
   },
   checkboxContainer: {
     display: 'flex',
@@ -54,7 +56,7 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal:
     borderWidth: 2,
     borderRadius: 4,
     transitionProperty: 'border-color',
-    cursor: 'pointer',
+    cursor: 'var(--checkbox-cursor)',
     position: 'relative',
     width: 'min-content',
     ...transition,
@@ -69,7 +71,7 @@ const useStyles = createStyles(({ activePseudoClasses, field: { value: { normal:
     height: 16,
     margin: 0,
     padding: 0,
-    cursor: 'pointer',
+    cursor: 'var(--checkbox-cursor)',
   },
   checkboxAreaChecked: {
     position: 'absolute',
@@ -126,9 +128,11 @@ export const Checkbox = createComponent('Checkbox', ({
   onChange,
 }: Props) => {
   const { css, join, useInlineStyle } = useStyles();
+  const { isReadOnly } = useUIState();
   const handleValueChanged = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.checked));
   const toggleValue = useBound((event: MouseEvent) => {
     event.stopPropagation();
+    if (isReadOnly) return;
     onChange?.(!value);
   });
 
@@ -140,11 +144,11 @@ export const Checkbox = createComponent('Checkbox', ({
   }), [width, minWidth]);
 
   return (
-    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], className)} style={style}>
+    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], isReadOnly && 'is-read-only', className)} style={style}>
       <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`])}>
         <Skeleton className={css.skeleton}>
-          <Tag name="checkbox-area" className={join(css.checkboxArea, className)} onClick={toggleValue}>
-            <input type="checkbox" className={css.inputCheckbox} checked={value ?? false} onChange={handleValueChanged} />
+          <Tag name="checkbox-area" className={join(css.checkboxArea, className)}>
+            <input type="checkbox" className={css.inputCheckbox} checked={value ?? false} onChange={handleValueChanged} disabled={isReadOnly} />
             <Tag name="checkbox-area-checked" className={join(css.checkboxAreaChecked, value === true && 'is-checked')} />
           </Tag>
         </Skeleton>

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -37,6 +37,8 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
       children = baseError.message;
     }
   }
+
+  if (children === false) return null; // do not render if it is disabled
 
   return (
     <Tag

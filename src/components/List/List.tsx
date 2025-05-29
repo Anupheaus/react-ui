@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { ListItemType } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
+import type { FieldProps } from '../Field';
 import { Field } from '../Field';
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
@@ -14,6 +15,7 @@ import { Flex } from '../Flex';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useValidation } from '../../providers';
+import { ListItem } from './Items';
 
 export type ListOnRequest<T extends ListItemType = ListItemType> = Required<InternalListProps<T>>['onRequest'];
 
@@ -36,7 +38,8 @@ type Props<T extends ListItemType = ListItemType> = Omit<InternalListProps<T>, '
   delayRenderingItems?: boolean;
   error?: ReactNode;
   adornments?: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
+  assistiveHelp?: FieldProps['assistiveHelp'];
   actions?: UseActions<ListActions>;
   onChange?(items: T[]): void;
   onAdd?(): PromiseMaybe<T | void>;
@@ -83,6 +86,7 @@ export const List = createComponent('List', function <T extends ListItemType = L
   error: providedError,
   adornments,
   onAdd,
+  assistiveHelp,
   ...props
 }: Props<T>) {
   const { css, join } = useStyles();
@@ -106,12 +110,12 @@ export const List = createComponent('List', function <T extends ListItemType = L
       label={label}
       help={help}
       className={join(css.list, className)}
-      contentClassName={join(css.listContent, contentClassName)}
+      contentClassName={css.listContent}
       containerClassName={join(css.listContainer, containerClassName)}
-      containerAdornments={is.function(onAdd) && (
+      containerAdornments={(is.function(onAdd) || adornments != null) && (
         <Flex tagName="list-actions" gap={4} valign="center" className={css.adornments}>
           {adornments}
-          <Button variant="hover" size="small" iconOnly onSelect={handleAdd}><Icon name="add" size="small" /></Button>
+          {is.function(onAdd) && <Button variant="hover" size="small" iconOnly onSelect={handleAdd}><Icon name="add" size="small" /></Button>}
         </Flex>
       )}
       error={providedError ?? error}
@@ -121,15 +125,18 @@ export const List = createComponent('List', function <T extends ListItemType = L
       disableSkeleton
       width={width}
       wide={wide}
+      assistiveHelp={assistiveHelp}
     >
       <InternalList
         tagName="list-content"
         {...props}
         preventContentFromDeterminingHeight
-        contentClassName={css.internalList}
+        contentClassName={join(css.internalList, contentClassName)}
         onItemsChange={handleItemsChanged}
         delayRenderingItems={delayRenderingItems}
-      />
+      >
+        {props.children ?? <ListItem />}
+      </InternalList>
     </Field>
   );
 });

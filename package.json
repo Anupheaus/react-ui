@@ -29,6 +29,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.15",
     "@mui/x-date-pickers": "^7.2.0",
+    "@mui/x-data-grid-premium": "^7.28.1",
     "react-google-recaptcha-enterprise": "^1.0.3",
     "react-async-script": "^1.2.0",
     "color": "^4.2.3",
@@ -94,5 +95,10 @@
     "@faker-js/faker": "^8.3.1",
     "@babel/core": "^7.23.6",
     "require-from-string": "^2.0.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "@anupheaus/common": "file:../common"
+    }
   }
 }

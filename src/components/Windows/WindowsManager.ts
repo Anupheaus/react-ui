@@ -58,7 +58,7 @@ export class WindowsManager {
   @bind
   public async open(state: WindowState): Promise<void> {
     if (this.#windows.get(state.id) != null) { return this.focus(state.id); }
-    windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId, state.definitionInstanceId ?? 'default');
+    windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId);
     return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }
 
@@ -69,18 +69,20 @@ export class WindowsManager {
     if (args.length === 1) {
       const callback = args[0] as (states: ActiveWindowState[], reason: RecordsModifiedReason) => void;
       return this.#windows.onModified((_, reason, allStates) => {
-        if (this.#disabledNotifications) return;
+        // do not use disabled notifications here otherwise the state won't be saved in the windows component        
         callback(allStates.map(state => this.#ensureGetId(state.id)), reason);
       });
     } else if (args.length === 2) {
       const id = args[0] as string;
       const callback = args[1] as (state: ActiveWindowState, reason: RecordsModifiedReason) => void;
-      return this.#windows.onModified((states, reason, allStates) => {
+      const unsubscribe = this.#windows.onModified((states, reason, allStates) => {
         if (this.#disabledNotifications) return;
         const state = (allStates.findById(id) != null ? this.#ensureGetId(id) : states.findById(id)) as ActiveWindowState | WindowState | undefined;
         if (state == null) return;
         callback({ isFocused: false, index: 0, ...state }, reason);
       });
+      if (this.#windows.has(id)) callback(this.#ensureGetId(id), 'add');
+      return unsubscribe;
     }
     throw new Error('Invalid arguments provided to subscribeToStateChanges.');
   }
@@ -99,7 +101,10 @@ export class WindowsManager {
   }
 
   public add(states: WindowState[]) {
-    this.#windows.add(states);
+    states.forEach(state => {
+      if (this.#windows.has(state.id)) return;
+      this.open(state);
+    });
   }
 
   public clear(): void {
@@ -122,13 +127,13 @@ export class WindowsManager {
   }
 
   @bind
-  public async close(id: string, reason?: string): Promise<void> {
+  public async close(id: string, response?: unknown): Promise<void> {
     if (this.#isClosing(id)) return;
-    this.#windows.update(id, state => ({ ...state, closingReason: reason }));
+    this.#windows.update(id, state => ({ ...state, closingResponse: response }));
     try {
       await this.#createEvent(id, 'allowClosing');
     } catch {
-      this.#windows.update(id, state => ({ ...state, closingReason: undefined }));
+      this.#windows.update(id, state => ({ ...state, closingResponse: undefined }));
       return;
     }
     await this.#createEvent(id, 'closing');
@@ -214,6 +219,7 @@ export class WindowsManager {
   #ensureGetId(id: string): ActiveWindowState {
     const state = this.#windows.get(id);
     if (state == null) throw new Error(`Window with id "${id}" not found.`);
+    const definition = windowsDefinitionsManager.getDefinition(state.definitionId, this.#id);
     const ids = this.#windows.ids();
     const index = ids.indexOf(id);
     const isFocused = ids.last() === id;
@@ -221,6 +227,7 @@ export class WindowsManager {
       ...state,
       index,
       isFocused,
+      isPersistable: definition?.doNotPersist !== true,
     };
   }
 
@@ -239,7 +246,7 @@ export class WindowsManager {
 
   #isClosing(id: string) {
     const state = this.#windows.get(id);
-    if (state != null && state.closingReason != null) return true;
+    if (state != null && state.closingResponse != null) return true;
     const events = this.#events.get(id);
     const allowClosing = events?.allowClosing;
     if (allowClosing != null && allowClosing.state === PromiseState.Pending) return true;
@@ -247,6 +254,5 @@ export class WindowsManager {
     if (closing != null && closing.state !== PromiseState.Rejected) return true;
     return false;
   }
-
 }
 

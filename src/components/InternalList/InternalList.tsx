@@ -1,7 +1,8 @@
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks/useBound';
 import type { ListItemType } from '../../models';
+import type { FlexProps } from '../Flex';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
 import type { OnScrollEventData, ScrollerActions } from '../Scroller';
@@ -42,7 +43,8 @@ export interface InternalListActions extends UseItemsActions {
 export interface InternalListProps<T extends ListItemType> {
   items?: T[];
   createNewItem?: ReactNode;
-  gap?: ComponentProps<typeof Flex>['gap'];
+  gap?: FlexProps['gap'];
+  minWidth?: FlexProps['minWidth'];
   actions?: UseActions<InternalListActions>;
   onRequest?(request: UseDataRequest, response: (data: UseDataResponse<T>) => void): Promise<void>;
   onError?(error: Error): void;
@@ -70,6 +72,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   items: providedItems,
   delayRenderingItems = false,
   preventContentFromDeterminingHeight,
+  minWidth,
   children,
   actions,
   onScroll,
@@ -172,12 +175,12 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   }, [error]);
 
   return (
-    <Flex tagName={tagName} className={join(css.internalList, className)} isVertical maxWidth gap={gap}>
+    <Flex tagName={tagName} className={join(css.internalList, className)} minWidth={minWidth} isVertical maxWidth gap={gap}>
       <Scroller
         onScroll={handleOnScroll}
         actions={scrollerActions}
         disableShadows={disableShadowsOnScroller}
-        containerClassName={contentClassName}
+        className={contentClassName}
         preventContentFromDeterminingHeight={preventContentFromDeterminingHeight}
       >
         {header}

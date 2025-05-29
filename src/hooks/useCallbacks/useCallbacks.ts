@@ -1,4 +1,5 @@
-import { AnyFunction, DeferredPromise, InternalError, PromiseMaybe, PromiseState } from '@anupheaus/common';
+import type { AnyFunction, DeferredPromise, PromiseMaybe } from '@anupheaus/common';
+import { InternalError, PromiseState } from '@anupheaus/common';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
@@ -22,10 +23,6 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useSet<T>();
 
   const register = (delegate: AddCallbackState<T>) => {
-    const renderCount = useRef(0);
-    const layoutEffectCount = useRef(0);
-    const effectCount = useRef(0);
-    renderCount.current++;
     const waitOnRenderPhaseCompleteRef = useRef(useMemo(() => Promise.createDeferred(), []));
     if (waitOnRenderPhaseCompleteRef.current.state !== PromiseState.Pending) waitOnRenderPhaseCompleteRef.current = Promise.createDeferred();
     const boundDelegate = useBound((...args: Parameters<T>) => delegate.call({
@@ -34,11 +31,7 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
     }, ...args)) as T;
     if (!callbacks.has(boundDelegate)) callbacks.add(boundDelegate);
     useLayoutEffect(() => {
-      layoutEffectCount.current++;
       waitOnRenderPhaseCompleteRef.current.resolve();
-    });
-    useEffect(() => {
-      effectCount.current++;
     });
     useEffect(() => () => {
       callbacks.delete(boundDelegate);

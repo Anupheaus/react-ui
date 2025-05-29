@@ -1,13 +1,16 @@
-import { FocusEvent, ReactNode, useMemo, useRef } from 'react';
+import type { FocusEvent, ReactNode } from 'react';
+import { useMemo, useRef } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { Button } from '../Button';
-import { Popover, PopoverClasses, PopoverOrigin } from '@mui/material';
+import type { PopoverClasses, PopoverOrigin } from '@mui/material';
+import { Popover } from '@mui/material';
 import { useDelegatedBound } from '../../hooks';
 
 const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   toolbar: {
+    display: 'flex',
     border: field.border,
     borderColor: field.borderColor,
     borderStyle: 'solid',

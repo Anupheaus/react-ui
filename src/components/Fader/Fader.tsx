@@ -2,7 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useContext, useLayoutEffect, useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { useId } from '../../hooks';
+import { useBound, useId } from '../../hooks';
 import { createAnimationKeyFrame, createStyles } from '../../theme';
 import { FaderContext } from './FaderContext';
 
@@ -54,10 +54,15 @@ export const Fader = createComponent('Fader', ({
     fadeOut(id);
   }, []);
 
+  const saveElement = useBound((element: HTMLDivElement | null) => {
+    elementRef.current = element;
+    if (element) updateFadeData(id, element);
+  });
+
   const style = useMemo<CSSProperties>(() => ({ animationDuration: `${duration}ms` }), [duration]);
 
   return (
-    <Tag name="fader" ref={elementRef} className={join(css.fader)} style={style}>
+    <Tag name="fader" ref={saveElement} className={join(css.fader)} style={style}>
       {children}
     </Tag>
   );

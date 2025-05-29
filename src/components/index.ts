@@ -49,3 +49,7 @@ export * from './Countdown';
 export * from './Ripple';
 export * from './Fader';
 export * from './Grid';
+export * from './Configurator';
+export * from './Email';
+export * from './PhoneNumber';
+export * from './Selector';

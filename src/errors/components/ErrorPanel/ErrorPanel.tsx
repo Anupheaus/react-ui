@@ -36,7 +36,7 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
   const { css } = useStyles();
   const [error, setError] = useUpdatableState<Error | undefined>(() => providedError, [providedError]);
   const { height, target } = useOnResize();
-  const { openErrorDialog } = useErrorDialog();
+  const { openErrorDialog, ErrorDialog } = useErrorDialog();
 
   const handleError = useBound((capturedError: Error) => {
     capturedError.markAsHandled();
@@ -45,7 +45,7 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
 
   const onOpenErrorDialog = useBound(() => {
     if (error == null) return;
-    openErrorDialog(error);
+    openErrorDialog();
   });
 
   const renderError = () => {
@@ -64,6 +64,7 @@ export const ErrorPanel = createComponent('ErrorPanel', ({
     <Flex tagName="error" ref={target} className={css.error} gap={4} onClick={onOpenErrorDialog}>
       {renderError()}
     </Flex>
+    <ErrorDialog error={error} />
   </>);
 
   return (

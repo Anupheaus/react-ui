@@ -3,17 +3,19 @@ import type { DistributedStateApi } from '../../hooks';
 import { useBound } from '../../hooks/useBound';
 import { useOnUnmount } from '../../hooks/useOnUnmount';
 import type { RippleConfig, RippleState } from './RippleModels';
+import { useUIState } from '../../providers';
 
 export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
   const unhookRef = useRef<() => void>(() => void 0);
   const isUnmounted = useOnUnmount();
+  const { isReadOnly } = useUIState();
 
   return useBound((element: HTMLElement | null) => {
     unhookRef.current();
     if (!element) return;
 
     const mouseDownEvent = (event: MouseEvent) => {
-      if (isUnmounted()) return;
+      if (isReadOnly || isUnmounted()) return;
       setState(currentState => {
         if (currentState.isActive) return currentState;
         const { ignoreMouseCoords, rippleElement } = rippleConfig.get();
@@ -36,7 +38,7 @@ export function createRippleEventHandler(setState: (delegate: (currentState: Rip
     };
 
     const handleFocus = () => {
-      if (isUnmounted()) return;
+      if (isReadOnly || isUnmounted()) return;
       setState(currentState => {
         if (currentState.isActive) return currentState;
         return { ...currentState, isActive: true, useCoords: false };
@@ -44,7 +46,7 @@ export function createRippleEventHandler(setState: (delegate: (currentState: Rip
     };
 
     const handleBlur = (event: FocusEvent) => {
-      if (isUnmounted()) return;
+      if (isReadOnly || isUnmounted()) return;
       setState(currentState => {
         const performBlur = () => {
           if (!currentState.isActive) return currentState;

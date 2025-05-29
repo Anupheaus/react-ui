@@ -1,7 +1,9 @@
-import { Children, createElement, isValidElement, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Children, createElement, isValidElement } from 'react';
 import { createStyles, ThemeProvider } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
+import { Typography } from '../Typography';
 
 const useStyles = createStyles(({ transition, toolbar: { normal, active, title, content }, activePseudoClasses }) => ({
   titlebar: {
@@ -61,7 +63,7 @@ export const Titlebar = createComponent('Titlebar', ({
     <Flex {...props} tagName="titlebar" className={join(css.titlebar, className)} valign="center" disableGrow>
       <ThemeProvider theme={actionTheme}>
         {icon}
-        {title != null && <Flex tagName="titlebar-title" className={css.title} valign="center">{title}</Flex>}
+        {title != null && <Typography tagName="titlebar-title" className={css.title} valign="center">{title}</Typography>}
         <Flex tagName="titlebar-content" className={css.content} valign="center">{children}</Flex>
         {endAdornment != null && <Flex tagName="titlebar-end-adornment" className={css.endAdornment} disableGrow valign="center">{endAdornment}</Flex>}
       </ThemeProvider>

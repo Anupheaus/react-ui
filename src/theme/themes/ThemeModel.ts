@@ -132,14 +132,15 @@ interface IconTheme {
   opacity: number;
 }
 
-interface TabButtonTheme extends ButtonTheme {
-  activeStripPosition: 'top' | 'bottom';
-  activeStripWidth: string | number;
-  activeStripColor: string;
+interface TabButtonTheme {
+  borderRadius: string | number;
+  stripWidth: string | number;
+  stripColor: string;
 }
 
-interface TabButtonsContainerTheme {
-  backgroundColor: string;
+interface TabButtonsTheme {
+  stripWidth: string | number;
+  stripColor: string;
 }
 
 interface DatePickerPopupContentTheme {
@@ -271,16 +272,10 @@ export interface Theme {
     active: Partial<IconTheme>;
     readOnly: Partial<IconTheme>;
   };
-  tabs: {
-    buttons: {
-      container: TabButtonsContainerTheme;
-      normal?: Partial<TabButtonTheme>;
-      active?: Partial<TabButtonTheme>;
-      focused?: Partial<TabButtonTheme>;
-      focusedAndActive?: Partial<TabButtonTheme>;
-      readOnly?: Partial<TabButtonTheme>;
-    };
-    content: {
+  tabs?: {
+    buttons?: Partial<TabButtonsTheme>;
+    button?: Partial<TabButtonTheme>;
+    content?: {
       normal?: WindowContentTheme;
       active?: Partial<WindowContentTheme>;
       readOnly?: Partial<WindowContentTheme>;
@@ -300,28 +295,51 @@ export interface Theme {
   ripple?: {
     color?: string;
   };
+  configurator: {
+    header: {
+      backgroundColor: string;
+      textColor: string;
+    };
+    item: {
+      backgroundColor: string;
+      textColor: string;
+    };
+    subItem?: {
+      backgroundColor?: string;
+      textColor?: string;
+    };
+    slice?: {
+      backgroundColor?: string;
+    };
+    borderRadius?: number;
+  };
 
 
-
-
+  /** @deprecated */
   animation: CSSProperties;
+  /** @deprecated */
   transition: CSSProperties;
+  /** @deprecated */
   action: ThemeStateConfig;
+  /** @deprecated */
   menu: {
     normal: CSSProperties;
     disabled: CSSProperties;
 
     menuItem: ThemeStateConfig;
   };
+  /** @deprecated */
   toolbar: ThemeStateConfig & {
     title?: CSSProperties;
     content?: CSSProperties;
   };
+  /** @deprecated */
   field: {
     label: ThemeStateConfig;
     value: ThemeStateConfig;
     assistiveText: CSSProperties;
   };
+  /** @deprecated */
   surface: {
     general: ThemeStateConfig;
     asAContainer: ThemeStateConfig;
@@ -332,15 +350,19 @@ export interface Theme {
       heavy: CSSProperties;
     };
   };
+  /** @deprecated */
   scrollbars: {
     thumb: ThemeStateConfig;
     track: ThemeStateConfig;
   };
+  /** @deprecated */
   gaps: GapsTheme;
+  /** @deprecated */
   dataPaletteColors: string[];
+  /** @deprecated */
   skeleton: CSSProperties;
+  /** @deprecated */
   icon: ThemeStateConfig;
-
   /** @deprecated */
   activePseudoClasses: string;
 }

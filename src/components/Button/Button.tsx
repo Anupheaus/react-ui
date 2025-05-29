@@ -22,6 +22,7 @@ export interface ButtonProps {
   style?: CSSProperties;
   iconOnly?: boolean;
   children?: ReactNode;
+  testId?: string;
   onClick?(event: MouseEvent): PromiseMaybe<unknown>;
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
@@ -104,6 +105,15 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
         justifyContent: 'center',
       },
 
+      '&:not(.is-icon-only)': {
+        '& > icon': {
+          marginRight: 4,
+        },
+
+        '& > icon:last-child': {
+          marginLeft: 4,
+        },
+      },
     },
     size_variant_default: {
       '&:not(.is-icon-only)': {
@@ -158,6 +168,7 @@ export const Button = createComponent('Button', ({
   size,
   iconOnly: providedIconOnly,
   style,
+  testId,
   onClick,
   onSelect,
 }: ButtonProps) => {
@@ -200,6 +211,7 @@ export const Button = createComponent('Button', ({
       )}
       style={style}
       onClickCapture={handleClick}
+      testId={testId}
     >
       <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />
       <NoSkeletons>

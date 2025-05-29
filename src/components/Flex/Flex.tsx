@@ -44,7 +44,7 @@ const useStyles = createStyles(({ gaps }) => ({
   },
 }));
 
-interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivElement> {
+export interface FlexProps extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivElement> {
   className?: string;
   tagName?: string;
   disableGrow?: boolean;
@@ -60,6 +60,7 @@ interface Props extends DOMAttributes<HTMLDivElement>, HTMLAttributes<HTMLDivEle
   disableOverflow?: boolean;
   maxWidth?: number | string | boolean;
   maxHeight?: number | string | boolean;
+  minWidth?: number | string;
   maxWidthAndHeight?: boolean;
   shadow?: number;
   align?: 'left' | 'center' | 'right' | 'space-around' | 'space-between' | 'space-evenly';
@@ -85,6 +86,7 @@ export const Flex = createComponent('Flex', ({
   disableOverflow = false,
   maxWidth,
   maxHeight,
+  minWidth,
   maxWidthAndHeight,
   shadow,
   width,
@@ -101,15 +103,15 @@ export const Flex = createComponent('Flex', ({
   children = null,
   ref,
   ...props
-}: Props) => {
+}: FlexProps) => {
   const { css, join, useInlineStyle } = useStyles();
   if (alignCentrally) { providedAlign = providedAlign ?? 'center'; providedVAlign = providedVAlign ?? 'center'; }
-  const align = providedAlign != null ? to.switchMap<Required<Props>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
+  const align = providedAlign != null ? to.switchMap<Required<FlexProps>['align'], Required<CSSProperties>['justifyContent']>(providedAlign, {
     left: 'flex-start',
     right: 'flex-end',
     '*': providedAlign,
   }) : undefined;
-  const valign = providedVAlign != null ? to.switchMap<Required<Props>['valign'], Required<CSSProperties>['alignItems']>(providedVAlign, {
+  const valign = providedVAlign != null ? to.switchMap<Required<FlexProps>['valign'], Required<CSSProperties>['alignItems']>(providedVAlign, {
     top: 'flex-start',
     bottom: 'flex-end',
     '*': providedVAlign,
@@ -124,11 +126,12 @@ export const Flex = createComponent('Flex', ({
     padding,
     maxWidth: formatMaxWidthOrHeight(maxWidth, maxWidthAndHeight),
     maxHeight: formatMaxWidthOrHeight(maxHeight, maxWidthAndHeight),
+    minWidth,
     boxShadow: shadow != null ? `0 0 0 ${Math.floor(shadow / 2)}px rgba(63,63,68,0.05), 0 0 ${shadow}px ${Math.floor(shadow / 2)}px rgba(63,63,68,0.15)` : undefined,
     ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
     ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
     ...providedStyle,
-  }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow]);
+  }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow, minWidth]);
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }
 
@@ -159,6 +162,7 @@ export const Flex = createComponent('Flex', ({
       )}
       style={style}
       tabIndex={allowFocus === true ? 0 : allowFocus === false ? -1 : undefined}
+      testId={testId}
     >
       {children}
     </Tag>

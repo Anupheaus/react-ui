@@ -1,5 +1,5 @@
 import type { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
-import { useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBinder, useBooleanState, useBound, useDOMRef } from '../../hooks';
 import type { FieldProps } from '../Field';
@@ -65,8 +65,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   const { isReadOnly } = useUIState();
   const [isScrollbarVisible, setScrollbarVisible, setScrolbarInvisible] = useBooleanState();
   const { validate } = useValidation(`${tagName}-${props.label}`);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const ref = useDOMRef([innerRef, inputRef]);
+  const ref = useDOMRef([innerRef]);
   const bind = useBinder();
   const isMultiline = (multiline ?? 0) > 1;
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {

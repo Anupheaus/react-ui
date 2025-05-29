@@ -1,5 +1,6 @@
 import { is } from '@anupheaus/common';
-import { Dispatch, SetStateAction, useMemo, useRef } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useMemo, useRef } from 'react';
 import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
 

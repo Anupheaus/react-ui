@@ -1,4 +1,4 @@
-import { DeepPartial } from '@anupheaus/common';
+import type { DeepPartial } from '@anupheaus/common';
 import { useBound } from '../../hooks';
 
 type UseField<Name extends string, ValueType> = Record<Name, ValueType> & Record<`set${Capitalize<Name>}`, (updatedValue: ValueType) => void>;

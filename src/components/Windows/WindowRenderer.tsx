@@ -2,8 +2,7 @@ import { useLayoutEffect, useMemo, useState } from 'react';
 import { createComponent } from '../Component';
 import type { WindowDefinitionUtils } from './WindowsModels';
 import { type WindowDefinition } from './WindowsModels';
-import { Window, WindowContent } from './Window';
-import { WindowActions } from './Window/WindowActions';
+import { Window, WindowActions, WindowContent, WindowOkAction } from './Window';
 import { WindowAction } from './Window/WindowAction';
 import type { WindowDefinitionState } from './InternalWindowModels';
 import { WindowsManager } from './WindowsManager';
@@ -12,27 +11,26 @@ import type { WindowContextProps } from './WindowsContexts';
 import { WindowContext } from './WindowsContexts';
 import { createPortal } from 'react-dom';
 
-interface Props<Args extends unknown[]> extends WindowDefinitionState {
-  definition: WindowDefinition<Args>;
+interface Props<Args extends unknown[], CloseResponseType = string | undefined> extends WindowDefinitionState {
+  definition: WindowDefinition<Args, CloseResponseType>;
 }
 
-export const WindowRenderer = createComponent('WindowRenderer', <Args extends unknown[]>({
+export const WindowRenderer = createComponent('WindowRenderer', <Args extends unknown[], CloseResponseType = string | undefined>({
   windowId,
   managerId,
   definition,
-}: Props<Args>) => {
+}: Props<Args, CloseResponseType>) => {
   const manager = WindowsManager.get(managerId);
   const args = manager.getArgs<Args>(windowId);
   const [element, setElement] = useState<HTMLElement>();
-  const close = useBound((reason?: string) => manager.close(windowId, reason));
-
-  const utils = useMemo<WindowDefinitionUtils>(() => ({
+  const close = useBound((response?: CloseResponseType) => manager.close(windowId, response));
+  const utils = useMemo<WindowDefinitionUtils<CloseResponseType>>(() => ({
     id: windowId,
     Window,
     Content: WindowContent,
     Actions: WindowActions,
     Action: WindowAction,
-    OkButton: WindowAction,
+    OkButton: WindowOkAction,
     close,
   }), [windowId]);
 

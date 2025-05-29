@@ -24,3 +24,7 @@ export * from './useMap';
 export * from './useRef';
 export * from './useRecaptcha';
 export * from './useSyncState';
+export * from './useObservable';
+export * from './useFileUploader';
+export * from './useOnDOMChange';
+export * from './useBrowserInfo';

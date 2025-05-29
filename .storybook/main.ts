@@ -29,6 +29,11 @@ const config: StorybookConfig = {
         ...config.resolve?.alias,
         '@anupheaus/common': path.resolve(__dirname, '../../common/src'),
       },
+      fallback: {
+        async_hooks: false,
+        fs: false,
+        path: false,
+      },
     },
     module: {
       ...config.module,

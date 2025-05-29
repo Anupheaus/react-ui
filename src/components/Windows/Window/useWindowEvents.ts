@@ -8,8 +8,8 @@ interface Props {
   manager: WindowsManager;
   windowElementRef: RefObject<HTMLElement>;
   id: string;
-  onClosing?(reason?: string): PromiseMaybe<void | boolean>;
-  onClosed?(reason?: string): void;
+  onClosing?(response?: unknown): PromiseMaybe<void | boolean>;
+  onClosed?(response?: unknown): void;
   onFocus?(isFocused: boolean): void;
 }
 
@@ -23,7 +23,7 @@ export function useWindowEvents({ manager, windowElementRef, id, onClosing, onCl
       if (events.allowClosing != null) {
         const promise = events.allowClosing;
         const state = manager.get(id);
-        const result = await onClosing?.(state.closingReason);
+        const result = await onClosing?.(state.closingResponse);
         if (result === false) promise.reject();
         else promise.resolve();
       }
@@ -45,7 +45,7 @@ export function useWindowEvents({ manager, windowElementRef, id, onClosing, onCl
           break;
         }
         case 'opacity': {
-          if (manager.endEvent(id, 'closing')) onClosed?.(state?.closingReason);
+          if (manager.endEvent(id, 'closing')) onClosed?.(state?.closingResponse);
           break;
         }
         case 'transform': {

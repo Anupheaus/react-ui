@@ -1,5 +1,6 @@
 import { createComponent } from '../Component';
-import { InternalDropDown, InternalDropDownProps } from '../InternalDropDown';
+import type { InternalDropDownProps } from '../InternalDropDown';
+import { InternalDropDown } from '../InternalDropDown';
 
 interface Props<T extends string> extends InternalDropDownProps<T> { }
 

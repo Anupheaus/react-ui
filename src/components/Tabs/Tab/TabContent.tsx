@@ -1,12 +1,13 @@
-import { ReactNode, useState } from 'react';
-import { DistributedState, useBatchUpdates, useDistributedState } from '../../../hooks';
+import type { ReactNode } from 'react';
+import { useState } from 'react';
+import type { DistributedState } from '../../../hooks';
+import { useBatchUpdates, useDistributedState } from '../../../hooks';
 import { createComponent } from '../../Component';
-import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
+import { Flex, type FlexProps } from '../../Flex';
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles(({ windows: { content: { active: contentActive } } }) => ({
   tabContent: {
-    display: 'flex',
     gridRow: '1 / 1',
     gridColumn: '1 / 1',
     opacity: 0,
@@ -16,6 +17,7 @@ const useStyles = createStyles(() => ({
     overflow: 'hidden',
     pointerEvents: 'none',
     zIndex: -1,
+    padding: contentActive.padding,
 
     '&.is-visible': {
       opacity: 1,
@@ -32,6 +34,10 @@ const useStyles = createStyles(() => ({
       marginLeft: 50,
       marginRight: -50,
     },
+
+    '&.no-padding': {
+      padding: 0,
+    },
   },
 }));
 
@@ -40,7 +46,8 @@ interface Props {
   tabIndex: number;
   state: DistributedState<number>;
   children: ReactNode;
-
+  noPadding?: boolean;
+  contentProps?: FlexProps;
 }
 
 export const TabContent = createComponent('Tab', ({
@@ -48,6 +55,8 @@ export const TabContent = createComponent('Tab', ({
   tabIndex,
   state,
   children,
+  noPadding = false,
+  contentProps,
 }: Props) => {
   const { onChange, get } = useDistributedState(state);
   const { css, join } = useStyles();
@@ -61,8 +70,8 @@ export const TabContent = createComponent('Tab', ({
   }));
 
   return (
-    <Tag name="tab" className={join(css.tabContent, !isFocused && `slide-${direction}`, isFocused && 'is-visible', className)}>
+    <Flex tagName="tab" className={join(css.tabContent, !isFocused && `slide-${direction}`, isFocused && 'is-visible', noPadding && 'no-padding', className)} {...contentProps}>
       {children}
-    </Tag>
+    </Flex>
   );
 });

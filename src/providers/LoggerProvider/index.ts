@@ -1,1 +1,2 @@
-export * from './createUILogger';
+export * from './LoggerProvider';
+export * from './useLogger';

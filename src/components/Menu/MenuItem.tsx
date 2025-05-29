@@ -1,4 +1,5 @@
-import { ReactNode, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useContext, useState } from 'react';
 import { useBooleanState, useBound, useDOMRef } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -10,21 +11,22 @@ import { SubMenuProvider } from './SubMenuProvider';
 import { Skeleton } from '../Skeleton';
 import { is } from '@anupheaus/common';
 
-const useStyles = createStyles(({ menu: { menuItem: { normal: normalMenuItem, active: activeMenuItem } },
-  field: { value: { normal: normalField, active: activeField } }, pseudoClasses
+const useStyles = createStyles(({
+  buttons: { hover: { normal: normalButton, active: activeButton } },
+  fields: { content: { normal: normalFieldContent }, value: { normal: normalField, active: activeField } },
+  pseudoClasses
 }, { applyTransition }) => ({
   menuItem: {
     position: 'relative',
     padding: 8,
     cursor: 'pointer',
-    borderRadius: 4,
     ...normalField,
-    ...normalMenuItem,
+    ...normalButton,
     ...applyTransition('background-color, color'),
 
     [pseudoClasses.active]: {
       ...activeField,
-      ...activeMenuItem,
+      ...activeButton,
     },
 
     [pseudoClasses.readOnly]: {
@@ -37,6 +39,18 @@ const useStyles = createStyles(({ menu: { menuItem: { normal: normalMenuItem, ac
       gap: 4,
       alignItems: 'center',
     },
+
+    '@media(pointer: coarse)': {
+      margin: 4,
+      borderRadius: normalFieldContent.borderRadius,
+      border: `1px solid ${normalFieldContent.borderColor}`,
+
+      '@media(max-height: 800px)': {
+        width: 'fit-content',
+        minHeight: 60,
+        alignItems: 'center',
+      },
+    },
   },
   subMenuIcon: {
     marginLeft: 4,
@@ -47,12 +61,14 @@ interface Props {
   className?: string;
   isReadOnly?: boolean;
   children: ReactNode;
+  testId?: string;
   onSelect?(): void;
 }
 
 export const MenuItem = createComponent('MenuItem', ({
   className,
   isReadOnly = false,
+  testId,
   children,
   onSelect,
 }: Props) => {
@@ -83,8 +99,9 @@ export const MenuItem = createComponent('MenuItem', ({
       onMouseEnter={setIsOver}
       onMouseLeave={setIsNotOver}
       onMouseOut={setIsNotOver}
-      onClick={handleSelect}
+      onClickCapture={handleSelect}
       disableGrow
+      testId={testId}
     >
       <Ripple stayWithinContainer />
       <SubMenuProvider element={element} isVisible={isOver} onHasSubMenu={setHasSubMenu}>

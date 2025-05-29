@@ -6,8 +6,8 @@ export const subscriptionInternal = Symbol('subscriptionInternal');
 
 export interface SubscriptionContext<SubscribePayload, InvokePayload> {
   isValid: boolean;
-  subscribe(id: string, payload: SubscribePayload, callback: (payload: InvokePayload) => void, groupId?: string): PromiseMaybe<void>;
-  unsubscribe(id: string): void;
+  subscribe(id: string, payload: SubscribePayload, callback: (payload: InvokePayload) => PromiseMaybe<void>, groupId?: string, debug?: boolean): PromiseMaybe<void>;
+  unsubscribe(id: string, debug?: boolean): void;
 }
 
 export interface SubscriptionConfig {

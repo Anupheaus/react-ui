@@ -1,5 +1,6 @@
 import { createLegacyStyles } from '../../theme/createStyles';
-import { Children, ComponentProps, Fragment, ReactElement, ReactNode, useContext, useMemo } from 'react';
+import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import { Children, Fragment, useContext, useMemo } from 'react';
 import { Tooltip as MuiTooltip } from '@mui/material';
 import { createComponent } from '../Component';
 import { TooltipTheme } from './TooltipTheme';

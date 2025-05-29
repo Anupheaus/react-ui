@@ -1,12 +1,10 @@
-import type { ReactNode } from 'react';
 import { createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
-import { Flex } from '../../Flex';
+import type { ActionsToolbarProps } from '../../ActionsToolbar';
+import { ActionsToolbar } from '../../ActionsToolbar';
 
-interface Props {
-  className?: string;
-  children?: ReactNode;
-}
+interface Props extends ActionsToolbarProps { }
+
 const useStyles = createStyles(({ windows: { content, actions } }) => ({
   windowActions: {
     height: 'min-content',
@@ -18,21 +16,10 @@ const useStyles = createStyles(({ windows: { content, actions } }) => ({
   },
 }));
 
-export const WindowActions = createComponent('WindowActions', ({
-  className,
-  children = null,
-}: Props) => {
+export const WindowActions = createComponent('WindowActions', (props: Props) => {
   const { css, join } = useStyles();
+
   return (
-    <Flex
-      tagName="window-actions"
-      className={join(css.windowActions, className)}
-      valign="center"
-      align="right"
-      gap={12}
-      disableGrow
-    >
-      {children}
-    </Flex>
+    <ActionsToolbar {...props} className={join(css.windowActions, props.className)} />
   );
 });

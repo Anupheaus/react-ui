@@ -22,7 +22,8 @@ type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () =>
   useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties | undefined;
 };
 
-type CreateStylesType<TTheme extends BaseTheme> = <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles)) => UseStylesType<TTheme, TStyles>;
+type CreateStylesType<TTheme extends BaseTheme> = <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles),
+  props?: CreateStylesProps) => UseStylesType<TTheme, TStyles>;
 
 function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
   return {
@@ -75,10 +76,14 @@ function createThemeTools<ThemeType extends BaseTheme>(theme: ThemeType) {
 
 type ThemeTools = ReturnType<typeof createThemeTools>;
 
+interface CreateStylesProps {
+  prefix?: string;
+}
+
 function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
-  return <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles)): UseStylesType<TTheme, TStyles> => {
+  return <TStyles extends StylesType>(stylesOrDelegate: TStyles | ((theme: TTheme, tools: ThemeTools) => TStyles), { prefix = 'react-ui' }: CreateStylesProps = {}): UseStylesType<TTheme, TStyles> => {
     const makeStyles = createMakeStyles({ useTheme: () => ({}) }).makeStyles;
-    const useStylesInnerFunc = makeStyles<{ theme: TTheme; tools: ThemeTools; }>({ name: 'react-ui' })((_ignore, { theme, tools }, classes) => {
+    const useStylesInnerFunc = makeStyles<{ theme: TTheme; tools: ThemeTools; }>({ name: prefix })((_ignore, { theme, tools }, classes) => {
       const result = (is.function(stylesOrDelegate) ? stylesOrDelegate(theme, tools) : stylesOrDelegate) ?? {};
       const keys = Object.keys(result);
       Reflect.walk(result, ({ name, rename }) => {
@@ -103,7 +108,7 @@ function createTheme<TTheme extends BaseTheme>(): CreateStylesType<TTheme> {
           return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);
         },
         join(...classNames: (string | boolean | undefined)[]): string | undefined {
-          classNames = classNames.filter(is.not.empty);
+          classNames = classNames.filter(is.not.blank);
           if (classNames.length <= 0) return;
           return cx(...(classNames as (string | boolean | undefined)[]));
         },

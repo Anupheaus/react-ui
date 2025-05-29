@@ -8,6 +8,7 @@ import { StorybookComponent } from '../../Storybook';
 import { Dialogs } from './Dialogs';
 import { createDialog } from './createDialog';
 import { useConfirmationDialog } from './useConfirmationDialog';
+import type { ReactNode } from 'react';
 
 const meta: Meta<typeof DialogType> = {
   component: DialogType,
@@ -29,10 +30,15 @@ const useStyles = createStyles({
   },
 });
 
-const useTestDialog = createDialog('TestDialog', ({ Dialog, Content, Actions, OkButton }) => () => (
+interface Props {
+  something: number;
+  children: ReactNode;
+}
+
+const useTestDialog = createDialog('TestDialog', ({ Dialog, Content, Actions, OkButton }) => ({ children }: Props) => () => (
   <Dialog title={'Test Dialog'}>
     <Content>
-      This is the content of the Dialog
+      {children}
     </Content>
     <Actions>
       <OkButton />
@@ -71,8 +77,10 @@ export const Default: Story = {
           <Dialogs shouldBlurBackground>
             <Flex tagName="background" className={css.background} />
             <Flex className={css.text}>This should be blurred!</Flex>
-            <TestDialog />
-            <ConfirmationDialog />
+            <TestDialog something={123}>
+              This is the content of the dialog
+            </TestDialog>
+            <ConfirmationDialog title="Should be overridden" message="Should be overridden" />
           </Dialogs>
         </StorybookComponent>
       </Flex>

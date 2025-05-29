@@ -1,5 +1,7 @@
-import { ReactNode, Ref, useEffect, useRef, useState } from 'react';
-import { UseActions, useBooleanState, useBound } from '../../hooks';
+import type { ReactNode, Ref } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { UseActions } from '../../hooks';
+import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';

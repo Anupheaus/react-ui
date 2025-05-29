@@ -1,5 +1,6 @@
 import { createComponent } from '../Component';
-import { InternalText, InternalTextProps } from '../InternalText';
+import type { InternalTextProps } from '../InternalText';
+import { InternalText } from '../InternalText';
 
 interface Props extends InternalTextProps<string> {
   multiline?: number;

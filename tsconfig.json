@@ -17,7 +17,12 @@
     ],
     "target": "es6",
     "sourceMap": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@anupheaus/common": [
+        "../common/src"
+      ]
+    }
   },
   "include": [
     "src/**/*"

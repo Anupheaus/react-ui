@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { HelpInfo } from '../HelpInfo';
@@ -6,6 +6,7 @@ import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
 import { createStyles } from '../../theme';
+import { useUIState } from '../../providers';
 
 interface Props {
   className?: string;
@@ -14,6 +15,7 @@ interface Props {
   children?: ReactNode;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
+
 const useStyles = createStyles(({ fields: { label } }) => ({
   label: {
     display: 'flex',
@@ -59,9 +61,15 @@ export const Label = createComponent('Label', ({
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
+  const { isReadOnly } = useUIState();
   if (children == null) return null;
 
   const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
+
+  const handleClick = useBound((event: MouseEvent<HTMLDivElement>) => {
+    if (isReadOnly) return;
+    onClick?.(event);
+  });
 
   return (
     <Tag name="label" className={join(css.label, className)}>
@@ -69,9 +77,9 @@ export const Label = createComponent('Label', ({
         <Skeleton type="text">
           <Tag
             name="label-text"
-            className={join(css.labelText, onClick != null && css.isClickable)}
+            className={join(css.labelText, onClick != null && !isReadOnly && css.isClickable)}
             onMouseDown={onClick != null ? stopPropagation : undefined}
-            onClick={onClick}
+            onClick={handleClick}
           >
             {children}
           </Tag>

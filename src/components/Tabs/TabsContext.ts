@@ -1,16 +1,16 @@
-import { ReactNode, createContext } from 'react';
-// import type { TabButtonProps, TabContentProps } from './Tab/Tab';
+import type { ReactNode } from 'react';
+import { createContext } from 'react';
+import type { FlexProps } from '../Flex';
 
 export interface UpsertTabProps {
   id: string;
-  // hasLabel: boolean;
   ordinalPosition?: number;
   className?: string;
   label: ReactNode;
+  testId?: string;
   children: ReactNode;
-
-  // Button(props: TabButtonProps): JSX.Element;
-  // Content(props: TabContentProps): JSX.Element;
+  noPadding?: boolean;
+  contentProps?: FlexProps;
 }
 
 export interface TabsContextProps {

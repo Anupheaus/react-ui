@@ -2,8 +2,10 @@ import { is } from '@anupheaus/common';
 import { useMemo } from 'react';
 import { useBound, useDistributedState } from '../../hooks';
 import { createComponent } from '../Component';
-import { TabComponent, TabProps } from './Tab';
-import { TabsProps, TabsComponent } from './Tabs';
+import type { TabProps } from './Tab';
+import { TabComponent } from './Tab';
+import type { TabsProps } from './Tabs';
+import { TabsComponent } from './Tabs';
 
 export function useTabs() {
   const { state, set, get, getAndObserve } = useDistributedState(() => 0);

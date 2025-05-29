@@ -25,13 +25,14 @@ const useStyles = createLegacyStyles({
     },
 
     '&.blur-background > *:not(windows)': {
-      filter: 'blur(2px)',
+      filter: 'blur(2px) brightness(0.8)',
     },
   },
   windows: {
     position: 'absolute',
     inset: 0,
     pointerEvents: 'none',
+    zIndex: 1000,
     '& window': {
       pointerEvents: 'all',
     },
@@ -64,7 +65,7 @@ export const Dialogs = createComponent('Dialogs', ({
   return (
     <Tag name="dialogs" className={join(css.dialogs, shouldBlurBackground && areDialogsOpen && 'blur-background')}>
       <DialogsManagerIdContext.Provider value={managerId}>
-        <Windows id={managerId} className={css.windows} onChange={handleStatesChanged} />
+        <Windows id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction')} onChange={handleStatesChanged} />
         {children}
       </DialogsManagerIdContext.Provider>
     </Tag >

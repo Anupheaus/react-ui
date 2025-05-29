@@ -13,17 +13,16 @@ interface Props {
 }
 
 export const WindowAction = createComponent('WindowAction', ({
-  value = 'ok',
+  value,
   children,
   onClick,
 }: Props) => {
   const { id, managerId } = useContext(WindowContext);
   const manager = WindowsManager.get(managerId);
 
-
   const handleClick = useBound(async () => {
     if (onClick) await onClick();
-    manager.close(id, value);
+    if (value != null) manager.close(id, value);
   });
 
   return (

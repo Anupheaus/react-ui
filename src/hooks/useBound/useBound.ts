@@ -1,5 +1,6 @@
-import { AnyFunction, MapOf } from '@anupheaus/common';
-import { MutableRefObject, useRef } from 'react';
+import type { AnyFunction, MapOf } from '@anupheaus/common';
+import type { MutableRefObject } from 'react';
+import { useRef } from 'react';
 
 // interface BinderCache<T> {
 //   cachedFunc: T | undefined;

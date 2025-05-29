@@ -1,7 +1,10 @@
 import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa';
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
-  FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser,
+  FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser, FiCopy, FiArrowUp, FiArrowDown,
+  FiSliders,
+  FiMail,
+  FiPhone,
 } from 'react-icons/fi';
 import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
 import type { IconType } from '../../theme';
@@ -38,9 +41,16 @@ export const LocalIconDefinitions = {
   'tick': FiCheck,
   'cross': FiX,
   'add': FiPlus,
+  'edit': FiEdit2,
   'ellipsis-menu': FiMoreVertical,
   'chip-delete': FiX,
   'user': FiUser,
+  'copy': FiCopy,
+  'arrow-up': FiArrowUp,
+  'arrow-down': FiArrowDown,
+  'filters': FiSliders,
+  'email': FiMail,
+  'phone': FiPhone,
 } satisfies IconDefinitions;
 
 export type IconName = keyof typeof LocalIconDefinitions;

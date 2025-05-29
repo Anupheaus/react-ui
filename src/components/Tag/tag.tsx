@@ -1,7 +1,8 @@
 /** @jsx jsx */
-import { createElement, CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref, useMemo } from 'react';
+import type { CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref } from 'react';
+import { createElement, useMemo } from 'react';
 import { createComponent } from '../Component';
-import { AnyObject } from '@anupheaus/common';
+import type { AnyObject } from '@anupheaus/common';
 import { TooltipRenderer } from '../Tooltip/TooltipRenderer';
 import { useDOMRef } from '../../hooks/useDOMRef';
 
@@ -10,6 +11,7 @@ interface Props extends Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, H
   className?: string;
   width?: string | number;
   ref?: Ref<HTMLDivElement | null>;
+  testId?: string;
 }
 
 export const Tag = createComponent('Tag', ({
@@ -17,6 +19,7 @@ export const Tag = createComponent('Tag', ({
   className,
   children,
   ref: passedRef,
+  testId,
   ...rest
 }: Props) => {
   const { style: providedStyle, width, ...props } = {
@@ -37,15 +40,15 @@ export const Tag = createComponent('Tag', ({
       ...providedStyle,
       width: width ?? providedStyle?.width,
     };
-    if (Object.keys(newStyle).length === 0) return undefined;
-    return newStyle;
+    if (Object.values(newStyle).removeNull().length === 0) return undefined;
+    return JSON.parse(JSON.stringify(newStyle));
   }, [providedStyle, width]);
 
   return (
     <TooltipRenderer>
       {createElement(
         name,
-        { key: name, ...props, style, ref },
+        { key: name, ...props, style, ref, 'data-testid': testId },
         children,
       )}
     </TooltipRenderer>

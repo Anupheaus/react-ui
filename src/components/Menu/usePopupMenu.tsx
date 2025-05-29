@@ -1,13 +1,16 @@
-import { PaperProps, Popover, PopoverOrigin, PopoverProps } from '@mui/material';
-import { ComponentProps, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { PaperProps, PopoverOrigin, PopoverProps } from '@mui/material';
+import { Popover } from '@mui/material';
+import type { ComponentProps } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount } from '../../hooks';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Menu } from './Menu';
-import { PopupMenuContext, PopupMenuContextProps } from './PopupMenuContext';
+import type { PopupMenuContextProps } from './PopupMenuContext';
+import { PopupMenuContext } from './PopupMenuContext';
 import { SubMenuProvider } from './SubMenuProvider';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   slotProps: {
     // pointerEvents: 'none',
   },
@@ -72,19 +75,6 @@ export function usePopupMenu() {
       }
     }, [propsIsOpen]);
 
-    // useEffect(() => {
-    //   if (isOpen && !isOver && canBeAutoHiddenRef.current && propsIsOpen == null) {
-    //     autoHideTimeoutRef.current = setTimeout(() => {
-    //       if (isUnmounted()) return;
-    //       canBeAutoHiddenRef.current = false;
-    //       setIsOpen(false);
-    //     }, 400);
-    //   } else {
-    //     clearTimeout(autoHideTimeoutRef.current as any);
-    //     if (isOpen && isOver && propsIsOpen == null) canBeAutoHiddenRef.current = true;
-    //   }
-    // }, [isOpen, isOver, propsIsOpen]);
-
     const close = useBound(() => batchUpdate(() => {
       setIsOpen(false);
       setIsNotOver();
@@ -139,7 +129,6 @@ export function usePopupMenu() {
         PaperProps={paperProps}
         disableEnforceFocus={disableEnforceFocus}
         disableAutoFocus={disableAutoFocus}
-        // hideBackdrop
         onClose={handleOnClose}
       >
         <PopupMenuContext.Provider value={context}>

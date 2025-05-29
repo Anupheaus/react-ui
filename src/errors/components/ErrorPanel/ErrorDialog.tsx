@@ -1,6 +1,10 @@
 import { createDialog } from '../../../components/Dialog';
 
-export const useErrorDialog = createDialog('ErrorDialog', ({ Dialog, Content, Actions, OkButton }) => (error: Error) => (
+interface Props {
+  error: Error;
+}
+
+export const useErrorDialog = createDialog('ErrorDialog', ({ Dialog, Content, Actions, OkButton }) => ({ error }: Props) => () => (
   <Dialog title={`Error: ${error.name}`}>
     <Content>
       {error.message}

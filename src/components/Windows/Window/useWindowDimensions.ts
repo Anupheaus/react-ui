@@ -74,6 +74,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     if (preparationClassName === undefined || isMaximized === true) return;
     if (actualWidth !== width || actualHeight !== height) {
       batchUpdates(() => {
+        setState({ width: undefined, height: undefined });
         setInitialDimensionsHaveBeenSet(false);
         setPreparationClassName('preparing');
       });

@@ -31,7 +31,7 @@ function validateAdornments(adornments: ReactNode | ReactNode[]): boolean {
   return true;
 }
 
-const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, active } } }) => ({
+const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, active } } }, { applyTransition }) => ({
   field: {
     display: 'flex',
     flexGrow: 0,
@@ -57,9 +57,12 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
     boxSizing: 'border-box',
     position: 'relative',
     overflow: 'hidden',
-    transitionProperty: 'border-color, background-color, color',
-    transitionDuration: '0.4s',
-    transitionTimingFunction: 'ease',
+    ...applyTransition('border-color, background-color, color'),
+
+    '&.full-height': {
+      flexGrow: 1,
+      flexShrink: 1,
+    },
 
     [pseudoClasses.active]: {
       ...active,
@@ -109,6 +112,8 @@ interface Props extends FieldProps {
   disableRipple?: boolean;
   style?: CSSProperties;
   minWidth?: string | number;
+  fullHeight?: boolean;
+  skeleton?: 'outlineOnly';
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
   onContainerSelect?(): void;
 }
@@ -138,6 +143,8 @@ export const Field = createComponent('Field', ({
   disableRipple = false,
   hideOptionalLabel,
   minWidth,
+  fullHeight,
+  skeleton,
   onBlur,
   onContainerSelect,
   ...props
@@ -165,6 +172,10 @@ export const Field = createComponent('Field', ({
 
   const wrapInSkeletons = (content: ReactNode) => {
     if (disableSkeleton) return content;
+    if (skeleton === 'outlineOnly') return (<>
+      {content}
+      <Skeleton type="outline" className={css.skeleton} />
+    </>);
     return (<>
       <NoSkeletons>{content}</NoSkeletons>
       <Skeleton type="full" className={css.skeleton} />
@@ -174,7 +185,7 @@ export const Field = createComponent('Field', ({
   const wrapContent = (content: ReactNode) => {
     if (noContainer) return content;
     return (
-      <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && css.isLoading, containerClassName)} tabIndex={allowFocus ? 0 : -1}
+      <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && css.isLoading, fullHeight && 'full-height', containerClassName)} tabIndex={allowFocus ? 0 : -1}
         onFocus={wrappedShowToolbars} onBlur={delayedHideToolbars}>
         <Ripple isDisabled={disableRipple} />
         {wrapInSkeletons(<>

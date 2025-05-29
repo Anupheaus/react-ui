@@ -1,11 +1,18 @@
 import type { WindowDefinitionState } from './InternalWindowModels';
 
 type DefinitionId = string;
-type DefinitionInstanceId = string;
-type CombinedDefinitionAndDefinitionInstanceId = string;
+type ManagerId = string;
+type CombinedDefinitionAndManagerId = string;
 type WindowId = string;
 
+interface RegistrationProps {
+  definitionId: DefinitionId;
+  managerId: ManagerId;
+  doNotPersist: boolean;
+}
+
 interface WindowDefinition {
+  doNotPersist: boolean;
   renderer(definitionStates: WindowDefinitionState[]): void;
 }
 
@@ -16,34 +23,32 @@ class WindowsDefinitionsManager {
     this.#windowIdToCombinedDefinitionId = new Map();
   }
 
-  #definitions: Map<CombinedDefinitionAndDefinitionInstanceId, WindowDefinition>;
-  #instances: Map<CombinedDefinitionAndDefinitionInstanceId, WindowDefinitionState[]>;
-  #windowIdToCombinedDefinitionId: Map<WindowId, CombinedDefinitionAndDefinitionInstanceId>;
+  #definitions: Map<CombinedDefinitionAndManagerId, WindowDefinition>;
+  #instances: Map<CombinedDefinitionAndManagerId, Map<string, WindowDefinitionState>>;
+  #windowIdToCombinedDefinitionId: Map<WindowId, CombinedDefinitionAndManagerId>;
 
-  public register(definitionId: DefinitionId, definitionInstanceId: DefinitionInstanceId, renderer: (definitionStates: WindowDefinitionState[]) => void): void {
-    const combinedKey = this.#combine(definitionId, definitionInstanceId);
-    this.#definitions.getOrSet(combinedKey, () => ({ renderer }));
+  public register({ definitionId, managerId, doNotPersist }: RegistrationProps, renderer: (definitionStates: WindowDefinitionState[]) => void): void {
+    const combinedKey = this.#combine(definitionId, managerId);
+    this.#definitions.getOrSet(combinedKey, () => ({ doNotPersist, renderer }));
     this.#updateRenderers(combinedKey);
   }
 
-  public unregister(definitionId: DefinitionId, definitionInstanceId: DefinitionInstanceId) {
-    const combinedKey = this.#combine(definitionId, definitionInstanceId);
+  public unregister(definitionId: DefinitionId, managerId: ManagerId) {
+    const combinedKey = this.#combine(definitionId, managerId);
     this.#definitions.delete(combinedKey);
   }
 
-  public addInstance(windowId: string, managerId: string, definitionId: string, definitionInstanceId: string) {
-    const combinedKey = this.#combine(definitionId, definitionInstanceId);
-    let instances = this.#instances.get(combinedKey);
-    if (instances == null) { instances = []; this.#instances.set(combinedKey, instances); }
-    const indexOf = instances.findIndex(state => state.windowId === windowId);
-    if (indexOf == -1) {
-      instances.push({ windowId, managerId });
-      this.#windowIdToCombinedDefinitionId.set(windowId, combinedKey);
-    } else {
-      if (instances[indexOf].managerId === managerId) return;
-      instances[indexOf] = { windowId, managerId };
-    }
+  public addInstance(windowId: string, managerId: string, definitionId: string) {
+    const combinedKey = this.#combine(definitionId, managerId);
+    const instances = this.#instances.getOrSet(combinedKey, () => new Map());
+    instances.set(windowId, { windowId, managerId });
+    this.#windowIdToCombinedDefinitionId.set(windowId, combinedKey);
     this.#updateRenderers(combinedKey);
+  }
+
+  public getDefinition(definitionId: DefinitionId, managerId: ManagerId) {
+    const combinedKey = this.#combine(definitionId, managerId);
+    return this.#definitions.get(combinedKey);
   }
 
   public removeInstance(windowId: string) {
@@ -51,23 +56,21 @@ class WindowsDefinitionsManager {
     if (combinedKey == null) return;
     const instances = this.#instances.get(combinedKey);
     if (instances == null) return;
-    const newInstances = instances.removeByFilter(state => state.windowId === windowId);
-    if (newInstances.length == instances.length) return;
-    this.#instances.set(combinedKey, newInstances);
+    instances.delete(windowId);
     this.#windowIdToCombinedDefinitionId.delete(windowId);
     this.#updateRenderers(combinedKey);
   }
 
-  #updateRenderers(combinedKey: CombinedDefinitionAndDefinitionInstanceId) {
+  #updateRenderers(combinedKey: CombinedDefinitionAndManagerId) {
     const definition = this.#definitions.get(combinedKey);
     if (definition == null) return;
     const instances = this.#instances.get(combinedKey);
     if (instances == null) return;
-    definition.renderer(instances);
+    definition.renderer(Array.from(instances.values()));
   }
 
-  #combine(definitionId: string, definitionInstanceId: string): CombinedDefinitionAndDefinitionInstanceId {
-    return `${definitionId}:${definitionInstanceId}`;
+  #combine(definitionId: string, managerId: string): CombinedDefinitionAndManagerId {
+    return `${definitionId}:${managerId}`;
   }
 }
 

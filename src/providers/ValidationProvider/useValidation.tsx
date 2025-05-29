@@ -1,10 +1,14 @@
-import { ReactNode, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { createComponent } from '../../components/Component';
-import { Collection, PromiseMaybe, Records, is } from '@anupheaus/common';
-import { ValidationRecord, ValidationTools } from './ValidationModels';
-import { ValidateSection as ValidateSectionComponent, ValidateSectionProps } from './ValidateSection';
+import type { PromiseMaybe } from '@anupheaus/common';
+import { Collection, Records, is } from '@anupheaus/common';
+import type { ValidationRecord, ValidationTools } from './ValidationModels';
+import type { ValidateSectionProps } from './ValidateSection';
+import { ValidateSection as ValidateSectionComponent } from './ValidateSection';
 import { useBound, useCallbacks, useForceUpdate, useId } from '../../hooks';
 import { subscribeToParentValidation } from './subscribeToParentValidation';
+import { useUIState } from '../UIStateProvider';
 
 function createTools(): ValidationTools {
   return {
@@ -22,6 +26,8 @@ export function useValidation(id?: string) {
   const invalidSections = useRef(new Collection<string>()).current;
   const highlightErrorsCallbacks = useCallbacks<(shouldHighlight: boolean) => void>();
   const errorsAreHighlightedRef = useRef(false);
+  const { isReadOnly } = useUIState();
+
   subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks);
 
   const highlightValidationErrors = useBound(() => {
@@ -42,6 +48,10 @@ export function useValidation(id?: string) {
     const update = useForceUpdate();
     highlightErrorsCallbacks.register(setHighlight);
 
+    if (isReadOnly && errors.has(validateId)) {
+      errors.remove(validateId);
+    }
+
     const setError = (error: void | ReactNode | undefined) => {
       if (error != null) {
         errors.upsert({ id: validateId, message: error, validationId: id });
@@ -50,7 +60,7 @@ export function useValidation(id?: string) {
       }
     };
 
-    const error = delegates.findMap(delegate => {
+    const error = (isReadOnly ? [] : delegates).findMap(delegate => {
       const result = delegate(createTools());
       if (is.promise(result)) {
         const setErrorAndUpdate = (response: void | ReactNode | undefined) => { setError(response); update(); };
@@ -62,7 +72,10 @@ export function useValidation(id?: string) {
       }
     }) as void | boolean | ReactNode | undefined;
 
-    const enableErrors = useBound(() => setHighlight(true));
+    const enableErrors = useBound(() => {
+      if (isReadOnly) return;
+      setHighlight(true);
+    });
 
     return {
       error: highlight === true ? ((error === true ? (errors.get(validateId)?.message ?? 'Validation result pending...') : error) ?? null) : null,

@@ -7,6 +7,7 @@ import { useRipple } from '../../Ripple';
 import { useBound } from '../../../hooks';
 import { Flex } from '../../Flex';
 import { useListItem } from '../../InternalList';
+import type { ReactNode } from 'react';
 
 const useStyles = createStyles(({ pseudoClasses, list: { selectableItem: item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -44,15 +45,40 @@ const useStyles = createStyles(({ pseudoClasses, list: { selectableItem: item } 
   };
 });
 
-interface Props<T extends ReactListItem> {
+interface BasicListItemProps<T extends ReactListItem> {
   className?: string;
+  disableRipple?: boolean;
   onSelect?(item: T, index: number): void;
 }
 
-export const ListItem = createComponent('ListItem', <T extends ReactListItem = ReactListItem>({
+interface ListItemWithRenderProps<T extends ReactListItem> extends BasicListItemProps<T> {
+  children(item: T | undefined, index: number, isLoading: boolean): ReactNode;
+}
+
+
+const ListItemWithRender = createComponent('ListItemWithRender', <T extends ReactListItem = ReactListItem>({
+  children,
+  ...props
+}: ListItemWithRenderProps<T>) => {
+  const { item, index, isLoading } = useListItem<T>();
+
+  return (
+    <ListItemWithChildren {...props}>
+      {children(item, index, isLoading)}
+    </ListItemWithChildren>
+  );
+});
+
+interface ListItemWithChildrenProps<T extends ReactListItem> extends BasicListItemProps<T> {
+  children?: ReactNode;
+}
+
+const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends ReactListItem = ReactListItem>({
   className,
+  disableRipple = false,
   onSelect,
-}: Props<T>) => {
+  children,
+}: ListItemWithChildrenProps<T>) => {
   const { css, join } = useStyles();
   const { item, index, isLoading } = useListItem<T>();
   const { isReadOnly } = useUIState();
@@ -74,10 +100,33 @@ export const ListItem = createComponent('ListItem', <T extends ReactListItem = R
         className={join(css.listItem, isLoading && 'is-loading', isReadOnly && 'is-read-only', isClickable && 'is-clickable', className)}
         allowFocus
         onClick={handleSelect}
+        disableGrow
       >
-        <Ripple stayWithinContainer />
-        {ReactListItem.render(item)}
+        <Ripple stayWithinContainer isDisabled={disableRipple} />
+        {children}
       </Flex>
     </UIState>
+  );
+});
+
+export type ListItemProps<T extends ReactListItem> = ListItemWithRenderProps<T> | ListItemWithChildrenProps<T>;
+
+export const ListItem = createComponent('ListItem', <T extends ReactListItem = ReactListItem>({
+  className,
+  disableRipple = false,
+  onSelect,
+  children = ReactListItem.render,
+}: ListItemProps<T>) => {
+  if (is.function(children)) {
+    return (
+      <ListItemWithRender className={className} disableRipple={disableRipple} onSelect={onSelect}>
+        {children}
+      </ListItemWithRender>
+    );
+  }
+  return (
+    <ListItemWithChildren className={className} disableRipple={disableRipple} onSelect={onSelect}>
+      {children}
+    </ListItemWithChildren>
   );
 });

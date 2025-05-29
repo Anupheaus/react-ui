@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { useBound, useDrag, UseDragEvent } from '../../hooks';
+import type { UseDragEvent } from '../../hooks';
+import { useBound, useDrag } from '../../hooks';
 
 interface Props {
   isEnabled: boolean;
