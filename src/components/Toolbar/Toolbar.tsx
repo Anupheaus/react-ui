@@ -1,5 +1,5 @@
 import type { FocusEvent, ReactNode } from 'react';
-import { useMemo, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
@@ -10,10 +10,14 @@ import { useDelegatedBound } from '../../hooks';
 
 const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   toolbar: {
-    display: 'flex',
+    display: 'none',
     border: field.border,
     borderColor: field.borderColor,
     borderStyle: 'solid',
+
+    '&.is-visible': {
+      display: 'flex',
+    },
 
     '&.is-floating': {
       border: 'none',
@@ -40,6 +44,8 @@ const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   },
   popoverPaper: {
     pointerEvents: 'all',
+    display: 'flex',
+    flexDirection: 'row',
   },
 }));
 
@@ -56,12 +62,12 @@ export const Toolbar = createComponent('Toolbar', ({
   className,
   children,
   isFloating = false,
-  isVisible = false,
+  isVisible = true,
   onBlur,
   onFocus,
 }: Props) => {
   const { css, join } = useStyles();
-  const elementRef = useRef<HTMLDivElement>(null);
+  const [element, setElement] = useState<HTMLDivElement | null>(null);
 
   const handleOnFocusOrBlur = useDelegatedBound((location: number, delegate: ((event: FocusEvent<HTMLDivElement>) => void) | undefined) => (event: FocusEvent<HTMLDivElement>) => {
     if (location === 0 && isFloating === false) delegate?.(event);
@@ -85,17 +91,19 @@ export const Toolbar = createComponent('Toolbar', ({
   const transformOrigin = useMemo<PopoverOrigin | undefined>(() => isFloating === 'left' ? { vertical: 'center', horizontal: 'right' }
     : (isFloating === 'right' || isFloating === true) ? { vertical: 'center', horizontal: 'left' } : undefined, [isFloating]);
 
-  if (isFloating !== false) content = (
-    <Popover open={isVisible} anchorEl={elementRef.current} className={css.popover} classes={classes} anchorOrigin={anchorOrigin} transformOrigin={transformOrigin} elevation={4}
+  if (isFloating !== false && element != null) content = (
+    <Popover open={isVisible} anchorEl={element} className={css.popover} classes={classes} anchorOrigin={anchorOrigin} transformOrigin={transformOrigin} elevation={4}
       onFocusCapture={handleOnFocusOrBlur(1, onFocus)} onBlurCapture={handleOnFocusOrBlur(1, onBlur)}
       disableAutoFocus disableEnforceFocus disableRestoreFocus hideBackdrop>
       {content}
     </Popover>
   );
 
+  if (isFloating !== false && element == null) isVisible = false;
+
   return (
     <Tag
-      ref={elementRef}
+      ref={setElement}
       name="toolbar"
       className={join(css.toolbar, isFloating !== false && 'is-floating', isVisible && 'is-visible', className)}
       onBlur={handleOnFocusOrBlur(0, onBlur)}

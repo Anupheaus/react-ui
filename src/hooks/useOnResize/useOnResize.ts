@@ -3,7 +3,6 @@ import useOriginalResizeObserver from 'use-resize-observer';
 import { useBound } from '../useBound';
 import { useOnUnmount } from '../useOnUnmount';
 
-
 interface UseResizerProps {
   isEnabled?: boolean;
   observeWidthOnly?: boolean;
@@ -41,9 +40,11 @@ export function useOnResize({ isEnabled = true, observeHeightOnly = false, obser
   });
 
   useEffect(() => {
-    setTimeout(checkDimensions, 1);
-    setTimeout(checkDimensions, 10);
-    setTimeout(checkDimensions, 100);
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
+    timeouts.push(setTimeout(checkDimensions, 1));
+    timeouts.push(setTimeout(checkDimensions, 10));
+    timeouts.push(setTimeout(checkDimensions, 100));
+    return () => timeouts.forEach(clearTimeout);
   });
 
   const hasDimensions = width != null && height != null;
@@ -52,6 +53,7 @@ export function useOnResize({ isEnabled = true, observeHeightOnly = false, obser
     hasDimensions,
     width,
     height,
+    elementRef: lastElementRef,
     target,
   };
 }

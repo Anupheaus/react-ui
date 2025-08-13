@@ -53,3 +53,4 @@ export * from './Configurator';
 export * from './Email';
 export * from './PhoneNumber';
 export * from './Selector';
+export * from './Expander';

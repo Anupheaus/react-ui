@@ -4,14 +4,14 @@ import type { ReactNode } from 'react';
 import type { IconName } from '../components/Icon/Icons';
 import { Skeleton } from '../components/Skeleton';
 
-export interface ReactListItem extends ListItem {
+export type ReactListItem<T = void> = ListItem & {
   label?: ReactNode;
   iconName?: IconName;
   tooltip?: ReactNode;
   className?: string;
   isSelected?: boolean;
   onSelect?(): void;
-}
+} & (T extends void ? {} : { data: T; });
 
 export namespace ReactListItem {
 

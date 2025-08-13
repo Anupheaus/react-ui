@@ -21,23 +21,21 @@ export function useForceUpdate() {
     if (isRenderingRef.current) {
       if (lazy) return;
       shouldUpdateStateRef.current = true;
+      setTimeout(() => {
+        if (isUnmounted() || !shouldUpdateStateRef.current) return;
+        shouldUpdateStateRef.current = false;
+        setValue({});
+      }, 0);
     } else {
       setValue({});
-      // shouldUpdateStateRef.current = true;
-      // setTimeout(() => {
-      //   if (!shouldUpdateStateRef.current) return;
-      //   shouldUpdateStateRef.current = false;
-      //   setValue({});
-      // }, 0);
     }
   });
 
   useLayoutEffect(() => {
     isRenderingRef.current = false;
-    if (shouldUpdateStateRef.current) {
-      shouldUpdateStateRef.current = false;
-      update();
-    }
+    if (!shouldUpdateStateRef.current) return;
+    shouldUpdateStateRef.current = false;
+    update();
   });
 
   return update;

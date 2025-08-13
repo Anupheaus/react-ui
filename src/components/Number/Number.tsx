@@ -1,5 +1,5 @@
 import { is, to } from '@anupheaus/common';
-import type { ReactElement } from 'react';
+import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useBooleanState, useBound } from '../../hooks';
@@ -14,7 +14,7 @@ interface Props extends InternalTextProps<number | undefined> {
   min?: number;
   max?: number;
   step?: number;
-  endAdornments?: ReactElement[];
+  endAdornments?: ReactNode;
   allowDecimals?: boolean | number;
   allowNegatives?: boolean;
   type?: 'number' | 'currency' | 'percent' | 'count'; // | 'phoneNumber';
@@ -56,6 +56,7 @@ function allowDecimalsResult(allowDecimals: boolean | number | undefined, type: 
 }
 
 export const Number = createComponent('Number', ({
+  startAdornments: providedStartAdornments,
   endAdornments: providedEndAdornments,
   value,
   min,
@@ -82,35 +83,42 @@ export const Number = createComponent('Number', ({
   }, [value, type]);
 
   const startAdornments = useMemo(() => {
-    switch (type) {
-      case 'count': case 'percent': return [
-        ...(isReadOnly ? [] : [
+    const ownStartAdornments = (() => {
+      if (isReadOnly) return null;
+      switch (type) {
+        case 'count': case 'percent': return (
           <Button
             key="decrease"
             onClick={decrease}
           >
             <Icon name="number-decrease" size="small" />
           </Button>
-        ]),
-      ];
-    }
-  }, []);
+        );
+      }
+      return null;
+    })();
+    if (ownStartAdornments == null && providedStartAdornments == null) return null;
+    return <>{ownStartAdornments}{providedStartAdornments}</>;
+  }, [type, providedStartAdornments, isReadOnly]);
 
   const endAdornments = useMemo(() => {
-    switch (type) {
-      case 'count': case 'percent': return [
-        ...(isReadOnly ? [] : [
+    if (isReadOnly) return null;
+    const ownEndAdornments = (() => {
+      switch (type) {
+        case 'count': case 'percent': return (
           <Button
             key="increase"
             onClick={increase}
           >
             <Icon name="number-increase" size="small" />
           </Button>
-        ]),
-        ...(providedEndAdornments ?? []),
-      ];
-    }
-  }, [providedEndAdornments, type]);
+        );
+      }
+      return null;
+    })();
+    if (ownEndAdornments == null && providedEndAdornments == null) return null;
+    return <>{ownEndAdornments}{providedEndAdornments}</>;
+  }, [providedEndAdornments, type, isReadOnly]);
 
   const error = useMemo(() => {
     if (providedError) return providedError;

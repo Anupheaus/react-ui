@@ -7,9 +7,9 @@ import { useRipple } from '../../Ripple';
 import { useBound } from '../../../hooks';
 import { Flex } from '../../Flex';
 import { useListItem } from '../../InternalList';
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 
-const useStyles = createStyles(({ pseudoClasses, list: { selectableItem: item } }, { applyTransition, valueOf }) => {
+const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
   return {
     listItem: {
@@ -48,6 +48,7 @@ const useStyles = createStyles(({ pseudoClasses, list: { selectableItem: item } 
 interface BasicListItemProps<T extends ReactListItem> {
   className?: string;
   disableRipple?: boolean;
+  actions?: ReactNode;
   onSelect?(item: T, index: number): void;
 }
 
@@ -76,6 +77,7 @@ interface ListItemWithChildrenProps<T extends ReactListItem> extends BasicListIt
 const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends ReactListItem = ReactListItem>({
   className,
   disableRipple = false,
+  actions = null,
   onSelect,
   children,
 }: ListItemWithChildrenProps<T>) => {
@@ -84,6 +86,24 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
   const { isReadOnly } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
   const isClickable = is.function(onSelect) || is.function(item?.onSelect);
+
+  const content = useMemo(() => {
+    if (actions == null) return children;
+    return (
+      <Flex tagName="list-item-content" gap="fields" valign="center">
+        {children}
+        <Flex tagName="list-item-content-actions" disableGrow>
+          {actions}
+        </Flex>
+      </Flex>
+    );
+  }, [children, actions]);
+
+  // const alteredTheme = alterTheme(theme => ({
+  //   ripple: {
+  //     color: theme.buttons.hover.active.backgroundColor,
+  //   },
+  // }));
 
   const handleSelect = useBound(() => {
     if (isReadOnly) return;
@@ -102,8 +122,10 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
         onClick={handleSelect}
         disableGrow
       >
+        {/* <ThemeProvider theme={alteredTheme}> */}
         <Ripple stayWithinContainer isDisabled={disableRipple} />
-        {children}
+        {/* </ThemeProvider> */}
+        {content}
       </Flex>
     </UIState>
   );
@@ -114,18 +136,19 @@ export type ListItemProps<T extends ReactListItem> = ListItemWithRenderProps<T> 
 export const ListItem = createComponent('ListItem', <T extends ReactListItem = ReactListItem>({
   className,
   disableRipple = false,
+  actions,
   onSelect,
   children = ReactListItem.render,
 }: ListItemProps<T>) => {
   if (is.function(children)) {
     return (
-      <ListItemWithRender className={className} disableRipple={disableRipple} onSelect={onSelect}>
+      <ListItemWithRender className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect}>
         {children}
       </ListItemWithRender>
     );
   }
   return (
-    <ListItemWithChildren className={className} disableRipple={disableRipple} onSelect={onSelect}>
+    <ListItemWithChildren className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect}>
       {children}
     </ListItemWithChildren>
   );

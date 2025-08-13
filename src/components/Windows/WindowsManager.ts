@@ -57,7 +57,7 @@ export class WindowsManager {
 
   @bind
   public async open(state: WindowState): Promise<void> {
-    if (this.#windows.get(state.id) != null) { return this.focus(state.id); }
+    if (this.#windows.get(state.id) != null) return this.focus(state.id);
     windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId);
     return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }

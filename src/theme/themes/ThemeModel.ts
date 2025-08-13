@@ -9,6 +9,7 @@ interface ThemeStateConfig {
 interface AssistiveLabelTheme {
   fontSize: string | number;
   fontWeight: string | number;
+  color: string;
   errorTextColor: string;
 }
 

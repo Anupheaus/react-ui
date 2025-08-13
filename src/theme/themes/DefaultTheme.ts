@@ -2,6 +2,8 @@ import Color from 'color';
 import { createTheme } from '../createTheme';
 import type { Theme } from './ThemeModel';
 
+const primaryTextColor = '#000';
+
 const defaultButtons: Theme['buttons']['default'] = {
   normal: {
     backgroundColor: 'rgba(0 0 0 / 15%)',
@@ -25,6 +27,7 @@ export const DefaultTheme: Theme = {
     normal: {
       fontSize: 12,
       fontWeight: 400,
+      color: Color(primaryTextColor).alpha(0.6).hexa(),
       errorTextColor: '#b71313',
     },
     active: {},
@@ -72,7 +75,7 @@ export const DefaultTheme: Theme = {
     family: 'Roboto',
     size: 14,
     weight: 400,
-    color: '#000',
+    color: primaryTextColor,
   },
   error: {
     family: 'Roboto',
@@ -235,15 +238,15 @@ export const DefaultTheme: Theme = {
   configurator: {
     header: {
       backgroundColor: '#efefef',
-      textColor: '#000',
+      textColor: primaryTextColor,
     },
     item: {
       backgroundColor: '#d2d2d2',
-      textColor: '#000',
+      textColor: primaryTextColor,
     },
     subItem: {
       backgroundColor: '#bcbcbc',
-      textColor: '#000',
+      textColor: primaryTextColor,
     },
     slice: {
       backgroundColor: '#ada7fd',
@@ -277,19 +280,19 @@ export const DefaultTheme: Theme = {
   action: {
     normal: {
       backgroundColor: 'rgba(0 0 0 / 15%)',
-      color: '#000',
+      color: primaryTextColor,
       borderColor: 'rgba(0 0 0 / 15%)',
       fontSize: 14,
       fontWeight: 400,
     },
     active: {
       backgroundColor: 'rgba(0 0 0 / 25%)',
-      color: '#000',
+      color: primaryTextColor,
       borderColor: 'transparent',
     },
     disabled: {
       backgroundColor: 'rgba(0 0 0 / 5%)',
-      color: 'rgba(0 0 0 / 45%)',
+      color: Color(primaryTextColor).alpha(0.45).hexa(),
       borderColor: undefined as string | undefined,
     },
   },
@@ -303,13 +306,13 @@ export const DefaultTheme: Theme = {
     menuItem: {
       normal: {
         backgroundColor: 'transparent',
-        color: '#000',
+        color: primaryTextColor,
         borderColor: 'transparent',
         padding: 8,
       },
       active: {
         backgroundColor: 'rgba(0 0 0 / 10%)',
-        color: '#000',
+        color: primaryTextColor,
         borderColor: 'transparent',
       },
       disabled: {},
@@ -318,7 +321,7 @@ export const DefaultTheme: Theme = {
   toolbar: {
     normal: {
       backgroundColor: 'rgba(0 0 0 / 5%)',
-      color: '#000',
+      color: primaryTextColor,
       borderColor: 'rgba(0 0 0 / 10%)',
       padding: '0 8px',
       gap: 8,
@@ -347,7 +350,7 @@ export const DefaultTheme: Theme = {
     value: {
       normal: {
         backgroundColor: 'transparent',
-        color: '#000',
+        color: primaryTextColor,
         borderColor: 'rgba(0 0 0 / 15%)',
         fontSize: 12,
         fontWeight: 400,
@@ -355,12 +358,12 @@ export const DefaultTheme: Theme = {
       },
       active: {
         backgroundColor: 'transparent',
-        color: '#000',
+        color: primaryTextColor,
         borderColor: 'rgba(0 0 0 / 25%)',
       },
       disabled: {
         backgroundColor: 'rgba(0 0 0 / 10%)',
-        color: 'rgba(0 0 0 / 65%)',
+        color: Color(primaryTextColor).alpha(0.65).hexa(),
         borderColor: 'rgba(0 0 0 / 15%)',
       },
     },
@@ -381,7 +384,7 @@ export const DefaultTheme: Theme = {
       normal: {
         backgroundColor: '#f0f0f0',
         borderColor: '#ddd',
-        color: '#000',
+        color: primaryTextColor,
         // fontFamily: 'Roboto',
         // fontSize: 14,
         // fontWeight: 400,
@@ -413,7 +416,7 @@ export const DefaultTheme: Theme = {
     },
   },
   skeleton: {
-    color: 'rgba(0 0 0 / 10%)',
+    color: Color(primaryTextColor).alpha(0.1).hexa(),
   },
   icon: {
     normal: {

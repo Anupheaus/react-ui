@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import type { FlexProps } from '../../Flex';
@@ -18,26 +17,18 @@ const useStyles = createStyles(({ windows: { content } }) => ({
   },
 }));
 
-interface Props {
-  className?: string;
-  children?: ReactNode;
+interface Props extends Pick<FlexProps, 'className' | 'isVertical' | 'gap' | 'children' | 'valign' | 'align'> {
   disablePadding?: boolean;
-  isVertical?: boolean;
-  gap?: FlexProps['gap'];
 }
 
 export const WindowContent = createComponent('WindowContent', ({
   className,
   disablePadding = false,
-  children = null,
-  isVertical = false,
-  gap,
+  ...props
 }: Props) => {
   const { css, join } = useStyles();
 
   return (
-    <Flex tagName="window-content" className={join(css.content, disablePadding && 'no-padding', className)} disableOverflow isVertical={isVertical} gap={gap}>
-      {children}
-    </Flex>
+    <Flex  {...props} tagName="window-content" className={join(css.content, disablePadding && 'no-padding', className)} disableOverflow />
   );
 });

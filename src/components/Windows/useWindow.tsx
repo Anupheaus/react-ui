@@ -7,9 +7,9 @@ import { WindowManagerIdContext } from './WindowsContexts';
 import { useBound, useId } from '../../hooks';
 import { createComponent } from '../Component';
 
-interface Props<Name extends string, Args extends unknown[]> {
+interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
   id?: string;
-  window: ReactUIWindow<Name, Args>;
+  window: ReactUIWindow<Name, Args, CloseResponseType>;
   managerId?: string;
 }
 
@@ -25,9 +25,12 @@ function getProps<Name extends string, Args extends unknown[]>(args: unknown[]):
   return args[0] as any;
 }
 
-export function useWindow<Name extends string, Args extends unknown[]>(props: Props<Name, Args>): UseWindowApi<Name, Args>;
-export function useWindow<Name extends string, Args extends unknown[]>(window: ReactUIWindow<Name, Args>, id?: string): UseWindowApi<Name, Args>;
-export function useWindow<Name extends string, Args extends unknown[]>(...args: unknown[]) {
+export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(props: Props<Name, Args, CloseResponseType>): UseWindowApi<Name, Args, CloseResponseType>;
+export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(window: ReactUIWindow<Name, Args, CloseResponseType>,
+  id: string): UseWindowApi<Name, Args, CloseResponseType>;
+// eslint-disable-next-line max-len
+export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(window: ReactUIWindow<Name, Args, CloseResponseType>): UseWindowApiWithId<Name, Args, CloseResponseType>;
+export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
   const hookId = useId();
   const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
   const id = providedId ?? hookId;
@@ -42,13 +45,13 @@ export function useWindow<Name extends string, Args extends unknown[]>(...args: 
 
   const openWindow = useBound(async (...openArgs: Args) => {
     const manager = WindowsManager.get(managerId);
+    const windowId = (openArgs.length > window.argsLength && providedId == null ? openArgs.shift() as string : undefined) ?? id;
     const initialState = (openArgs.length > window.argsLength ? openArgs.pop() : {}) as InitialWindowState;
-    return manager.open({ id, definitionId: definitionIdRef.current, managerId, args: openArgs, ...initialState });
+    return manager.open({ id: windowId, definitionId: definitionIdRef.current, managerId, args: openArgs, ...initialState });
   });
 
-  const closeWindow = useBound(async (...closeArgs: unknown[]) => {
+  const closeWindow = useBound(async (reason: CloseResponseType | undefined) => {
     const manager = WindowsManager.get(managerId);
-    const reason = closeArgs.shift() as string | undefined;
     return manager.close(id, reason);
   });
 
@@ -69,5 +72,5 @@ export function useWindow<Name extends string, Args extends unknown[]>(...args: 
     [`restore${window.name}`]: restoreWindow,
     [`maximize${window.name}`]: maximizeWindow,
     [window.name]: InstancedWindow,
-  } as UseWindowApiWithId<Name, Args> | UseWindowApi<Name, Args>;
+  } as UseWindowApiWithId<Name, Args, CloseResponseType> | UseWindowApi<Name, Args, CloseResponseType>;
 }

@@ -37,36 +37,37 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
   function useField<Name extends StringKeyOf<SourceType>>(name: Name): UseField<Name, ValueTypeOf<Name, SourceType>>;
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>): UseField<Name, ValueType>;
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>,
-    defaultValue: () => ValueType): UseFieldWithDefault<Name, ValueType>;
+    defaultValue: ValueType | (() => ValueType)): UseFieldWithDefault<Name, ValueType>;
   function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>,
-    defaultValue?: () => ValueType): UseFieldWithDefault<Name, ValueType>;
-  function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>, defaultValue?: () => ValueType): any {
+    defaultValue?: ValueType | (() => ValueType)): UseFieldWithDefault<Name, ValueType>;
+  function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>, 
+    defaultValue?: ValueType | (() => ValueType)): any {
     if (!is.function(onGet)) onGet = (value: SourceType) => (value as AnyObject)[name] as ValueType;
     if (!is.function(onSet)) onSet = (value: ValueType) => ({ [name]: value ?? null } as unknown as DeepPartial<SourceType>);
     const refresh = useForceUpdate();
     const targetValue = get();
-    const newValue = (targetValue!=null?onGet(targetValue) : undefined) ?? defaultValue?.();
+    const newValue = (targetValue!=null?onGet(targetValue) : undefined) ?? (is.function(defaultValue) ? defaultValue() : defaultValue);
     const valueRef = useRef(newValue);
     const isFirstTimeRef = useRef(true);
-
+    
     if(isFirstTimeRef.current){
       isFirstTimeRef.current = false;
       refresh();
     }
-
+    
     onChangeObservable(newTarget=>{            
-      const getNewValue = (newTarget==null?undefined: onGet!(newTarget)) ?? defaultValue?.();      
+      const getNewValue = (newTarget==null?undefined: onGet!(newTarget)) ?? (is.function(defaultValue) ? defaultValue() : defaultValue);      
       if(valueRef.current===getNewValue) return; // no change
       valueRef.current = getNewValue;
       refresh();
     });
-
+    
     if(newValue!==valueRef.current) valueRef.current = newValue;
-
+    
     const setValue = useBound((updatedValue: ValueType) => {
-      const changes = onSet!(updatedValue ?? defaultValue?.() as ValueType);
+      const changes = onSet!(updatedValue ?? (is.function(defaultValue) ? defaultValue() : defaultValue) as ValueType);
       set(currentTargetValue=>({ ...currentTargetValue, ...changes }) as SourceType);
-    });
+    });    
 
     return {
       [name]: valueRef.current,

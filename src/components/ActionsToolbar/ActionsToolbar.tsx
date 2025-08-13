@@ -10,6 +10,15 @@ const useStyles = createStyles({
   actionsToolbar: {
     padding: 8,
   },
+  deleteButton: {
+    order: 10,
+  },
+  cancelButton: {
+    order: 20,
+  },
+  saveButton: {
+    order: 30,
+  },
 });
 
 export interface ActionsToolbarProps {
@@ -92,11 +101,11 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
     <Flex tagName="actions-toolbar" className={join(css.actionsToolbar, className)} gap={8} disableGrow align="right">
       {onDelete != null && (
         <ThemeProvider theme={deleteButtonTheme}>
-          <Button onSelect={remove} className={deleteClassName}>{deleteLabel}</Button>
+          <Button onSelect={remove} className={join(css.deleteButton, deleteClassName)}>{deleteLabel}</Button>
         </ThemeProvider>
       )}
-      {onCancel != null && <Button onSelect={cancel} className={cancelClassName}>{cancelLabel}</Button>}
-      {onSave != null && <Button onSelect={onSave} className={saveClassName}>{saveLabel}</Button>}
+      {onCancel != null && <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>}
+      {onSave != null && <Button onSelect={onSave} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>}
       {children}
       <CancelConfirmationDialog title={cancelDialogTitle} message={cancelDialogMessage} />
       <DeleteConfirmationDialog title={deleteDialogTitle} message={deleteDialogMessage} />

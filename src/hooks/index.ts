@@ -28,3 +28,5 @@ export * from './useObservable';
 export * from './useFileUploader';
 export * from './useOnDOMChange';
 export * from './useBrowserInfo';
+export * from './useToggleState';
+export * from './useObserver';

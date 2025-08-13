@@ -153,20 +153,23 @@ export const Field = createComponent('Field', ({
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
   const { isLoading } = useUIState();
-  const [isToolbarVisible, showToolbars, hideToolbars] = useBooleanState(false);
+  const [isLeftToolbarVisible, showLeftToolbar, hideLeftToolbar] = useBooleanState(useFloatingStartAdornments !== true);
+  const [isRightToolbarVisible, showRightToolbar, hideRightToolbar] = useBooleanState(useFloatingEndAdornments !== true);
   const timeoutRef = useRef<any>();
   const hasUnmounted = useOnUnmount();
 
   const wrappedShowToolbars = useBound(() => {
     clearTimeout(timeoutRef.current);
-    showToolbars();
+    showLeftToolbar();
+    showRightToolbar();
   });
 
   const delayedHideToolbars = useBound((event: FocusEvent<HTMLDivElement>) => {
     onBlur?.(event);
     timeoutRef.current = setTimeout(() => {
       if (hasUnmounted()) return;
-      hideToolbars();
+      if (useFloatingStartAdornments === true) hideLeftToolbar();
+      if (useFloatingEndAdornments === true) hideRightToolbar();
     }, 100);
   });
 
@@ -193,7 +196,7 @@ export const Field = createComponent('Field', ({
             <Toolbar
               className={css.toolbarAtStart}
               isFloating={useFloatingStartAdornments ? 'left' : false}
-              isVisible={isToolbarVisible}
+              isVisible={isLeftToolbarVisible}
               onFocus={wrappedShowToolbars}
               onBlur={delayedHideToolbars}
             >
@@ -207,7 +210,7 @@ export const Field = createComponent('Field', ({
             <Toolbar
               className={css.toolbarAtEnd}
               isFloating={useFloatingEndAdornments}
-              isVisible={isToolbarVisible}
+              isVisible={isRightToolbarVisible}
               onFocus={wrappedShowToolbars}
               onBlur={delayedHideToolbars}
             >

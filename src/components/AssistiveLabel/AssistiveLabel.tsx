@@ -10,10 +10,11 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createStyles(({ assistiveLabel: { normal } }) => ({
+const useStyles = createStyles(({ assistiveLabel: { normal }, text }) => ({
   assistiveLabel: {
     fontSize: normal.fontSize,
     fontWeight: normal.fontWeight,
+    color: normal.color ?? text.color,
     cursor: 'default',
     width: 'max-content',
   },

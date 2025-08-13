@@ -67,9 +67,10 @@ export type UseWindowApi<Name extends string, Args extends unknown[], CloseRespo
   { [key in `maximize${Name}`]: () => Promise<void>; } &
   { [key in Name]: ReactUIComponent<(props: WindowDefinitionProps & WindowProps) => JSX.Element>; };
 
-export type ReactUIWindow<Name extends string = string, Args extends unknown[] = unknown[]> = ReactUIComponent<() => JSX.Element> & {
+export type ReactUIWindow<Name extends string = string, Args extends unknown[] = unknown[], CloseResponseType = string | undefined> = ReactUIComponent<() => JSX.Element> & {
   name: Name,
   args: Args;
   argsLength: number;
   definitionId: string;
+  closeResponseType: CloseResponseType;
 };
