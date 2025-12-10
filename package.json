@@ -27,7 +27,7 @@
     "@anupheaus/common": "^0.1.20",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.15",
+    "@mui/material": "^5.18.0",
     "@mui/x-date-pickers": "^7.2.0",
     "@mui/x-data-grid-premium": "^7.28.1",
     "react-google-recaptcha-enterprise": "^1.0.3",

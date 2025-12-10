@@ -15,6 +15,7 @@ import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { InternalList } from '../InternalList';
 import { ListItem } from '../List';
+import { addOptionalItemTo } from './addOptionalItemTo';
 
 const useStyles = createStyles(({ menu: { normal } }) => ({
   dropDown: {
@@ -43,6 +44,7 @@ export interface InternalDropDownProps<T extends string> extends FieldProps {
   value?: T | ReactListItem;
   values?: ReactListItem[];
   endAdornments?: ReactNode;
+  readOnlyValue?: ReactNode;
   onFilterValues?(values: ReactListItem[]): PromiseMaybe<ReactListItem[]>;
   onChange?(id: T, item: ReactListItem): void;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
@@ -61,6 +63,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   isOptional,
   requiredMessage = 'Please select a value',
   endAdornments: providedEndAdornments,
+  readOnlyValue,
   onFilterValues = defaultOnFilterValues,
   renderSelectedValue,
   onChange,
@@ -69,8 +72,10 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
 }: Props<T>) {
   const { css, join } = useStyles();
   const { isReadOnly } = useUIState();
-  const { response: values, isLoading: isLoadingValues } = useAsync(() => onFilterValues(providedValues ?? []), [providedValues, onFilterValues]);
-  const value = useMemo(() => is.string(providedValue) ? (values ?? []).findById(providedValue) : is.listItem(providedValue) ? providedValue : undefined, [providedValue, values]);
+  const { response: rawValues, isLoading: isLoadingValues } = useAsync(() => onFilterValues(providedValues ?? []), [providedValues, onFilterValues]);
+  const values = useMemo(() => addOptionalItemTo(rawValues, isOptional), [rawValues, isOptional]);
+  const value = useMemo(() => values
+    .find(item => item.id === (is.listItem(providedValue) ? providedValue.id : providedValue)), [providedValue, values]); // can't use findById because the optional item has an undefined id
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
   const innerRef = useDOMRef([props.ref, anchorRef, resizeTarget]);
@@ -84,9 +89,10 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   });
 
   const selectedValue = useMemo(() => {
+    if (isReadOnly && readOnlyValue != null) return readOnlyValue;
     if (is.function(renderSelectedValue)) return renderSelectedValue(value);
     return ReactListItem.render(value);
-  }, [value, renderSelectedValue]);
+  }, [value, isReadOnly, readOnlyValue, renderSelectedValue]);
 
   const openDropDown = useBound(() => {
     if (isReadOnly || isOpen) return;

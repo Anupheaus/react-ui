@@ -35,6 +35,7 @@ const useStyles = createStyles(({ transition }) => ({
     position: 'relative',
     flex: 'auto',
     height: 'fit-content',
+    minHeight: '100%',
     flexDirection: 'inherit',
     gap: 'inherit',
   },

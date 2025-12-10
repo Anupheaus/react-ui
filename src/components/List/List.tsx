@@ -36,6 +36,7 @@ type Props<T extends ListItemType = ListItemType> = Omit<InternalListProps<T>, '
   wide?: boolean;
   addButtonTooltip?: ReactNode;
   delayRenderingItems?: boolean;
+  autoHeight?: boolean;
   error?: ReactNode;
   adornments?: ReactNode;
   children?: ReactNode;
@@ -51,15 +52,12 @@ const useStyles = createStyles(({ list }, tools) => ({
     flex: 'auto',
     flexDirection: 'column',
     position: 'relative',
-    overflow: 'hidden',
   },
   listContent: {
-    overflow: 'unset',
   },
   listContainer: {
     flexGrow: 1,
     flexShrink: 1,
-    overflow: 'unset',
   },
   adornments: {
     position: 'absolute',
@@ -81,6 +79,8 @@ export const List = createComponent('List', function <T extends ListItemType = L
   hideOptionalLabel,
   help,
   width,
+  minHeight = 130,
+  autoHeight = false,
   wide,
   delayRenderingItems,
   error: providedError,
@@ -98,11 +98,11 @@ export const List = createComponent('List', function <T extends ListItemType = L
     enableErrors();
   });
 
+  if (autoHeight) minHeight = 'auto';
+
   const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(hasItems ? 1 : undefined, isOptional !== true, isRequiredMessage));
 
-  const handleItemsChanged = useBound((items: T[]) => {
-    setHasItems(items.length > 0);
-  });
+  const handleItemsChanged = useBound((items: T[]) => setHasItems(items.length > 0));
 
   return (
     <Field
@@ -130,10 +130,11 @@ export const List = createComponent('List', function <T extends ListItemType = L
       <InternalList
         tagName="list-content"
         {...props}
-        preventContentFromDeterminingHeight
+        preventContentFromDeterminingHeight={minHeight !== 'auto'}
         contentClassName={join(css.internalList, contentClassName)}
         onItemsChange={handleItemsChanged}
         delayRenderingItems={delayRenderingItems}
+        minHeight={minHeight}
       >
         {props.children ?? <ListItem />}
       </InternalList>

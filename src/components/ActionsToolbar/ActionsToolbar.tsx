@@ -4,7 +4,9 @@ import { createComponent } from '../Component';
 import { Button } from '../Button';
 import { Flex } from '../Flex';
 import { useConfirmationDialog } from '../Dialog';
-import { useBound } from '../../hooks';
+import { useBound } from '../../hooks/useBound';
+import { useFormActions } from '../Form';
+import { UIState } from '../../providers/UIStateProvider';
 
 const useStyles = createStyles({
   actionsToolbar: {
@@ -33,6 +35,7 @@ export interface ActionsToolbarProps {
   deleteDialogTitle?: string;
   deleteDialogMessage?: ReactNode;
   deleteClassName?: string;
+  isLoading?: boolean;
   onSave?(): void;
   onCancel?(): void;
   onDelete?(): void;
@@ -51,21 +54,26 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
   deleteDialogTitle = 'Are you sure?',
   deleteDialogMessage,
   deleteClassName,
+  isLoading,
   onSave,
   onCancel,
   onDelete,
   children,
 }: ActionsToolbarProps) => {
+  const { isInForm, save: saveForm, cancel: cancelForm } = useFormActions();
   const { css, alterTheme, tools: { modifyColor }, join } = useStyles();
   const { ConfirmationDialog: CancelConfirmationDialog, openConfirmationDialog: openCancelConfirmationDialog } = useConfirmationDialog();
   const { ConfirmationDialog: DeleteConfirmationDialog, openConfirmationDialog: openDeleteConfirmationDialog } = useConfirmationDialog();
 
+  const showSaveButton = onSave != null || (isInForm && saveForm != null);
+  const showCancelButton = onCancel != null || (isInForm && cancelForm != null);
+
   const cancel = useBound(async () => {
-    if (cancelDialogMessage == null) {
-      onCancel?.();
-    } else {
-      const result = await openCancelConfirmationDialog();
-      if (result == 'yes') onCancel?.();
+    if (cancelDialogMessage != null && !await openCancelConfirmationDialog()) return;
+    if (onCancel) {
+      onCancel();
+    } else if (isInForm) {
+      await cancelForm();
     }
   });
 
@@ -73,8 +81,15 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
     if (deleteDialogMessage == null) {
       onDelete?.();
     } else {
-      const result = await openDeleteConfirmationDialog();
-      if (result == 'yes') onDelete?.();
+      if (await openDeleteConfirmationDialog()) onDelete?.();
+    }
+  });
+
+  const save = useBound(async () => {
+    if (onSave) {
+      onSave();
+    } else if (isInForm) {
+      await saveForm();
     }
   });
 
@@ -98,17 +113,25 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
   }));
 
   return (
-    <Flex tagName="actions-toolbar" className={join(css.actionsToolbar, className)} gap={8} disableGrow align="right">
-      {onDelete != null && (
-        <ThemeProvider theme={deleteButtonTheme}>
-          <Button onSelect={remove} className={join(css.deleteButton, deleteClassName)}>{deleteLabel}</Button>
-        </ThemeProvider>
-      )}
-      {onCancel != null && <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>}
-      {onSave != null && <Button onSelect={onSave} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>}
-      {children}
-      <CancelConfirmationDialog title={cancelDialogTitle} message={cancelDialogMessage} />
-      <DeleteConfirmationDialog title={deleteDialogTitle} message={deleteDialogMessage} />
-    </Flex>
+    <UIState isLoading={isLoading}>
+      <Flex tagName="actions-toolbar" className={join(css.actionsToolbar, className)} gap={8} disableGrow align="right">
+        {onDelete != null && (<>
+          <ThemeProvider theme={deleteButtonTheme}>
+            <Button onSelect={remove} className={join(css.deleteButton, deleteClassName)}>{deleteLabel}</Button>
+          </ThemeProvider>
+          {deleteDialogMessage != null && (
+            <DeleteConfirmationDialog title={deleteDialogTitle} message={deleteDialogMessage} />
+          )}
+        </>)}
+        {showCancelButton && (<>
+          <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>
+          {cancelDialogMessage != null && (
+            <CancelConfirmationDialog title={cancelDialogTitle} message={cancelDialogMessage} />
+          )}
+        </>)}
+        {showSaveButton && <Button onSelect={save} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>}
+        {children}
+      </Flex>
+    </UIState>
   );
 });

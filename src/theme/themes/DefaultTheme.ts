@@ -128,9 +128,6 @@ export const DefaultTheme: Theme = {
       },
       inactive: {},
     },
-    actions: {
-      padding: '0 12px 12px',
-    },
   },
   transitions: {
     duration: 400,
@@ -250,6 +247,24 @@ export const DefaultTheme: Theme = {
     },
     slice: {
       backgroundColor: '#ada7fd',
+    },
+  },
+  switch: {
+    normal: {
+      backgroundColor: 'rgba(0 0 0 / 25%)',
+      thumbColor: 'rgba(255 255 255 / 85%)',
+    },
+    active: {
+      backgroundColor: 'rgba(0 0 0 / 35%)',
+      thumbColor: '#fff',
+    },
+    checked: {
+      backgroundColor: '#22c115',
+      thumbColor: '#fff',
+    },
+    readOnly: {
+      backgroundColor: 'rgba(0 0 0 / 15%)',
+      thumbColor: 'rgba(255 255 255 / 85%)',
     },
   },
   // datePicker: {

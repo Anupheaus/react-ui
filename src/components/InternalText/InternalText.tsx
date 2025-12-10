@@ -1,7 +1,7 @@
-import type { FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
+import type { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../Component';
-import { useBinder, useBooleanState, useBound, useDOMRef } from '../../hooks';
+import { useBooleanState, useBound, useDOMRef } from '../../hooks';
 import type { FieldProps } from '../Field';
 import { Field } from '../Field';
 import { useInputStyles } from './InputStyles';
@@ -20,12 +20,14 @@ export interface InternalTextProps<TValue = unknown> extends FieldProps {
   transform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
   invalidValueMessage?: ReactNode;
   placeholder?: string;
+  fieldWidth?: number | string;
   onChange?(value: TValue): void;
   onFocus?(event: FocusEvent<HTMLInputElement>): void;
   onClick?(event: MouseEvent<HTMLInputElement>): void;
   onBlur?(event: FocusEvent<HTMLInputElement>): void;
   onKeyDown?(event: KeyboardEvent<HTMLInputElement>): void;
   onKeyUp?(event: KeyboardEvent<HTMLInputElement>): void;
+  onEnter?(event: KeyboardEvent<HTMLInputElement>): void;
 }
 
 interface Props<TValue = unknown> extends InternalTextProps<TValue> {
@@ -51,6 +53,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   allowDecimals = false,
   allowNegatives = false,
   multiline,
+  fieldWidth,
   placeholder,
   onChange,
   onFocus,
@@ -58,15 +61,15 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   onClick,
   onKeyDown,
   onKeyUp,
+  onEnter,
   ...props
 }: Props<T>) {
-  const { css, join } = useInputStyles();
+  const { css, join, useInlineStyle } = useInputStyles();
   const { css: scrollbarCss } = useScrollbarStyles();
   const { isReadOnly } = useUIState();
-  const [isScrollbarVisible, setScrollbarVisible, setScrolbarInvisible] = useBooleanState();
+  const [isScrollbarVisible, setScrollbarVisible, setScrollbarInvisible] = useBooleanState();
   const { validate } = useValidation(`${tagName}-${props.label}`);
   const ref = useDOMRef([innerRef]);
-  const bind = useBinder();
   const isMultiline = (multiline ?? 0) > 1;
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {
     'data-1p-ignore': true,
@@ -95,6 +98,17 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     onKeyDown?.(event);
   });
 
+  const handleKeyUp = useBound((event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') onEnter?.(event);
+    onKeyUp?.(event);
+  });
+
+  const handleOnChange = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value as any));
+
+  const style = useInlineStyle(() => ({
+    width: fieldWidth,
+  }), [fieldWidth]);
+
   const containerClassName = isMultiline ? css.textAreaFieldContainer : undefined;
 
   const inputOrTextArea = isMultiline
@@ -103,14 +117,14 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       className={join(css.textArea, scrollbarCss.scrollbars, css[`textTransform_${transform}`], isScrollbarVisible && 'is-scrollbar-visible', inputClassName)}
       value={(value ?? '') as any}
       maxLength={maxLength}
-      onChange={bind(event => onChange?.(event.target.value as any))}
-      onFocus={handleOnFocus as any}
+      onChange={handleOnChange as any}
+      onFocusCapture={handleOnFocus as any}
       onBlurCapture={handleOnBlur as any}
       onClick={onClick as any}
       onKeyDown={handleKeyDown as any}
-      onKeyUp={onKeyUp as any}
+      onKeyUp={handleKeyUp as any}
       onMouseOver={setScrollbarVisible}
-      onMouseLeave={setScrolbarInvisible}
+      onMouseLeave={setScrollbarInvisible}
       autoFocus={initialFocus}
       rows={multiline}
       disabled={isReadOnly}
@@ -122,12 +136,12 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       className={join(css.input, css[`textTransform_${transform}`], inputClassName)}
       value={(value ?? '') as any}
       maxLength={maxLength}
-      onChange={bind(event => onChange?.(event.target.value as any))}
-      onFocus={handleOnFocus}
+      onChange={handleOnChange}
+      onFocusCapture={handleOnFocus}
       onBlurCapture={handleOnBlur}
       onClick={onClick}
       onKeyDown={handleKeyDown}
-      onKeyUp={onKeyUp}
+      onKeyUp={handleKeyUp}
       autoFocus={initialFocus}
       disabled={isReadOnly}
       placeholder={placeholder}
@@ -135,7 +149,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     />;
 
   return (
-    <Field {...props} containerClassName={containerClassName} isOptional={isOptional} error={props.error ?? error} tagName={tagName}>
+    <Field {...props} containerClassName={containerClassName} isOptional={isOptional} error={props.error ?? error} tagName={tagName} containerStyle={style}>
       {inputOrTextArea}
     </Field>
   );

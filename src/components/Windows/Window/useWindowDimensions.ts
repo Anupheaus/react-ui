@@ -72,9 +72,10 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
 
   useEffect(() => {
     if (preparationClassName === undefined || isMaximized === true) return;
-    if (actualWidth !== width || actualHeight !== height) {
+    if (actualHeight == null && actualWidth == null) return;
+    if (width == null || height == null) {
       batchUpdates(() => {
-        setState({ width: undefined, height: undefined });
+        setState({ width: width ?? actualWidth, height: height ?? actualHeight });
         setInitialDimensionsHaveBeenSet(false);
         setPreparationClassName('preparing');
       });

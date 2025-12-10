@@ -1,3 +1,4 @@
+import type { ListItem as ListItemType } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { createStyles } from '../../../theme';
 import { ReactListItem } from '../../../models';
@@ -8,6 +9,8 @@ import { useBound } from '../../../hooks';
 import { Flex } from '../../Flex';
 import { useListItem } from '../../InternalList';
 import { useMemo, type ReactNode } from 'react';
+import { Button } from '../../Button';
+import { Icon } from '../../Icon';
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -40,7 +43,9 @@ const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransi
         fontWeight: activeValues.andProperty('textWeight'),
         padding: activeValues.andProperty('padding'),
       },
-
+    },
+    listItemContent: {
+      position: 'unset',
     },
   };
 });
@@ -50,6 +55,7 @@ interface BasicListItemProps<T extends ReactListItem> {
   disableRipple?: boolean;
   actions?: ReactNode;
   onSelect?(item: T, index: number): void;
+  onDelete?(item: T): void;
 }
 
 interface ListItemWithRenderProps<T extends ReactListItem> extends BasicListItemProps<T> {
@@ -77,33 +83,38 @@ interface ListItemWithChildrenProps<T extends ReactListItem> extends BasicListIt
 const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends ReactListItem = ReactListItem>({
   className,
   disableRipple = false,
-  actions = null,
+  actions: providedActions,
   onSelect,
+  onDelete: listItemOnDelete,
   children,
 }: ListItemWithChildrenProps<T>) => {
   const { css, join } = useStyles();
-  const { item, index, isLoading } = useListItem<T>();
+  const { item, index, isLoading, onDelete: listOnDelete } = useListItem<T>();
   const { isReadOnly } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
   const isClickable = is.function(onSelect) || is.function(item?.onSelect);
 
-  const content = useMemo(() => {
-    if (actions == null) return children;
+  const onDelete = useMemo(() => {
+    if ((!is.function(listItemOnDelete) && !is.function(listOnDelete)) || item == null) return undefined;
+    return () => {
+      listItemOnDelete?.(item);
+      listOnDelete?.(item);
+    };
+  }, [listItemOnDelete, listOnDelete, item]);
+
+  const actions = useMemo(() => {
+    if (providedActions == null && onDelete == null) return null;
     return (
-      <Flex tagName="list-item-content" gap="fields" valign="center">
-        {children}
-        <Flex tagName="list-item-content-actions" disableGrow>
-          {actions}
-        </Flex>
+      <Flex tagName="list-item-actions" disableGrow>
+        {providedActions}
+        {onDelete != null && (
+          <Button variant="hover" size="small" iconOnly onSelect={onDelete}>
+            <Icon name="delete-list-item" size="small" />
+          </Button>
+        )}
       </Flex>
     );
-  }, [children, actions]);
-
-  // const alteredTheme = alterTheme(theme => ({
-  //   ripple: {
-  //     color: theme.buttons.hover.active.backgroundColor,
-  //   },
-  // }));
+  }, [providedActions, onDelete]);
 
   const handleSelect = useBound(() => {
     if (isReadOnly) return;
@@ -115,17 +126,21 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
   return (
     <UIState isLoading={isLoading}>
       <Flex
+        gap="fields"
         tagName="list-item"
         ref={rippleTarget}
         className={join(css.listItem, isLoading && 'is-loading', isReadOnly && 'is-read-only', isClickable && 'is-clickable', className)}
         allowFocus
         onClick={handleSelect}
         disableGrow
+        disableShrink
       >
-        {/* <ThemeProvider theme={alteredTheme}> */}
         <Ripple stayWithinContainer isDisabled={disableRipple} />
-        {/* </ThemeProvider> */}
-        {content}
+        <Flex tagName="list-item-content" gap="fields" valign="center" className={css.listItemContent}>
+          {item?.iconName != null && (<Icon name={item.iconName} size="small" />)}
+          {children}
+        </Flex>
+        {actions}
       </Flex>
     </UIState>
   );
@@ -133,22 +148,23 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
 
 export type ListItemProps<T extends ReactListItem> = ListItemWithRenderProps<T> | ListItemWithChildrenProps<T>;
 
-export const ListItem = createComponent('ListItem', <T extends ReactListItem = ReactListItem>({
+export const ListItem = createComponent('ListItem', <T extends ListItemType = ReactListItem>({
   className,
   disableRipple = false,
   actions,
   onSelect,
+  onDelete,
   children = ReactListItem.render,
 }: ListItemProps<T>) => {
   if (is.function(children)) {
     return (
-      <ListItemWithRender className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect}>
+      <ListItemWithRender className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
         {children}
       </ListItemWithRender>
     );
   }
   return (
-    <ListItemWithChildren className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect}>
+    <ListItemWithChildren className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
       {children}
     </ListItemWithChildren>
   );

@@ -1,14 +1,14 @@
 import type { Collection, Records } from '@anupheaus/common';
 import type { UseCallbacks } from '../../hooks';
 import type { ValidationRecord } from './ValidationModels';
-import { useContext, useLayoutEffect, useRef } from 'react';
+import type { MutableRefObject } from 'react';
+import { useContext, useLayoutEffect } from 'react';
 import { ValidationContext } from './ValidationContext';
 
 export function subscribeToParentValidation(errors: Records<ValidationRecord>, invalidSections: Collection<string>,
-  highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>) {
+  highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>, errorsAreHighlightedRef: MutableRefObject<boolean>) {
   const parentContext = useContext(ValidationContext);
   if (!parentContext.isReal) return;
-  const errorsAreHighlightedRef = useRef(false);
 
   // register from the parent any highlight error callbacks
   if (parentContext.isReal) {
@@ -51,6 +51,6 @@ export function subscribeToParentValidation(errors: Records<ValidationRecord>, i
       parentContext.errors.remove(errors.ids());
       parentContext.invalidSections.remove(invalidSections.toArray());
     };
-  }, [parentContext]);
+  }, [parentContext, errors, invalidSections]);
 
 }

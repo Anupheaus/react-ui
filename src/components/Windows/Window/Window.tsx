@@ -17,6 +17,10 @@ import { WindowContext } from '../WindowsContexts';
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
 import { useWindowDimensions } from './useWindowDimensions';
+import { useValidation } from '../../../providers';
+import { WindowValidationProvider } from './WindowValidationContext';
+import { useFormObserver } from '../../Form';
+import { useNotifications } from '../../Notifications';
 
 const useStyles = createStyles(({ windows: { window, content }, transitions }) => ({
   window: {
@@ -80,6 +84,10 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
         fontWeight: content.inactive.textWeight ?? content.active.textWeight,
       },
     },
+
+    '& window-content.no-padding+actions-toolbar': {
+      paddingTop: '12px !important',
+    },
   },
   titlebar: {
     zIndex: 1,
@@ -140,6 +148,9 @@ export const Window = createComponent('Window', ({
   const { css, join } = useStyles();
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
   const [isResizing, setIsResizing] = useState(false);
+  const { ValidateSection, isValid } = useValidation();
+  const { FormObserver, getIsDirty } = useFormObserver();
+  const { showError } = useNotifications();
 
   const onDragEnd = useBound(() => {
     if (windowElementRef.current == null) return;
@@ -150,7 +161,10 @@ export const Window = createComponent('Window', ({
   });
 
   const focus = useBound(() => manager.focus(id));
-  const closeWindow = useBound(() => manager.close(id, 'x'));
+  const closeWindow = useBound(() => {
+    if (getIsDirty()) return showError('There are changes in this window that must be saved or discarded before closing.');
+    manager.close(id, 'x');
+  });
   const maximizeWindow = useBound(() => manager.maximize(id));
   const restoreWindow = useBound(() => manager.restore(id));
   const handleMouseDown = useBound(() => focus());
@@ -218,7 +232,13 @@ export const Window = createComponent('Window', ({
           {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
         </>}
       />
-      {children}
+      <WindowValidationProvider onCheckIsValid={isValid}>
+        <FormObserver>
+          <ValidateSection id={`window-validation-${id}`}>
+            {children}
+          </ValidateSection>
+        </FormObserver>
+      </WindowValidationProvider>
       <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
     </Flex >
   );

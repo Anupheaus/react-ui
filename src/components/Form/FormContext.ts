@@ -2,6 +2,9 @@
 // import { createContext, MutableRefObject } from 'react';
 // import { FormError } from './FormModels';
 
+import type { PromiseMaybe } from '@anupheaus/common';
+import { createContext } from 'react';
+
 // type Proxy = ReturnType<typeof createProxyOf>;
 
 // export interface FormContextProps {
@@ -25,3 +28,15 @@
 //   onSave: null as unknown as MutableRefObject<((data: unknown) => PromiseMaybe<void>) | undefined>,
 //   save: () => Promise.resolve(),
 // });
+
+export interface FormContextProps {
+  isReal: boolean;
+  save(): PromiseMaybe<void>;
+  cancel(): PromiseMaybe<void>;
+}
+
+export const FormContext = createContext<FormContextProps>({
+  isReal: false,
+  save: () => Promise.resolve(),
+  cancel: () => Promise.resolve(),
+});

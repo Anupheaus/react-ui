@@ -54,8 +54,8 @@ export function createDialog<Name extends string, DialogProps extends {}, OpenAr
       const WindowComponent = windowApi[name] as unknown as ReactUIComponent;
       useMemo(() => { windowApiRef.current.resolve(windowApi); }, []);
 
-      const unsubscribe = useMemo(() => manager.subscribeToStateChanges(id, (state, reason) => {
-        if (reason === 'remove') closeRef.current?.(state.closingResponse as CloseResponseType);
+      const unsubscribe = useMemo(() => manager.subscribeToStateChanges(id, (state, reason, hasChanged) => {
+        if (reason === 'remove' && hasChanged) closeRef.current?.(state.closingResponse as CloseResponseType);
       }), [id]);
 
       useOnUnmount(unsubscribe);

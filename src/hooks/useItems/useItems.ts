@@ -27,9 +27,10 @@ interface Props<T extends ListItemType> {
   items?: T[];
   actions?: UseActions<UseItemsActions>;
   onRequest?(request: UseDataRequest, response: (response: UseDataResponse<T>) => void): Promise<void>;
+  onItemsChange?(items: (T | Promise<T>)[]): void;
 }
 
-export function useItems<T extends ListItemType>({ initialLimit = 20, items, actions, onRequest }: Props<T>) {
+export function useItems<T extends ListItemType>({ initialLimit = 20, items, actions, onRequest, onItemsChange }: Props<T>) {
   const refresh = async () => {
     stateRef.current.total = undefined;
     await makeRequest(lastPaginationRequestRef.current);
@@ -43,6 +44,7 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
   });
   const stateRef = useRef<State<T>>({ items: [], isLoading: true, total: initialLimit, ...lastPaginationRequestRef.current });
   const doDebouncedUpdate = useDebounce(useForceUpdate(), 25, 150);
+  const doDebouncedItemsChange = useDebounce((updatedItems: (T | DeferredPromise<T>)[]) => onItemsChange?.(updatedItems), 25, 150);
 
   const makeRequest = async (pagination: DataPagination, doUpdate = true) => {
     const fullPagination = lastPaginationRequestRef.current = { offset: 0, ...pagination } as FullPagination;
@@ -61,6 +63,7 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
           total,
           ...fullPagination,
         };
+        doDebouncedItemsChange(responseItems);
         doDebouncedUpdate();
       });
     } catch (e) {
@@ -69,6 +72,7 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
         stateRef.current.isLoading = false;
         stateRef.current.total = 0;
         stateRef.current.items = [];
+        doDebouncedItemsChange(stateRef.current.items);
         if (is.errorLike(e)) stateRef.current.error = new Error(e);
         doDebouncedUpdate();
       }

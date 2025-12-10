@@ -1,5 +1,5 @@
 import { createLegacyStyles } from '../../theme/createStyles';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
@@ -27,6 +27,7 @@ export const HelpInfo = createComponent('HelpInfo', ({
 }: Props) => {
   const { css, join } = useStyles();
   if (children == null) return null;
+
   return (
     <Tag name="field-help" className={join(css.fieldHelp, className)}>
       <Tooltip content={children} showArrow>

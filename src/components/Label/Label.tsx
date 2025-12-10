@@ -4,7 +4,7 @@ import { createComponent } from '../Component';
 import { HelpInfo } from '../HelpInfo';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
-import { Tooltip } from '../Tooltip';
+// import { Tooltip } from '../Tooltip';
 import { createStyles } from '../../theme';
 import { useUIState } from '../../providers';
 
@@ -24,11 +24,11 @@ const useStyles = createStyles(({ fields: { label } }) => ({
     fontWeight: label.normal.textWeight,
     color: label.normal.textColor,
     alignItems: 'center',
+    minWidth: 'max-content',
   },
   labelContent: {
     display: 'flex',
     flex: 'none',
-    gap: 4,
     minHeight: 18,
     cursor: 'default',
     position: 'relative',
@@ -41,22 +41,25 @@ const useStyles = createStyles(({ fields: { label } }) => ({
   isClickable: {
     cursor: 'pointer',
   },
-  isOptional: {
+  isRequired: {
     fontSize: '0.8em',
-    alignSelf: 'flex-end',
-    margin: '0 0 1px 4px',
+    alignSelf: 'flex-start',
+    margin: '0 0 1px 1px',
     fontWeight: 400,
   },
   isOptionalSkeleton: {
     maxHeight: 8,
     alignSelf: 'flex-end',
   },
+  help: {
+    marginLeft: 4,
+  },
 }));
 
 export const Label = createComponent('Label', ({
   className,
   help,
-  isOptional = false,
+  // isOptional = false,
   children = null,
   onClick,
 }: Props) => {
@@ -84,10 +87,10 @@ export const Label = createComponent('Label', ({
             {children}
           </Tag>
         </Skeleton>
-        {help != null && <HelpInfo>{help}</HelpInfo>}
-        <Tooltip content="This field is optional" showArrow>
-          {isOptional && <Skeleton type="text" className={css.isOptionalSkeleton}><Tag name="label-is-optional" className={css.isOptional}>optional</Tag></Skeleton>}
-        </Tooltip>
+        {/* <Tooltip content="This field is required" showArrow>
+          {!isOptional && <Skeleton type="circle" className={css.isOptionalSkeleton}><Tag name="label-is-required" className={css.isRequired}>*</Tag></Skeleton>}
+        </Tooltip> */}
+        {help != null && <HelpInfo className={css.help}>{help}</HelpInfo>}
       </Tag>
     </Tag>
   );

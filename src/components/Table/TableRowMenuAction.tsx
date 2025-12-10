@@ -24,7 +24,7 @@ export const TableRowMenuAction = createComponent('TableRowMenuAction', <RecordT
   const removeRecord = useBound(async () => {
     const title = `${removeLabel.toPascalCase()} ${unitName.toPascalCase()}?`;
     const message = `Are you sure you want to ${removeLabel.toLowerCase()} this ${unitName.toLowerCase()}?`;
-    if ((await openConfirmationDialog(title, message)) !== 'yes') return;
+    if (!(await openConfirmationDialog(title, message))) return;
     if (record == null || onRemove == null) return;
     return onRemove(record, rowIndex);
   });

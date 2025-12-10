@@ -61,6 +61,8 @@ export interface FlexProps extends DOMAttributes<HTMLDivElement>, HTMLAttributes
   maxWidth?: number | string | boolean;
   maxHeight?: number | string | boolean;
   minWidth?: number | string;
+  minHeight?: number | string;
+  wide?: boolean;
   maxWidthAndHeight?: boolean;
   shadow?: number;
   align?: 'left' | 'center' | 'right' | 'space-around' | 'space-between' | 'space-evenly';
@@ -84,10 +86,12 @@ export const Flex = createComponent('Flex', ({
   alignCentrally = false,
   inline = false,
   disableOverflow = false,
+  minHeight,
   maxWidth,
   maxHeight,
   minWidth,
   maxWidthAndHeight,
+  wide = false,
   shadow,
   width,
   height,
@@ -118,6 +122,7 @@ export const Flex = createComponent('Flex', ({
   }) : undefined;
 
   if (size != null) { width = width ?? size; height = height ?? size; }
+  if (wide && width == null) width = '100%';
 
   const style = useInlineStyle(() => ({
     gap: is.number(gap) ? gap : undefined,
@@ -127,11 +132,12 @@ export const Flex = createComponent('Flex', ({
     maxWidth: formatMaxWidthOrHeight(maxWidth, maxWidthAndHeight),
     maxHeight: formatMaxWidthOrHeight(maxHeight, maxWidthAndHeight),
     minWidth,
+    minHeight,
     boxShadow: shadow != null ? `0 0 0 ${Math.floor(shadow / 2)}px rgba(63,63,68,0.05), 0 0 ${shadow}px ${Math.floor(shadow / 2)}px rgba(63,63,68,0.15)` : undefined,
     ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
     ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
     ...providedStyle,
-  }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow, minWidth]);
+  }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow, minWidth, minHeight]);
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }
 

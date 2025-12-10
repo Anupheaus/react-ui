@@ -15,7 +15,7 @@ export function useWindowState(manager: WindowsManager, id: string, width: numbe
     };
   }, [manager, id]);
 
-  useLayoutEffect(() => manager.subscribeToStateChanges(id, newState => setState(newState)), [manager, id]);
+  useLayoutEffect(() => manager.subscribeToStateChanges(id, newState => setState(existingState => ({ ...existingState, ...newState }))), [manager, id]);
 
   useLayoutEffect(() => manager.updateStateWithoutNotifications(state), [state]);
 

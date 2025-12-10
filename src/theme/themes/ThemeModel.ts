@@ -60,11 +60,7 @@ interface WindowContentTheme {
   textSize?: string | number;
   textColor?: string;
   textWeight?: string | number;
-  padding?: string | number;
-}
-
-interface WindowActionsTheme {
-  padding?: string | number;
+  padding?: number; // number only because it is applied in the correct places
 }
 
 interface GapsTheme {
@@ -162,6 +158,11 @@ interface DatePickerPopupContentDaysTheme {
   textColor: string;
 }
 
+interface SwitchTheme {
+  backgroundColor: string;
+  thumbColor: string;
+}
+
 export interface Theme {
   assistiveLabel: {
     normal: AssistiveLabelTheme;
@@ -213,7 +214,6 @@ export interface Theme {
       active: WindowContentTheme;
       inactive: Partial<WindowContentTheme>;
     };
-    actions: WindowActionsTheme;
   };
   transitions: {
     duration: number;
@@ -313,6 +313,12 @@ export interface Theme {
       backgroundColor?: string;
     };
     borderRadius?: number;
+  };
+  switch: {
+    normal: SwitchTheme;
+    active: Partial<SwitchTheme>;
+    checked: Partial<SwitchTheme>;
+    readOnly: Partial<SwitchTheme>;
   };
 
 

@@ -1,4 +1,4 @@
-import type { DeferredPromise } from '@anupheaus/common';
+import { is, type DeferredPromise } from '@anupheaus/common';
 import type { Window, WindowAction, WindowContent, WindowOkAction } from './Window';
 import type { ReactUIComponent } from '../Component';
 import type { ActionsToolbar } from '../ActionsToolbar';
@@ -9,6 +9,17 @@ export interface InitialWindowState {
   y?: string | number;
   width?: string | number;
   height?: string | number;
+}
+
+export namespace InitialWindowState {
+  export function isState(target: unknown): target is InitialWindowState {
+    if (!is.plainObject(target)) return false;
+    const template: Required<InitialWindowState> = { isMaximized: false, x: 0, y: 0, width: 0, height: 0 };
+    return Object.entries(template).some(([key, value]) => {
+      if (Reflect.has(target, key) && typeof target[key] === typeof value) return true;
+      return false;
+    });
+  }
 }
 
 export interface WindowState<Args extends unknown[] = any> extends InitialWindowState {

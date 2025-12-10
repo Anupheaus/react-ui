@@ -10,13 +10,16 @@ import { useDelegatedBound } from '../../hooks';
 
 const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   toolbar: {
-    display: 'none',
+    display: 'flex',
     border: field.border,
     borderColor: field.borderColor,
     borderStyle: 'solid',
+    opacity: 0,
+    pointerEvents: 'none',
 
     '&.is-visible': {
-      display: 'flex',
+      opacity: 1,
+      pointerEvents: 'all',
     },
 
     '&.is-floating': {

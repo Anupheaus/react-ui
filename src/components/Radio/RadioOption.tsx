@@ -1,7 +1,8 @@
 import { is } from '@anupheaus/common';
-import { KeyboardEvent } from 'react';
-import { DistributedState, useBound, useDistributedState } from '../../hooks';
-import { ReactListItem } from '../../models';
+import type { KeyboardEvent } from 'react';
+import type { DistributedState } from '../../hooks';
+import { useBound, useDistributedState } from '../../hooks';
+import type { ReactListItem } from '../../models';
 import { useUIState } from '../../providers';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -11,6 +12,7 @@ import { useRipple } from '../Ripple';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import { Typography } from '../Typography';
+import { HelpInfo } from '../HelpInfo';
 
 const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
   radio: {
@@ -25,6 +27,7 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
     flex: 'none',
     width: 20,
     height: 20,
+    padding: 2,
   },
   radioGraphic: {
     position: 'relative',
@@ -93,6 +96,7 @@ export const RadioOption = createComponent('RadioOption', ({
       </Tag>
       {is.not.empty(item.iconName) && <Icon name={item.iconName} size={'small'} />}
       <Typography type="field-value">{item.label ?? item.text}</Typography>
+      {item.help != null && <HelpInfo>{item.help}</HelpInfo>}
     </Flex>
   );
 });

@@ -14,27 +14,32 @@ type GetValueTypeFrom<P extends FieldValueProps> = NonNullable<P['value']>;
 
 export type FieldComponentProps<SourceType, ComponentProps extends AnyObject> = {
   component: FieldComponent<ComponentProps>;
-  field: StringKeyOf<SourceType>;
+  field: FieldOf<SourceType>;
   defaultValue?: GetValueTypeFrom<ComponentProps> | (() => GetValueTypeFrom<ComponentProps>);
 } & Omit<ComponentProps, 'defaultValue' | 'field' | 'value' | 'onChange'>;
 
 
-type UseField<Name extends string, ValueType> = Record<Name, ValueType> & Record<`set${Capitalize<Name>}`, (updatedValue: ValueType) => void>;
+type UseField<Name extends string, ValueType> = Record<Name, ValueType> & Record<`set${Capitalize<Name>}`, (updatedValue: ValueType) => void> 
+& Record<'Field', ReactUIComponent<<ComponentProps extends AnyObject>(props: FieldComponentProps<NonNullable<ValueType>, ComponentProps>) => JSX.Element | null>>;
 
 type UseFieldWithDefault<Name extends string, ValueType> = UseField<Name, NonNullable<ValueType>>;
 
 
 type ValueTypeOf<Name extends keyof SourceType, SourceType> = SourceType[Name];
 
-type StringKeyOf<T> = keyof T extends string ? keyof T : never;
+type FieldOf<SourceType> = keyof SourceType extends string ? keyof SourceType : never;
+// type ToString<P> = P extends string ? P : '';
+// type CreateField<P, Prefix extends string | void = void> = `${Prefix extends string ? `${ToString<Prefix>}.` : ''}${ToString<keyof P>}`;
+// type FieldsOf<P, Prefix extends string | void = void> = CreateField<P, Prefix>
+//   | (P[keyof P] extends {} ? FieldsOf<P[keyof P], CreateField<P, Prefix>> : never);
 
 function internalUseFields<SourceType>(target: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, 
   dependencies: unknown[] = Array.empty()) {  
   const { get, set, onChange: onChangeObservable } = useObservable(target, dependencies);
+  
+  onChangeObservable((newValue: SourceType | undefined)=>onChange?.(newValue));
 
-  onChangeObservable(useBound(newValue=>onChange?.(newValue)));
-
-  function useField<Name extends StringKeyOf<SourceType>>(name: Name): UseField<Name, ValueTypeOf<Name, SourceType>>;
+  function useField<Name extends FieldOf<SourceType>>(name: Name): UseField<Name, ValueTypeOf<Name, SourceType>>;
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>): UseField<Name, ValueType>;
   function useField<Name extends string, ValueType>(name: Name, onGet: (value: SourceType) => ValueType, onSet: (value: ValueType) => DeepPartial<SourceType>,
     defaultValue: ValueType | (() => ValueType)): UseFieldWithDefault<Name, ValueType>;
@@ -43,7 +48,7 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
   function useField<Name extends string, ValueType>(name: Name, onGet?: (value: SourceType) => ValueType, onSet?: (value: ValueType) => DeepPartial<SourceType>, 
     defaultValue?: ValueType | (() => ValueType)): any {
     if (!is.function(onGet)) onGet = (value: SourceType) => (value as AnyObject)[name] as ValueType;
-    if (!is.function(onSet)) onSet = (value: ValueType) => ({ [name]: value ?? null } as unknown as DeepPartial<SourceType>);
+    if (!is.function(onSet)) onSet = (value: ValueType) => ({ [name]: value } as unknown as DeepPartial<SourceType>);
     const refresh = useForceUpdate();
     const targetValue = get();
     const newValue = (targetValue!=null?onGet(targetValue) : undefined) ?? (is.function(defaultValue) ? defaultValue() : defaultValue);
@@ -55,28 +60,35 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
       refresh();
     }
     
-    onChangeObservable(newTarget=>{            
+    onChangeObservable((newTarget: SourceType | undefined)=>{
       const getNewValue = (newTarget==null?undefined: onGet!(newTarget)) ?? (is.function(defaultValue) ? defaultValue() : defaultValue);      
       if(valueRef.current===getNewValue) return; // no change
       valueRef.current = getNewValue;
       refresh();
-    });
+    }); 
     
     if(newValue!==valueRef.current) valueRef.current = newValue;
     
-    const setValue = useBound((updatedValue: ValueType) => {
+    const setValue = useBound((updatedValue: ValueType | undefined) => {      
       const changes = onSet!(updatedValue ?? (is.function(defaultValue) ? defaultValue() : defaultValue) as ValueType);
-      set(currentTargetValue=>({ ...currentTargetValue, ...changes }) as SourceType);
+      if((changes as AnyObject)[name]===undefined) {
+        // remove the field from the target
+        set(currentTargetValue=>(({ [name]: _ignore, ...restOfTarget })=>restOfTarget)(({ ...currentTargetValue, ...changes })) as SourceType);
+      } else {
+        // add or update the field to the target
+        set(currentTargetValue=>({ ...currentTargetValue, ...changes }) as SourceType);
+      }
     });    
 
     return {
       [name]: valueRef.current,
       [`set${name.toPascalCase()}`]: setValue,
+      Field: internalUseFields(valueRef.current, setValue).Field,
     };
   }
 
   const Field = useMemo<ReactUIComponent<<ComponentProps extends AnyObject>(_props: FieldComponentProps<SourceType, ComponentProps>) => null | JSX.Element>>(() =>
-    createComponent('UseFieldsFieldComponent', ({ component: Component, field, defaultValue, ...props }) => {
+    createComponent('UseFieldsFieldComponent', ({ component: Component, field, defaultValue, ...props }) => {      
       const { [field]: value, [`set${field.toPascalCase()}`]: setValue } = useField(field, undefined, undefined, defaultValue) as AnyObject;      
 
       return (

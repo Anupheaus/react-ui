@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useDistributedState } from '../../hooks';
-import { ReactListItem } from '../../models';
+import type { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { Field, FieldProps } from '../Field';
+import type { FieldProps } from '../Field';
+import { Field } from '../Field';
 import { RadioOption } from './RadioOption';
+import { useValidation } from '../../providers';
 
 const useStyles = createStyles({
   radioGroupOptions: {
@@ -29,10 +31,15 @@ export const Radio = createComponent('Radio', ({
   values,
   value,
   onChange,
+  isOptional,
+  requiredMessage,
   ...props
 }: Props) => {
   const { css } = useStyles();
   const { state, onChange: onSelectedChange } = useDistributedState(() => value, [value]);
+  const { validate } = useValidation();
+
+  const { error } = validate(({ validateRequired }) => validateRequired(value, isOptional !== true, requiredMessage ?? 'You must select an option'));
 
   const renderedOptions = useMemo(() => (values ?? []).map(item => (
     <RadioOption key={item.id} item={item} state={state} />
@@ -43,7 +50,7 @@ export const Radio = createComponent('Radio', ({
   });
 
   return (
-    <Field tagName="radio-group" {...props} noContainer>
+    <Field tagName="radio-group" {...props} noContainer isOptional={isOptional} requiredMessage={requiredMessage} error={error}>
       <Flex tagName="radio-group-options" isVertical={!isHorizontal} align={'left'} disableGrow gap={isHorizontal ? 16 : 8} className={css.radioGroupOptions}>
         {renderedOptions}
       </Flex>

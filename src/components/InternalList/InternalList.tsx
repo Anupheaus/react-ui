@@ -45,6 +45,8 @@ export interface InternalListProps<T extends ListItemType> {
   createNewItem?: ReactNode;
   gap?: FlexProps['gap'];
   minWidth?: FlexProps['minWidth'];
+  minHeight?: FlexProps['minHeight'];
+  onDelete?(item: T): void;
   actions?: UseActions<InternalListActions>;
   onRequest?(request: UseDataRequest, response: (data: UseDataResponse<T>) => void): Promise<void>;
   onError?(error: Error): void;
@@ -73,11 +75,14 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   delayRenderingItems = false,
   preventContentFromDeterminingHeight,
   minWidth,
+  minHeight,
   children,
   actions,
   onScroll,
   onRequest,
   onError,
+  onDelete,
+  onItemsChange,
 }: Props<T>) => {
   const { css, join } = useStyles();
   const heightRef = useRef<number>();
@@ -86,7 +91,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   const hasUnmounted = useOnUnmount();
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo } = useActions<ScrollerActions>();
-  const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems });
+  const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, items: providedItems, onItemsChange });
   const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
   const batchUpdates = useBatchUpdates();
 
@@ -138,12 +143,12 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
         const itemIndex = offset + index;
         if (item == null) throw new Error(`Item at index ${itemIndex} is not a deferred promise or an item.`);
         return (
-          <ListItemContext.Provider key={itemIndex.toString()} value={{ item, index: itemIndex }}>
+          <ListItemContext.Provider key={itemIndex.toString()} value={{ item, index: itemIndex, total: (total ?? items.length), onDelete }}>
             {children}
           </ListItemContext.Provider>
         );
       });
-  }, [allowedToRenderItems, items, offset]);
+  }, [allowedToRenderItems, items, offset, total, children, onDelete]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => batchUpdates(() => {
     if (containerElement == null) setContainerElement(values.element);
@@ -175,7 +180,7 @@ export const InternalList = createComponent('InternalList', <T extends ListItemT
   }, [error]);
 
   return (
-    <Flex tagName={tagName} className={join(css.internalList, className)} minWidth={minWidth} isVertical maxWidth gap={gap}>
+    <Flex tagName={tagName} className={join(css.internalList, className)} minWidth={minWidth} minHeight={minHeight} isVertical maxWidth gap={gap}>
       <Scroller
         onScroll={handleOnScroll}
         actions={scrollerActions}

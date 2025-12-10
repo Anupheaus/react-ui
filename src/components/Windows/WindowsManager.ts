@@ -62,26 +62,27 @@ export class WindowsManager {
     return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }
 
-  public subscribeToStateChanges(id: string, callback: (state: ActiveWindowState, reason: RecordsModifiedReason) => void): Unsubscribe;
-  public subscribeToStateChanges(callback: (states: ActiveWindowState[], reason: RecordsModifiedReason) => void): Unsubscribe;
+  public subscribeToStateChanges(id: string, callback: (state: ActiveWindowState, reason: RecordsModifiedReason, hasChanged: boolean) => void): Unsubscribe;
+  public subscribeToStateChanges(callback: (states: ActiveWindowState[], reason: RecordsModifiedReason, hasChanged: boolean) => void): Unsubscribe;
   @bind
   public subscribeToStateChanges(...args: unknown[]): Unsubscribe {
     if (args.length === 1) {
-      const callback = args[0] as (states: ActiveWindowState[], reason: RecordsModifiedReason) => void;
+      const callback = args[0] as (states: ActiveWindowState[], reason: RecordsModifiedReason, hasChanged: boolean) => void;
       return this.#windows.onModified((_, reason, allStates) => {
         // do not use disabled notifications here otherwise the state won't be saved in the windows component        
-        callback(allStates.map(state => this.#ensureGetId(state.id)), reason);
+        callback(allStates.map(state => this.#ensureGetId(state.id)), reason, true);
       });
     } else if (args.length === 2) {
       const id = args[0] as string;
-      const callback = args[1] as (state: ActiveWindowState, reason: RecordsModifiedReason) => void;
+      const callback = args[1] as (state: ActiveWindowState, reason: RecordsModifiedReason, hasChanged: boolean) => void;
       const unsubscribe = this.#windows.onModified((states, reason, allStates) => {
         if (this.#disabledNotifications) return;
         const state = (allStates.findById(id) != null ? this.#ensureGetId(id) : states.findById(id)) as ActiveWindowState | WindowState | undefined;
         if (state == null) return;
-        callback({ isFocused: false, index: 0, ...state }, reason);
+        const hasChanged = states.findById(id) != null;
+        callback({ isFocused: false, index: 0, ...state }, reason, hasChanged);
       });
-      if (this.#windows.has(id)) callback(this.#ensureGetId(id), 'add');
+      if (this.#windows.has(id)) callback(this.#ensureGetId(id), 'add', true);
       return unsubscribe;
     }
     throw new Error('Invalid arguments provided to subscribeToStateChanges.');

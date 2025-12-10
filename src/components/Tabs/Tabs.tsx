@@ -105,7 +105,7 @@ export const TabsComponent = createComponent('Tabs', ({
   )), [tabs]);
 
   return (
-    <Flex tagName="tabs" isVertical className={className}>
+    <Flex tagName="tabs" isVertical className={className} maxHeight>
       <Tag name="hidden" className={css.hidden}>
         <TabsContext.Provider value={context}>
           {children}

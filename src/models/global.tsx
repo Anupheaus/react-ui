@@ -8,6 +8,7 @@ export type ReactListItem<T = void> = ListItem & {
   label?: ReactNode;
   iconName?: IconName;
   tooltip?: ReactNode;
+  help?: ReactNode;
   className?: string;
   isSelected?: boolean;
   onSelect?(): void;

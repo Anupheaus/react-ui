@@ -28,7 +28,7 @@ export function useValidation(id?: string) {
   const errorsAreHighlightedRef = useRef(false);
   const { isReadOnly } = useUIState();
 
-  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks);
+  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
 
   const highlightValidationErrors = useBound(() => {
     if (errorsAreHighlightedRef.current === true) return;

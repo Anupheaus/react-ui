@@ -1,6 +1,7 @@
 import type { AnyFunction } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
-import type { InitialWindowState, ReactUIWindow, UseWindowApi, UseWindowApiWithId, WindowDefinitionProps } from './WindowsModels';
+import type { ReactUIWindow, UseWindowApi, UseWindowApiWithId, WindowDefinitionProps } from './WindowsModels';
+import { InitialWindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
 import { useContext, useMemo, useRef } from 'react';
 import { WindowManagerIdContext } from './WindowsContexts';
@@ -46,7 +47,11 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   const openWindow = useBound(async (...openArgs: Args) => {
     const manager = WindowsManager.get(managerId);
     const windowId = (openArgs.length > window.argsLength && providedId == null ? openArgs.shift() as string : undefined) ?? id;
-    const initialState = (openArgs.length > window.argsLength ? openArgs.pop() : {}) as InitialWindowState;
+    let initialState = (openArgs.length > window.argsLength ? openArgs.pop() : undefined) as InitialWindowState;
+    if (!InitialWindowState.isState(initialState)) {
+      if (initialState !== undefined) openArgs.push(initialState);
+      initialState = {};
+    }
     return manager.open({ id: windowId, definitionId: definitionIdRef.current, managerId, args: openArgs, ...initialState });
   });
 

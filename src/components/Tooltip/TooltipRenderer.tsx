@@ -36,7 +36,7 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
   children = null,
 }: Props) => {
   const { css, join } = useStyles();
-  const { content, className, showArrow = false, debug = false } = useContext(TooltipContext);
+  const { content, className, showArrow = false, debug = false, persist = false } = useContext(TooltipContext);
   const isEmpty = content == null || content === '';
 
   const tooltipClasses = useMemo<ComponentProps<typeof MuiTooltip>['classes']>(() => ({
@@ -45,7 +45,7 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
     arrow: css.arrow,
   }), []);
 
-  if (isEmpty) return <>{children}</>;
+  if (isEmpty && !persist) return <>{children}</>;
 
   const child = Children.toArray(children)[0] as ReactElement;
 

@@ -1,5 +1,5 @@
-import { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
-import { CSSObject } from 'tss-react';
+import type { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
+import type { CSSObject } from 'tss-react';
 
 export interface IconTypeProps {
   size?: 'normal' | 'small' | 'large' | number;

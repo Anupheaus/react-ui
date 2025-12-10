@@ -38,7 +38,7 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
     flexShrink: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    minWidth: 50,
+    // minWidth: 50, removed as it was preventing fields with long labels from growing
     gap: 4,
 
     '&.is-set-width': {
@@ -99,7 +99,9 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
 interface Props extends FieldProps {
   tagName: string;
   containerClassName?: string;
+  containerStyle?: CSSProperties;
   contentClassName?: string;
+  contentStyle?: CSSProperties;
   startAdornments?: ReactNode;
   endAdornments?: ReactNode;
   useFloatingEndAdornments?: boolean;
@@ -122,7 +124,9 @@ export const Field = createComponent('Field', ({
   tagName,
   className,
   containerClassName,
+  containerStyle,
   contentClassName,
+  contentStyle,
   label,
   width,
   endAdornments,
@@ -188,8 +192,15 @@ export const Field = createComponent('Field', ({
   const wrapContent = (content: ReactNode) => {
     if (noContainer) return content;
     return (
-      <Tag name={`${tagName}-container`} ref={containerRef} className={join(css.fieldContainer, isLoading && css.isLoading, fullHeight && 'full-height', containerClassName)} tabIndex={allowFocus ? 0 : -1}
-        onFocus={wrappedShowToolbars} onBlur={delayedHideToolbars}>
+      <Tag
+        name={`${tagName}-container`}
+        ref={containerRef}
+        className={join(css.fieldContainer, isLoading && css.isLoading, fullHeight && 'full-height', containerClassName)}
+        tabIndex={allowFocus ? 0 : -1}
+        style={containerStyle}
+        onFocusCapture={wrappedShowToolbars}
+        onBlurCapture={delayedHideToolbars}
+      >
         <Ripple isDisabled={disableRipple} />
         {wrapInSkeletons(<>
           {validateAdornments(startAdornments) && (
@@ -203,7 +214,7 @@ export const Field = createComponent('Field', ({
               {startAdornments}
             </Toolbar>
           )}
-          <Tag name={`${tagName}-content-container`} className={join(css.fieldContent, contentClassName)} onClick={onContainerSelect}>
+          <Tag name={`${tagName}-content-container`} className={join(css.fieldContent, contentClassName)} onClick={onContainerSelect} style={contentStyle}>
             {children}
           </Tag>
           {validateAdornments(endAdornments) && (
