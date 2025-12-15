@@ -54,6 +54,7 @@ interface BasicListItemProps<T extends ReactListItem> {
   className?: string;
   disableRipple?: boolean;
   actions?: ReactNode;
+  item?: T;
   onSelect?(item: T, index: number): void;
   onDelete?(item: T): void;
 }
@@ -84,12 +85,14 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
   className,
   disableRipple = false,
   actions: providedActions,
+  item: providedItem,
   onSelect,
   onDelete: listItemOnDelete,
   children,
 }: ListItemWithChildrenProps<T>) => {
   const { css, join } = useStyles();
-  const { item, index, isLoading, onDelete: listOnDelete } = useListItem<T>();
+  let { item, index, isLoading, onDelete: listOnDelete } = useListItem<T>();
+  item = providedItem ?? item;
   const { isReadOnly } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
   const isClickable = is.function(onSelect) || is.function(item?.onSelect);
@@ -97,8 +100,8 @@ const ListItemWithChildren = createComponent('ListItemWithChildren', <T extends 
   const onDelete = useMemo(() => {
     if ((!is.function(listItemOnDelete) && !is.function(listOnDelete)) || item == null) return undefined;
     return () => {
-      listItemOnDelete?.(item);
-      listOnDelete?.(item);
+      listItemOnDelete?.(item!);
+      listOnDelete?.(item!);
     };
   }, [listItemOnDelete, listOnDelete, item]);
 
@@ -155,16 +158,17 @@ export const ListItem = createComponent('ListItem', <T extends ListItemType = Re
   onSelect,
   onDelete,
   children = ReactListItem.render,
+  ...props
 }: ListItemProps<T>) => {
   if (is.function(children)) {
     return (
-      <ListItemWithRender className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
+      <ListItemWithRender {...props} className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
         {children}
       </ListItemWithRender>
     );
   }
   return (
-    <ListItemWithChildren className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
+    <ListItemWithChildren {...props} className={className} disableRipple={disableRipple} actions={actions} onSelect={onSelect} onDelete={onDelete}>
       {children}
     </ListItemWithChildren>
   );

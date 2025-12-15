@@ -6,38 +6,61 @@ import type { ListItemProps } from './ListItem';
 import { ListItem } from './ListItem';
 import { Checkbox } from '../../Checkbox';
 import { useDelegatedBound } from '../../../hooks';
-import { useCallback, useState } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
+import { useSelectableList } from '../SelectableListContext';
+import { is } from '@anupheaus/common';
 
 interface Props<T extends ReactListItem> extends Omit<ListItemProps<T>, 'onSelect'> {
   className?: string;
+  item?: T;
   selectedItems?: T[] | string[];
   onSelect?(item: T, index: number, isSelected: boolean): void;
 }
 
 export const SelectableListItem = createComponent('SelectableListItem', <T extends ReactListItem = ReactListItem>({
   className,
+  item: providedItem,
   onSelect,
+  children,
 }: Props<T>) => {
-  const [isSelected, setIsSelected] = useState<boolean>(false);
+  const { selectedItems, setSelectedItems } = useSelectableList();
 
   const handleSelect = useDelegatedBound((item: T | undefined, index: number) => (newIsSelected: boolean) => {
+    item = providedItem ?? item;
     if (item == null) return;
-    setIsSelected(newIsSelected);
     item.isSelected = newIsSelected;
-    item.onSelect?.();
+    if (newIsSelected) item.onSelect?.();
     onSelect?.(item, index, newIsSelected);
+    setSelectedItems(item.id, newIsSelected);
   });
 
-  const renderItem = useCallback((item: T | undefined, index: number, isLoading: boolean) => (
-    <UIState isLoading={isLoading}>
-      <Flex tagName="selectable-list-item" gap="fields">
-        <Checkbox assistiveText={false} value={item?.isSelected ?? isSelected} onChange={handleSelect(item, index)}>{ReactListItem.render(item)}</Checkbox>
-      </Flex>
-    </UIState>
-  ), [isSelected]);
+  useLayoutEffect(() => {
+    if (providedItem == null) return;
+    const isSelected = selectedItems.includes(providedItem.id);
+    if (isSelected === providedItem.isSelected) return;
+    onSelect?.(providedItem, 0, isSelected);
+  }, [selectedItems, providedItem, onSelect]);
+
+  const renderItem = useCallback((item: T | undefined, index: number, isLoading: boolean) => {
+    item = providedItem ?? item;
+    const isSelected = item != null ? selectedItems.includes(item.id) : false;
+    if (item != null && isSelected !== item.isSelected) {
+      item.isSelected = isSelected;
+      if (isSelected) item.onSelect?.();
+      onSelect?.(item, index, isSelected);
+    }
+    const renderedChildren = children != null ? (is.function(children) ? children(item, index, isLoading) : children) : undefined;
+    return (
+      <UIState isLoading={isLoading}>
+        <Flex tagName="selectable-list-item" gap="fields">
+          <Checkbox assistiveText={false} value={isSelected} onChange={handleSelect(item, index)}>{renderedChildren ?? ReactListItem.render(item)}</Checkbox>
+        </Flex>
+      </UIState>
+    );
+  }, [selectedItems]);
 
   return (
-    <ListItem className={className} disableRipple>
+    <ListItem className={className} disableRipple data-whitelist-functions={['children']}>
       {renderItem}
     </ListItem>
   );

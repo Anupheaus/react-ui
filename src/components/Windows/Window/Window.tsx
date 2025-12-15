@@ -17,7 +17,7 @@ import { WindowContext } from '../WindowsContexts';
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
 import { useWindowDimensions } from './useWindowDimensions';
-import { useValidation } from '../../../providers';
+import { UIState, useValidation } from '../../../providers';
 import { WindowValidationProvider } from './WindowValidationContext';
 import { useFormObserver } from '../../Form';
 import { useNotifications } from '../../Notifications';
@@ -112,6 +112,7 @@ interface Props {
   windowControls?: ReactNode;
   width?: string | number;
   height?: string | number;
+  isLoading?: boolean;
   onClosing?(reason?: string): PromiseMaybe<boolean | void>;
   onClosed?(reason?: string): void;
   onFocus?(isFocused: boolean): void;
@@ -133,6 +134,7 @@ export const Window = createComponent('Window', ({
   height: providedHeight,
   minWidth,
   minHeight,
+  isLoading = false,
   children,
   onClosing,
   onClosed,
@@ -232,14 +234,16 @@ export const Window = createComponent('Window', ({
           {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
         </>}
       />
-      <WindowValidationProvider onCheckIsValid={isValid}>
-        <FormObserver>
-          <ValidateSection id={`window-validation-${id}`}>
-            {children}
-          </ValidateSection>
-        </FormObserver>
-      </WindowValidationProvider>
-      <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
+      <UIState isLoading={isLoading}>
+        <WindowValidationProvider onCheckIsValid={isValid}>
+          <FormObserver>
+            <ValidateSection id={`window-validation-${id}`}>
+              {children}
+            </ValidateSection>
+          </FormObserver>
+        </WindowValidationProvider>
+        <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
+      </UIState>
     </Flex >
   );
 });

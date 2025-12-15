@@ -7,12 +7,13 @@ import { createComponentOverrides } from './createComponentOverrides';
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
   debug?: boolean;
-  onCompareProps?(prevProps: Parameters<TFunc>[0], newProps: Parameters<TFunc>[0], key: PropertyKey): boolean;
+  whitelistFunctions?: PropertyKey[];
+  onCompareProps?(prevProps: Parameters<TFunc>[0], newProps: Parameters<TFunc>[0], key: PropertyKey, whitelistFunctions?: PropertyKey[]): boolean;
   onError?(error: Error, props: Parameters<TFunc>[0]): JSX.Element | null;
 }
 
-function defaultCompareProps(debug: boolean, name: string, topLevelProps: any,) {
-  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey): boolean => {
+function defaultCompareProps(debug: boolean, name: string, topLevelProps: any) {
+  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey, whitelistFunctions?: PropertyKey[]): boolean => {
     if (prevProps === newProps) return true;
     if (prevProps == null || newProps == null) return false;
     if (is.proxy(prevProps) || is.proxy(newProps)) {
@@ -25,11 +26,12 @@ function defaultCompareProps(debug: boolean, name: string, topLevelProps: any,) 
     if (is.function(prevProps)) {
       if (is.function(newProps)) {
         if (prevProps === newProps) return true;
-        const whitelistFunctions = topLevelProps['data-whitelist-functions'];
-        if (is.array(whitelistFunctions) && whitelistFunctions.includes(propertyName)) return false;
+        whitelistFunctions = (whitelistFunctions ?? []).concat(topLevelProps['data-whitelist-functions'] ?? []).distinct();
+        if (whitelistFunctions.includes(propertyName)) return false;
         // eslint-disable-next-line no-console
         console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
-          `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component.`, { topLevelProps, newProps });
+          `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component ` +
+          'or by setting it in the configuration of the component.', { topLevelProps, newProps, whitelistFunctions });
       }
       return false;
     }
@@ -73,11 +75,11 @@ export type ReactUIComponent<TFunc extends (props: any) => JSX.Element | null = 
 };
 
 export function createComponent<TFunc extends (props: any) => JSX.Element | null>(name: string, render: TFunc, {
-  disableMemoisation = false, debug = false, onCompareProps, onError }: Config<TFunc> = {}): ReactUIComponent<TFunc> {
+  disableMemoisation = false, debug = false, whitelistFunctions, onCompareProps, onError }: Config<TFunc> = {}): ReactUIComponent<TFunc> {
   const { Overrides, overrideProps } = createComponentOverrides();
   const compareProps = (prevProps: any, newProps: any): boolean => {
-    if (onCompareProps != null) return onCompareProps(prevProps, newProps, 'props');
-    return defaultCompareProps(debug, name, newProps)(prevProps, newProps, 'props');
+    if (onCompareProps != null) return onCompareProps(prevProps, newProps, 'props', whitelistFunctions);
+    return defaultCompareProps(debug, name, newProps)(prevProps, newProps, 'props', whitelistFunctions);
   };
 
   let componentFunc = forwardRef<any, any>((props: {}, providedRef: Ref<HTMLElement>) => {

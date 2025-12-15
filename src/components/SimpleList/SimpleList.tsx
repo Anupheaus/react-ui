@@ -6,8 +6,9 @@ import { useMemo } from 'react';
 import { useSimpleListItemDialog } from './SimpleListItemDialog';
 import { useBound } from '../../hooks';
 import { is } from '@anupheaus/common';
+import type { InternalList } from '../InternalList';
 
-interface Props extends Omit<ComponentProps<typeof List>, 'items'> {
+interface Props extends Omit<ComponentProps<typeof List>, 'items' | 'value' | 'onChange'> {
   value?: ReactListItem[];
   allowAdd?: boolean;
   allowDelete?: boolean;
@@ -34,12 +35,20 @@ export const SimpleList = createComponent('SimpleList', ({
     onChange?.([...items, item]);
   });
 
+  const internalListProps = useMemo<Partial<ComponentProps<typeof InternalList<ReactListItem>>>>(() => ({
+    onItemsChange: async (newValue: (ReactListItem | Promise<ReactListItem>)[]) => {
+      if (onChange == null) return;
+      const [newItems] = await Promise.whenAllSettled(newValue.map(async item => await item));
+      onChange(newItems);
+    },
+  }), []);
+
   return (
     <>
       <List
         {...props}
+        {...internalListProps}
         items={items}
-        onChange={onChange}
         onAdd={is.function(props.onAdd) ? props.onAdd : (allowAdd ? addNewItem : undefined)}
       >
         <ListItem />

@@ -16,6 +16,7 @@ import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useValidation } from '../../providers';
 import { ListItem } from './Items';
+import { SelectableListProvider } from './SelectableListContext';
 
 export type ListOnRequest<T extends ListItemType = ListItemType> = Required<InternalListProps<T>>['onRequest'];
 
@@ -41,8 +42,11 @@ type Props<T extends ListItemType = ListItemType> = Omit<InternalListProps<T>, '
   adornments?: ReactNode;
   children?: ReactNode;
   assistiveHelp?: FieldProps['assistiveHelp'];
+  value?: string | string[];
+  allowMultiSelect?: boolean;
+  selectionRequiredMessage?: ReactNode;
   actions?: UseActions<ListActions>;
-  onChange?(items: T[]): void;
+  onChange?(newValue: string | string[]): void;
   onAdd?(): PromiseMaybe<T | void>;
 };
 
@@ -85,13 +89,18 @@ export const List = createComponent('List', function <T extends ListItemType = L
   delayRenderingItems,
   error: providedError,
   adornments,
-  onAdd,
   assistiveHelp,
+  allowMultiSelect = false,
+  selectionRequiredMessage,
+  value,
+  onChange,
+  onAdd,
   ...props
 }: Props<T>) {
   const { css, join } = useStyles();
   const { validate } = useValidation(`list-${label}`);
   const [hasItems, setHasItems] = useState(false);
+  const [hasSelectedItems, setHasSelectedItems] = useState(false);
 
   const handleAdd = useBound(async () => {
     await onAdd?.();
@@ -100,9 +109,17 @@ export const List = createComponent('List', function <T extends ListItemType = L
 
   if (autoHeight) minHeight = 'auto';
 
-  const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(hasItems ? 1 : undefined, isOptional !== true, isRequiredMessage));
+  const { error, enableErrors } = validate(
+    ({ validateRequired }) => validateRequired(hasItems ? 1 : undefined, isOptional !== true, isRequiredMessage),
+    () => onChange != null && !hasSelectedItems ? (selectionRequiredMessage ?? (allowMultiSelect ? 'Please select at least one item' : 'Please select an item')) : undefined,
+  );
 
   const handleItemsChanged = useBound((items: T[]) => setHasItems(items.length > 0));
+
+  const changeSelectedItems = useBound((newSelectedItems: string[]) => {
+    setHasSelectedItems(newSelectedItems.length > 0);
+    onChange?.(newSelectedItems);
+  });
 
   return (
     <Field
@@ -127,17 +144,19 @@ export const List = createComponent('List', function <T extends ListItemType = L
       wide={wide}
       assistiveHelp={assistiveHelp}
     >
-      <InternalList
-        tagName="list-content"
-        {...props}
-        preventContentFromDeterminingHeight={minHeight !== 'auto'}
-        contentClassName={join(css.internalList, contentClassName)}
-        onItemsChange={handleItemsChanged}
-        delayRenderingItems={delayRenderingItems}
-        minHeight={minHeight}
-      >
-        {props.children ?? <ListItem />}
-      </InternalList>
+      <SelectableListProvider value={value} multiSelect={allowMultiSelect} onChange={changeSelectedItems}>
+        <InternalList
+          tagName="list-content"
+          {...props}
+          preventContentFromDeterminingHeight={minHeight !== 'auto'}
+          contentClassName={join(css.internalList, contentClassName)}
+          onItemsChange={handleItemsChanged}
+          delayRenderingItems={delayRenderingItems}
+          minHeight={minHeight}
+        >
+          {props.children ?? <ListItem />}
+        </InternalList>
+      </SelectableListProvider>
     </Field>
   );
 });
