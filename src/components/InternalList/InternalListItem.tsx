@@ -6,12 +6,14 @@ import { UIState, useUIState } from '../../providers';
 import { useRipple } from '../Ripple';
 import { useAsync, useBound } from '../../hooks';
 import { Flex } from '../Flex';
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useInternalListContext } from './InternalListContext';
 import { Skeleton } from '../Skeleton';
 import { Checkbox } from '../Checkbox';
+import { Expander } from '../Expander';
+import { InternalList } from './InternalList';
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -50,7 +52,10 @@ const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransi
     },
     listItemCheckbox: {
 
-    }
+    },
+    subItemsList: {
+      paddingLeft: 23,
+    },
   };
 });
 
@@ -74,8 +79,9 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   isReadOnly = isReadOnly || item.isDisabled === true;
   const isSelectable = item.isSelectable || is.function(item.onSelectChange) || providedIsSelectable;
   const isDeletable = !isReadOnly && (item.isDeletable || is.function(onDelete ?? item.onDelete));
-  const isClickable = !isReadOnly && isSelectable;
-  const isExpandable = is.array(item.subItems);
+  const isExpandable = is.array(item.subItems) && item.subItems.length > 0;
+  const isClickable = !isReadOnly && (isSelectable || isExpandable);
+  const [isExpanded, setExpanded] = useState(item.isExpanded ?? false);
 
   let { content, doNotWrap } = useMemo<{ content: ReactNode; doNotWrap: boolean; }>(() => {
     if (is.function(item.renderItem)) return { content: item.renderItem(item, index, data as T), doNotWrap: true };
@@ -138,6 +144,9 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
 
   const click = useBound(() => {
     if (!isClickable || isLoading) return;
+    if (isExpandable) {
+      setExpanded(prev => !prev);
+    }
     item.onClick?.(item.id, data as T, index);
   });
 
@@ -160,7 +169,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
 
     if (isExpandable) {
       content = (<>
-        <Icon name="dropdown" size="small" className={join(item.isExpanded && 'rotate-90')} />
+        <Icon name="dropdown" size="small" rotate={isExpanded ? 0 : -90} />
         {content}
       </>);
     }
@@ -185,6 +194,26 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         {actions}
       </Flex>
     );
+
+    if (isExpandable) {
+      content = (
+        <Flex tagName="list-item-with-sub-items" isVertical disableGrow>
+          {content}
+          <Expander isExpanded={isExpanded}>
+            <InternalList
+              tagName="internal-list-sub-items"
+              items={item.subItems}
+              showSkeletons={false}
+              minHeight="auto"
+              preventContentFromDeterminingHeight={false}
+              disableShadowsOnScroller
+              contentClassName={css.subItemsList}
+              gap={2}
+            />
+          </Expander>
+        </Flex>
+      );
+    }
   }
 
   return (

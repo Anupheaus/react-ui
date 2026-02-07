@@ -14,11 +14,11 @@ import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { useValidation } from '../../providers';
 
-export type ListOnRequest<T = void> = Required<Props<T>>['onRequest'];
+export type ListOnRequest<T = void> = Required<ListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 
-type Props<T = void> = Omit<InternalListProps<T>, 'actions'> & {
+export type ListProps<T = void> = Omit<InternalListProps<T>, 'actions'> & {
   className?: string;
   containerClassName?: string;
   contentClassName?: string;
@@ -96,7 +96,7 @@ export const List = createComponent('List', function <T = void>({
   selectionRequiredMessage,
   onAdd,
   ...props
-}: Props<T>) {
+}: ListProps<T>) {
   const { css, join } = useStyles();
   const { validate } = useValidation(`list-${label}`);
   const [hasItems, setHasItems] = useState(false);

@@ -21,6 +21,8 @@ function updateItems<T = void>(items: ReactListItem<T>[], pagination: DataPagina
     const existingItem = newItems[index];
     newItems[index] = delegate(existingItem, index, index - offset);
   }
+  // When total is known, truncate so we don't leave skeleton placeholders beyond the actual count
+  if (total != null && newItems.length > total) newItems.length = total;
   return { items: newItems, ...pagination };
 }
 
