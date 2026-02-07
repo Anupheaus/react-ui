@@ -11,7 +11,7 @@ type EventProps = [string, EventSetting];
 function createEventHandler(setting: EventSetting) {
   return (event: Event) => {
     if (setting === false) return;
-    if (setting === true || setting === 'propagation') { event.stopPropagation(); }
+    if (setting === true || setting === 'propagation') event.stopPropagation();
     if (setting === true || setting === 'default') event.preventDefault();
   };
 }

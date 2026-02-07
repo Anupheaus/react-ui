@@ -165,7 +165,7 @@ export const Window = createComponent('Window', ({
   const focus = useBound(() => manager.focus(id));
   const closeWindow = useBound(() => {
     if (getIsDirty()) return showError('There are changes in this window that must be saved or discarded before closing.');
-    manager.close(id, 'x');
+    manager.close(id);
   });
   const maximizeWindow = useBound(() => manager.maximize(id));
   const restoreWindow = useBound(() => manager.restore(id));

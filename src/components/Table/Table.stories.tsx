@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useMemo, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { is, to } from '@anupheaus/common';
+import { to } from '@anupheaus/common';
 
 interface DemoRecord {
   id: string;
@@ -145,22 +145,13 @@ export const TableUsingRecordIds: Story = createStory({
     const [localColumns] = useState(columns);
     const generatedRecords = useMemo(() => generateRecords(2000), []);
 
-    const handleRequest = useBound<TableOnRequest<string>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       const newRecords = generatedRecords.slice(offset, offset + limit);
       response({
         requestId,
-        records: newRecords.ids(),
+        records: newRecords,
         total: generatedRecords.length,
       });
-    });
-
-    const useRecordHook = useBound((recordId: string | undefined) => {
-      const record = is.string(recordId) ? generatedRecords.findById(recordId) : undefined;
-      const [state, setState] = useState({ record: undefined as DemoRecord | undefined, isLoading: true });
-      setTimeout(() => {
-        setState({ record, isLoading: false });
-      }, 2000);
-      return state;
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
@@ -174,7 +165,6 @@ export const TableUsingRecordIds: Story = createStory({
         unitName="people"
         onRequest={handleRequest}
         onEdit={handleOnEdit}
-        useRecordHook={useRecordHook}
       />
     );
   },

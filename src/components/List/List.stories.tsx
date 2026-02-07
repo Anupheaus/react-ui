@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { ReactListItem } from '../../models';
-import { Meta, StoryObj } from '@storybook/react';
+import type { ReactListItem } from '../../models';
+import type { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
-import { List, ListOnRequest } from './List';
+import type { ListOnRequest } from './List';
+import { List } from './List';
 import { useBound } from '../../hooks';
-import { ListItem } from './Items';
+import { useState } from 'react';
 
 faker.seed(10121);
 
@@ -12,7 +13,7 @@ const staticItems = new Array(150).fill(0).map((): ReactListItem => {
   return {
     id: faker.string.uuid(),
     text: '',
-    label: <span>{faker.person.fullName()}</span>,
+    label: <span>{faker.person.fullName().slice(0, 9)}</span>,
   };
 });
 
@@ -45,14 +46,12 @@ export const LazyLoadListItems: Story = createStory<typeof List>({
     });
 
     return (
-      <List
+      <List<void>
         label={'List'}
         {...props}
         onRequest={handleRequest}
         onAdd={handleAdd}
-      >
-        <ListItem />
-      </List>
+      />
     );
   },
 });
@@ -64,6 +63,7 @@ export const LazyLoadSelectableListItems: Story = createStory<typeof List>({
   width: 200,
   height: 300,
   render: props => {
+    const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const handleAdd = useBound(() => {
       // eslint-disable-next-line no-alert
       window.alert('Add');
@@ -78,17 +78,16 @@ export const LazyLoadSelectableListItems: Story = createStory<typeof List>({
       });
     });
 
-    const handleClick = useBound(() => void 0);
-
     return (
-      <List
+      <List<void>
         label={'List'}
         {...props}
         onRequest={handleRequest}
         onAdd={handleAdd}
-      >
-        <ListItem onSelect={handleClick} />
-      </List>
+        value={selectedItems}
+        maxSelectableItems={2}
+        onChange={setSelectedItems}
+      />
     );
   },
 });

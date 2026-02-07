@@ -1,0 +1,75 @@
+---
+description: Component and createComponent patterns used in this React UI library
+globs: src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Component and createComponent Patterns
+
+These patterns describe how components are structured in this repo, especially the use of `createComponent`.
+
+## createComponent Usage
+
+- **All presentational/UI components** are created with `createComponent` from `../Component` (or `../Component` relative to the component folder).
+- **Signature**: `createComponent(displayName, render, config?)` — config (`disableMemoisation`, `debug`, `whitelistFunctions`, `onCompareProps`, `onError`) is optional and rarely used; default memoisation is kept.
+- **Display name**: First argument is the component’s display name (e.g. `'Button'`, `'List'`, `'Field'`), usually matching the exported component name.
+- **Render function**: Second argument is the render function. Use **arrow** `(props) => { ... }` for non-generic components; use **named function** `function <T>(props) { ... }` when the component is generic (e.g. `List`, `InternalList`, `InternalListItem`, `InternalListContextProvider`, `InternalDropDown`).
+- **Export**: Component is exported as a named export, same name as display name: `export const Button = createComponent('Button', ...)`.
+
+## Props and Types
+
+- **Public props**: When the component’s props are part of the public API, define an exported interface named `ComponentNameProps` (e.g. `ButtonProps`, `FieldProps`, `RippleProps`).
+- **Internal props**: For props used only inside the file (e.g. extending public props with extra fields), use a non-exported `interface Props` (or `type Props`). Often `Props` extends the public `*Props` or another component’s props (e.g. `FieldProps`, `FlexProps`, `ComponentProps<typeof Label>`).
+- **Destructuring in render**: Props are destructured in the createComponent render function’s parameter list, with defaults where appropriate (e.g. `variant = 'default'`, `size = 'normal'`, `children = null`).
+
+## Styling (createStyles)
+
+- **Hook name**: Styles are created with `createStyles` from `../../theme` and used via a hook named `useStyles`.
+- **Usage in render**: Call `const { css, join } = useStyles();` (and when needed `useInlineStyle`, `toPx`). Use `css.someKey` for class names and `join(css.a, css.b, condition && 'modifier', className)` to combine classes and conditional modifiers.
+- **Theme/tools**: The `createStyles` callback receives `(theme, tools)` (e.g. `applyTransition`, `gap`, `toPx`). Styles are keyed objects (e.g. `button`, `size_variant_default`, `variant_default`); variant classes often use `css[\`size_variant_${size}\`]` or similar dynamic keys.
+- **BEM-like modifiers**: Modifier classes are often string literals passed to `join`, e.g. `'is-read-only'`, `'is-loading'`, `'is-icon-only'`, `'left-align'`, or composed from props like `` `variant-${variant}` ``.
+
+## File and Folder Structure
+
+- **One main component per file**: The primary component (e.g. `Button`, `List`, `Field`) lives in a file named after the component (e.g. `Button.tsx`, `List.tsx`, `Field.tsx`) inside a folder of the same name (`Button/`, `List/`, `Field/`).
+- **Index exports**: The folder has an `index.ts` that re-exports the component (and related types): `export * from './Button';` (and sibling exports like `ButtonGroup` where applicable).
+- **Subcomponents / items**: List-like components may have an `Items/` subfolder (e.g. `List/Items/ListItem.tsx`, `SelectableListItem.tsx`) with their own `index.ts` exporting item components.
+
+## Imports Order (typical)
+
+1. React types and/or React (e.g. `import type { ... } from 'react';` then `import { ... } from 'react';`).
+2. `createComponent` from `'../Component'` (or appropriate relative path).
+3. Other local components (e.g. `Tag`, `Label`, `Flex`, `Field`, `Icon`).
+4. Hooks from `../../hooks` or specific hook paths.
+5. Theme: `createStyles` (and sometimes types) from `../../theme`.
+6. Providers/utilities (e.g. `useUIState`, `useValidation` from `../../providers`).
+7. Third-party or shared libs (e.g. `@anupheaus/common`).
+
+## Common Patterns Inside Components
+
+- **Refs**: Use `useDOMRef([ref, otherRef])` when merging forwarded ref with another ref (e.g. ripple target). Forwarded `ref` is included in the props type (e.g. `ref?: Ref<HTMLButtonElement>`).
+- **Event handlers**: Use `useBound` from hooks for callbacks that need to stay stable or be passed to children (e.g. `handleClick`, `handleAdd`).
+- **Conditional UI state**: Use `useUIState()` for `isReadOnly`, `isLoading`, `isCompact` and apply modifier classes (e.g. `isReadOnly && 'is-read-only'`) and disable interactions when appropriate.
+- **Skeleton / loading**: Use `Skeleton` and `NoSkeletons` from `../Skeleton` to wrap content and show loading state; some components use `disableSkeleton` / `disableRipple` props to opt out.
+- **Ripple**: Interactive components often use `useRipple()` and render `<Ripple />` with a class from styles (e.g. `css.ripple`) and variant/disabled state.
+- **Tag**: Use the `Tag` component for semantic wrapper elements with a `name` prop (e.g. `tagName="button"`, `name="label"`) and spread of native attributes where appropriate.
+- **Early return**: Return `null` when the component has nothing to render (e.g. when `children == null` in `Label`).
+
+## Naming Conventions
+
+- **Components**: PascalCase (`Button`, `InternalList`, `ConfiguratorCell`).
+- **Props interface**: `ComponentNameProps` for public API; `Props` for internal.
+- **Style keys**: camelCase (`fieldContainer`, `size_variant_small`); variants often use a prefix like `variant_`, `size_variant_`.
+- **CSS modifier classes**: kebab-case with optional `is-` prefix (`is-read-only`, `is-loading`, `left-align`, `variant-default`).
+
+## Generic Components
+
+- **When to use**: Use a generic render function when the component handles typed items (e.g. `List<T>`, `InternalList<T>`, `InternalListItem<T>`).
+- **How**: Pass a named function as the second argument to `createComponent`, e.g. `createComponent('List', function <T = void>({ ... }: Props<T>) { ... })` or `createComponent('InternalList', <T = void>({ ... }) => { ... })`.
+- **Props**: The internal `Props<T>` or public `*Props<T>` often extend a base that includes `ReactListItem<T>[]`, `onRequest`, etc.
+
+## What Not to Do (from codebase patterns)
+
+- Don’t pass the third argument to `createComponent` unless you need `disableMemoisation`, `whitelistFunctions`, `onCompareProps`, or `onError`.
+- Don’t export an internal `Props` when it’s only for the single file; keep the public API as `ComponentNameProps`.
+- Don’t use inline styles for layout that belongs in theme; use `useStyles` and `useInlineStyle`/`toPx` when values come from theme or props (e.g. size, spacing).

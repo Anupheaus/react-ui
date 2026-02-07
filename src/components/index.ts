@@ -59,3 +59,4 @@ export * from './Switch';
 export * from './Section';
 export * from './SimpleList';
 export * from './ModalLoader';
+export * from './Ripple';

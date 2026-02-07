@@ -2,12 +2,15 @@ import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { ConfiguratorItem, ConfiguratorSlice, ConfiguratorSubItem } from './configurator-models';
 import { createStyles } from '../../theme';
-import { useContext, useLayoutEffect, useMemo, useRef } from 'react';
+import type { MouseEvent } from 'react';
+import { useLayoutEffect, useMemo } from 'react';
 import { useBound } from '../../hooks';
-import { ColumnWidthsContext } from './configurator-contexts';
+import { useConfiguratorColumnWidths } from './column-widths';
 import { is } from '@anupheaus/common';
+import { Icon } from '../Icon';
+import { Tag } from '../Tag';
 
-const useStyles = createStyles(({ configurator: { header, item, subItem, slice } }, { modifyColor }) => {
+const useStyles = createStyles(({ configurator: { header, item, subItem, slice }, shadows: { scroll: shadow }, pseudoClasses }, { modifyColor, applyTransition }) => {
 
   const mixColours = (colour1: string, colour2: string | undefined, isOddItem: boolean, isOddSlice: boolean) => {
     let actualColour1 = modifyColor(colour1);
@@ -19,6 +22,8 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
 
   return {
     configuratorCell: {
+      minHeight: 'fit-content',
+      contain: 'style', // so that the shadow container does not spread the background color to the next column
 
       '&.is-first-column': {
         position: 'sticky',
@@ -56,13 +61,16 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
         zIndex: 3,
       },
 
+      '&.is-sub-item.is-first-column': {
+        paddingLeft: 16,
+      },
+    },
+
+    configuratorCellRenderer: {
+
       '&.is-item': {
         color: item.textColor,
         cursor: 'default',
-
-        '&.is-first-column': {
-          cursor: 'pointer',
-        },
 
         '&.is-odd-item': {
           backgroundColor: mixColours(item.backgroundColor, undefined, true, false),
@@ -117,29 +125,76 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
             backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, slice?.backgroundColor, false, false),
           },
         },
+      },
 
-        '&.is-first-column': {
-          marginLeft: 16,
-          left: 16,
-        },
+      '&.is-clickable': {
+        cursor: 'pointer',
       },
     },
     configuratorCellContent: {
       padding: 8,
+
+      '&.has-expand-button': {
+        paddingLeft: 0,
+      },
+
+      [pseudoClasses.tablet]: {
+        padding: 16,
+
+        '&.has-expand-button': {
+          paddingLeft: 0,
+          marginLeft: -8,
+        },
+      },
+    },
+    expandButton: {
+      zIndex: 1,
+      padding: 8,
+
+      [pseudoClasses.tablet]: {
+        padding: 16,
+      },
+    },
+    configuratorCellRightShadow: {
+      position: 'absolute',
+      right: -10,
+      top: 0,
+      width: 10,
+      bottom: 0,
+      opacity: 0,
+      pointerEvents: 'none',
+      overflow: 'hidden',
+      ...applyTransition('opacity'),
+
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        left: -2,
+        top: -10,
+        bottom: -10,
+        width: 2,
+        boxShadow: shadow(false),
+      },
+
+      '&.is-visible': {
+        opacity: 1,
+      },
     },
   };
 });
 
 interface Props {
   columnIndex: number;
-  item: ConfiguratorItem<any, any, any> | ConfiguratorSubItem<any, any, any>;
+  item: ConfiguratorItem | ConfiguratorSubItem;
   slice?: ConfiguratorSlice<any>;
   isHeader?: boolean;
   isFooter?: boolean;
   isOddItem: boolean;
   isOddSlice?: boolean;
   isSubItem?: boolean;
-  onChangeItem?(item: ConfiguratorItem<any, any>): void;
+  addShadowToRight?: boolean;
+  onExpandItem?(item: ConfiguratorItem<any, any>): void;
+  onSelect?(): void;
 }
 
 export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
@@ -151,56 +206,87 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
   isOddItem,
   isOddSlice = false,
   isSubItem = false,
-  onChangeItem,
+  addShadowToRight,
+  onExpandItem,
+  onSelect,
 }: Props) => {
-  const { css, join, useInlineStyle } = useStyles();
-  const columnWidths = useContext(ColumnWidthsContext);
+  const { css, join } = useStyles();
+  const { elementRef, target, style } = useConfiguratorColumnWidths({ columnIndex, isHeader });
   const isFirstColumn = columnIndex === 0;
-  const elementRef = useRef<HTMLDivElement>(null);
+
+  const expandCell = useBound((event: MouseEvent) => {
+    event.stopPropagation();
+    if (!isFirstColumn || onExpandItem == null) return;
+    onExpandItem({ ...item, isExpanded: !item.isExpanded });
+  });
+
+  const clickCell = useBound(() => {
+    if (onSelect != null) {
+      onSelect();
+    } else if (slice != null && isHeader) {
+      slice.onClick?.(slice.id, slice.data, columnIndex);
+    } else if (columnIndex === 0) {
+      item.onClick?.(item.id, item, columnIndex);
+    }
+  });
 
   const value = useMemo(() => {
     const content = (() => {
-      if (!slice) return item.label ?? item.text;
-      return is.function(item.renderCell) ? item.renderCell(item, slice) : item.label ?? item.text;
+      if (slice == null) return item.label ?? item.text;
+      return is.function(item.renderCell) ? item.renderCell(item as ConfiguratorItem, slice as ConfiguratorSlice) : item.label ?? item.text;
     })();
     return (
-      <Flex tagName="configurator-cell-content" className={css.configuratorCellContent} valign="center">
-        {content}
-      </Flex>
+      <>
+        {onExpandItem != null && (
+          <Icon name="dropdown" rotate={item.isExpanded ? 180 : 0} className={css.expandButton} onClick={expandCell} />
+        )}
+        <Flex tagName="configurator-cell-content" className={join(css.configuratorCellContent, onExpandItem != null && 'has-expand-button')} gap={'fields'} valign="center">
+          {content}
+        </Flex>
+      </>
     );
-  }, [slice, item]);
-
-  const handleOnClick = useBound(() => {
-    if (!isFirstColumn) return;
-    onChangeItem?.({ ...item, isExpanded: !item.isExpanded });
-  });
-
-  const style = useInlineStyle(() => ({
-    width: Math.max(columnWidths[columnIndex] - (isSubItem && isFirstColumn ? 16 : 0), 0),
-    left: slice?.isPinned ? columnWidths.slice(0, columnIndex).sum() : undefined,
-  }), [columnWidths[columnIndex], isSubItem, slice?.isPinned]);
+  }, [slice, item, onExpandItem]);
 
   useLayoutEffect(() => {
     if (elementRef.current == null || slice?.isPinned !== true) return;
     elementRef.current.style.left = `${elementRef.current.offsetLeft}px`;
   }, [elementRef.current != null && slice?.isPinned === true]);
 
+  const itemTypeClass = `is-${isHeader ? 'header' : isFooter ? 'footer' : isSubItem ? 'sub-item' : 'item'}`;
+  const oddEvenClass = `is-${isOddItem ? 'odd' : 'even'}-item`;
+  const sliceClass = slice != null && slice.doNotApplySliceStyles !== true && `is-${isOddSlice ? 'odd' : 'even'}-slice`;
+  const classes = [
+    itemTypeClass,
+    oddEvenClass,
+    sliceClass,
+    isFirstColumn && 'is-first-column',
+    slice?.isPinned && 'is-pinned',
+    (onExpandItem != null || item.onClick != null) && 'is-clickable',
+  ];
+
   return (
     <Flex
-      ref={elementRef}
+      ref={target}
       tagName="configurator-cell"
       className={join(
         css.configuratorCell,
-        `is-${isHeader ? 'header' : isFooter ? 'footer' : isSubItem ? 'sub-item' : 'item'}`,
-        `is-${isOddItem ? 'odd' : 'even'}-item`,
-        slice != null && slice.doNotApplySliceStyles !== true && `is-${isOddSlice ? 'odd' : 'even'}-slice`,
-        isFirstColumn && 'is-first-column',
-        slice?.isPinned && 'is-pinned',
+        ...classes,
       )}
       style={style}
-      onClick={handleOnClick}
+      onClick={clickCell}
+      disableGrow
     >
-      {value}
+      <Flex
+        tagName="configurator-cell-renderer"
+        className={join(
+          css.configuratorCellRenderer,
+          ...classes,
+        )}
+        valign="center"
+      >
+        {value}
+      </Flex>
+      {addShadowToRight != null && (<Tag name="configurator-cell-right-shadow" className={join(css.configuratorCellRightShadow, addShadowToRight && 'is-visible')} />)}
     </Flex>
   );
 });

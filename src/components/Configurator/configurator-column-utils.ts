@@ -5,13 +5,13 @@ import type { ReactNode } from 'react';
 const firstItems = new WeakSet<ConfiguratorItem>();
 
 export function convertFirstCellIntoConfiguratorItem(firstCell: ConfiguratorFirstCell | undefined,
-  renderFirstCell: (item: ConfiguratorSubItem<any, any, any>, slice: ConfiguratorSlice<any>) => ReactNode): ConfiguratorItem {
+  renderFirstCell: (item: ConfiguratorSubItem, slice: ConfiguratorSlice) => ReactNode): ConfiguratorItem {
   const item: ConfiguratorItem = {
+    ...firstCell,
     id: 'first-cell',
     text: is.string(firstCell?.label) ? firstCell.label : 'Item',
-    label: firstCell?.label,
     data: {},
-    subItems: [],
+    subItems: [] as ConfiguratorSubItem[],
     renderCell: renderFirstCell,
   };
   firstItems.add(item);

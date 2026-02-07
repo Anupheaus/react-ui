@@ -12,9 +12,9 @@ interface Props {
   allowDelete?: boolean;
 }
 
-export const useSimpleListItemDialog = createDialog('SimpleListItemDialog', ({ Dialog, Content, Actions, close }: DialogDefinitionUtils<ReactListItem | null | undefined>) =>
-  ({ allowDelete = false, textFieldLabel = 'Text' }: Props) => (initialItem?: ReactListItem) => {
-    const [item, setItem] = useState(() => initialItem ?? { id: Math.uniqueId(), text: '' });
+export const useSimpleListItemDialog = createDialog('SimpleListItemDialog', ({ Dialog, Content, Actions, close }: DialogDefinitionUtils<ReactListItem<any> | null | undefined>) =>
+  ({ allowDelete = false, textFieldLabel = 'Text' }: Props) => function <T = void>(initialItem?: ReactListItem<T>) {
+    const [item, setItem] = useState(() => initialItem ?? { id: Math.uniqueId(), text: '' } as ReactListItem<any>);
     const { Field } = useFields(item, setItem);
 
     const isNew = initialItem == null;

@@ -1,18 +1,32 @@
-import type { ListItem, Record } from '@anupheaus/common';
+import type { ListItem } from '@anupheaus/common';
 import { is as isCommon } from '@anupheaus/common';
 import type { ReactNode } from 'react';
 import type { IconName } from '../components/Icon/Icons';
 import { Skeleton } from '../components/Skeleton';
 
-export type ReactListItem<T = void> = ListItem & {
+export type ReactListItem<DataType = any, SubItemType extends ReactListItem = ReactListItem<any, any>> = ListItem & {
   label?: ReactNode;
   iconName?: IconName;
   tooltip?: ReactNode;
   help?: ReactNode;
   className?: string;
   isSelected?: boolean;
-  onSelect?(): void;
-} & (T extends void ? {} : { data: T; });
+  isSelectable?: boolean;
+  isExpanded?: boolean;
+  subItems?: SubItemType[];
+  disableRipple?: boolean;
+  actions?: ReactNode;
+  isDeletable?: boolean;
+  data?: DataType | Promise<DataType>;
+  onClick?(id: string, item: DataType, index: number): void;
+  onDelete?(id: string, item: DataType, index: number): void;
+  onSelectChange?(id: string, item: DataType, index: number, isSelected: boolean): void;
+  onActiveChange?(id: string, item: DataType, index: number, isActive: boolean): void;
+  render?(id: string, item: DataType, index: number): ReactNode;
+  renderLoading?(id: string, index: number): ReactNode;
+  renderError?(id: string, error: Error, index: number): ReactNode;
+  renderItem?(item: ReactListItem<DataType>, index: number, resolvedData?: DataType): ReactNode;
+};
 
 export namespace ReactListItem {
 
@@ -37,4 +51,4 @@ export namespace ReactListItem {
   }
 }
 
-export type ListItemType = string | Record | ReactListItem;
+export type ListItemType = string | ListItem | ReactListItem;

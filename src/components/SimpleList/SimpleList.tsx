@@ -1,4 +1,4 @@
-import { List, ListItem } from '../List';
+import { List } from '../List';
 import { createComponent } from '../Component';
 import type { ReactListItem } from '../../models';
 import type { ComponentProps, ReactNode } from 'react';
@@ -8,35 +8,35 @@ import { useBound } from '../../hooks';
 import { is } from '@anupheaus/common';
 import type { InternalList } from '../InternalList';
 
-interface Props extends Omit<ComponentProps<typeof List>, 'items' | 'value' | 'onChange'> {
-  value?: ReactListItem[];
+interface Props<T = void> extends Omit<ComponentProps<typeof List<T>>, 'items' | 'value' | 'onChange'> {
+  value?: ReactListItem<T>[];
   allowAdd?: boolean;
   allowDelete?: boolean;
   textFieldLabel?: ReactNode;
-  onChange?(value: ReactListItem[]): void;
+  onChange?(value: ReactListItem<T>[]): void;
 }
 
 
-export const SimpleList = createComponent('SimpleList', ({
+export const SimpleList = createComponent('SimpleList', function <T = void>({
   allowAdd = true,
   allowDelete = true,
   textFieldLabel,
   value,
   onChange,
   ...props
-}: Props) => {
+}: Props<T>) {
   const items = useMemo(() => value ?? [], [value]);
   const { SimpleListItemDialog, openSimpleListItemDialog } = useSimpleListItemDialog();
 
   const addNewItem = useBound(async () => {
-    if (props.onAdd != null) return props.onAdd();
+    if (props.onAdd != null) return await props.onAdd();
     const item = await openSimpleListItemDialog();
     if (item == null) return;
-    onChange?.([...items, item]);
+    onChange?.([...items, item as ReactListItem<T>]);
   });
 
-  const internalListProps = useMemo<Partial<ComponentProps<typeof InternalList<ReactListItem>>>>(() => ({
-    onItemsChange: async (newValue: (ReactListItem | Promise<ReactListItem>)[]) => {
+  const internalListProps = useMemo<Partial<ComponentProps<typeof InternalList<T>>>>(() => ({
+    onItemsChange: async (newValue: ReactListItem<T>[]) => {
       if (onChange == null) return;
       const [newItems] = await Promise.whenAllSettled(newValue.map(async item => await item));
       onChange(newItems);
@@ -50,9 +50,7 @@ export const SimpleList = createComponent('SimpleList', ({
         {...internalListProps}
         items={items}
         onAdd={is.function(props.onAdd) ? props.onAdd : (allowAdd ? addNewItem : undefined)}
-      >
-        <ListItem />
-      </List>
+      />
       <SimpleListItemDialog allowDelete={allowDelete} textFieldLabel={textFieldLabel} />
     </>
   );

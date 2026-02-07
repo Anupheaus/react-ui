@@ -1,14 +1,18 @@
-import { DataPagination, PromiseMaybe, is } from '@anupheaus/common';
-import { PaperProps, Popover, PopoverOrigin } from '@mui/material';
-import { FunctionComponent, KeyboardEvent, ReactNode, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { AnyObject, DataPagination, PromiseMaybe } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { PaperProps, PopoverOrigin } from '@mui/material';
+import { Popover } from '@mui/material';
+import type { FunctionComponent, KeyboardEvent, ReactNode } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount, useUpdatableState } from '../../hooks';
-import { ReactListItem } from '../../models';
+import type { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
 import { MenuItem } from '../Menu';
-import { InternalText, InternalTextProps } from '../InternalText';
+import type { InternalTextProps } from '../InternalText';
+import { InternalText } from '../InternalText';
 import { UIState } from '../../providers';
 
 const useStyles = createStyles(({ menu: { normal } }) => ({
@@ -97,7 +101,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
   // });
 
   const handleItemClick = useBound((item: ReactListItem) => () => {
-    item.onSelect?.();
+    item.onClick?.(item.id, (item as AnyObject).data, 0);
     setIsClosed();
     onChange?.(item.id, item);
   });

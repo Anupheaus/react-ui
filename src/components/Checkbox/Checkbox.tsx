@@ -13,10 +13,11 @@ interface Props extends ComponentProps<typeof Label> {
   value?: boolean;
   label?: ReactNode;
   labelPosition?: 'left' | 'right' | 'top' | 'bottom';
-  assistiveText?: ReactNode;
+  assistiveHelp?: ReactNode;
   children?: ReactNode;
   width?: string | number;
   minWidth?: string | number;
+  wide?: boolean;
   onChange?(value: boolean): void;
 }
 
@@ -28,13 +29,16 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     gap: 4,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    flexDirection: 'column',
     '--checkbox-cursor': 'pointer',
     // '--checkbox-color': 'transparent',
 
     // [activePseudoClasses]: {
     //   '--checkbox-color': actionNormal.backgroundColor,
     // },
+
+    '&.full-width': {
+      flexGrow: 1,
+    },
 
     [pseudoClasses.readOnly]: {
       '--checkbox-cursor': 'default',
@@ -48,6 +52,9 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     flex: 'none',
     gap: 8,
     cursor: 'default',
+    '&.full-width': {
+      flexGrow: 1,
+    },
   },
   checkboxArea: {
     display: 'flex',
@@ -121,9 +128,10 @@ export const Checkbox = createComponent('Checkbox', ({
   isOptional,
   label,
   labelPosition = 'right',
-  assistiveText,
+  assistiveHelp,
   width,
   minWidth,
+  wide = false,
   children = null,
   onChange,
 }: Props) => {
@@ -144,17 +152,17 @@ export const Checkbox = createComponent('Checkbox', ({
   }), [width, minWidth]);
 
   return (
-    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], isReadOnly && 'is-read-only', className)} style={style}>
-      <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`])}>
+    <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], isReadOnly && 'is-read-only', wide && 'full-width', className)} style={style}>
+      <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`], wide && 'full-width')}>
         <Skeleton className={css.skeleton}>
           <Tag name="checkbox-area" className={join(css.checkboxArea, className)}>
             <input type="checkbox" className={css.inputCheckbox} checked={value ?? false} onChange={handleValueChanged} disabled={isReadOnly} />
             <Tag name="checkbox-area-checked" className={join(css.checkboxAreaChecked, value === true && 'is-checked')} />
           </Tag>
         </Skeleton>
-        <Label help={help} isOptional={isOptional} onClick={toggleValue}>{label ?? children}</Label>
+        <Label help={help} isOptional={isOptional} onClick={toggleValue} wide={wide}>{label ?? children}</Label>
       </Tag>
-      <AssistiveLabel className={css.assistiveText}>{assistiveText}</AssistiveLabel>
+      <AssistiveLabel className={css.assistiveText}>{assistiveHelp}</AssistiveLabel>
     </Tag>
   );
 }, {

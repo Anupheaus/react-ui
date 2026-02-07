@@ -45,6 +45,11 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
       flexGrow: 0,
       flexShrink: 0,
     },
+
+    '&.full-height': {
+      flexGrow: 1,
+      flexShrink: 1,
+    },
   },
   fieldContainer: {
     ...normal,
@@ -114,6 +119,7 @@ interface Props extends FieldProps {
   disableRipple?: boolean;
   style?: CSSProperties;
   minWidth?: string | number;
+  height?: string | number;
   fullHeight?: boolean;
   skeleton?: 'outlineOnly';
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
@@ -147,6 +153,7 @@ export const Field = createComponent('Field', ({
   disableRipple = false,
   hideOptionalLabel,
   minWidth,
+  height,
   fullHeight,
   skeleton,
   onBlur,
@@ -195,7 +202,7 @@ export const Field = createComponent('Field', ({
       <Tag
         name={`${tagName}-container`}
         ref={containerRef}
-        className={join(css.fieldContainer, isLoading && css.isLoading, fullHeight && 'full-height', containerClassName)}
+        className={join(css.fieldContainer, isLoading && css.isLoading, (fullHeight || height != null) && 'full-height', containerClassName)}
         tabIndex={allowFocus ? 0 : -1}
         style={containerStyle}
         onFocusCapture={wrappedShowToolbars}
@@ -233,13 +240,22 @@ export const Field = createComponent('Field', ({
     );
   };
 
+  fullHeight = height != null ? false : fullHeight;
+
   const style = useInlineStyle(() => ({
     minWidth: toPx(minWidth),
     ...props.style,
   }), [minWidth, props.style]);
 
   return (
-    <Tag {...props} name={tagName} className={join(css.field, width != null && 'is-set-width', className)} width={width ?? (wide === true ? '100%' : undefined)} style={style}>
+    <Tag
+      {...props}
+      name={tagName}
+      className={join(css.field, width != null && 'is-set-width', fullHeight && 'full-height', className)}
+      width={width ?? (wide === true ? '100%' : undefined)}
+      height={height}
+      style={style}
+    >
       <Label isOptional={hideOptionalLabel ? false : isOptional} help={help}>{label}</Label>
       {wrapContent(children)}
       <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>

@@ -1,18 +1,18 @@
 import { useOnChange } from '../useOnChange';
 import type { UseDataRequest, UseDataResponse } from '../../extensions';
-import type { ListItemType } from '../../models';
+import type { ReactListItem } from '../../models';
 import { useRef } from 'react';
 
-function useOrdinalToSort(item: ListItemType) {
-  if (typeof (item) === 'string') return item;
+function useOrdinalToSort<T>(item: ReactListItem<T>) {
   if ('ordinal' in item) return item.ordinal;
   if ('index' in item) return item.index;
+  if ('text' in item) return item.text;
 }
 
-export function makeOnRequest<T extends ListItemType>(providedItems: T[] | undefined, refresh: () => void) {
+export function makeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();
   const lastRequestHashRef = useRef<string>('');
-  const lastResponseRef = useRef<UseDataResponse<T>>();
+  const lastResponseRef = useRef<UseDataResponse<ReactListItem<T>>>();
 
   useOnChange(() => {
     lastRequestHashRef.current = '';
@@ -20,7 +20,7 @@ export function makeOnRequest<T extends ListItemType>(providedItems: T[] | undef
     refresh();
   }, [providedItems]);
 
-  return async ({ requestId, pagination: { limit, offset = 0 } }: UseDataRequest, response: (response: UseDataResponse<T>) => void): Promise<void> => {
+  return async ({ requestId, pagination: { limit, offset = 0 } }: UseDataRequest, response: (response: UseDataResponse<ReactListItem<T>>) => void): Promise<void> => {
     if (limit > items.length) limit = items.length;
     if ((offset + limit) > items.length) offset = items.length - limit;
     if (offset < 0) offset = 0;

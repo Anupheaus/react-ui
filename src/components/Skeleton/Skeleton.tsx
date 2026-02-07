@@ -49,6 +49,10 @@ const useStyles = createStyles(({ skeleton }) => ({
     '&.is-pulsing': {
       animationPlayState: 'running',
     },
+
+    '&.full-width': {
+      flexGrow: 1,
+    },
   },
   content: {
     display: 'flex',
@@ -101,6 +105,7 @@ interface Props {
   style?: CSSProperties;
   children?: ReactNode;
   useAnimatedBorder?: boolean;
+  wide?: boolean;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
 
@@ -113,6 +118,7 @@ export const Skeleton = createComponent('Skeleton', ({
   style: providedStyle,
   children = null,
   useAnimatedBorder = false,
+  wide = false,
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
@@ -126,6 +132,9 @@ export const Skeleton = createComponent('Skeleton', ({
       width: `${20 + Math.round(Math.random() * 80)}%`,
     };
   }, [providedStyle, children, useRandomWidth]);
+
+  if (style != null) wide = false;
+
   if (useRandomWidth && children == null) children = <span>&nbsp;</span>;
 
   if (!isLoading && children != null) return (<>{children}</>);
@@ -140,6 +149,7 @@ export const Skeleton = createComponent('Skeleton', ({
         useAnimatedBorder && 'is-using-animated-border',
         isLoading && !noSkeletons && !useAnimatedBorder && 'is-pulsing',
         css[`variant_${type}`],
+        wide && 'full-width',
         className
       )}
       style={style}

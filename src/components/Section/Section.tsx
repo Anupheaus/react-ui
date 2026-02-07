@@ -41,20 +41,19 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderColor } }
   },
 }));
 
-interface Props extends Pick<FlexProps, 'className' | 'children' | 'gap' | 'disableGrow' | 'isVertical' | 'wide'> {
+interface Props extends Pick<FlexProps, 'className' | 'children' | 'gap' | 'disableGrow' | 'isVertical' | 'wide' | 'maxHeight'> {
   label?: ReactNode;
 }
 
 export const Section = createComponent('Section', ({
   label,
-  disableGrow = true,
-  wide = true,
+  maxHeight,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
 
   return (
-    <Flex tagName="section" className={css.section} disableGrow={disableGrow} wide={wide}>
+    <Flex tagName="section" className={css.section} maxHeight={maxHeight}>
       <Flex tagName="section-border" className={join(css.sectionBorder, label == null && 'no-clip')} />
       {label != null && (
         <Flex tagName="section-label" className={css.sectionLabel} gap={8}>

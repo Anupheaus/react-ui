@@ -1,4 +1,4 @@
-import type { DataPagination, DeferredPromise } from '@anupheaus/common';
+import type { DataPagination } from '@anupheaus/common';
 import { Error, is } from '@anupheaus/common';
 import type { UseDataRequest, UseDataResponse } from '../../extensions';
 import { useLayoutEffect, useMemo, useRef } from 'react';
@@ -7,14 +7,15 @@ import { useForceUpdate } from '../useForceUpdate';
 import { useDebounce } from '../useDebounce';
 import type { UseActions } from '../useActions';
 import { makeOnRequest } from './makeOnRequest';
-import type { ListItemType } from '../../models';
+import type { ReactListItem } from '../../models';
+import { clearResponse, ensureSelectedItemsPersist, updateStateWithSkeletons, updateWithResponse } from './useItemsUtils';
 
 export interface UseItemsActions {
   refresh(): void;
 }
 
-interface State<T extends ListItemType> {
-  items: (T | DeferredPromise<T>)[];
+export interface State<T> {
+  items: ReactListItem<T>[];
   isLoading: boolean;
   total?: number;
   limit: number;
@@ -22,15 +23,17 @@ interface State<T extends ListItemType> {
   error?: Error;
 }
 
-interface Props<T extends ListItemType> {
+interface Props<T = void> {
   initialLimit?: number;
-  items?: T[];
+  items?: ReactListItem<T>[];
+  selectedItemIds?: string[];
+  useSkeletons?: boolean;
   actions?: UseActions<UseItemsActions>;
-  onRequest?(request: UseDataRequest, response: (response: UseDataResponse<T>) => void): Promise<void>;
-  onItemsChange?(items: (T | Promise<T>)[]): void;
+  onRequest?(request: UseDataRequest, response: (response: UseDataResponse<ReactListItem<T>>) => void): Promise<void>;
+  onItemsChange?(items: ReactListItem<T>[]): void;
 }
 
-export function useItems<T extends ListItemType>({ initialLimit = 20, items, actions, onRequest, onItemsChange }: Props<T>) {
+export function useItems<T = void>({ initialLimit = 20, items, actions, onRequest, onItemsChange, selectedItemIds, useSkeletons = false }: Props<T>) {
   const refresh = async () => {
     stateRef.current.total = undefined;
     await makeRequest(lastPaginationRequestRef.current);
@@ -44,7 +47,7 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
   });
   const stateRef = useRef<State<T>>({ items: [], isLoading: true, total: initialLimit, ...lastPaginationRequestRef.current });
   const doDebouncedUpdate = useDebounce(useForceUpdate(), 25, 150);
-  const doDebouncedItemsChange = useDebounce((updatedItems: (T | DeferredPromise<T>)[]) => onItemsChange?.(updatedItems), 25, 150);
+  const doDebouncedItemsChange = useDebounce((updatedItems: ReactListItem<T>[]) => onItemsChange?.(updatedItems), 25, 150);
 
   const makeRequest = async (pagination: DataPagination, doUpdate = true) => {
     const fullPagination = lastPaginationRequestRef.current = { offset: 0, ...pagination } as FullPagination;
@@ -54,24 +57,22 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
     asyncRequests.add(requestId);
     isLoading = true;
     try {
+      if (useSkeletons) {
+        stateRef.current = updateStateWithSkeletons(stateRef.current, fullPagination);
+        doDebouncedUpdate();
+      }
       await request({ requestId, pagination: fullPagination }, ({ requestId: responseRequestId, items: responseItems, total }) => {
         asyncRequests.delete(responseRequestId);
         if (currentRequestId !== currentRequestIdRef.current) return; // a new request has been made
-        stateRef.current = {
-          items: responseItems,
-          isLoading: asyncRequests.size !== 0,
-          total,
-          ...fullPagination,
-        };
+        ensureSelectedItemsPersist(responseItems, selectedItemIds);
+        stateRef.current = updateWithResponse(stateRef.current, fullPagination, responseItems, total, asyncRequests.size !== 0);
         doDebouncedItemsChange(responseItems);
         doDebouncedUpdate();
       });
     } catch (e) {
       asyncRequests.delete(requestId);
       if (asyncRequests.size === 0 && stateRef.current.isLoading === true) {
-        stateRef.current.isLoading = false;
-        stateRef.current.total = 0;
-        stateRef.current.items = [];
+        stateRef.current = clearResponse(stateRef.current);
         doDebouncedItemsChange(stateRef.current.items);
         if (is.errorLike(e)) stateRef.current.error = new Error(e);
         doDebouncedUpdate();
@@ -83,6 +84,10 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
     };
     if (doUpdate) doDebouncedUpdate();
   };
+
+  useMemo(() => {
+    stateRef.current.items = stateRef.current.items.map(item => ({ ...item, isSelected: selectedItemIds?.includes(item.id) ?? false }));
+  }, [selectedItemIds]);
 
   useMemo(() => {
     if (onRequest != null) return;

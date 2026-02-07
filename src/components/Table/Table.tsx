@@ -1,9 +1,9 @@
 import { createComponent } from '../Component';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
-import type { TableColumn, TableOnRequest, TableUseRecordHook } from './TableModels';
+import type { TableColumn, TableOnRequest } from './TableModels';
 import type { Record } from '@anupheaus/common';
 import type { TableHeaderActions } from './TableHeader';
 import { TableHeader } from './TableHeader';
@@ -62,8 +62,6 @@ interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordTy
   columns: TableColumn<RecordType>[];
   delayRenderingRows?: boolean;
   unitName?: string;
-  children?: ReactNode;
-  useRecordHook?: TableUseRecordHook<RecordType>;
   actions?: UseActions<TableActions>;
   onRequest: TableRowsProps<RecordType>['onRequest'];
 }
@@ -74,8 +72,6 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   unitName = 'record',
   removeLabel,
   delayRenderingRows,
-  children,
-  useRecordHook,
   actions,
   onRequest,
   onAdd,
@@ -92,7 +88,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   const batchUpdates = useBatchUpdates();
   const [error, setError] = useState<Error>();
 
-  const wrapRequest = useBound<TableOnRequest<RecordType | string>>(async (request, response) => {
+  const wrapRequest = useBound<TableOnRequest<RecordType>>(async (request, response) => {
     setRecordsLoading(totalRecords == null);
     await onRequest(request, ({ requestId, records, total }) => batchUpdates(() => {
       if (hasUnmounted()) return;
@@ -124,11 +120,8 @@ export const Table = createComponent('Table', function <RecordType extends Recor
           onRequest={wrapRequest}
           onError={handleError}
           onScrollLeft={handleScrollLeft}
-          useRecordHook={useRecordHook}
           delayRendering={delayRenderingRows}
-        >
-          {children}
-        </TableRows>
+        />
         <UIState isLoading={recordsLoading}>
           <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} onAdd={onAdd} />
         </UIState>

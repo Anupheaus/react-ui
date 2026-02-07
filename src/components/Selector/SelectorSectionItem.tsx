@@ -8,11 +8,11 @@ import { Icon } from '../Icon';
 import { Typography } from '../Typography';
 import { useRipple } from '../Ripple';
 
-const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, borderColor } } }, buttons: { default: { normal: button } } }, { applyTransition }) => ({
+const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, borderColor } } }, buttons: { default: { normal: button } }, pseudoClasses }, { applyTransition }) => ({
   item: {
     borderRadius,
     border: `1px solid ${borderColor}`,
-    height: 50,
+    height: 30,
     padding: 8,
     cursor: 'pointer',
     overflow: 'hidden',
@@ -21,6 +21,11 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, b
     '&.is-selected': {
       borderColor: button.borderColor,
       backgroundColor: button.backgroundColor,
+    },
+
+    [pseudoClasses.tablet]: {
+      height: 50,
+      padding: '8px 16px',
     },
   },
 }));

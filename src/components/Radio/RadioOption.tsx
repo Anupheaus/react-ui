@@ -14,7 +14,7 @@ import { Tag } from '../Tag';
 import { Typography } from '../Typography';
 import { HelpInfo } from '../HelpInfo';
 
-const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
+const useStyles = createStyles(({ fields: { content: { normal } }, pseudoClasses }) => ({
   radio: {
     cursor: 'pointer',
   },
@@ -27,7 +27,13 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
     flex: 'none',
     width: 20,
     height: 20,
-    padding: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    [pseudoClasses.tablet]: {
+      width: 30,
+      height: 30,
+    },
   },
   radioGraphic: {
     position: 'relative',
@@ -39,6 +45,12 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
     borderStyle: 'solid',
     borderColor: normal.borderColor,
     borderRadius: '50%',
+
+    [pseudoClasses.tablet]: {
+      width: 26,
+      height: 26,
+      borderWidth: 4,
+    },
   },
   toggledRadioGraphic: {
     '&::after': {
@@ -75,14 +87,14 @@ export const RadioOption = createComponent('RadioOption', ({
   const handleClick = useBound(() => {
     if (isReadOnly || isLoading) return;
     set(item.id);
-    item.onSelect?.();
+    item.onSelectChange?.(item.id, item.data, 0, !isSelected);
   });
 
   const handleKeyUp = useBound((event: KeyboardEvent<HTMLDivElement>) => {
     if (isReadOnly || isLoading) return;
     if (![' ', 'Enter'].includes(event.key)) return;
     set(item.id);
-    item.onSelect?.();
+    item.onSelectChange?.(item.id, item.data, 0, !isSelected);
   });
 
   return (

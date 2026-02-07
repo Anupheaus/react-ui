@@ -175,6 +175,8 @@ export const DefaultTheme: Theme = {
   pseudoClasses: {
     active: '&:not(.is-read-only):hover, &:not(.is-read-only):active, &:not(.is-read-only):focus, &:not(.is-read-only):focus-visible, &:not(.is-read-only).is-active',
     readOnly: '&.is-read-only',
+    tablet: '@media(pointer: coarse)',
+    mobile: '@media(pointer: coarse) and (max-width: 768px)',
   },
   dropDown: {
     normal: {
@@ -215,11 +217,12 @@ export const DefaultTheme: Theme = {
     },
   },
   shadows: {
-    veryLight: '0 1px 2px rgba(0 0 0 / 10%), 0 2px 4px rgba(0 0 0 / 7%)',
-    light: '0 1px 2px rgba(0 0 0 / 15%), 0 3px 6px rgba(0 0 0 / 12%)',
-    medium: '0 1px 3px rgba(0 0 0 / 30%), 0 6px 12px rgba(0 0 0 / 24%)',
-    heavy: '0 3px 6px rgba(0 0 0 / 25%), 0 10px 20px rgba(0 0 0 / 20%)',
-    veryHeavy: '0 5px 9px rgba(0 0 0 / 30%), 0 14px 28px rgba(0 0 0 / 25%)',
+    veryLight: inset => `${inset ? 'inset ' : ''}0 1px 2px rgba(0 0 0 / 10%), ${inset ? 'inset ' : ''}0 2px 4px rgba(0 0 0 / 7%)`,
+    light: inset => `${inset ? 'inset ' : ''}0 1px 2px rgba(0 0 0 / 15%), ${inset ? 'inset ' : ''}0 3px 6px rgba(0 0 0 / 12%)`,
+    medium: inset => `${inset ? 'inset ' : ''}0 1px 3px rgba(0 0 0 / 30%), ${inset ? 'inset ' : ''}0 6px 12px rgba(0 0 0 / 24%)`,
+    heavy: inset => `${inset ? 'inset ' : ''}0 3px 6px rgba(0 0 0 / 25%), ${inset ? 'inset ' : ''}0 10px 20px rgba(0 0 0 / 20%)`,
+    veryHeavy: inset => `${inset ? 'inset ' : ''}0 5px 9px rgba(0 0 0 / 30%), ${inset ? 'inset ' : ''}0 14px 28px rgba(0 0 0 / 25%)`,
+    scroll: inset => `${inset ? 'inset ' : ''}0 0 8px 0 #000`,
   },
   icons: {
     normal: {

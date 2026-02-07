@@ -1,9 +1,11 @@
-import { ReactNode, useMemo, useRef } from 'react';
+import type { ReactNode } from 'react';
+import { useMemo, useRef } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { PINDigit } from './PINDigit';
 import { useDelegatedBound } from '../../hooks';
-import { Field, FieldProps } from '../Field';
+import type { FieldProps } from '../Field';
+import { Field } from '../Field';
 
 interface Props extends FieldProps {
   className?: string;

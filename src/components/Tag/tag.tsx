@@ -10,6 +10,7 @@ interface Props extends Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, H
   name: string;
   className?: string;
   width?: string | number;
+  height?: string | number;
   ref?: Ref<HTMLDivElement | null>;
   testId?: string;
 }
@@ -22,7 +23,7 @@ export const Tag = createComponent('Tag', ({
   testId,
   ...rest
 }: Props) => {
-  const { style: providedStyle, width, ...props } = {
+  const { style: providedStyle, width, height, ...props } = {
     class: className,
     is: 'custom-element',
     ...rest,
@@ -39,10 +40,11 @@ export const Tag = createComponent('Tag', ({
     const newStyle: CSSProperties = {
       ...providedStyle,
       width: width ?? providedStyle?.width,
+      height: height ?? providedStyle?.height,
     };
     if (Object.values(newStyle).removeNull().length === 0) return undefined;
     return JSON.parse(JSON.stringify(newStyle));
-  }, [providedStyle, width]);
+  }, [providedStyle, width, height]);
 
   return (
     <TooltipRenderer>

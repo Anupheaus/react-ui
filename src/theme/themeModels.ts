@@ -6,7 +6,13 @@ export interface IconTypeProps {
   color?: string;
 }
 
-export type IconType = (props: IconTypeProps) => JSX.Element | null;
+export type IconTypeRenderFn = (props: IconTypeProps) => JSX.Element | null;
+export interface IconTypeConfig {
+  rotate?: number;
+  flip?: 'horizontal' | 'vertical';
+  render: IconTypeRenderFn;
+}
+export type IconType = IconTypeConfig | IconTypeRenderFn;
 
 export type ThemeDefinition = AnyObject;
 export type ThemeIcons = {

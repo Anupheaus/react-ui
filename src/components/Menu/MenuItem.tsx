@@ -40,16 +40,14 @@ const useStyles = createStyles(({
       alignItems: 'center',
     },
 
-    '@media(pointer: coarse)': {
+    [pseudoClasses.tablet]: {
       margin: 4,
       borderRadius: normalFieldContent.borderRadius,
       border: `1px solid ${normalFieldContent.borderColor}`,
-
-      '@media(max-height: 800px)': {
-        width: 'fit-content',
-        minHeight: 60,
-        alignItems: 'center',
-      },
+      //width: 'fit-content',
+      flexGrow: '1 !important',
+      minHeight: 60,
+      alignItems: 'center',
     },
   },
   subMenuIcon: {

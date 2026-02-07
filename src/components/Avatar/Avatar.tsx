@@ -3,17 +3,19 @@ import { useBooleanState } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import { AnyObject, is } from '@anupheaus/common';
+import type { AnyObject } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
 import { useMemo } from 'react';
 import { Tag } from '../Tag';
-import { Icon, IconName } from '../Icon';
+import type { IconName } from '../Icon';
+import { Icon } from '../Icon';
 import { useUIState } from '../../providers';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 
-const useStyles = createStyles(({ avatar: { normal, active, readOnly }, shadows, pseudoClasses }, tools) => ({
+const useStyles = createStyles(({ avatar: { normal, active, readOnly }, shadows, pseudoClasses }, { applyTransition }) => ({
   avatar: {
     borderRadius: '50%',
-    boxShadow: normal.shadow === true ? shadows.medium : normal.shadow === false ? undefined : normal.shadow,
+    boxShadow: normal.shadow === true ? shadows.medium(false) : normal.shadow === false ? undefined : normal.shadow,
     overflow: 'hidden',
     fontWeight: normal.textWeight,
     color: normal.textColor,
@@ -49,7 +51,7 @@ const useStyles = createStyles(({ avatar: { normal, active, readOnly }, shadows,
     width: '100%',
     height: '100%',
     opacity: 0,
-    ...tools.applyTransition('opacity'),
+    ...applyTransition('opacity'),
 
     '&.is-visible': {
       opacity: 1,

@@ -6,7 +6,7 @@ import { ThemeProvider, createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Button } from '../../Button';
 
-const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { normal: { backgroundColor: activeButtonBackgroundColor } } } }, { toPx, applyTransition }) => {
+const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { normal: { backgroundColor: activeButtonBackgroundColor } } }, pseudoClasses }, { toPx, applyTransition }) => {
 
   return {
     tabButton: {
@@ -24,6 +24,14 @@ const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { n
 
       '&.is-focused::after': {
         borderBottomColor: button?.stripColor ?? activeButtonBackgroundColor ?? 'rgba(0 0 0 / 5%)',
+      },
+
+      [pseudoClasses.tablet]: {
+        padding: '16px 24px !important',
+
+        '&.is-focused': {
+          backgroundColor: 'rgba(0 0 0 / 5%)',
+        },
       },
 
       // [pseudoClasses.active]: {

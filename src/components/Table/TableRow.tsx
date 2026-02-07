@@ -5,6 +5,7 @@ import type { TableColumn } from './TableModels';
 import { TableCell } from './TableCell';
 import { useMemo } from 'react';
 import { createStyles } from '../../theme';
+import { UIState } from '../../providers';
 
 const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
   row: {
@@ -36,9 +37,11 @@ export const TableRow = createComponent('TableRow', <RecordType extends Record>(
     <TableCell key={`${column.id}${record == null ? '' : `${record.id}`}`} column={column} columnIndex={columnIndex} record={record} rowIndex={index} />
   )), [columns, record, index]);
 
-  return (
+  const row = (
     <Flex tagName="table-row" className={css.row} disableGrow>
       {content}
     </Flex>
   );
+
+  return record == null ? <UIState isLoading>{row}</UIState> : row;
 });

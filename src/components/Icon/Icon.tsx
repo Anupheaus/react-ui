@@ -1,7 +1,7 @@
-import type { Ref } from 'react';
+import type { MouseEvent, Ref } from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../Component';
-import { createStyles, type IconType } from '../../theme';
+import { createStyles, type IconType, type IconTypeConfig } from '../../theme';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 import type { IconDefinitions } from './Icons';
@@ -10,6 +10,8 @@ import { is } from '@anupheaus/common';
 
 export { IconType };
 
+type InternalUseMemoResult = Omit<IconTypeConfig, 'render'> & { icon: JSX.Element; };
+
 interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   name: keyof T;
   className?: string;
@@ -17,7 +19,8 @@ interface Props<T extends IconDefinitions = typeof LocalIconDefinitions> {
   size?: 'normal' | 'small' | 'large' | number;
   ref?: Ref<HTMLDivElement>;
   dropShadow?: boolean;
-  onClick?(): void;
+  rotate?: number;
+  onClick?(event: MouseEvent): void;
 }
 
 const useStyles = createStyles(({ icons: { normal, active, readOnly }, pseudoClasses }, tools) => ({
@@ -32,9 +35,10 @@ const useStyles = createStyles(({ icons: { normal, active, readOnly }, pseudoCla
     maxHeight: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    transformOrigin: 'center',
     flexGrow: 0,
     flexShrink: 0,
-    ...tools.applyTransition('opacity'),
+    ...tools.applyTransition('opacity, transform'),
 
     [pseudoClasses.active]: {
       opacity: active.opacity ?? normal.opacity ?? 1,
@@ -61,10 +65,12 @@ const IconComponent = createComponent('Icon', function ({
   color,
   size = 'normal',
   dropShadow = false,
+  rotate: propsRotate,
   ref,
   onClick,
 }: Props<typeof LocalIconDefinitions>) {
-  const { css, join } = useStyles();
+  const { css, useInlineStyle, join } = useStyles();
+
   const sizeAmount = (() => {
     if (typeof (size) === 'number') return size;
     switch (size) {
@@ -74,32 +80,37 @@ const IconComponent = createComponent('Icon', function ({
     }
   })();
 
-  const icon = useMemo(() => {
-    const defaultIcon = () => augmentedIconDefinitions['no-image']({ size: '100%', color });
-    const iconFunc = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions];
-    if (!is.function(iconFunc)) return defaultIcon();
+  const { icon, rotate, flip } = useMemo((): InternalUseMemoResult => {
+    const defaultIcon = () => ({ icon: augmentedIconDefinitions['no-image']({ size: '100%', color }), rotate: propsRotate, flip: undefined });
+    const iconFuncOrConfig = augmentedIconDefinitions[name as keyof typeof augmentedIconDefinitions] as IconType;
+    const config: IconTypeConfig = is.function(iconFuncOrConfig) ? { render: iconFuncOrConfig } : iconFuncOrConfig;
+    if (!is.function(config.render)) return defaultIcon();
 
     const returnedIcon = (() => {
       try {
-        return iconFunc({ size: '100%', color });
+        return config.render({ size: sizeAmount, color });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(`Error rendering icon "${name}":`, error);
-        return defaultIcon();
+        return defaultIcon().icon;
       }
     })();
 
-    if (returnedIcon.type == null) {
+    if (returnedIcon == null || returnedIcon.type == null) {
       // eslint-disable-next-line no-console
       console.error(`Icon "${name}" is not a valid icon`);
       return defaultIcon();
     }
 
-    return returnedIcon;
-  }, [name, color, sizeAmount]);
+    return { ...config, icon: returnedIcon, rotate: propsRotate ?? config.rotate };
+  }, [name, color, sizeAmount, propsRotate]);
+
+  const style = useInlineStyle(() => ({
+    transform: rotate != null ? `rotate(${rotate}deg)` : flip === 'horizontal' ? 'scaleX(-1)' : flip === 'vertical' ? 'scaleY(-1)' : undefined,
+  }), [rotate, flip]);
 
   return (
-    <Tag name="icon" ref={ref} className={join(css.icon, dropShadow && 'drop-shadow', onClick != null && css.clickable, className)} data-icon-type={name} onClick={onClick}>
+    <Tag name="icon" ref={ref} className={join(css.icon, dropShadow && 'drop-shadow', onClick != null && css.clickable, className)} data-icon-type={name} onClick={onClick} style={style}>
       <Skeleton type="circle">{icon}</Skeleton>
     </Tag>
   );

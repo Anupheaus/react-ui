@@ -2,7 +2,6 @@ import { createComponent } from '../Component';
 import { useRipple } from '../Ripple';
 import { NoSkeletons, Skeleton } from '../Skeleton';
 import { useBound, useForceUpdate } from '../../hooks';
-import { useEventIsolator } from '../../hooks/useEventIsolator';
 import { useDOMRef } from '../../hooks/useDOMRef';
 import { createStyles } from '../../theme';
 import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
@@ -27,7 +26,7 @@ export interface ButtonProps {
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
 
-const useStyles = createStyles(({ transition, text, buttons: { default: defaultButton, bordered, hover }, pseudoClasses }) => {
+const useStyles = createStyles(({ text, buttons: { default: defaultButton, bordered, hover }, pseudoClasses }, { applyTransition }) => {
 
   const defineVariant = (variant: typeof defaultButton) => ({
     backgroundColor: variant.normal.backgroundColor,
@@ -52,6 +51,19 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
     },
   });
 
+  const iconOnly = {
+    '&.is-icon-only': {
+      overflow: 'hidden',
+      borderRadius: '50%',
+    },
+  };
+
+  const notReadOnlyAndIconOnly = {
+    '&:not(.is-read-only)': {
+      [pseudoClasses.active]: iconOnly,
+    },
+  };
+
   return {
     button: {
       appearance: 'none',
@@ -65,30 +77,20 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
       borderRadius: 4,
       alignItems: 'center',
       justifyContent: 'center',
-      transitionProperty: 'background-color, color',
       boxSizing: 'border-box',
       outline: 'none',
       fontFamily: text.family,
-      fontSize: text.size,
+      fontSize: 'unset',
       fontWeight: text.weight,
       color: text.color,
-      ...transition,
+      ...applyTransition('background-color, color'),
 
-      '&:not(.is-read-only)': {
-        [pseudoClasses.active]: {
-          '&.is-icon-only': {
-            overflow: 'hidden',
-            borderRadius: '50%',
-          },
-        }
-      },
+      ...notReadOnlyAndIconOnly,
+
+      ...iconOnly,
+
       [pseudoClasses.readOnly]: {
         cursor: 'default',
-      },
-
-      '&.is-icon-only': {
-        overflow: 'hidden',
-        borderRadius: '50%',
       },
 
       '&.is-loading': {
@@ -114,6 +116,10 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
           marginLeft: 4,
         },
       },
+
+      // [pseudoClasses.tablet]: {
+      //   fontSize: '1.2em',
+      // },
     },
     size_variant_default: {
       '&:not(.is-icon-only)': {
@@ -125,7 +131,21 @@ const useStyles = createStyles(({ transition, text, buttons: { default: defaultB
         height: 30,
         padding: 0,
       },
+
+      [pseudoClasses.tablet]: {
+        '&:not(.is-icon-only)': {
+          minHeight: 30,
+          padding: '12px 18px',
+        },
+        '&.is-icon-only': {
+          width: 40,
+          height: 40,
+          padding: 0,
+          ...iconOnly,
+        },
+      },
     },
+
     size_variant_small: {
       padding: '2px 4px',
 
@@ -177,12 +197,12 @@ export const Button = createComponent('Button', ({
   if (size == null) size = isCompact ? 'small' : 'default';
   const { css, join } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
-  const eventsIsolator = useEventIsolator({ clickEvents: 'propagation', focusEvents: 'propagation', onParentElement: true });
   const useAnimatedBorderEffectRef = useRef(false);
-  const internalRef = useDOMRef([ref, rippleTarget, eventsIsolator]);
+  const internalRef = useDOMRef([ref, rippleTarget]);
   const update = useForceUpdate();
 
   const handleClick = useBound(async (event: MouseEvent) => {
+    event.stopPropagation();
     if (isLoading || isReadOnly) return;
     const clickResult = onClick?.(event);
     const selectResult = onSelect?.(event);
@@ -210,7 +230,7 @@ export const Button = createComponent('Button', ({
         className,
       )}
       style={style}
-      onClickCapture={handleClick}
+      onClick={handleClick}
       testId={testId}
     >
       <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />

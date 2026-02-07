@@ -106,7 +106,8 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
               tagName="calendar-day-view-entry-content"
               className={css.entryContent}
               style={{ backgroundColor: linedUpEntry.entry.color ?? theme.dataPaletteColors[index % theme.dataPaletteColors.length] }}
-              onClick={event => {
+              testId={`calendar-day-view-entry-${index}`}
+              onClickCapture={event => {
                 event.stopPropagation();
                 onSelect(linedUpEntry.entry);
               }}

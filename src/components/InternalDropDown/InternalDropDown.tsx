@@ -14,7 +14,6 @@ import { UIState, useUIState, useValidation } from '../../providers';
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { InternalList } from '../InternalList';
-import { ListItem } from '../List';
 import { addOptionalItemTo } from './addOptionalItemTo';
 
 const useStyles = createStyles(({ menu: { normal } }) => ({
@@ -82,8 +81,9 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
   const { validate } = useValidation(`${props.tagName}-${props.label}`);
 
-  const handleSelect = useBound((item: ReactListItem | Promise<ReactListItem>) => {
-    if (is.promise(item)) return;
+  const handleSelect = useBound((ids: string[]) => {
+    const item = values.findById(ids[0]);
+    if (item == null) return;
     setIsClosed();
     onChange?.(item.id as T, item);
   });
@@ -137,8 +137,6 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     },
   }), [width]);
 
-
-
   return (
     <UIState isLoading={isLoadingValues}>
       <Field
@@ -165,9 +163,8 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
             tagName={`${props.tagName}-list`}
             items={values}
             className={css.dropDownListContent}
-          >
-            <ListItem onSelect={handleSelect} />
-          </InternalList>
+            onSelectedItemsChange={handleSelect}
+          />
         </Popover>
       </Field>
     </UIState>

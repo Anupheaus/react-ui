@@ -16,6 +16,10 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderColor } }
     '&.no-header': {
       padding: '4px 4px 0',
     },
+
+    '&:last-child': {
+      paddingBottom: 4,
+    },
   },
   headerLine: {
     margin: 'auto 0',
@@ -47,30 +51,31 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderColor } }
 interface Props {
   hideHeader?: boolean;
   item: SelectorItem;
-  onSelect?(selectedItems: ReactListItem[]): void;
+  selectedIds: string[];
+  onSelect?(addId: string | undefined, removeIds: string[]): void;
 }
 
 export const SelectorSection = createComponent('SelectorSection', ({
   hideHeader = false,
   item,
+  selectedIds,
   onSelect,
 }: Props) => {
   const { css, join } = useStyles();
   const { isLoading } = useUIState();
   const [maxWidth, setMaxWidth] = useUpdatableState(() => 0, [item]);
   const [width, setWidth] = useState(() => 0);
-  const [selectedIds, setSelectedIds] = useUpdatableState<string[]>(() => item.subItems.map(({ id, isSelected }) => isSelected ? id : undefined).removeNull(), [item.subItems]);
 
   const updateWidth = useBound((newWidth: number) => setMaxWidth(currentWidth => Math.max(currentWidth, newWidth)));
 
   const handleOnSelect = useBound((selectedItem: ReactListItem) => {
-    setSelectedIds(currentSelectedIds => {
-      const newSelectedIds = (() => currentSelectedIds.includes(selectedItem.id)
-        ? currentSelectedIds.remove(selectedItem.id)
-        : (item.allowMultiSelect ? currentSelectedIds.concat(selectedItem.id) : [selectedItem.id]))();
-      onSelect?.(item.subItems.filterByIds(newSelectedIds));
-      return newSelectedIds;
-    });
+    if (selectedIds.includes(selectedItem.id)) {
+      onSelect?.(undefined, [selectedItem.id]);
+    } else {
+      const newIds = selectedIds.concat(selectedItem.id);
+      const idsToRemove = item.maxSelectableItems != null && newIds.length > item.maxSelectableItems ? newIds.slice(0, newIds.length - item.maxSelectableItems) : [];
+      onSelect?.(selectedItem.id, idsToRemove);
+    }
   });
 
   const subItems = useMemo(() => item.subItems.map(subItem => (

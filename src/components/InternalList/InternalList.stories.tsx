@@ -1,12 +1,10 @@
 import { faker } from '@faker-js/faker';
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { createStory } from '../../Storybook';
 import { InternalList } from './InternalList';
-import { ReactListItem } from '../../models';
+import type { ReactListItem } from '../../models';
 import { useBound } from '../../hooks';
-import { ComponentProps } from 'react';
-import { MockListItem } from './MockListItem';
-import { is } from '@anupheaus/common';
+import type { ComponentProps } from 'react';
 
 faker.seed(10121);
 
@@ -32,12 +30,10 @@ export const Loading: Story = createStory<typeof InternalList>({
   width: 240,
   height: 300,
   render: () => {
-    const handleRequest = useBound(() => void 0);
+    const handleRequest = useBound<Required<ComponentProps<typeof InternalList>>['onRequest']>(async () => void 0);
 
     return (
-      <InternalList tagName="internal-list" onRequest={handleRequest}>
-        <MockListItem />
-      </InternalList>
+      <InternalList tagName="internal-list" onRequest={handleRequest} showSkeletons />
     );
   },
 });
@@ -50,9 +46,7 @@ export const StaticItems: Story = createStory<typeof InternalList>({
   height: 300,
   render: () => {
     return (
-      <InternalList tagName="internal-list" items={staticItems}>
-        <MockListItem />
-      </InternalList>
+      <InternalList tagName="internal-list" items={staticItems} />
     );
   },
 });
@@ -68,41 +62,13 @@ export const LazyLoadedItems: Story = createStory<typeof InternalList>({
       await Promise.delay(1500);
       response({
         requestId,
-        items: staticItems.slice(pagination.offset, (pagination.offset ?? 0) + pagination.limit),
+        items: staticItems.slice(pagination.offset, (pagination.offset ?? 0) + pagination.limit) as ReactListItem<unknown>[],
         total: staticItems.length,
       });
     });
 
     return (
-      <InternalList tagName="internal-list" onRequest={request}>
-        <MockListItem />
-      </InternalList>
-    );
-  },
-});
-
-export const LazyLoadedStrings: Story = createStory<typeof InternalList>({
-  args: {
-
-  },
-  width: 240,
-  height: 300,
-  render: () => {
-    const request = useBound<Required<ComponentProps<typeof InternalList>>['onRequest']>(async ({ requestId, pagination }, response) => {
-      await Promise.delay(1500);
-      response({
-        requestId,
-        items: staticItems.slice(pagination.offset, (pagination.offset ?? 0) + pagination.limit).ids(),
-        total: staticItems.length,
-      });
-    });
-
-    const handleRenderItem = useBound((id: string | undefined) => is.string(id) ? staticItems.findById(id) : undefined);
-
-    return (
-      <InternalList tagName="internal-list" onRequest={request}>
-        <MockListItem onRenderItem={handleRenderItem} />
-      </InternalList>
+      <InternalList tagName="internal-list" onRequest={request} showSkeletons />
     );
   },
 });

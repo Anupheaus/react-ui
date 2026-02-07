@@ -1,10 +1,9 @@
 import { createStyles } from '../../theme';
 
-export const useInputStyles = createStyles({
+export const useInputStyles = createStyles(({ pseudoClasses }) => ({
   input: {
     outline: 'none',
     appearance: 'textfield',
-    position: 'absolute',
     inset: 0,
     border: 0,
     padding: '0 8px',
@@ -15,6 +14,12 @@ export const useInputStyles = createStyles({
     color: 'unset',
     fontFamily: 'unset',
     fontWeight: 'unset',
+    width: '100%',
+
+    [pseudoClasses.tablet]: {
+      fontSize: '1.2em',
+      padding: '8px 12px',
+    },
   },
   textArea: {
     resize: 'none',
@@ -28,6 +33,11 @@ export const useInputStyles = createStyles({
     color: 'unset',
     fontFamily: 'unset',
     fontWeight: 'unset',
+
+    [pseudoClasses.tablet]: {
+      fontSize: '1.2em',
+      padding: '8px 12px',
+    },
   },
   textTransform_uppercase: { textTransform: 'uppercase' },
   textTransform_lowercase: { textTransform: 'lowercase' },
@@ -36,4 +46,4 @@ export const useInputStyles = createStyles({
   textAreaFieldContainer: {
     flexGrow: 1,
   },
-});
+}));

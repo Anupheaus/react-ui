@@ -23,7 +23,7 @@ function getMarginFrom(element: HTMLElement) {
 
 function getRippleStyle(element: HTMLElement | null, x: number, y: number, useCoords: boolean) {
   if (element == null) return {};
-  const size = Math.round(Math.max(element.clientHeight, element.clientWidth) * 2);
+  const size = Math.round(Math.max(element.clientHeight, element.clientWidth) * 2.5);
   if (!useCoords) {
     x = element.clientWidth / 2;
     y = element.clientHeight / 2;

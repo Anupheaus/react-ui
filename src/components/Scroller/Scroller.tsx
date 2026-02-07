@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { UseActions } from '../../hooks';
 import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
@@ -8,7 +8,7 @@ import { Tag } from '../Tag';
 import { is } from '@anupheaus/common';
 import { useScrollbarStyles } from './ScrollbarStyles';
 
-const useStyles = createStyles(({ transition }) => ({
+const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransition }) => ({
   scroller: {
     display: 'flex',
     overflow: 'hidden',
@@ -35,7 +35,9 @@ const useStyles = createStyles(({ transition }) => ({
     position: 'relative',
     flex: 'auto',
     height: 'fit-content',
-    minHeight: '100%',
+    // minHeight: '100%',
+    width: 'fit-content',
+    // minWidth: '100%',
     flexDirection: 'inherit',
     gap: 'inherit',
   },
@@ -70,11 +72,14 @@ const useStyles = createStyles(({ transition }) => ({
   scrollerShadow: {
     position: 'absolute',
     opacity: 0,
-    boxShadow: '0 0 8px 0 #000',
+    boxShadow: shadow(false),
     pointerEvents: 'none',
-    transitionProperty: 'opacity',
-    ...transition,
+    ...applyTransition('opacity'),
     zIndex: 1000,
+
+    '&.is-visible': {
+      opacity: '1',
+    },
   },
   scrollerShadowTop: {
     top: -2,
@@ -101,9 +106,6 @@ const useStyles = createStyles(({ transition }) => ({
     bottom: -2,
     width: 2,
   },
-  isShadowVisible: {
-    opacity: 1,
-  }
 }));
 
 export interface ScrollerActions {
@@ -116,6 +118,13 @@ export interface OnScrollEventData {
   element: HTMLDivElement;
 }
 
+export interface OnShadowVisibleChangeEvent {
+  top: boolean;
+  left: boolean;
+  bottom: boolean;
+  right: boolean;
+}
+
 interface Props {
   className?: string;
   containerClassName?: string;
@@ -124,10 +133,12 @@ interface Props {
   offsetTop?: number;
   scrollTo?: number | 'bottom';
   children: ReactNode;
+  containerContent?: ReactNode;
   ref?: Ref<HTMLDivElement | null>;
   preventContentFromDeterminingHeight?: boolean;
   actions?: UseActions<ScrollerActions>;
   onScroll?(event: OnScrollEventData): void;
+  onShadowVisibilityChange?(event: OnShadowVisibleChangeEvent): void;
 }
 
 export const Scroller = createComponent('Scroller', ({
@@ -136,10 +147,12 @@ export const Scroller = createComponent('Scroller', ({
   disableShadows = false,
   scrollTo,
   children,
+  containerContent,
   ref,
   preventContentFromDeterminingHeight = false,
   actions,
   onScroll,
+  onShadowVisibilityChange,
 }: Props) => {
   const { css, join } = useStyles();
   const { css: scrollbarsCss } = useScrollbarStyles();
@@ -212,6 +225,9 @@ export const Scroller = createComponent('Scroller', ({
     scrollToFunc(scrollTo);
   }, [scrollTo, scrollerContainerElementRef.current]);
 
+  useLayoutEffect(() => onShadowVisibilityChange?.({ top: shadowAtTop, left: shadowOnLeft, bottom: shadowAtBottom, right: shadowOnRight }),
+    [shadowAtTop, shadowOnLeft, shadowAtBottom, shadowOnRight, onShadowVisibilityChange]);
+
   return (
     <Tag name="scroller" ref={scrollerElementRef} className={css.scroller} onMouseOver={setScrollbarVisible} onMouseLeave={setScrolbarInvisible}>
       <Tag
@@ -234,11 +250,12 @@ export const Scroller = createComponent('Scroller', ({
         </Tag>
       </Tag>
       {!disableShadows && (<>
-        <Tag name="scroller-shadow-top" className={join(css.scrollerShadow, css.scrollerShadowTop, shadowAtTop && css.isShadowVisible)} />
-        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, shadowOnLeft && css.isShadowVisible)} />
-        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, shadowOnRight && css.isShadowVisible)} />
-        <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, shadowAtBottom && css.isShadowVisible)} />
+        <Tag name="scroller-shadow-top" className={join(css.scrollerShadow, css.scrollerShadowTop, shadowAtTop && 'is-visible')} />
+        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, shadowOnLeft && 'is-visible')} />
+        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, shadowOnRight && 'is-visible')} />
+        <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, shadowAtBottom && 'is-visible')} />
       </>)}
+      {containerContent}
     </Tag>
   );
 });

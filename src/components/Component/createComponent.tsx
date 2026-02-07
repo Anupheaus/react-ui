@@ -12,21 +12,20 @@ interface Config<TFunc extends (props: any) => JSX.Element | null> {
   onError?(error: Error, props: Parameters<TFunc>[0]): JSX.Element | null;
 }
 
-function defaultCompareProps(debug: boolean, name: string, topLevelProps: any) {
-  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey, whitelistFunctions?: PropertyKey[]): boolean => {
+function defaultCompareProps(debug: boolean, name: string, topLevelProps: any, whitelistFunctions: PropertyKey[]) {
+  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey): boolean => {
     if (prevProps === newProps) return true;
     if (prevProps == null || newProps == null) return false;
     if (is.proxy(prevProps) || is.proxy(newProps)) {
       const actualPrevProps = is.proxy(prevProps) ? to.proxyApi(prevProps)?.value : prevProps;
       const actualNewProps = is.proxy(newProps) ? to.proxyApi(newProps)?.value : newProps;
-      return defaultCompareProps(debug, name, topLevelProps)(actualPrevProps, actualNewProps, propertyName);
+      return defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(actualPrevProps, actualNewProps, propertyName);
     }
     if (typeof (prevProps) !== typeof (newProps)) return false;
     if (['number', 'string', 'boolean'].includes(typeof (prevProps))) return prevProps === newProps;
     if (is.function(prevProps)) {
       if (is.function(newProps)) {
         if (prevProps === newProps) return true;
-        whitelistFunctions = (whitelistFunctions ?? []).concat(topLevelProps['data-whitelist-functions'] ?? []).distinct();
         if (whitelistFunctions.includes(propertyName)) return false;
         // eslint-disable-next-line no-console
         console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
@@ -38,16 +37,16 @@ function defaultCompareProps(debug: boolean, name: string, topLevelProps: any) {
     if (prevProps instanceof Date) return newProps instanceof Date ? prevProps.getTime() === newProps.getTime() : false;
     if (prevProps instanceof Array) {
       if (!(newProps instanceof Array) || prevProps.length !== newProps.length) return false;
-      return prevProps.every((value, index) => defaultCompareProps(debug, name, topLevelProps)(value, newProps[index], index));
+      return prevProps.every((value, index) => defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(value, newProps[index], index));
     }
     if (isValidElement(prevProps)) {
       if (prevProps.type !== newProps.type) return false;
       if (prevProps.key !== newProps.key) return false;
-      return defaultCompareProps(debug, name, topLevelProps)(prevProps.props, newProps.props, propertyName);
+      return defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(prevProps.props, newProps.props, propertyName);
     }
     if (is.plainObject(prevProps)) {
       if (Object.keys(prevProps).length !== Object.keys(newProps).length) return false;
-      return Object.keys(prevProps).every(key => defaultCompareProps(debug, name, newProps)(prevProps[key], newProps[key], key));
+      return Object.keys(prevProps).every(key => defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(prevProps[key], newProps[key], key));
     }
     // eslint-disable-next-line no-console
     // console.warn('Assuming these props are not equal', { prevProps, newProps });
@@ -78,8 +77,9 @@ export function createComponent<TFunc extends (props: any) => JSX.Element | null
   disableMemoisation = false, debug = false, whitelistFunctions, onCompareProps, onError }: Config<TFunc> = {}): ReactUIComponent<TFunc> {
   const { Overrides, overrideProps } = createComponentOverrides();
   const compareProps = (prevProps: any, newProps: any): boolean => {
-    if (onCompareProps != null) return onCompareProps(prevProps, newProps, 'props', whitelistFunctions);
-    return defaultCompareProps(debug, name, newProps)(prevProps, newProps, 'props', whitelistFunctions);
+    const allWhitelistFunctions = (whitelistFunctions ?? []).concat(newProps['data-whitelist-functions'] ?? []).distinct();
+    if (onCompareProps != null) return onCompareProps(prevProps, newProps, 'props', allWhitelistFunctions);
+    return defaultCompareProps(debug, name, newProps, allWhitelistFunctions)(prevProps, newProps, 'props');
   };
 
   let componentFunc = forwardRef<any, any>((props: {}, providedRef: Ref<HTMLElement>) => {

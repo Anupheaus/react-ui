@@ -2,7 +2,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { HelpInfo } from '../HelpInfo';
-import { Skeleton } from '../Skeleton';
+import { NoSkeletons, Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
 // import { Tooltip } from '../Tooltip';
 import { createStyles } from '../../theme';
@@ -13,6 +13,7 @@ interface Props {
   help?: ReactNode;
   isOptional?: boolean;
   children?: ReactNode;
+  wide?: boolean;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
 
@@ -25,6 +26,10 @@ const useStyles = createStyles(({ fields: { label } }) => ({
     color: label.normal.textColor,
     alignItems: 'center',
     minWidth: 'max-content',
+
+    '&.full-width': {
+      flexGrow: 1,
+    },
   },
   labelContent: {
     display: 'flex',
@@ -32,6 +37,10 @@ const useStyles = createStyles(({ fields: { label } }) => ({
     minHeight: 18,
     cursor: 'default',
     position: 'relative',
+
+    '&.full-width': {
+      flexGrow: 1,
+    },
   },
   labelText: {
     display: 'flex',
@@ -59,13 +68,12 @@ const useStyles = createStyles(({ fields: { label } }) => ({
 export const Label = createComponent('Label', ({
   className,
   help,
-  // isOptional = false,
+  wide = false,
   children = null,
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
   const { isReadOnly } = useUIState();
-  if (children == null) return null;
 
   const stopPropagation = useBound((event: MouseEvent) => event.stopPropagation());
 
@@ -74,18 +82,24 @@ export const Label = createComponent('Label', ({
     onClick?.(event);
   });
 
+  if (children == null) return null;
+
   return (
-    <Tag name="label" className={join(css.label, className)}>
-      <Tag name="label-content" className={join(css.labelContent)}>
-        <Skeleton type="text">
-          <Tag
-            name="label-text"
-            className={join(css.labelText, onClick != null && !isReadOnly && css.isClickable)}
-            onMouseDown={onClick != null ? stopPropagation : undefined}
-            onClick={handleClick}
-          >
-            {children}
-          </Tag>
+    <Tag name="label" className={join(css.label, wide && 'full-width', className)}>
+      <Tag name="label-content" className={join(css.labelContent, wide && 'full-width')}>
+        <Skeleton type="text" useRandomWidth={children === ''} wide={wide}>
+          {children === '' ? null : (
+            <NoSkeletons>
+              <Tag
+                name="label-text"
+                className={join(css.labelText, onClick != null && !isReadOnly && css.isClickable)}
+                onMouseDown={onClick != null ? stopPropagation : undefined}
+                onClick={handleClick}
+              >
+                {children}
+              </Tag>
+            </NoSkeletons>
+          )}
         </Skeleton>
         {/* <Tooltip content="This field is required" showArrow>
           {!isOptional && <Skeleton type="circle" className={css.isOptionalSkeleton}><Tag name="label-is-required" className={css.isRequired}>*</Tag></Skeleton>}

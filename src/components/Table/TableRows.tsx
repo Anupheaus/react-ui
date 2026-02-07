@@ -1,16 +1,16 @@
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import type { TableColumn, TableOnRequest, TableUseRecordHook } from './TableModels';
+import type { TableColumn, TableOnRequest } from './TableModels';
 import type { Record } from '@anupheaus/common';
 import type { UseActions } from '../../hooks';
 import { useBound } from '../../hooks';
 import type { OnScrollEventData } from '../Scroller';
-import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import { InternalList } from '../InternalList';
 import type { ListActions, ListOnRequest } from '../List';
+import type { ReactListItem } from '../../models';
 import { TableColumnsContext } from './TableColumnsContext';
-import { TableRowRenderer } from './TableRowRenderer';
+import { TableRow } from './TableRow';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
   rows: {
@@ -31,10 +31,8 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
 export interface TableRowsProps<RecordType extends Record> {
   columns: TableColumn<RecordType>[];
   delayRendering?: boolean;
-  children?: ReactNode;
-  useRecordHook?: TableUseRecordHook<RecordType>;
   actions?: UseActions<ListActions>;
-  onRequest: TableOnRequest<RecordType | string>;
+  onRequest: TableOnRequest<RecordType>;
   onScrollLeft(value: number): void;
   onError?(error: Error): void;
 }
@@ -42,8 +40,6 @@ export interface TableRowsProps<RecordType extends Record> {
 export const TableRows = createComponent('TableRows', function <RecordType extends Record>({
   columns,
   delayRendering = false,
-  useRecordHook,
-  children,
   actions,
   onRequest,
   onScrollLeft,
@@ -52,7 +48,22 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
   const { css } = useStyles();
   const lastScrollLeftRef = useRef(0);
 
-  const handleOnRequest = useBound<ListOnRequest<RecordType>>((request, response) => onRequest(request, ({ requestId, records, total }) => response({ items: records as RecordType[], total, requestId })));
+  const handleOnRequest = useBound<ListOnRequest<RecordType>>((request, response) => {
+    return onRequest(request, ({ requestId, records, total }) => {
+      const items = records.map((record): ReactListItem<Record> => ({
+        id: record.id,
+        text: record.id,
+        data: record,
+        renderLoading: (_id, index) => (
+          <TableRow<RecordType> index={index} columns={columns} />
+        ),
+        renderItem: (_item: ReactListItem<RecordType>, index: number, resolvedData?: RecordType) => (
+          <TableRow<RecordType> record={resolvedData} index={index} columns={columns} />
+        ),
+      })) as ReactListItem<RecordType>[];
+      response({ requestId, items, total });
+    });
+  });
 
   const handleHorizontalScroll = useBound((event: OnScrollEventData) => {
     if (event.left === lastScrollLeftRef.current) return;
@@ -72,9 +83,7 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
         delayRenderingItems={delayRendering}
         gap={0}
         onError={onError}
-      >
-        {children ?? <TableRowRenderer useRecordHook={useRecordHook} />}
-      </InternalList>
+      />
     </TableColumnsContext.Provider>
   );
 });

@@ -1,4 +1,4 @@
-import { KeyboardEvent, Ref } from 'react';
+import type { KeyboardEvent, Ref } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -122,6 +122,8 @@ export const PINDigit = createComponent('PINDigit', ({
         <Flex tagName="digit-value" className={join(css.digitValue, hasValue && 'has-value', isCensored && 'is-censored')} disableGrow >{isCensored ? null : value}</Flex>
         <input
           type="text"
+          inputMode="numeric"
+          pattern="[0-9]"
           value=""
           ref={saveElement}
           className={join(css.input, isReadOnly && 'is-read-only', hasValue && !isCensored && 'has-value-and-not-censored')}

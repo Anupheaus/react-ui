@@ -22,23 +22,35 @@ const useStyles = createStyles(({ windows: { content } }) => ({
 
 interface Props extends Pick<FlexProps, 'className' | 'isVertical' | 'gap' | 'children' | 'valign' | 'align' | 'disableGrow'> {
   disablePadding?: boolean;
+  disableScrolling?: boolean;
 }
 
 export const WindowContent = createComponent('WindowContent', ({
   className,
   disablePadding = false,
+  disableScrolling = false,
   children,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
 
+  const content = (() => {
+    const renderedContent = (
+      <Flex {...props} tagName="window-content-inner" className={join(css.contentInner, disablePadding && 'no-padding', className)} disableOverflow>
+        {children}
+      </Flex>
+    );
+    if (disableScrolling) return renderedContent;
+    return (
+      <Scroller>
+        {renderedContent}
+      </Scroller>
+    );
+  })();
+
   return (
     <Flex tagName="window-content" className={css.content} disableOverflow>
-      <Scroller>
-        <Flex {...props} tagName="window-content-inner" className={join(css.contentInner, disablePadding && 'no-padding', className)} disableOverflow>
-          {children}
-        </Flex>
-      </Scroller>
+      {content}
     </Flex>
   );
 });

@@ -8,6 +8,8 @@ import { ThemeContext } from './ThemeContext';
 import { DefaultTheme } from './themes';
 import Color from 'color';
 
+export type { CSSObject as StylesType, Color };
+
 type BaseTheme = typeof DefaultTheme;
 
 type StylesType = MapOf<CSSObject>;

@@ -118,11 +118,12 @@ interface AvatarTheme {
 }
 
 interface ShadowsTheme {
-  veryLight: CSSProperties['boxShadow'];
-  light: CSSProperties['boxShadow'];
-  medium: CSSProperties['boxShadow'];
-  heavy: CSSProperties['boxShadow'];
-  veryHeavy: CSSProperties['boxShadow'];
+  veryLight(inset: boolean): CSSProperties['boxShadow'];
+  light(inset: boolean): CSSProperties['boxShadow'];
+  medium(inset: boolean): CSSProperties['boxShadow'];
+  heavy(inset: boolean): CSSProperties['boxShadow'];
+  veryHeavy(inset: boolean): CSSProperties['boxShadow'];
+  scroll(inset: boolean): CSSProperties['boxShadow'];
 }
 
 interface IconTheme {
@@ -250,6 +251,8 @@ export interface Theme {
   pseudoClasses: {
     active: string;
     readOnly: string;
+    tablet: string;
+    mobile: string;
   };
   chips: {
     normal: ChipsTheme;
