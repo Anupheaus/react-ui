@@ -63,7 +63,7 @@ export function useItems<T = void>({ initialLimit = 20, items, actions, onReques
       }
       await request({ requestId, pagination: fullPagination }, ({ requestId: responseRequestId, items: responseItems, total }) => {
         asyncRequests.delete(responseRequestId);
-        if (currentRequestId !== currentRequestIdRef.current) return; // a new request has been made
+        if (currentRequestId !== currentRequestIdRef.current) return; // a new request has been made        
         ensureSelectedItemsPersist(responseItems, selectedItemIds);
         stateRef.current = updateWithResponse(stateRef.current, fullPagination, responseItems, total, asyncRequests.size !== 0);
         doDebouncedItemsChange(responseItems);

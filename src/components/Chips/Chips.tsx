@@ -1,8 +1,9 @@
 import { createComponent } from '../Component';
-import { InternalDropDown, InternalDropDownProps } from '../InternalDropDown';
+import type { InternalDropDownProps } from '../InternalDropDown';
+import { InternalDropDown } from '../InternalDropDown';
 import { useBound } from '../../hooks';
 import { Chip } from './Chip';
-import { ReactListItem } from '../../models';
+import type { ReactListItem } from '../../models';
 import { useMemo } from 'react';
 import { createStyles } from '../../theme';
 
@@ -12,7 +13,7 @@ const useStyles = createStyles(() => ({
   },
 }));
 
-interface Props<T extends string> extends Omit<InternalDropDownProps<T>, 'value' | 'onChange'> {
+interface Props<T extends string> extends Omit<InternalDropDownProps, 'value' | 'onChange'> {
   value?: T[];
   onChange?(values: T[]): void;
 }
@@ -42,7 +43,7 @@ export const Chips = createComponent('Chips', function <T extends string = strin
   return (
     <InternalDropDown
       {...props}
-      value={renderedChips}
+      value={renderedChips.id}
       tagName="chips"
       onChange={handleSelected}
     />

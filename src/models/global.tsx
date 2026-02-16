@@ -1,8 +1,15 @@
 import type { ListItem } from '@anupheaus/common';
 import { is as isCommon } from '@anupheaus/common';
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import type { IconName } from '../components/Icon/Icons';
 import { Skeleton } from '../components/Skeleton';
+
+export interface ListItemClickEvent<T = void> extends MouseEvent {
+  id: string;
+  item: ReactListItem<T>;
+  data: T;
+  ordinal?: number;
+}
 
 export type ReactListItem<DataType = any, SubItemType extends ReactListItem = ReactListItem<any, any>> = ListItem & {
   label?: ReactNode;
@@ -18,7 +25,7 @@ export type ReactListItem<DataType = any, SubItemType extends ReactListItem = Re
   actions?: ReactNode;
   isDeletable?: boolean;
   data?: DataType | Promise<DataType>;
-  onClick?(id: string, item: DataType, index: number): void;
+  onClick?(event: ListItemClickEvent<DataType>): void;
   onDelete?(id: string, item: DataType, index: number): void;
   onSelectChange?(id: string, item: DataType, index: number, isSelected: boolean): void;
   onActiveChange?(id: string, item: DataType, index: number, isActive: boolean): void;
@@ -48,6 +55,16 @@ export namespace ReactListItem {
     return isCommon.plainObject(item)
       && isCommon.not.empty(item.id)
       && isCommon.string(item.text);
+  }
+
+  export function createClickEvent<T = void>(event: MouseEvent, item: ReactListItem<T>, index?: number): ListItemClickEvent<T> {
+    return {
+      ...event,
+      id: item.id,
+      item,
+      data: item.data as T,
+      ordinal: index ?? item.ordinal,
+    };
   }
 }
 

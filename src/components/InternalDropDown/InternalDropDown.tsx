@@ -1,8 +1,9 @@
-import type { PaperProps, PopoverOrigin } from '@mui/material';
+import type { PopoverOrigin, PopoverProps } from '@mui/material';
 import { Popover } from '@mui/material';
 import type { FocusEvent, ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
 import { useAsync, useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
+import type { ListItemClickEvent } from '../../models';
 import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
@@ -14,7 +15,7 @@ import { UIState, useUIState, useValidation } from '../../providers';
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { InternalList } from '../InternalList';
-import { addOptionalItemTo } from './addOptionalItemTo';
+import { addOptionalItemTo, optionalItemKey } from './addOptionalItemTo';
 
 const useStyles = createStyles(({ menu: { normal } }) => ({
   dropDown: {
@@ -39,17 +40,18 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
   },
 }));
 
-export interface InternalDropDownProps<T extends string> extends FieldProps {
-  value?: T | ReactListItem;
+export interface InternalDropDownProps extends FieldProps {
+  value?: string;
   values?: ReactListItem[];
   endAdornments?: ReactNode;
   readOnlyValue?: ReactNode;
+  optionalItemLabel?: ReactNode;
   onFilterValues?(values: ReactListItem[]): PromiseMaybe<ReactListItem[]>;
-  onChange?(id: T, item: ReactListItem): void;
+  onChange?(id: string | undefined): void;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
 }
 
-interface Props<T extends string> extends InternalDropDownProps<T> {
+interface Props extends InternalDropDownProps {
   tagName: string;
   renderSelectedValue?(value: ReactListItem | undefined): ReactNode;
 }
@@ -63,29 +65,29 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   requiredMessage = 'Please select a value',
   endAdornments: providedEndAdornments,
   readOnlyValue,
+  optionalItemLabel,
   onFilterValues = defaultOnFilterValues,
   renderSelectedValue,
   onChange,
   onBlur,
   ...props
-}: Props<T>) {
+}: Props) {
   const { css, join } = useStyles();
   const { isReadOnly } = useUIState();
   const { response: rawValues, isLoading: isLoadingValues } = useAsync(() => onFilterValues(providedValues ?? []), [providedValues, onFilterValues]);
-  const values = useMemo(() => addOptionalItemTo(rawValues, isOptional), [rawValues, isOptional]);
-  const value = useMemo(() => values
-    .find(item => item.id === (is.listItem(providedValue) ? providedValue.id : providedValue)), [providedValue, values]); // can't use findById because the optional item has an undefined id
+  const values = useMemo(() => addOptionalItemTo(rawValues, isOptional, optionalItemLabel), [rawValues, isOptional, optionalItemLabel]);
+  const value = useMemo(() => values.findById(providedValue ?? optionalItemKey), [providedValue, values]);
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
   const innerRef = useDOMRef([props.ref, anchorRef, resizeTarget]);
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
   const { validate } = useValidation(`${props.tagName}-${props.label}`);
 
-  const handleSelect = useBound((ids: string[]) => {
-    const item = values.findById(ids[0]);
+  const click = useBound((event: ListItemClickEvent<T>) => {
+    const item = values.findById(event.id);
     if (item == null) return;
     setIsClosed();
-    onChange?.(item.id as T, item);
+    onChange?.(event.id === optionalItemKey ? undefined : event.id);
   });
 
   const selectedValue = useMemo(() => {
@@ -130,11 +132,13 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     vertical: 'top',
   }), []);
 
-  const paperProps = useMemo<PaperProps>(() => ({
-    className: css.popover,
-    style: {
-      minWidth: width,
-    },
+  const slotProps = useMemo<PopoverProps['slotProps']>(() => ({
+    paper: {
+      className: css.popover,
+      style: {
+        minWidth: width,
+      },
+    }
   }), [width]);
 
   return (
@@ -156,14 +160,14 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
           anchorEl={anchorRef.current}
           anchorOrigin={anchorOrigin}
           transformOrigin={transformOrigin}
-          PaperProps={paperProps}
+          slotProps={slotProps}
           onClose={handleClosed}
         >
           <InternalList
             tagName={`${props.tagName}-list`}
             items={values}
             className={css.dropDownListContent}
-            onSelectedItemsChange={handleSelect}
+            onClick={click}
           />
         </Popover>
       </Field>

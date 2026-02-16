@@ -1,8 +1,11 @@
 import { is } from '@anupheaus/common';
-import type { ListItemType } from '../../models';
+import type { ReactListItem } from '../../models';
+import type { ReactNode } from 'react';
 
-export function addOptionalItemTo<T extends ListItemType>(items: T[] | undefined, isOptional?: boolean): T[] {
+export const optionalItemKey = `optional-item-key-${Math.uniqueId()}`;
+
+export function addOptionalItemTo<T = void>(items: ReactListItem<T>[] | undefined, isOptional?: boolean, optionalItemLabel?: ReactNode): ReactListItem<T>[] {
   if (isOptional !== true) return items ?? Array.empty();
   if (items?.some(item => !is.plainObject(item) || !Reflect.has(item, 'id') || item.id === undefined)) return items;
-  return [{ id: undefined as unknown as string, text: 'N/A' } as T, ...(items ?? [])];
+  return [{ id: optionalItemKey, text: 'N/A', label: optionalItemLabel }, ...(items ?? [])];
 }

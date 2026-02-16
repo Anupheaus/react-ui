@@ -1,4 +1,4 @@
-import type { AnyObject, DataPagination } from '@anupheaus/common';
+import type { DataPagination } from '@anupheaus/common';
 import type { ReactListItem } from '../../models';
 import type { State } from './useItems';
 
@@ -30,7 +30,7 @@ const createSkeletonItem = <T = void>(index: number): ReactListItem<T> => ({ id:
 
 export function updateWithResponse<T = void>(currentState: State<T>, pagination: DataPagination, response: ReactListItem<T>[], total?: number, isLoading = false) {
   const partialState = updateItems(currentState.items, pagination, total,
-    (existingItem, index, paginatedIndex) => (existingItem == null || (existingItem as AnyObject)._tempItem === true) ? response[paginatedIndex] : (existingItem ?? createSkeletonItem(index)));
+    (_existingItem, _index, paginatedIndex) => response[paginatedIndex]);
   return { ...currentState, ...partialState, total, isLoading };
 }
 

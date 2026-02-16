@@ -1,7 +1,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks/useBound';
-import type { ReactListItem } from '../../models';
+import type { ListItemClickEvent, ReactListItem } from '../../models';
 import type { FlexProps } from '../Flex';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
@@ -61,12 +61,14 @@ export interface InternalListProps<T = void> {
   minWidth?: FlexProps['minWidth'];
   minHeight?: FlexProps['minHeight'];
   maxSelectableItems?: number;
+  fullHeight?: boolean;
   onDelete?(id: string, data: T, index: number): void;
   actions?: UseActions<InternalListActions>;
   onRequest?(request: UseDataRequest, response: (data: UseDataResponse<ReactListItem<T>>) => void): Promise<void>;
   onActive?(data: T | undefined): void;
   onSelectedItemsChange?(ids: string[]): void;
   onError?(error: Error): void;
+  onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
 }
 
 interface Props<T = void> extends InternalListProps<T> {
@@ -75,7 +77,6 @@ interface Props<T = void> extends InternalListProps<T> {
   contentClassName?: string;
   disableShadowsOnScroller?: boolean;
   delayRenderingItems?: boolean;
-  preventContentFromDeterminingHeight?: boolean;
   selectedItemIds?: string[];
   showSkeletons?: boolean;
   onScroll?(values: OnScrollEventData): void;
@@ -97,7 +98,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   delayRenderingItems = false,
   maxSelectableItems,
   selectedItemIds: providedSelectedItemIds,
-  preventContentFromDeterminingHeight,
+  fullHeight,
   minWidth,
   minHeight,
   showSkeletons,
@@ -109,6 +110,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   onActive,
   onSelectedItemsChange,
   onItemsChange,
+  onClick,
   onAdd,
 }: Props<T>) {
   const { css, join } = useStyles();
@@ -170,8 +172,8 @@ export const InternalList = createComponent('InternalList', function <T = void>(
 
   const renderedItems = useMemo(() => {
     return (allowedToRenderItems ? items : []).slice(offset, offset + limit)
-      .map((item, index) => <InternalListItem key={item.id} item={item} index={offset + index} isSelectable={(maxSelectableItems ?? 0) > 0} />);
-  }, [allowedToRenderItems, items, offset, limit, maxSelectableItems]);
+      .map((item, index) => <InternalListItem key={item.id} item={item} index={offset + index} isSelectable={(maxSelectableItems ?? 0) > 0} onClick={onClick} />);
+  }, [allowedToRenderItems, items, offset, limit, maxSelectableItems, onClick]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => {
     if (containerElement == null) setContainerElement(values.element);
@@ -252,7 +254,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         actions={scrollerActions}
         disableShadows={disableShadowsOnScroller}
         className={join(css.internalListScrollerContent, contentClassName)}
-        preventContentFromDeterminingHeight={preventContentFromDeterminingHeight}
+        fullHeight={fullHeight}
       >
         {header}
         <InternalListContextProvider onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>

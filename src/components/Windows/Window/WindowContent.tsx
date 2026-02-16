@@ -42,7 +42,7 @@ export const WindowContent = createComponent('WindowContent', ({
     );
     if (disableScrolling) return renderedContent;
     return (
-      <Scroller>
+      <Scroller fullHeight>
         {renderedContent}
       </Scroller>
     );

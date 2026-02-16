@@ -1,11 +1,11 @@
-import type { AnyObject, DataPagination, PromiseMaybe } from '@anupheaus/common';
+import type { DataPagination, PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import type { PaperProps, PopoverOrigin } from '@mui/material';
 import { Popover } from '@mui/material';
-import type { FunctionComponent, KeyboardEvent, ReactNode } from 'react';
+import type { FunctionComponent, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount, useUpdatableState } from '../../hooks';
-import type { ReactListItem } from '../../models';
+import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
@@ -100,8 +100,8 @@ export const Autocomplete = createComponent('Autocomplete', ({
   //   setIsOpen();
   // });
 
-  const handleItemClick = useBound((item: ReactListItem) => () => {
-    item.onClick?.(item.id, (item as AnyObject).data, 0);
+  const handleItemClick = useBound((item: ReactListItem) => (event: MouseEvent) => {
+    item.onClick?.(ReactListItem.createClickEvent(event, item));
     setIsClosed();
     onChange?.(item.id, item);
   });

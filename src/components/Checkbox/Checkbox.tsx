@@ -27,7 +27,7 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     flexGrow: 0,
     flexShrink: 1,
     gap: 4,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'flex-start',
     '--checkbox-cursor': 'pointer',
     // '--checkbox-color': 'transparent',

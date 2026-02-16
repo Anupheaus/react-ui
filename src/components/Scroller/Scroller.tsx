@@ -26,8 +26,8 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     flexDirection: 'inherit',
     gap: 'inherit',
 
-    '&.prevent-unrequired-growth': {
-      height: 0,
+    '&.keep-height-to-content': {
+      height: 'fit-content',
     },
   },
   scrollerContent: {
@@ -40,6 +40,10 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     // minWidth: '100%',
     flexDirection: 'inherit',
     gap: 'inherit',
+
+    '&.min-full-height': {
+      minHeight: '100%',
+    },
   },
   scrollerContentEdge: {
     position: 'absolute',
@@ -135,7 +139,7 @@ interface Props {
   children: ReactNode;
   containerContent?: ReactNode;
   ref?: Ref<HTMLDivElement | null>;
-  preventContentFromDeterminingHeight?: boolean;
+  fullHeight?: boolean;
   actions?: UseActions<ScrollerActions>;
   onScroll?(event: OnScrollEventData): void;
   onShadowVisibilityChange?(event: OnShadowVisibleChangeEvent): void;
@@ -149,7 +153,7 @@ export const Scroller = createComponent('Scroller', ({
   children,
   containerContent,
   ref,
-  preventContentFromDeterminingHeight = false,
+  fullHeight = false,
   actions,
   onScroll,
   onShadowVisibilityChange,
@@ -237,11 +241,11 @@ export const Scroller = createComponent('Scroller', ({
           css.scrollerContainer,
           scrollbarsCss.scrollbars,
           isScrollbarVisible && 'is-scrollbar-visible',
-          preventContentFromDeterminingHeight && 'prevent-unrequired-growth',
+          !fullHeight && 'keep-height-to-content',
           containerClassName,
         )}
       >
-        <Tag name="scroller-content" className={join(css.scrollerContent, className)}>
+        <Tag name="scroller-content" className={join(css.scrollerContent, fullHeight && 'min-full-height', className)}>
           <Tag name="scroller-content-top" ref={topElementRef} className={join(css.scrollerContentEdge, css.scrollerContentTop)} />
           <Tag name="scroller-content-left" ref={leftElementRef} className={join(css.scrollerContentEdge, css.scrollerContentLeft)} />
           <Tag name="scroller-content-bottom" ref={bottomElementRef} className={join(css.scrollerContentEdge, css.scrollerContentBottom)} />

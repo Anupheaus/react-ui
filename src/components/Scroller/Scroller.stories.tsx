@@ -1,6 +1,13 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react';
 import { Scroller } from './Scroller';
 import { Flex } from '../Flex';
+import { createStyles } from '../../theme';
+
+const useStyles = createStyles({
+  scroller: {
+    backgroundColor: 'white',
+  },
+});
 
 const meta: Meta<typeof Scroller> = {
   component: Scroller,
@@ -9,7 +16,7 @@ export default meta;
 
 type Story = StoryObj<typeof Scroller>;
 
-export const config: Story = {
+export const defaultStory: Story = {
   storyName: '',
   args: {
   },
@@ -46,4 +53,50 @@ export const config: Story = {
     /* eslint-enable max-len */
   },
 } satisfies Story;
-config.storyName = 'Default';
+defaultStory.storyName = 'Default';
+
+export const smallerContent: Story = {
+  storyName: 'Smaller content',
+  args: {
+  },
+  render: props => {
+    const { css } = useStyles();
+    /* eslint-disable max-len */
+    return (
+      <Flex width={500} height={500} style={{ backgroundColor: 'red' }}>
+        <Scroller {...props} className={css.scroller}>
+          <Flex width={1000}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla dapibus, nisl in congue egestas, justo lectus varius lorem, ut gravida nisi dui in sapien. Aenean blandit orci quam, at venenatis mauris vestibulum in. Pellentesque sit amet felis eget lacus placerat consequat id tempus turpis. Vestibulum ante nibh, porttitor eget risus sit amet, bibendum convallis nunc. Pellentesque eu maximus diam. Cras ac elit vitae purus vulputate ullamcorper et in libero. Integer at fringilla nibh, vitae convallis nisi. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi et quam arcu. Nunc venenatis mauris non consectetur tincidunt. Mauris elit sem, viverra id dictum ac, vulputate a enim. Morbi eu luctus ligula. Donec gravida, felis semper hendrerit porttitor, velit elit tincidunt nisi, vel pharetra est metus eget purus. Suspendisse consequat sodales odio vitae gravida.
+
+            Praesent ac mauris nec nibh egestas fringilla. Nam libero nibh, iaculis eu enim eget, molestie tristique turpis. Sed varius dapibus risus, eget varius augue iaculis vitae. Maecenas interdum lectus vel feugiat commodo. Fusce varius, ante sit amet lacinia porttitor, ipsum augue placerat nisi, sit amet euismod risus enim ac ligula. Suspendisse ultrices nisi est, sed interdum mi semper quis. Aliquam erat volutpat. Suspendisse augue eros, auctor eu nisl id, facilisis vehicula libero. Morbi feugiat tellus mauris, ac varius nisl blandit non. Donec vitae blandit orci. Integer tellus nisi, volutpat id felis vel, dictum ultrices eros. Donec id tristique nisl. Aliquam tristique arcu sit amet mi ultricies, et sodales lacus convallis. Vivamus turpis velit, ullamcorper pellentesque augue ut, malesuada placerat ex. Fusce nec ligula a arcu lobortis tincidunt.
+          </Flex>
+        </Scroller>
+      </Flex>
+    );
+    /* eslint-enable max-len */
+  },
+} satisfies Story;
+smallerContent.storyName = 'Smaller content';
+
+export const smallerContentWithMinFullHeightStory: Story = {
+  storyName: 'Smaller content with full height',
+  args: {
+  },
+  render: props => {
+    const { css } = useStyles();
+    /* eslint-disable max-len */
+    return (
+      <Flex width={500} height={500} style={{ backgroundColor: 'red' }}>
+        <Scroller {...props} className={css.scroller} fullHeight>
+          <Flex width={1000}>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nulla dapibus, nisl in congue egestas, justo lectus varius lorem, ut gravida nisi dui in sapien. Aenean blandit orci quam, at venenatis mauris vestibulum in. Pellentesque sit amet felis eget lacus placerat consequat id tempus turpis. Vestibulum ante nibh, porttitor eget risus sit amet, bibendum convallis nunc. Pellentesque eu maximus diam. Cras ac elit vitae purus vulputate ullamcorper et in libero. Integer at fringilla nibh, vitae convallis nisi. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Morbi et quam arcu. Nunc venenatis mauris non consectetur tincidunt. Mauris elit sem, viverra id dictum ac, vulputate a enim. Morbi eu luctus ligula. Donec gravida, felis semper hendrerit porttitor, velit elit tincidunt nisi, vel pharetra est metus eget purus. Suspendisse consequat sodales odio vitae gravida.
+
+            Praesent ac mauris nec nibh egestas fringilla. Nam libero nibh, iaculis eu enim eget, molestie tristique turpis. Sed varius dapibus risus, eget varius augue iaculis vitae. Maecenas interdum lectus vel feugiat commodo. Fusce varius, ante sit amet lacinia porttitor, ipsum augue placerat nisi, sit amet euismod risus enim ac ligula. Suspendisse ultrices nisi est, sed interdum mi semper quis. Aliquam erat volutpat. Suspendisse augue eros, auctor eu nisl id, facilisis vehicula libero. Morbi feugiat tellus mauris, ac varius nisl blandit non. Donec vitae blandit orci. Integer tellus nisi, volutpat id felis vel, dictum ultrices eros. Donec id tristique nisl. Aliquam tristique arcu sit amet mi ultricies, et sodales lacus convallis. Vivamus turpis velit, ullamcorper pellentesque augue ut, malesuada placerat ex. Fusce nec ligula a arcu lobortis tincidunt.
+          </Flex>
+        </Scroller>
+      </Flex>
+    );
+    /* eslint-enable max-len */
+  },
+} satisfies Story;
+smallerContentWithMinFullHeightStory.storyName = 'Smaller content with full height';

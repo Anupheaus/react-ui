@@ -9,6 +9,7 @@ import { useConfiguratorColumnWidths } from './column-widths';
 import { is } from '@anupheaus/common';
 import { Icon } from '../Icon';
 import { Tag } from '../Tag';
+import { ReactListItem } from '../../models';
 
 const useStyles = createStyles(({ configurator: { header, item, subItem, slice }, shadows: { scroll: shadow }, pseudoClasses }, { modifyColor, applyTransition }) => {
 
@@ -220,13 +221,13 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
     onExpandItem({ ...item, isExpanded: !item.isExpanded });
   });
 
-  const clickCell = useBound(() => {
+  const clickCell = useBound((event: MouseEvent) => {
     if (onSelect != null) {
       onSelect();
     } else if (slice != null && isHeader) {
-      slice.onClick?.(slice.id, slice.data, columnIndex);
+      slice.onClick?.(ReactListItem.createClickEvent(event, slice, columnIndex));
     } else if (columnIndex === 0) {
-      item.onClick?.(item.id, item, columnIndex);
+      item.onClick?.(ReactListItem.createClickEvent(event, item));
     }
   });
 

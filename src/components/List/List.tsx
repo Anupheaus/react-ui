@@ -18,7 +18,7 @@ export type ListOnRequest<T = void> = Required<ListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 
-export type ListProps<T = void> = Omit<InternalListProps<T>, 'actions'> & {
+export type ListProps<T = void, V extends string | string[] = string | string[]> = Omit<InternalListProps<T>, 'actions'> & {
   className?: string;
   containerClassName?: string;
   contentClassName?: string;
@@ -33,7 +33,6 @@ export type ListProps<T = void> = Omit<InternalListProps<T>, 'actions'> & {
   wide?: boolean;
   addButtonTooltip?: ReactNode;
   delayRenderingItems?: boolean;
-  autoHeight?: boolean;
   error?: ReactNode;
   adornments?: ReactNode;
   children?: ReactNode;
@@ -42,7 +41,9 @@ export type ListProps<T = void> = Omit<InternalListProps<T>, 'actions'> & {
   selectionRequiredMessage?: ReactNode;
   actions?: UseActions<ListActions>;
   onAdd?(): PromiseMaybe<T | void>;
-} & ({} | { value: string; onChange?(newValue: string): void; } | { value: string[]; onChange?(newValue: string[]): void; });
+  value?: V;
+  onChange?(newValue: V): void;
+};
 
 const useStyles = createStyles(({ list }, { applyTransition, gap }) => ({
   list: {
@@ -86,7 +87,6 @@ export const List = createComponent('List', function <T = void>({
   help,
   width,
   minHeight = 130,
-  autoHeight = false,
   wide,
   delayRenderingItems,
   error: providedError,
@@ -110,8 +110,6 @@ export const List = createComponent('List', function <T = void>({
     await onAdd?.();
     enableErrors();
   });
-
-  if (autoHeight) minHeight = 'auto';
 
   const { error, enableErrors } = validate(
     ({ validateRequired }) => validateRequired(hasItems ? 1 : undefined, isOptional !== true, isRequiredMessage),
@@ -152,7 +150,6 @@ export const List = createComponent('List', function <T = void>({
         {...props}
         onAdd={onAdd != null ? handleAdd : undefined}
         showSkeletons
-        preventContentFromDeterminingHeight={minHeight !== 'auto'}
         contentClassName={join(css.internalList, contentClassName)}
         onItemsChange={handleItemsChanged}
         onSelectedItemsChange={changeSelectedItems}

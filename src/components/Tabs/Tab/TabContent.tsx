@@ -74,7 +74,7 @@ export const TabContent = createComponent('Tab', ({
 
   return (
     <Flex tagName="tab" className={join(css.tab, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
-      <Scroller>
+      <Scroller fullHeight>
         <Flex tagName="tab-content-inner" isVertical className={join(css.tabContent, noPadding && 'no-padding', className)} {...contentProps}>
           {children}
         </Flex>

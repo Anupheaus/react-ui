@@ -1,31 +1,22 @@
-import type { TransitionEvent } from 'react';
 import { useRef, type ReactNode } from 'react';
 import { createComponent } from '../Component';
 import type { FlexProps } from '../Flex';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
-import { useBound, useForceUpdate, useObserver } from '../../hooks';
+import { useBound } from '../../hooks';
 
 const useStyles = createStyles((_ignore, { applyTransition }) => ({
   expander: {
     height: 0,
     contain: 'paint',
     ...applyTransition('height'),
-    transitionDuration: 'var(--expander-duration)',
-
-    '&.is-expanded, &.is-expanding': {
-      height: 'var(--expander-height)',
-
-      '&:has(expander.is-expanding), &:has(expander.is-collapsing), &:has(expander.is-expanded)': {
-        height: 'auto',
-      },
-    },
   },
 }));
 
 interface Props extends Pick<FlexProps, 'className' | 'isVertical' | 'gap'> {
   isExpanded?: boolean;
   children: ReactNode;
+  debug?: boolean;
 }
 
 export const Expander = createComponent('Expander', ({
@@ -35,11 +26,8 @@ export const Expander = createComponent('Expander', ({
 }: Props) => {
   const { css, join } = useStyles();
   const targetRef = useRef<HTMLDivElement | null>(null);
-  const lastIsExpandedRef = useRef(isExpanded);
+  const lastIsExpandedRef = useRef(false);
   const stateRef = useRef<'collapsed' | 'expanding' | 'expanded' | 'collapsing'>('collapsed');
-  const lastStateRef = useRef<'collapsed' | 'expanding' | 'expanded' | 'collapsing'>(stateRef.current);
-  const update = useForceUpdate();
-  const timerRef = useRef(400);
 
   if (isExpanded !== lastIsExpandedRef.current) {
     lastIsExpandedRef.current = isExpanded;
@@ -47,43 +35,44 @@ export const Expander = createComponent('Expander', ({
     else stateRef.current = 'collapsing';
   }
 
-  const updateHeight = useBound((element: HTMLElement) => {
-    element.style.setProperty('--expander-height', `${element.scrollHeight}px`);
-    timerRef.current = Math.round(Math.max(element.scrollHeight * 0.2, 400));
-    element.style.setProperty('--expander-duration', `${timerRef.current}ms`);
-  });
+  const updateHeight = () => {
+    if (stateRef.current === 'expanding' || stateRef.current === 'collapsing') {
+      if (targetRef.current == null) return;
+      targetRef.current.style.setProperty('max-height', '0px');
+      const scrollHeight = targetRef.current.scrollHeight;
+      const duration = Math.max(Math.round(scrollHeight * 0.2), 400);
+      targetRef.current.style.setProperty('height', `${scrollHeight}px`);
+      targetRef.current.style.setProperty('transition-duration', `${duration}ms`);
+      targetRef.current.style.removeProperty('max-height');
 
-  const { target: observerTarget } = useObserver({ onChange: updateHeight });
-
-  const resetStates = () => {
-    if (stateRef.current === 'expanding') stateRef.current = 'expanded';
-    else if (stateRef.current === 'collapsing') stateRef.current = 'collapsed';
-    update();
+      requestAnimationFrame(() => {
+        if (targetRef.current == null) return;
+        if (stateRef.current === 'collapsing') targetRef.current.style.setProperty('height', '0px');
+      });
+    }
   };
+  updateHeight();
 
-  const handleTransitionEnd = useBound((event: TransitionEvent<HTMLDivElement>) => {
-    if (event.target !== targetRef.current) return;
-    resetStates();
+  const handleTransitionEnd = useBound(() => {
+    if (stateRef.current === 'collapsing') stateRef.current = 'collapsed';
+    if (stateRef.current === 'expanding') stateRef.current = 'expanded';
+    if (targetRef.current == null) return;
+    targetRef.current.style.setProperty('height', stateRef.current === 'collapsed' ? '0px' : 'auto');
   });
 
-  const saveElement = useBound((element: HTMLDivElement | null) => {
+  const saveTargetElement = useBound((element: HTMLDivElement | null) => {
     targetRef.current = element;
-    observerTarget(element);
+    updateHeight();
   });
-
-  if (lastStateRef.current !== stateRef.current) {
-    lastStateRef.current = stateRef.current;
-    setTimeout(resetStates, timerRef.current);
-  }
 
   return (
     <Flex
+      tagName="expander"
       isVertical
       {...props}
-      ref={saveElement}
-      tagName="expander"
-      className={join(css.expander, `is-${stateRef.current}`, props.className)}
-      onTransitionEndCapture={handleTransitionEnd}
+      ref={saveTargetElement}
+      className={join(css.expander, props.className)}
+      onTransitionEnd={handleTransitionEnd}
       disableGrow
     >
       {children}

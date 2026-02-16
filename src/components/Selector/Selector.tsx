@@ -73,7 +73,7 @@ export const Selector = createComponent('Selector', ({
   return (
     <Field tagName="selector" disableRipple skeleton="outlineOnly" {...props} fullHeight={height == null} height={height} error={error ?? props.error}>
       <Flex tagName="selector-items" isVertical gap="fields">
-        <Scroller preventContentFromDeterminingHeight={!fullHeight}>
+        <Scroller fullHeight={fullHeight}>
           {sections}
         </Scroller>
       </Flex>

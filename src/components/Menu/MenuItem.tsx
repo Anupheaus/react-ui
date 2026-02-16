@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { useContext, useState } from 'react';
 import { useBooleanState, useBound, useDOMRef } from '../../hooks';
 import { createStyles } from '../../theme';
@@ -60,7 +60,7 @@ interface Props {
   isReadOnly?: boolean;
   children: ReactNode;
   testId?: string;
-  onSelect?(): void;
+  onSelect?(event: MouseEvent): void;
 }
 
 export const MenuItem = createComponent('MenuItem', ({
@@ -78,12 +78,12 @@ export const MenuItem = createComponent('MenuItem', ({
   const [hasSubMenu, setHasSubMenu] = useState(false);
   const { isValid, close } = useContext(PopupMenuContext);
 
-  const handleSelect = useBound(() => {
+  const handleSelect = useBound((event: MouseEvent) => {
     if (isValid) {
       close();
-      setTimeout(() => onSelect?.(), theme.transitions.duration);
+      setTimeout(() => onSelect?.(event), theme.transitions.duration);
     } else {
-      onSelect?.();
+      onSelect?.(event);
     }
   });
 
@@ -97,7 +97,7 @@ export const MenuItem = createComponent('MenuItem', ({
       onMouseEnter={setIsOver}
       onMouseLeave={setIsNotOver}
       onMouseOut={setIsNotOver}
-      onClickCapture={handleSelect}
+      onClick={handleSelect}
       disableGrow
       testId={testId}
     >
