@@ -31,7 +31,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   isRequiredMessage?: ReactNode;
   width?: string | number;
   wide?: boolean;
-  addButtonTooltip?: ReactNode;
+  addTooltip?: ReactNode;
   delayRenderingItems?: boolean;
   error?: ReactNode;
   adornments?: ReactNode;
@@ -94,6 +94,7 @@ export const List = createComponent('List', function <T = void>({
   assistiveHelp,
   maxSelectableItems,
   selectionRequiredMessage,
+  addTooltip = 'Add a new item to this list',
   onAdd,
   ...props
 }: ListProps<T>) {
@@ -148,6 +149,7 @@ export const List = createComponent('List', function <T = void>({
       <InternalList
         tagName="list-content"
         {...props}
+        addTooltip={addTooltip}
         onAdd={onAdd != null ? handleAdd : undefined}
         showSkeletons
         contentClassName={join(css.internalList, contentClassName)}

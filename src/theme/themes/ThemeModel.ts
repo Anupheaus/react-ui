@@ -39,6 +39,7 @@ interface FieldContentTheme {
   backgroundColor: string;
   borderColor: string;
   borderRadius: number;
+  borderWidth: number;
   textSize?: string | number;
   textColor?: string;
 }

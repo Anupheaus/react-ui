@@ -8,12 +8,11 @@ import type { PopoverClasses, PopoverOrigin } from '@mui/material';
 import { Popover } from '@mui/material';
 import { useDelegatedBound } from '../../hooks';
 
-const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
+const useStyles = createStyles(({ fields: { content: { normal: field } } }) => ({
   toolbar: {
     display: 'flex',
-    border: field.border,
-    borderColor: field.borderColor,
     borderStyle: 'solid',
+    ...field,
     opacity: 0,
     pointerEvents: 'none',
 

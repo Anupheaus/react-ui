@@ -93,6 +93,7 @@ export const DefaultTheme: Theme = {
     },
     content: {
       normal: {
+        borderWidth: 1,
         backgroundColor: '#fff',
         borderColor: 'rgba(0 0 0 / 15%)',
         borderRadius: 4,

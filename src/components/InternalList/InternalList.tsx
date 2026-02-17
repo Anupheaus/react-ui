@@ -8,7 +8,7 @@ import { createComponent } from '../Component';
 import type { OnScrollEventData, ScrollerActions } from '../Scroller';
 import { Scroller } from '../Scroller';
 import type { UseActions } from '../../hooks';
-import { useActions, useBooleanState, useOnChange, useOnUnmount, useUpdatableState } from '../../hooks';
+import { useActions, useOnChange, useOnUnmount, useUpdatableState } from '../../hooks';
 import type { UseDataRequest, UseDataResponse } from '../../extensions';
 import type { UseItemsActions } from '../../hooks/useItems';
 import { useItems } from '../../hooks/useItems';
@@ -17,9 +17,12 @@ import { InternalListContextProvider } from './InternalListContext';
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { InternalListItem } from './InternalListItem';
-import { FloatingActionButton } from '../FloatingActionButton';
+import { StickyHideHeader } from '../StickyHideHeader';
+import { Button } from '../Button';
+import { Icon } from '../Icon';
+import { Tooltip } from '../Tooltip';
 
-const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }, { applyTransition }) => ({
+const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }) => ({
   internalList: {
     backgroundColor: normal.backgroundColor,
     color: normal.textColor,
@@ -40,14 +43,6 @@ const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClas
   internalListScrollerContent: {
     minWidth: '100%', // Make sure the items in the list are at least as wide as the list
   },
-  floatingActionButton: {
-    opacity: 0,
-    ...applyTransition('opacity'),
-
-    '&.is-visible': {
-      opacity: 1,
-    },
-  },
 }));
 
 export interface InternalListActions extends UseItemsActions {
@@ -56,7 +51,6 @@ export interface InternalListActions extends UseItemsActions {
 
 export interface InternalListProps<T = void> {
   items?: ReactListItem<T>[];
-  createNewItem?: ReactNode;
   gap?: FlexProps['gap'];
   minWidth?: FlexProps['minWidth'];
   minHeight?: FlexProps['minHeight'];
@@ -69,6 +63,12 @@ export interface InternalListProps<T = void> {
   onSelectedItemsChange?(ids: string[]): void;
   onError?(error: Error): void;
   onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
+  /** Header that slides up with scroll. Renders above the scrollable content. Use useScroller() in children for scroll position. */
+  stickyHeader?: ReactNode;
+  /** Called when vertical scroll position changes (e.g. for virtualisation). */
+  onScrollTopChange?(scrollTop: number): void;
+  /** When true, Scroller consumes parent ScrollContext and reports scroll to it (e.g. Table with sticky header). */
+  useParentScrollContext?: boolean;
 }
 
 interface Props<T = void> extends InternalListProps<T> {
@@ -79,11 +79,10 @@ interface Props<T = void> extends InternalListProps<T> {
   delayRenderingItems?: boolean;
   selectedItemIds?: string[];
   showSkeletons?: boolean;
+  addTooltip?: ReactNode;
   onScroll?(values: OnScrollEventData): void;
   onItemsChange?(items: ReactListItem<T>[]): void;
   onMouseEnter?(event: MouseEvent): void;
-  onMouseLeave?(event: MouseEvent): void;
-  onMouseOver?(event: MouseEvent): void;
   onAdd?(): PromiseMaybe<T | void>;
 }
 
@@ -91,7 +90,6 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   tagName,
   className,
   gap = 4,
-  createNewItem,
   contentClassName,
   disableShadowsOnScroller = false,
   items: providedItems,
@@ -102,6 +100,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   minWidth,
   minHeight,
   showSkeletons,
+  addTooltip,
   actions,
   onScroll,
   onRequest,
@@ -112,6 +111,9 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   onItemsChange,
   onClick,
   onAdd,
+  stickyHeader,
+  onScrollTopChange,
+  useParentScrollContext = false,
 }: Props<T>) {
   const { css, join } = useStyles();
   const heightRef = useRef<number>();
@@ -124,8 +126,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, selectedItemIds, items: providedItems, useSkeletons: showSkeletons, onItemsChange });
   const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
   const [activeItemId, setActiveItemId] = useState<string>();
-  const [isOverList, setIsOverList, unsetIsOverList] = useBooleanState(false);
-  const [isOverFAB, setIsOverFAB, unsetIsOverFAB] = useBooleanState(false);
+  const [stickyHeaderHeight, setStickyHeaderHeight] = useState<number>();
 
   actions?.({
     refresh,
@@ -162,13 +163,12 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     const innerTotal = total ?? limit;
     if (innerTotal === 0 || itemHeight === 0) return [null, null];
     const headerStyle = { height: `${offset * itemHeight}px` };
-    const offsetForAddButton = onAdd != null ? 48 : 0;
-    const footerStyle = { height: `${((innerTotal - offset - limit) * itemHeight) + offsetForAddButton}px` };
+    const footerStyle = { height: `${(innerTotal - offset - limit) * itemHeight}px` };
     return [
       <Flex key="header" tagName="lazy-load-header" style={headerStyle} disableGrow />,
       <Flex key="footer" tagName="lazy-load-footer" style={footerStyle} disableGrow />
     ];
-  }, [heightRef.current, total, offset, limit, onAdd]);
+  }, [heightRef.current, total, offset, limit]);
 
   const renderedItems = useMemo(() => {
     return (allowedToRenderItems ? items : []).slice(offset, offset + limit)
@@ -181,10 +181,28 @@ export const InternalList = createComponent('InternalList', function <T = void>(
       lastScrollTopRef.current = values.top;
       requestItems();
     }
+    onScrollTopChange?.(values.top);
     onScroll?.(values);
   });
 
   const handleAdd = useBound(async () => { await onAdd?.(); });
+
+  const headerContent = useMemo(() => {
+    if (stickyHeader == null && onAdd == null) return undefined;
+    return (
+      <StickyHideHeader onHeightChange={setStickyHeaderHeight} align="right">
+        {stickyHeader}
+        {onAdd != null && (
+          <Tooltip content={addTooltip}>
+            <Button size="small" variant="hover" onClick={handleAdd}>
+              <Icon name="add" size="small" />
+              Add
+            </Button>
+          </Tooltip>
+        )}
+      </StickyHideHeader>
+    );
+  }, [stickyHeader, onAdd, handleAdd, setStickyHeaderHeight]);
 
   const handleActiveChange = useBound((id: string, data: T, _index: number, isActive: boolean) => {
     if (isActive) {
@@ -246,8 +264,6 @@ export const InternalList = createComponent('InternalList', function <T = void>(
       isVertical
       maxWidth
       gap={gap}
-      onMouseOver={setIsOverList}
-      onMouseLeave={unsetIsOverList}
     >
       <Scroller
         onScroll={handleOnScroll}
@@ -255,23 +271,16 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         disableShadows={disableShadowsOnScroller}
         className={join(css.internalListScrollerContent, contentClassName)}
         fullHeight={fullHeight}
+        useParentContext={useParentScrollContext}
+        headerContent={headerContent}
+        style={{ paddingTop: stickyHeaderHeight }}
       >
         {header}
         <InternalListContextProvider onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
           {renderedItems}
         </InternalListContextProvider>
-        {createNewItem}
         {footer}
       </Scroller>
-      {onAdd != null && (
-        <FloatingActionButton
-          onClick={handleAdd}
-          className={join(css.floatingActionButton, (isOverFAB || isOverList) && 'is-visible')}
-          iconName="add"
-          onMouseOver={setIsOverFAB}
-          onMouseLeave={unsetIsOverFAB}
-        />
-      )}
     </Flex>
   );
 });

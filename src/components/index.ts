@@ -21,6 +21,7 @@ export * from './Checkbox';
 export * from './SplashScreen';
 export * from './Windows';
 export * from './Scroller';
+export * from './StickyHideHeader';
 export * from './Menu';
 export * from './UserProfileMenu';
 export * from './Tabs';

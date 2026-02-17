@@ -91,7 +91,7 @@ ConfiguratorItemRow
 ### Scroller and shadows
 
 - **Scroller** wraps the grid and reports `onShadowVisibilityChange` (top/left/bottom/right). Configurator keeps that in `visibleShadows` and passes it to rows and add-row for right/bottom edge shadows.
-- Custom bottom/right shadow elements are rendered via `containerContent` on the Scroller.
+- Custom bottom/right shadow elements are rendered via `footerContent` on the Scroller.
 
 ### Styling
 

@@ -1,5 +1,6 @@
-import type { ReactNode, Ref } from 'react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { CSSProperties, ReactNode, Ref } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { UseActions } from '../../hooks';
 import { useBooleanState, useBound } from '../../hooks';
 import { createStyles } from '../../theme';
@@ -7,6 +8,7 @@ import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { is } from '@anupheaus/common';
 import { useScrollbarStyles } from './ScrollbarStyles';
+import { ScrollContext, getScrollContextValueFromElement } from './ScrollContext';
 
 const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransition }) => ({
   scroller: {
@@ -137,9 +139,15 @@ interface Props {
   offsetTop?: number;
   scrollTo?: number | 'bottom';
   children: ReactNode;
-  containerContent?: ReactNode;
+  /** Rendered inside the scroll container above the scroller-content (e.g. sticky header). Scrollbar runs alongside it. */
+  headerContent?: ReactNode;
+  /** Rendered inside the scroller element after the scroll container (e.g. custom footer/shadow). */
+  footerContent?: ReactNode;
+  /** When true, do not provide scroll context; consume parent ScrollContextProvider and report scroll to it. */
+  useParentContext?: boolean;
   ref?: Ref<HTMLDivElement | null>;
   fullHeight?: boolean;
+  style?: CSSProperties;
   actions?: UseActions<ScrollerActions>;
   onScroll?(event: OnScrollEventData): void;
   onShadowVisibilityChange?(event: OnShadowVisibleChangeEvent): void;
@@ -151,15 +159,19 @@ export const Scroller = createComponent('Scroller', ({
   disableShadows = false,
   scrollTo,
   children,
-  containerContent,
+  headerContent,
+  footerContent,
+  useParentContext = false,
   ref,
   fullHeight = false,
+  style,
   actions,
   onScroll,
   onShadowVisibilityChange,
 }: Props) => {
   const { css, join } = useStyles();
   const { css: scrollbarsCss } = useScrollbarStyles();
+  const parentScrollContext = useContext(ScrollContext);
   const unsubscribeRef = useRef<() => void>();
   const lastScrollValuesRef = useRef<{ left?: number; top?: number; }>({});
   const scrollerElementRef = useRef<HTMLDivElement | null>(null);
@@ -168,6 +180,7 @@ export const Scroller = createComponent('Scroller', ({
   const leftElementRef = useRef<HTMLDivElement | null>(null);
   const bottomElementRef = useRef<HTMLDivElement | null>(null);
   const rightElementRef = useRef<HTMLDivElement | null>(null);
+  const [scrollContextValue, setScrollContextValue] = useState({ scrollTop: 0, scrollLeft: 0, scrollRight: 0, scrollBottom: 0 });
   const [isScrollbarVisible, setScrollbarVisible, setScrolbarInvisible] = useBooleanState();
   const [shadowAtTop, setShadowAtTop] = useState(false);
   const [shadowOnLeft, setShadowOnLeft] = useState(false);
@@ -189,17 +202,24 @@ export const Scroller = createComponent('Scroller', ({
     scrollerContainerElementRef.current = element;
     unsubscribeRef.current?.();
     if (element != null) {
-      if (is.function(onScroll)) {
-        const eventHandler = () => {
-          const left = element.scrollLeft;
-          const top = element.scrollTop;
-          if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
-          const data = lastScrollValuesRef.current = { left, top };
-          onScroll?.({ ...data, element });
-        };
-        element.addEventListener('scroll', eventHandler);
-        unsubscribeRef.current = () => element.removeEventListener('scroll', eventHandler);
-        onScroll({ left: element.scrollLeft, top: element.scrollTop, element });
+      const notifyScroll = () => {
+        const left = element.scrollLeft;
+        const top = element.scrollTop;
+        if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
+        lastScrollValuesRef.current = { left, top };
+        const scrollValue = getScrollContextValueFromElement(element);
+        // Flush scroll context updates synchronously so StickyHideHeader (and other consumers) re-render in the same tick, reducing perceived lag.
+        if (useParentContext && parentScrollContext?.reportScroll) {
+          flushSync(() => parentScrollContext.reportScroll!(scrollValue));
+        } else if (!useParentContext) {
+          flushSync(() => setScrollContextValue(scrollValue));
+        }
+        onScroll?.({ left, top, element });
+      };
+      if (is.function(onScroll) || !useParentContext || parentScrollContext?.reportScroll) {
+        element.addEventListener('scroll', notifyScroll);
+        unsubscribeRef.current = () => element.removeEventListener('scroll', notifyScroll);
+        notifyScroll();
       }
     }
   });
@@ -232,7 +252,7 @@ export const Scroller = createComponent('Scroller', ({
   useLayoutEffect(() => onShadowVisibilityChange?.({ top: shadowAtTop, left: shadowOnLeft, bottom: shadowAtBottom, right: shadowOnRight }),
     [shadowAtTop, shadowOnLeft, shadowAtBottom, shadowOnRight, onShadowVisibilityChange]);
 
-  return (
+  const content = (
     <Tag name="scroller" ref={scrollerElementRef} className={css.scroller} onMouseOver={setScrollbarVisible} onMouseLeave={setScrolbarInvisible}>
       <Tag
         name="scroller-container"
@@ -245,7 +265,8 @@ export const Scroller = createComponent('Scroller', ({
           containerClassName,
         )}
       >
-        <Tag name="scroller-content" className={join(css.scrollerContent, fullHeight && 'min-full-height', className)}>
+        {headerContent}
+        <Tag name="scroller-content" className={join(css.scrollerContent, fullHeight && 'min-full-height', className)} style={style}>
           <Tag name="scroller-content-top" ref={topElementRef} className={join(css.scrollerContentEdge, css.scrollerContentTop)} />
           <Tag name="scroller-content-left" ref={leftElementRef} className={join(css.scrollerContentEdge, css.scrollerContentLeft)} />
           <Tag name="scroller-content-bottom" ref={bottomElementRef} className={join(css.scrollerContentEdge, css.scrollerContentBottom)} />
@@ -259,7 +280,13 @@ export const Scroller = createComponent('Scroller', ({
         <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, shadowOnRight && 'is-visible')} />
         <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, shadowAtBottom && 'is-visible')} />
       </>)}
-      {containerContent}
+      {footerContent}
     </Tag>
+  );
+  if (useParentContext) return content;
+  return (
+    <ScrollContext.Provider value={scrollContextValue}>
+      {content}
+    </ScrollContext.Provider>
   );
 });

@@ -7,6 +7,13 @@ import type { ListOnRequest, ListProps } from './List';
 import { List } from './List';
 import { useBound } from '../../hooks';
 import { useState } from 'react';
+import { Button } from '../Button';
+import { useScroller } from '../Scroller/useScroller';
+
+function ScrollPositionLabel() {
+  const { scrollTop } = useScroller();
+  return <span style={{ fontSize: 12, opacity: 0.8 }}>Scroll: {Math.round(scrollTop)}px</span>;
+}
 
 type ListDefault = ComponentType<ListProps>;
 
@@ -16,7 +23,7 @@ const staticItems = new Array(150).fill(0).map((): ReactListItem => {
   return {
     id: faker.string.uuid(),
     text: '',
-    label: <span>{faker.person.fullName().slice(0, 9)}</span>,
+    label: <span>{faker.person.fullName()}</span>,
   };
 });
 
@@ -152,6 +159,47 @@ export const ListItemsWithSubItems: Story = createStory<ListDefault>({
       <List
         label={'Categories'}
         onRequest={handleRequest}
+      />
+    );
+  },
+});
+
+export const ListWithStickyHeader: Story = createStory<ListDefault>({
+  args: {
+    label: 'List',
+  },
+  width: 280,
+  height: 320,
+  render: props => {
+    const smallerList = staticItems.slice(0, 15);
+
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) => {
+      await Promise.delay(600);
+      respondWith({
+        requestId,
+        items: smallerList.slice(offset, offset + limit),
+        total: smallerList.length,
+      });
+    });
+
+    const handleAdd = useBound(() => {
+      // eslint-disable-next-line no-alert
+      window.alert('Add');
+    });
+
+    return (
+      <List
+        label={'List'}
+        {...props}
+        onRequest={handleRequest}
+        onAdd={handleAdd}
+        stickyHeader={(
+          <>
+            <Button size="small">Filter</Button>
+            <Button size="small">Sort</Button>
+            <ScrollPositionLabel />
+          </>
+        )}
       />
     );
   },

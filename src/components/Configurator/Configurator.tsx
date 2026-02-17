@@ -121,7 +121,7 @@ export const Configurator = createComponent('Configurator', ({
       <Flex tagName="configurator-grid" isVertical className={css.configuratorGrid} maxWidthAndHeight>
         <Scroller
           disableShadows
-          containerContent={(<>
+          footerContent={(<>
             <Tag name="configurator-bottom-shadow" className={join(css.configuratorShadow, 'is-bottom', visibleShadows?.bottom === true && 'is-visible')} />
             <Tag name="configurator-right-shadow" className={join(css.configuratorShadow, 'is-right', visibleShadows?.right === true && 'is-visible')} />
           </>)}
