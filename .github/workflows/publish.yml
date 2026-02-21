@@ -18,7 +18,9 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8.3.1    
+          version: 8.3.1
+      - name: Use common from GitHub in CI
+        run: jq '.pnpm.overrides["@anupheaus/common"] = "github:Anupheaus/common"' package.json > package.json.tmp && mv package.json.tmp package.json
       - name: Install Dependencies
         run: pnpm i
       # - name: Run Tests
@@ -41,6 +43,9 @@ jobs:
     needs: [Build]
     runs-on: ubuntu-latest
     if: github.repository_owner == 'anupheaus'
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Download Package
         uses: actions/download-artifact@v4
@@ -50,12 +55,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 19.x
-          registry-url: https://registry.npmjs.org/
+          registry-url: https://npm.pkg.github.com/
+          scope: '@anupheaus'
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 8.3.1
       - name: Publish
-        run: pnpm publish $(ls *.tgz)
+        run: pnpm publish $(ls *.tgz) --no-git-checks
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

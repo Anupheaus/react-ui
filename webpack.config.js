@@ -1,5 +1,9 @@
 const path = require('path');
+const fs = require('fs');
 const nodeExternals = require('webpack-node-externals');
+
+const commonLocalPath = path.resolve(__dirname, '../common/src');
+const useLocalCommon = fs.existsSync(commonLocalPath);
 // const TerserPlugin = require('terser-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 
@@ -75,9 +79,7 @@ module.exports = {
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
-    alias: {
-      '@anupheaus/common': path.resolve(__dirname, '../common/src'),
-    }
+    alias: useLocalCommon ? { '@anupheaus/common': commonLocalPath } : {},
   },
   stats: {
     assets: false,
