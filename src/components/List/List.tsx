@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { useMemo, useState } from 'react';
 import type { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
@@ -40,7 +40,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   allowMultiSelect?: boolean;
   selectionRequiredMessage?: ReactNode;
   actions?: UseActions<ListActions>;
-  onAdd?(): PromiseMaybe<T | void>;
+  onAdd?(event: MouseEvent<HTMLElement>): PromiseMaybe<T | void>;
   value?: V;
   onChange?(newValue: V): void;
 };
@@ -107,8 +107,8 @@ export const List = createComponent('List', function <T = void>({
   if (value != null) maxSelectableItems = maxSelectableItems ?? (is.array(value) ? 0 : 1);
   const selectedItemIds = useMemo(() => (is.array(value) ? value : [value]).removeNull(), [value]);
 
-  const handleAdd = useBound(async () => {
-    await onAdd?.();
+  const handleAdd = useBound(async (event: MouseEvent<HTMLElement>) => {
+    await onAdd?.(event);
     enableErrors();
   });
 

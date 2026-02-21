@@ -19,14 +19,12 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     maxHeight: '100%',
     maxWidth: '100%',
     flexDirection: 'inherit',
-    gap: 'inherit',
   },
   scrollerContainer: {
     display: 'flex',
     flex: 'auto',
     position: 'relative',
     flexDirection: 'inherit',
-    gap: 'inherit',
 
     '&.keep-height-to-content': {
       height: 'fit-content',
@@ -41,7 +39,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     width: 'fit-content',
     // minWidth: '100%',
     flexDirection: 'inherit',
-    gap: 'inherit',
+    gap: 'var(--gap)',
 
     '&.min-full-height': {
       minHeight: '100%',
@@ -186,6 +184,12 @@ export const Scroller = createComponent('Scroller', ({
   const [shadowOnLeft, setShadowOnLeft] = useState(false);
   const [shadowAtBottom, setShadowAtBottom] = useState(false);
   const [shadowOnRight, setShadowOnRight] = useState(false);
+  const isRenderingRef = useRef(true);
+  isRenderingRef.current = true;
+
+  useEffect(() => {
+    isRenderingRef.current = false;
+  });
 
   const scrollToFunc = (value: number | 'bottom' | undefined): void => {
     const element = scrollerContainerElementRef.current;
@@ -208,12 +212,15 @@ export const Scroller = createComponent('Scroller', ({
         if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
         lastScrollValuesRef.current = { left, top };
         const scrollValue = getScrollContextValueFromElement(element);
+        let reportScroll = () => void 0 as void;
         // Flush scroll context updates synchronously so StickyHideHeader (and other consumers) re-render in the same tick, reducing perceived lag.
         if (useParentContext && parentScrollContext?.reportScroll) {
-          flushSync(() => parentScrollContext.reportScroll!(scrollValue));
+          reportScroll = () => parentScrollContext.reportScroll!(scrollValue);
         } else if (!useParentContext) {
-          flushSync(() => setScrollContextValue(scrollValue));
+          reportScroll = () => setScrollContextValue(scrollValue);
         }
+        if (isRenderingRef.current) reportScroll(); else flushSync(reportScroll);
+
         onScroll?.({ left, top, element });
       };
       if (is.function(onScroll) || !useParentContext || parentScrollContext?.reportScroll) {

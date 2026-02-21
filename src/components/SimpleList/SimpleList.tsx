@@ -1,7 +1,7 @@
 import { List } from '../List';
 import { createComponent } from '../Component';
 import type { ReactListItem } from '../../models';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ComponentProps, MouseEvent, ReactNode } from 'react';
 import { useMemo } from 'react';
 import { useSimpleListItemDialog } from './SimpleListItemDialog';
 import { useBound } from '../../hooks';
@@ -28,8 +28,8 @@ export const SimpleList = createComponent('SimpleList', function <T = void>({
   const items = useMemo(() => value ?? [], [value]);
   const { SimpleListItemDialog, openSimpleListItemDialog } = useSimpleListItemDialog();
 
-  const addNewItem = useBound(async () => {
-    if (props.onAdd != null) return await props.onAdd();
+  const addNewItem = useBound(async (event: MouseEvent<HTMLElement>) => {
+    if (props.onAdd != null) return await props.onAdd(event);
     const item = await openSimpleListItemDialog();
     if (item == null) return;
     onChange?.([...items, item as ReactListItem<T>]);

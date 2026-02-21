@@ -22,6 +22,7 @@ const useStyles = createStyles(({ gaps }) => ({
 
     '&.gap-fields': {
       gap: gaps.fields,
+      '--gap': `${gaps.fields}px`,
     },
     '&.disable-grow': {
       flexGrow: 0,
@@ -137,6 +138,7 @@ export const Flex = createComponent('Flex', ({
     ...(align != null ? (isVertical ? { alignItems: align } : { justifyContent: align }) : {}),
     ...(valign != null ? (isVertical ? { justifyContent: valign } : { alignItems: valign }) : {}),
     ...providedStyle,
+    '--gap': is.number(gap) ? `${gap}px` : undefined,
   }), [gap, padding, width, height, isVertical, valign, align, providedStyle, maxWidth, maxHeight, maxWidthAndHeight, shadow, minWidth, minHeight]);
 
   if (fixedSize) { disableGrow = true; disableShrink = true; }

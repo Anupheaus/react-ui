@@ -7,30 +7,27 @@ import { Flex } from '../Flex';
 import { useScroller } from '../Scroller/useScroller';
 import { useOnResize } from '../../hooks';
 
-const useStyles = createStyles(({ buttons: { default: { normal: { backgroundColor } } }, shadows: { light } }) => ({
+const useStyles = createStyles(({ windows: { content: { active: { backgroundColor } } }, shadows: { light } }) => ({
   stickyHideHeader: {
-    flexGrow: 0,
-    flexShrink: 0,
     minHeight: 0,
     position: 'sticky' as const,
     top: 0,
     zIndex: 2,
-    backgroundColor,
-    backdropFilter: 'brightness(0) invert(1)', // Makes it so that anything underneath the header is invisible even when the header is using alpha colours
-
-    '::after': {
-      content: '""',
-      position: 'absolute',
-      left: -20,
-      right: -20,
-      bottom: -20,
-      height: 20,
-      boxShadow: light(true),
-      clipPath: 'xywh(0 0 100% 50%)',
-    },
+    overflow: 'hidden',
   },
   stickyHideHeaderContent: {
     padding: 8,
+    backgroundColor,
+    backdropFilter: 'brightness(0) invert(1)', // Makes it so that anything underneath the header is invisible even when the header is using alpha colours
+    overflow: 'hidden',
+  },
+  stickyHideHeaderShadow: {
+    position: 'absolute',
+    bottom: -shadowHeight,
+    left: -(shadowHeight * 2),
+    right: -(shadowHeight * 2),
+    height: shadowHeight * 2,
+    boxShadow: light(true),
   },
 }));
 
@@ -38,6 +35,7 @@ export interface StickyHideHeaderProps extends Pick<FlexProps, 'gap' | 'align'> 
   /** Header content (e.g. action buttons). Actual height is measured via resize observer. */
   children?: ReactNode;
   className?: string;
+  contentClassName?: string;
   /** Called when the measured height of the header changes (e.g. so parent can adjust padding). */
   onHeightChange?(height: number): void;
 }
@@ -53,6 +51,7 @@ const shadowHeight = 10;
 export const StickyHideHeader = createComponent('StickyHideHeader', ({
   children,
   className,
+  contentClassName,
   onHeightChange,
   gap = 'fields',
   ...props
@@ -101,9 +100,9 @@ export const StickyHideHeader = createComponent('StickyHideHeader', ({
   // Keep fixed height so scroll container height does not change on scroll (avoids flicker).
   // totalHeight includes shadow so the header slides out far enough to hide the shadow.
   const style = useInlineStyle(() => ({
-    height: totalHeight,
+    height: totalHeight + shadowHeight,
     transform: `translateY(${translateY}px)`,
-    marginBottom: -totalHeight,
+    marginBottom: -totalHeight - shadowHeight,
   }), [totalHeight, translateY]);
 
   return (
@@ -112,10 +111,13 @@ export const StickyHideHeader = createComponent('StickyHideHeader', ({
       className={join(css.stickyHideHeader, className)}
       style={style}
       isVertical
+      disableGrow
+      disableShrink
     >
-      <Flex  {...props} tagName="sticky-hide-header-content" ref={resizeTarget} className={css.stickyHideHeaderContent} disableShrink gap={gap} valign="top">
+      <Flex  {...props} tagName="sticky-hide-header-content" ref={resizeTarget} className={join(css.stickyHideHeaderContent, contentClassName)} disableGrow disableShrink gap={gap} valign="top">
         {children}
       </Flex>
+      <Flex tagName="sticky-hide-header-shadow" className={css.stickyHideHeaderShadow} disableGrow disableShrink />
     </Flex>
   );
 });

@@ -43,6 +43,10 @@ const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClas
   internalListScrollerContent: {
     minWidth: '100%', // Make sure the items in the list are at least as wide as the list
   },
+  internalListStickyHeaderContent: {
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
 }));
 
 export interface InternalListActions extends UseItemsActions {
@@ -83,7 +87,7 @@ interface Props<T = void> extends InternalListProps<T> {
   onScroll?(values: OnScrollEventData): void;
   onItemsChange?(items: ReactListItem<T>[]): void;
   onMouseEnter?(event: MouseEvent): void;
-  onAdd?(): PromiseMaybe<T | void>;
+  onAdd?(event: MouseEvent<HTMLElement>): PromiseMaybe<T | void>;
 }
 
 export const InternalList = createComponent('InternalList', function <T = void>({
@@ -185,12 +189,12 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     onScroll?.(values);
   });
 
-  const handleAdd = useBound(async () => { await onAdd?.(); });
+  const handleAdd = useBound(async (event: MouseEvent<HTMLElement>) => { await onAdd?.(event); });
 
   const headerContent = useMemo(() => {
     if (stickyHeader == null && onAdd == null) return undefined;
     return (
-      <StickyHideHeader onHeightChange={setStickyHeaderHeight} align="right">
+      <StickyHideHeader onHeightChange={setStickyHeaderHeight} align="right" contentClassName={css.internalListStickyHeaderContent}>
         {stickyHeader}
         {onAdd != null && (
           <Tooltip content={addTooltip}>
