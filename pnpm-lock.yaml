@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@anupheaus/common': github:Anupheaus/common
+  '@anupheaus/common': file:../common
   form-data: '>=4.0.4'
   qs: '>=6.14.2'
   webpack-dev-middleware: '>=6.1.2'
@@ -17,8 +17,8 @@ overrides:
 
 dependencies:
   '@anupheaus/common':
-    specifier: github:Anupheaus/common
-    version: github.com/Anupheaus/common/8463a6b3372818cb893296fd159bea579af96685
+    specifier: file:C:\code\personal\common
+    version: file:../common
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -13445,10 +13445,9 @@ packages:
       readable-stream: 3.6.2
     dev: false
 
-  github.com/Anupheaus/common/8463a6b3372818cb893296fd159bea579af96685:
-    resolution: {tarball: https://codeload.github.com/Anupheaus/common/tar.gz/8463a6b3372818cb893296fd159bea579af96685}
+  file:../common:
+    resolution: {directory: ../common, type: directory}
     name: '@anupheaus/common'
-    version: 0.1.26
     dependencies:
       chalk: 5.3.0
       dotenv: 16.3.1
