@@ -21,11 +21,12 @@
     "findDeclarationErrors": "tsc --declaration --declarationDir ./dist --emitDeclarationOnly"
   },
   "files": [
-    "dist"
+    "dist",
+    "AGENTS.md"
   ],
   "typings": "dist/index",
   "dependencies": {
-    "@anupheaus/common": "^0.1.28",
+    "@anupheaus/common": "^0.1.29",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.18.0",
