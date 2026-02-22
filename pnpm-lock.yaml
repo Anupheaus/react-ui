@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@anupheaus/common': file:../common
   form-data: '>=4.0.4'
   qs: '>=6.14.2'
   webpack-dev-middleware: '>=6.1.2'
@@ -17,8 +16,8 @@ overrides:
 
 dependencies:
   '@anupheaus/common':
-    specifier: file:C:\code\personal\common
-    version: file:../common
+    specifier: ^0.1.29
+    version: 0.1.29
   '@emotion/react':
     specifier: ^11.11.1
     version: 11.11.1(@types/react@18.2.45)(react@18.2.0)
@@ -241,6 +240,22 @@ packages:
       '@jridgewell/gen-mapping': 0.1.1
       '@jridgewell/trace-mapping': 0.3.20
     dev: true
+
+  /@anupheaus/common@0.1.29:
+    resolution: {integrity: sha512-SYaNGd8Y/SKCD9UPiMPj3HBJ7EQMzbHIReR6tvWryGvtQTrx/ukQ80tFw7jmwzmxntYZRBVCeq189eSZAxPu0Q==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.1.29/d68a871833ab12f484327ee6b67db517e94f722c}
+    dependencies:
+      chalk: 5.6.2
+      dotenv: 16.6.1
+      fast-equals: 4.0.3
+      import-sync: 2.2.3
+      inflection: 3.0.2
+      just-diff: 6.0.2
+      just-diff-apply: 5.5.0
+      luxon: 3.4.4
+      numeral: 2.0.6
+      object-hash: 3.0.0
+      uuid: 9.0.1
+    dev: false
 
   /@aw-web-design/x-default-browser@1.4.126:
     resolution: {integrity: sha512-Xk1sIhyNC/esHGGVjL/niHLowM0csl/kFO5uawBy4IrWwy0o1G8LGt3jP6nmWGz+USxeeqbihAmp/oVZju6wug==}
@@ -13573,21 +13588,4 @@ packages:
       archiver-utils: 3.0.4
       compress-commons: 4.1.2
       readable-stream: 3.6.2
-    dev: false
-
-  file:../common:
-    resolution: {directory: ../common, type: directory}
-    name: '@anupheaus/common'
-    dependencies:
-      chalk: 5.6.2
-      dotenv: 16.6.1
-      fast-equals: 4.0.3
-      import-sync: 2.2.3
-      inflection: 3.0.2
-      just-diff: 6.0.2
-      just-diff-apply: 5.5.0
-      luxon: 3.4.4
-      numeral: 2.0.6
-      object-hash: 3.0.0
-      uuid: 9.0.1
     dev: false

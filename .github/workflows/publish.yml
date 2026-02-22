@@ -21,32 +21,23 @@ jobs:
         with:
           node-version: "20"
           registry-url: https://npm.pkg.github.com/
-          scope: '@anupheaus'
+          scope: "@anupheaus"
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 8.3.1
-      - name: Use common from GitHub in CI
-        run: jq '.pnpm.overrides["@anupheaus/common"] = "github:Anupheaus/common"' package.json > package.json.tmp && mv package.json.tmp package.json
-      - name: Verify override applied
-        run: |
-          echo "pnpm.overrides after switch:"
-          jq '.pnpm.overrides' package.json
-      - name: Configure Git for GitHub package fetch
-        run: git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+      - name: Remove @anupheaus/common override before pack
+        run: jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp && mv package.json.tmp package.json
       - name: Install Dependencies
         run: pnpm i --no-frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # - name: Run Tests
       #   run: pnpm run test-ci
       - name: Build
         run: pnpm run build
         env:
           NODE_OPTIONS: "--max-old-space-size=4096"
-      - name: Remove override before version bump and pack
-        run: jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp && mv package.json.tmp package.json
       - name: Perform Version Bump
         uses: "phips28/gh-action-bump-version@master"
         with:
@@ -78,7 +69,7 @@ jobs:
         with:
           node-version: "20"
           registry-url: https://npm.pkg.github.com/
-          scope: '@anupheaus'
+          scope: "@anupheaus"
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
