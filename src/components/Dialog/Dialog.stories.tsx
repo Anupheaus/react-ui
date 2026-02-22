@@ -7,7 +7,7 @@ import { Button } from '../Button';
 import { StorybookComponent } from '../../Storybook';
 import { Dialogs } from './Dialogs';
 import { createDialog } from './createDialog';
-import { useConfirmationDialog } from './useConfirmationDialog';
+import { useConfirmationDialog } from './ConfirmationDialogContext';
 import type { ReactNode } from 'react';
 
 const meta: Meta<typeof DialogType> = {

@@ -3,7 +3,7 @@ import { is } from '@anupheaus/common';
 import type { ReactNode } from 'react';
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { createComponent } from '../../components/Component';
-import { useStorage } from '../../hooks';
+import { useStorage } from '../../hooks/useStorage';
 import { useBound } from '../../hooks/useBound';
 import type { ApiProviderContextProps } from './ApiProviderContext';
 import { ApiProviderContext } from './ApiProviderContext';

@@ -7,7 +7,7 @@ import { Tag } from '../Tag';
 import type { Function } from 'ts-toolbelt';
 import type { TypographyTypes } from './Typographies';
 import { LocalTypographicDefinitions } from './Typographies';
-import { useUIState } from '../../providers';
+import { useUIState } from '../../providers/UIStateProvider';
 
 const useStyles = createLegacyStyles({
   typography: {

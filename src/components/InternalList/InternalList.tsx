@@ -176,7 +176,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
 
   const renderedItems = useMemo(() => {
     return (allowedToRenderItems ? items : []).slice(offset, offset + limit)
-      .map((item, index) => <InternalListItem key={item.id} item={item} index={offset + index} isSelectable={(maxSelectableItems ?? 0) > 0} onClick={onClick} />);
+      .map((item, index) => <InternalListItem key={item.id} item={item} index={offset + index} isSelectable={(maxSelectableItems ?? 0) > 0} onClick={onClick} InternalListComponent={InternalList} />);
   }, [allowedToRenderItems, items, offset, limit, maxSelectableItems, onClick]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => {

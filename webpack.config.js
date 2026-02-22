@@ -24,6 +24,7 @@ module.exports = {
       test: /\.tsx?$/,
       loader: 'ts-loader',
       options: {
+        ...(useLocalCommon ? {} : { configFile: 'tsconfig.prod.json' }),
         onlyCompileBundledFiles: true,
         compilerOptions: {
           declaration: true,
@@ -55,20 +56,15 @@ module.exports = {
       exclude: /node_modules/,
       failOnError: false,
       onDetected({ paths }) {
-        paths.forEach((pathValue, index) => {
-          if (pathValue.endsWith('index.ts') && index < paths.length - 1) {
-            const nextPath = paths[index + 1];
-            circularDeps.set(nextPath, (circularDeps.get(nextPath) ?? 0) + 1);
-          }
-        });
-        // compilation.errors.push(new Error(paths.join('->')))
+        const cycle = paths.join(' -> ');
+        circularDeps.set(cycle, (circularDeps.get(cycle) ?? 0) + 1);
       },
       onEnd() {
         const entries = Array.from(circularDeps.entries());
         circularDeps.clear();
         entries.sort(([, count1], [, count2]) => count1 > count2 ? -1 : 1);
         // eslint-disable-next-line no-console
-        console.log(entries.slice(0, 20).map(([pathValue, count]) => `${pathValue} ${count}`));
+        entries.forEach(([cycle]) => console.log('Cycle:', cycle));
         // eslint-disable-next-line no-console
         console.log(`Found ${entries.length} circular dependencies`);
       },

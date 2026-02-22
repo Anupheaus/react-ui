@@ -3,7 +3,7 @@ import { ThemeProvider, createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Button } from '../Button';
 import { Flex } from '../Flex';
-import { useConfirmationDialog } from '../Dialog';
+import { useConfirmationDialog } from '../Dialog/ConfirmationDialogContext';
 import { useBound } from '../../hooks/useBound';
 import { useFormActions } from '../Form';
 import { UIState } from '../../providers/UIStateProvider';

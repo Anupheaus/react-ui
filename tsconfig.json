@@ -19,9 +19,7 @@
     "sourceMap": true,
     "jsx": "react-jsx",
     "paths": {
-      "@anupheaus/common": [
-        "../common/src"
-      ]
+      "@anupheaus/common": ["../common/src"]
     }
   },
   "include": [

@@ -12,11 +12,12 @@ import type { MouseEvent } from 'react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
+import type { ComponentProps, ComponentType } from 'react';
+import type { InternalList } from './InternalList';
 import { useInternalListContext } from './InternalListContext';
 import { Skeleton } from '../Skeleton';
 import { Checkbox } from '../Checkbox';
 import { Expander } from '../Expander';
-import { InternalList } from './InternalList';
 import { Tag } from '../Tag';
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
@@ -75,11 +76,14 @@ const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransi
   };
 });
 
+type InternalListComponentProps = ComponentProps<typeof InternalList>;
+
 interface Props<T> {
   item: ReactListItem<T>;
   index: number;
   isSelectable: boolean;
   onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
+  InternalListComponent?: ComponentType<InternalListComponentProps>;
 }
 
 export const InternalListItem = createComponent('InternalListItem', function <T = void>({
@@ -87,6 +91,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   index,
   isSelectable: providedIsSelectable,
   onClick,
+  InternalListComponent,
 }: Props<T>) {
   const { css, join } = useStyles();
   const { onSelectChange, onActiveChange, onDelete } = useInternalListContext<T>();
@@ -226,16 +231,18 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         <Flex tagName="list-item-with-sub-items" isVertical disableGrow>
           {content}
           <Expander isExpanded={isExpanded} className={css.expander}>
-            <InternalList
-              tagName="internal-list-sub-items"
-              items={item.subItems}
-              showSkeletons={false}
-              minHeight="auto"
-              disableShadowsOnScroller
-              contentClassName={css.subItemsList}
-              gap={2}
-              onClick={onClick}
-            />
+            {InternalListComponent != null && (
+              <InternalListComponent
+                tagName="internal-list-sub-items"
+                items={item.subItems}
+                showSkeletons={false}
+                minHeight="auto"
+                disableShadowsOnScroller
+                contentClassName={css.subItemsList}
+                gap={2}
+                onClick={onClick}
+              />
+            )}
           </Expander>
         </Flex>
       );

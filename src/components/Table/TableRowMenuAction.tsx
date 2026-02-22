@@ -1,7 +1,7 @@
 import type { PromiseMaybe, Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
-import { EllipsisMenu, MenuItem } from '../Menu';
+import { EllipsisMenu } from '../Menu';
 import { useConfirmationDialog } from '../Dialog';
 
 interface Props<RecordType extends Record> {
@@ -32,9 +32,10 @@ export const TableRowMenuAction = createComponent('TableRowMenuAction', <RecordT
   if (onRemove == null) return null;
 
   return (<>
-    <EllipsisMenu buttonSize="small">
-      {onRemove != null && <MenuItem onSelect={removeRecord}>{removeLabel.toPascalCase()}</MenuItem>}
-    </EllipsisMenu>
+    <EllipsisMenu
+      buttonSize="small"
+      items={[{ id: 'remove', text: removeLabel.toPascalCase(), onClick: () => removeRecord() }]}
+    />
     <ConfirmationDialog />
   </>);
 });

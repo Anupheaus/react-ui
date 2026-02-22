@@ -7,6 +7,7 @@ import { Tag } from '../Tag';
 import type { WindowState } from '../Windows';
 import { Windows } from '../Windows';
 import { DialogsManagerIdContext } from './DialogsContext';
+import { ConfirmationDialogProvider } from './ConfirmationDialogProvider';
 
 const useStyles = createLegacyStyles({
   dialogs: {
@@ -65,8 +66,10 @@ export const Dialogs = createComponent('Dialogs', ({
   return (
     <Tag name="dialogs" className={join(css.dialogs, shouldBlurBackground && areDialogsOpen && 'blur-background')}>
       <DialogsManagerIdContext.Provider value={managerId}>
-        <Windows id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction')} onChange={handleStatesChanged} />
-        {children}
+        <ConfirmationDialogProvider>
+          <Windows id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction')} onChange={handleStatesChanged} />
+          {children}
+        </ConfirmationDialogProvider>
       </DialogsManagerIdContext.Provider>
     </Tag >
   );

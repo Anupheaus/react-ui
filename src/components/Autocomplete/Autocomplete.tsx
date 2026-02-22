@@ -2,15 +2,15 @@ import type { DataPagination, PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import type { PaperProps, PopoverOrigin } from '@mui/material';
 import { Popover } from '@mui/material';
-import type { FunctionComponent, KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { FunctionComponent, KeyboardEvent, ReactNode } from 'react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount, useUpdatableState } from '../../hooks';
-import { ReactListItem } from '../../models';
+import type { ListItemClickEvent, ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
-import { MenuItem } from '../Menu';
+import { Menu, PopupMenuContext } from '../Menu';
 import type { InternalTextProps } from '../InternalText';
 import { InternalText } from '../InternalText';
 import { UIState } from '../../providers';
@@ -81,11 +81,6 @@ export const Autocomplete = createComponent('Autocomplete', ({
   const batchUpdates = useBatchUpdates();
   const [isLoadingValuesForDropDown, setIsLoadingValuesForDropDown, setIsFinishedLoadingValuesForDropDown] = useBooleanState(false);
 
-  const renderItem = useMemo(() => (item: ReactListItem) => (<>
-    {item.iconName != null && <Icon name={item.iconName as any} size={'small'} />}
-    {item.label ?? item.text}
-  </>), []);
-
   // const selectedValue = useMemo(() => {
   //   if (renderSelectedValue) {
   //     const result = renderSelectedValue(value);
@@ -100,10 +95,10 @@ export const Autocomplete = createComponent('Autocomplete', ({
   //   setIsOpen();
   // });
 
-  const handleItemClick = useBound((item: ReactListItem) => (event: MouseEvent) => {
-    item.onClick?.(ReactListItem.createClickEvent(event, item));
+  const handleItemClick = useBound((event: ListItemClickEvent) => {
+    event.item.onClick?.(event);
     setIsClosed();
-    onChange?.(item.id, item);
+    onChange?.(event.id, event.item);
   });
 
   const handleChanged = useBound((updatedValue: string) => batchUpdates(async () => {
@@ -123,16 +118,19 @@ export const Autocomplete = createComponent('Autocomplete', ({
     setSelectionRange({ value: matchedValue, start: updatedValue.length, end: matchedValue.length });
   }));
 
-  const renderedItems = useMemo(() => {
-    if ((!is.array(values) && !isLoadingValuesForDropDown) || PopupOverride != null) return null;
-    return (isLoadingValuesForDropDown ? fakeValues : values).map(item => {
-      return (
-        <MenuItem key={item.id} onSelect={handleItemClick(item)}>
-          {renderItem(item)}
-        </MenuItem>
-      );
-    });
+  const menuItems = useMemo(() => {
+    if ((!is.array(values) && !isLoadingValuesForDropDown) || PopupOverride != null) return [];
+    return isLoadingValuesForDropDown ? fakeValues : values;
   }, [values, isLoadingValuesForDropDown]);
+
+  const renderedItems = useMemo(() => {
+    if (menuItems.length === 0) return null;
+    return (
+      <PopupMenuContext.Provider value={{ isValid: true, close: setIsClosed }}>
+        <Menu items={menuItems} onClick={handleItemClick} />
+      </PopupMenuContext.Provider>
+    );
+  }, [menuItems, handleItemClick]);
 
   const loadValues = useBound(() => batchUpdates(async () => {
     const requestId = lastActionIdRef.current;

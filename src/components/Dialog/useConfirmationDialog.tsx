@@ -16,7 +16,7 @@ interface Props {
   onClosing?(reason?: string): PromiseMaybe<boolean | void>;
 }
 
-export const useConfirmationDialog = createDialog('ConfirmationDialog', ({ Dialog, Content, Actions, Action, close }: DialogDefinitionUtils<boolean>) => ({
+export const useConfirmationDialogInternal = createDialog('ConfirmationDialog', ({ Dialog, Content, Actions, Action, close }: DialogDefinitionUtils<boolean>) => ({
   title: propsTitle,
   message: propsMessage,
   minWidth,
