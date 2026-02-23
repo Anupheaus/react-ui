@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { createStorybookComponentStates } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useUpdatableState } from '../../hooks';
 import { Radio } from './Radio';
 import { ListItem } from '@anupheaus/common';
-import { ComponentProps } from 'react';
+import type { ComponentProps } from 'react';
 
 const meta: Meta<typeof Radio> = {
   component: Radio,
@@ -22,22 +22,26 @@ const options: ListItem[] = [
 ];
 
 const config = (additionalProps: Partial<ComponentProps<typeof Radio>> = {}): Story => ({
-  storyName: '',
   args: {
     label: 'Label',
-    value: 'Hey'
+    value: 'Hey',
   },
-  render: props => {
+  render: (props: ComponentProps<typeof Radio>) => {
     const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
     return (
       <Radio {...props} {...additionalProps} value={value} onChange={setValue} values={options} />
     );
   },
 });
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates({ ...config(), includeError: true });
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;
 
 export const UIStatesHorizontal: Story = createStorybookComponentStates({ ...config({ isHorizontal: true }), includeError: true });
-UIStatesHorizontal.storyName = 'UI States (Horizontal)';
+UIStatesHorizontal.name = 'UI States (Horizontal)';
+UIStatesHorizontal.play = waitForStoryReady;

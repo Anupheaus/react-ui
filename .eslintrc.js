@@ -18,12 +18,7 @@ module.exports = {
     '@typescript-eslint/eslint-plugin',
     'eslint-plugin-react'
   ],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:storybook/recommended'],
   env: {
     browser: true,
     node: true,

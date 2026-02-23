@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { Windows } from './Windows';
-import { StorybookComponent } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook/StorybookComponent2';
 import { useBound, useDelegatedBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -70,7 +70,6 @@ const WindowType2 = createWindow('WindowType2', ({ Window, Content, id }) => () 
 const WindowActions = createComponent('WindowActions', () => {
   const { openWindowType1, closeWindowType1, focusWindowType1, restoreWindowType1, maximizeWindowType1 } = useWindow(WindowType1, 'abc');
   const { openWindowType2, closeWindowType2, focusWindowType2, restoreWindowType2, maximizeWindowType2 } = useWindow(WindowType2);
-  // const { openWindow, focusWindow, closeWindow, maximizeWindow, restoreWindow } = useWindows();
 
   const performTest = async (action: string, fn: () => PromiseMaybe<void>) => {
     const startTime = Date.now();
@@ -111,10 +110,10 @@ export const Default: Story = {
     }, []);
 
     return (
-      <StorybookComponent width={1200} height={600} title={'Default'} showComponentBorders>
+      <StorybookComponent width={1200} height={600} title="Default" showComponentBorders>
         <Flex isVertical>
           <WindowActions />
-          <Windows /*localStorageKey="windows"*/ />
+          <Windows />
         </Flex>
       </StorybookComponent>
     );
@@ -133,7 +132,7 @@ export const WithoutChildren: Story = {
     }, []);
 
     return (
-      <StorybookComponent width={1200} height={600} title={'Without Children - Global Registration'} showComponentBorders>
+      <StorybookComponent width={1200} height={600} title="Without Children - Global Registration" showComponentBorders>
         <Flex isVertical>
           <p>Windows are registered globally at createWindow - no need to add them as children of Windows.</p>
           <Windows />
@@ -148,7 +147,7 @@ export const FocusExistingWindow: Story = {
     const { openWindowType1 } = useWindow(WindowType1);
 
     return (
-      <StorybookComponent width={1200} height={600} title={'Focus Existing - Same Args'} showComponentBorders>
+      <StorybookComponent width={1200} height={600} title="Focus Existing - Same Args" showComponentBorders>
         <Flex isVertical gap={4}>
           <p>Click &quot;Open&quot; multiple times with the same args - it will focus the existing window instead of opening a new one.</p>
           <Flex gap={4}>

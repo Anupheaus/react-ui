@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { createStorybookComponentStates } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useUpdatableState } from '../../hooks';
 import { Password } from './Password';
 
@@ -11,19 +11,22 @@ export default meta;
 type Story = StoryObj<typeof Password>;
 
 const config = {
-  storyName: '',
   args: {
     label: 'Label',
-    value: 'Hey'
+    value: 'Hey',
   },
-  render: props => {
+  render: (props: React.ComponentProps<typeof Password>) => {
     const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
     return (
       <Password {...props} value={value} onChange={setValue} />
     );
   },
 } satisfies Story;
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;

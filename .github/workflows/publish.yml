@@ -20,13 +20,13 @@ jobs:
       - name: Setup Environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           registry-url: https://npm.pkg.github.com/
           scope: "@anupheaus"
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8.3.1
+          version: 9
       - name: Remove @anupheaus/common override before pack
         run: jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp && mv package.json.tmp package.json
       - name: Install Dependencies
@@ -68,13 +68,13 @@ jobs:
       - name: Setup Environment
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           registry-url: https://npm.pkg.github.com/
           scope: "@anupheaus"
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
-          version: 8.3.1
+          version: 9
       - name: Publish
         run: pnpm publish $(ls *.tgz) --no-git-checks
         env:

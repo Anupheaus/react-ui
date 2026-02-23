@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { AnimatingBorder } from './AnimatingBorder';
-import { StorybookComponent } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook/StorybookComponent2';
 import { createStyles } from '../../theme';
 
 const useStyles = createStyles({
@@ -21,7 +21,7 @@ export const Default: Story = {
   args: {
     isEnabled: true,
   },
-  render: props => {
+  render: (props: React.ComponentProps<typeof AnimatingBorder>) => {
     const { css } = useStyles();
     return (
       <StorybookComponent className={css.animatingBorder} showComponentBorders>
@@ -29,4 +29,4 @@ export const Default: Story = {
       </StorybookComponent>
     );
   },
-} satisfies Story;
+};

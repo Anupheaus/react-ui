@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import type { Meta, StoryObj } from '@storybook/react';
-import { createStory } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import type { ReactListItem } from '../../models';
 import { useState } from 'react';
 import { InternalDropDown } from './InternalDropDown';
@@ -21,14 +21,11 @@ export default meta;
 type Story = StoryObj<typeof InternalDropDown>;
 
 export const StaticItems: Story = createStory<typeof InternalDropDown>({
-  args: {
-
-  },
+  args: {},
   width: 240,
   height: 300,
   render: () => {
     const [value, setValue] = useState<string>();
-
     return (
       <InternalDropDown
         tagName="internal-dropdown"

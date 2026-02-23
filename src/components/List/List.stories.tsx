@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import type { ReactListItem } from '../../models';
 import type { ComponentType } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { createStory } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import type { ListOnRequest, ListProps } from './List';
 import { List } from './List';
 import { useBound } from '../../hooks';
@@ -19,13 +19,11 @@ type ListDefault = ComponentType<ListProps>;
 
 faker.seed(10121);
 
-const staticItems = new Array(150).fill(0).map((): ReactListItem => {
-  return {
-    id: faker.string.uuid(),
-    text: '',
-    label: <span>{faker.person.fullName()}</span>,
-  };
-});
+const staticItems = new Array(150).fill(0).map((): ReactListItem => ({
+  id: faker.string.uuid(),
+  text: '',
+  label: <span>{faker.person.fullName()}</span>,
+}));
 
 const itemsWithSubItems: ReactListItem[] = [
   {
@@ -77,7 +75,7 @@ export const LazyLoadListItems: Story = createStory<ListDefault>({
   },
   width: 200,
   height: 300,
-  render: props => {
+  render: (props: ListProps) => {
     const handleAdd = useBound(() => {
       // eslint-disable-next-line no-alert
       window.alert('Add');
@@ -94,7 +92,7 @@ export const LazyLoadListItems: Story = createStory<ListDefault>({
 
     return (
       <List
-        label={'List'}
+        label="List"
         {...props}
         onRequest={handleRequest}
         onAdd={handleAdd}
@@ -109,7 +107,7 @@ export const LazyLoadSelectableListItems: Story = createStory<ListDefault>({
   },
   width: 200,
   height: 300,
-  render: props => {
+  render: (props: ListProps) => {
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const handleAdd = useBound(() => {
       // eslint-disable-next-line no-alert
@@ -127,7 +125,7 @@ export const LazyLoadSelectableListItems: Story = createStory<ListDefault>({
 
     return (
       <List
-        label={'List'}
+        label="List"
         {...props}
         onRequest={handleRequest}
         onAdd={handleAdd}
@@ -157,7 +155,7 @@ export const ListItemsWithSubItems: Story = createStory<ListDefault>({
 
     return (
       <List
-        label={'Categories'}
+        label="Categories"
         onRequest={handleRequest}
       />
     );
@@ -170,7 +168,7 @@ export const ListWithStickyHeader: Story = createStory<ListDefault>({
   },
   width: 280,
   height: 320,
-  render: props => {
+  render: (props: ListProps) => {
     const smallerList = staticItems.slice(0, 15);
 
     const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) => {
@@ -189,7 +187,7 @@ export const ListWithStickyHeader: Story = createStory<ListDefault>({
 
     return (
       <List
-        label={'List'}
+        label="List"
         {...props}
         onRequest={handleRequest}
         onAdd={handleAdd}

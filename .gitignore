@@ -15,7 +15,9 @@ node_modules
 
 # generated code
 dist
+storybook-static
 
 .npmrc
 
 replaceCode.js
+*storybook.log

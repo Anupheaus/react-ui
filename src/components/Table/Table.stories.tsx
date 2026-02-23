@@ -1,10 +1,10 @@
-import { createStory } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import { Table } from './Table';
 import type { TableColumn, TableOnRequest } from './TableModels';
 import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useMemo, useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
 import { to } from '@anupheaus/common';
 
 interface DemoRecord {
@@ -41,8 +41,6 @@ const generateRecords = (count: number): DemoRecord[] => new Array(count).fill(0
   address: faker.location.streetAddress(),
 }));
 
-// const records = generateRecords(100);
-
 const meta: Meta<typeof Table> = {
   component: Table,
 };
@@ -55,16 +53,11 @@ export const Loading: Story = createStory({
   height: 200,
   render: () => {
     const [localColumns] = useState(columns);
-
-    const handleRequest = useBound<TableOnRequest>(async () => {
-      return new Promise(() => void 0);
-    });
-
+    const handleRequest = useBound<TableOnRequest>(async () => new Promise(() => void 0));
     const handleOnEdit = useBound((record: DemoRecord) => {
       // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
-
     return (
       <Table
         columns={localColumns}
@@ -80,7 +73,6 @@ export const RequestedRecords: Story = createStory({
   height: 500,
   render: () => {
     const [localColumns] = useState(columns);
-
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination }, response) => {
       const newRecords = generateRecords(pagination.limit);
       await Promise.delay(5000);
@@ -90,12 +82,10 @@ export const RequestedRecords: Story = createStory({
         total: 10000,
       });
     });
-
     const handleOnEdit = useBound((record: DemoRecord) => {
       // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
-
     return (
       <Table
         columns={localColumns}
@@ -112,7 +102,6 @@ export const RequestedMinimumRecords: Story = createStory({
   height: 200,
   render: () => {
     const [localColumns] = useState(columns);
-
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async (request, response) => {
       const newRecords = generateRecords(2);
       response({
@@ -121,12 +110,10 @@ export const RequestedMinimumRecords: Story = createStory({
         requestId: request.requestId,
       });
     });
-
     const handleOnEdit = useBound((record: DemoRecord) => {
       // eslint-disable-next-line no-console
       console.log('Edit record:', record);
     });
-
     return (
       <Table
         columns={localColumns}

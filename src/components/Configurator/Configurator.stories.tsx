@@ -1,12 +1,10 @@
-import '@anupheaus/common';
-import { createStory } from '../../Storybook';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import type { ConfiguratorFirstCell, ConfiguratorItem, ConfiguratorSlice } from './configurator-models';
 import { Configurator } from './Configurator';
 import { UIState } from '../../providers';
 import type { ComponentProps } from 'react';
 
-// Blinds company domain: Rooms (main rows), Windows (sub-rows), Quotes (columns)
 interface Room {
   name: string;
 }
@@ -140,17 +138,15 @@ export default meta;
 
 type Story = StoryObj<typeof Configurator>;
 
-const StandardConfigurator = (props: Partial<ComponentProps<typeof Configurator>>) => {
-  return (
-    <Configurator
-      firstCell={firstColumn}
-      items={items}
-      slices={slices}
-      footer={footer}
-      {...props}
-    />
-  );
-};
+const StandardConfigurator = (props: Partial<ComponentProps<typeof Configurator>>) => (
+  <Configurator
+    firstCell={firstColumn}
+    items={items}
+    slices={slices}
+    footer={footer}
+    {...props}
+  />
+);
 
 export const Loading: Story = createStory<typeof Configurator>({
   args: {},

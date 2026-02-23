@@ -1,5 +1,5 @@
-import { createStory } from '../../Storybook';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import { Fader } from './Fader';
 import { FaderProvider } from './FaderProvider';
 import { useMemo, useState } from 'react';

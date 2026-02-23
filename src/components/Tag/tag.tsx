@@ -1,4 +1,3 @@
-/** @jsx jsx */
 import type { CSSProperties, DetailedHTMLProps, HTMLAttributes, Ref } from 'react';
 import { createElement, useMemo } from 'react';
 import { createComponent } from '../Component';

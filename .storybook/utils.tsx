@@ -1,7 +1,7 @@
 // import ReactObj, { ReactNode, FunctionComponent } from 'react';
 // // eslint-disable-next-line @typescript-eslint/no-explicit-any
 // (window as any).React = ReactObj;
-// import { Meta } from '@storybook/react';
+// import { Meta } from '@storybook/react-webpack5';
 
 // interface MetaConfig {
 //   name: string;

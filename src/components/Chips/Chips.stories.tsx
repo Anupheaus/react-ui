@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { createStorybookComponentStates } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useState } from 'react';
 import { ListItem } from '@anupheaus/common';
 import { Chips } from './Chips';
@@ -21,11 +21,10 @@ const options: ListItem[] = [
 ];
 
 const config = {
-  storyName: '',
   args: {
     label: 'Label',
   },
-  render: props => {
+  render: (props: React.ComponentProps<typeof Chips>) => {
     const [value, setValue] = useState<string[]>();
     return (
       <Chips {...props} value={value} onChange={setValue} values={options} />
@@ -33,5 +32,10 @@ const config = {
   },
 } satisfies Story;
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;

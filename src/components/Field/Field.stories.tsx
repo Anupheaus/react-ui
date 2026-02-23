@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { createStorybookComponentStates } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { Field } from './Field';
 import { useState } from 'react';
 import { useFields } from './useFields';
@@ -13,22 +13,25 @@ export default meta;
 type Story = StoryObj<typeof Field>;
 
 const config = {
-  storyName: '',
   args: {
     tagName: 'field',
     label: 'Label',
   },
-  render: props => (
+  render: (props: React.ComponentProps<typeof Field>) => (
     <Field {...props}>&nbsp;</Field>
   ),
 } satisfies Story;
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;
 
-
-export const useFieldsStory = {
-  storyName: '',
+export const useFieldsStory: Story = {
+  name: 'useFields',
   args: {},
   render: () => {
     const [record, setRecord] = useState({ name: '' });
@@ -37,5 +40,4 @@ export const useFieldsStory = {
       <FieldComponent component={Text} field="name" label="Name" wide />
     );
   },
-} satisfies Story;
-useFieldsStory.storyName = 'useFields';
+};

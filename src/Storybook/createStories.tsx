@@ -1,7 +1,7 @@
 import { ArgTypes, Meta } from '@storybook/react';
 import { FunctionComponent, ReactNode, useMemo } from 'react';
 import { AnyObject, Event, MapOf, PromiseMaybe } from '@anupheaus/common';
-import { within, userEvent } from '@storybook/testing-library';
+import { within, userEvent } from '@storybook/test';
 import { StorybookContext, StorybookContextProps } from './StorybookContext';
 // import { StorybookComponent } from './StorybookComponent';
 import { Typography } from '@mui/material';
@@ -129,7 +129,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
 
     if (typeof value === 'function') {
       InternalComponent = value as FunctionComponent;
-      (value as any).storyName = storyName;
+      (value as any).name = storyName;
     } else if (isStoryConfig(value)) {
       InternalComponent = value.component as FunctionComponent;
       // notes = value.notes;
@@ -200,7 +200,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
           diffThreshold: diffThreshold ?? 0.08,
         },
       };
-      (ExternalComponent as any).storyName = path.concat(key).join(' ');
+      (ExternalComponent as any).name = path.concat(key).join(' ');
       module.exports[storyId] = ExternalComponent;
       if (test != null) {
         (ExternalComponent as any).play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {

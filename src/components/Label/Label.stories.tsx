@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { Label } from './Label';
-import { createStorybookComponentStates } from '../../Storybook';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 
 const meta: Meta<typeof Label> = {
   component: Label,
@@ -10,24 +10,29 @@ export default meta;
 type Story = StoryObj<typeof Label>;
 
 const config = {
-  storyName: '',
   args: {
     children: 'Label',
     isOptional: false,
   },
-  render: props => (
-    <Label {...props} />
-  ),
+  render: (props: React.ComponentProps<typeof Label>) => <Label {...props} />,
 } satisfies Story;
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates(config);
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;
 
 export const UIStatesWithOptional: Story = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true } });
-UIStatesWithOptional.storyName = 'UI States as Optional';
+UIStatesWithOptional.name = 'UI States as Optional';
+UIStatesWithOptional.play = waitForStoryReady;
 
 export const UIStatesWithHelp: Story = createStorybookComponentStates({ ...config, args: { ...config.args, help: 'This is my help' } });
-UIStatesWithHelp.storyName = 'UI States with Help';
+UIStatesWithHelp.name = 'UI States with Help';
+UIStatesWithHelp.play = waitForStoryReady;
 
 export const UIStatesWithOptionalAndHelp: Story = createStorybookComponentStates({ ...config, args: { ...config.args, isOptional: true, help: 'This is my help' } });
-UIStatesWithOptionalAndHelp.storyName = 'UI States as Optional with Help';
+UIStatesWithOptionalAndHelp.name = 'UI States as Optional with Help';
+UIStatesWithOptionalAndHelp.play = waitForStoryReady;

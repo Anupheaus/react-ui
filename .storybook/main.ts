@@ -1,58 +1,52 @@
 import type { StorybookConfig } from '@storybook/react-webpack5';
-import path from 'path';
 
 const config: StorybookConfig = {
-  stories: ["../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
+  stories: [
+    '../src/**/*.mdx',
+    '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',    
+  ],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
+    '@storybook/addon-webpack5-compiler-swc',
+    '@storybook/addon-onboarding',
+    '@storybook/addon-docs',
   ],
   framework: {
-    name: "@storybook/react-webpack5",
-    options: {
-      fastRefresh: true,
-      builder: {
-        useSWC: true,
-        fsCache: true,
-      },
+    name: '@storybook/react-webpack5',
+    options: {},
+  },
+  core: {
+    builder: {
+      name: '@storybook/builder-webpack5',
+      options: { fsCache: false },
     },
   },
-  docs: {
-    autodocs: "tag",
-  },
-  webpackFinal: config => ({
+  swc: (config: Record<string, unknown>) => ({
     ...config,
-    resolve: {
-      ...config.resolve,
-      alias: {
-        ...config.resolve?.alias,
-        '@anupheaus/common': path.resolve(__dirname, '../../common/src'),
+    jsc: {
+      ...(config.jsc as object ?? {}),
+      parser: {
+        syntax: 'typescript',
+        tsx: true,
+        decorators: true,
       },
-      fallback: {
-        async_hooks: false,
-        fs: false,
-        path: false,
-      },
-    },
-    module: {
-      ...config.module,
-      rules: [{
-        test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      }, {
-        test: /\.tsx?$/i,
-        loader: 'ts-loader',
-        options: {
-          onlyCompileBundledFiles: true,
-          transpileOnly: true,
-          compilerOptions: {
-            noEmit: false,
-          },
+      transform: {
+        legacyDecorator: true,
+        react: {
+          runtime: 'automatic',
         },
-      }],
+      },
     },
   }),
+  webpackFinal: async (config) => {
+    config.resolve = config.resolve ?? {};
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      async_hooks: false,
+      fs: false,
+      path: false,
+      util: false,
+    };
+    return config;
+  },
 };
-
 export default config;

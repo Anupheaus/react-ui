@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { Dialog as DialogType } from './Dialog';
 import { createStyles } from '../../theme';
 import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
-import { StorybookComponent } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook/StorybookComponent2';
 import { Dialogs } from './Dialogs';
 import { createDialog } from './createDialog';
 import { useDialog } from './useDialog';
@@ -42,10 +42,8 @@ const TestDialogDefinition = createDialog('TestDialog', ({ Dialog, Content, Acti
   </Dialog>
 ));
 
-
 export const Default: Story = {
-  args: {
-  },
+  args: {},
   render: () => {
     const { css } = useStyles();
     const { openTestDialog } = useDialog(TestDialogDefinition);

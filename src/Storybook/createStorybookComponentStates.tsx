@@ -1,5 +1,5 @@
 import { AnyObject } from '@anupheaus/common';
-import { StoryContext, StoryObj } from '@storybook/react';
+import { StoryContext, StoryObj } from '@storybook/react-webpack5';
 import { UIState } from '../providers';
 import { StorybookComponent } from './StorybookComponent2';
 import { Flex } from '../components';
@@ -73,6 +73,6 @@ export function createStorybookComponentStates<P extends AnyObject>(story: NewSt
       );
     },
   } as StoryObj<P>;
-  config.storyName = story.storyName ?? 'UI States';
+  config.name = story.name ?? story.storyName ?? 'UI States';
   return config;
 }

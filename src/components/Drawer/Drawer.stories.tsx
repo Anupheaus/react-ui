@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { StorybookComponent } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { StorybookComponent } from '../../Storybook/StorybookComponent2';
 import { createStyles } from '../../theme';
 import { Drawer as DrawerComponent } from './Drawer';
 import { useDrawer } from './useDrawer';
@@ -26,10 +26,9 @@ export const Default: Story = {
   args: {
     title: 'My Title',
   },
-  render: props => {
+  render: (props: React.ComponentProps<typeof DrawerComponent>) => {
     const { css } = useStyles();
     const { Drawer, openDrawer } = useDrawer();
-
     return (
       <StorybookComponent className={css.animatingBorder} showComponentBorders>
         <Button onClick={openDrawer}>Open</Button>
@@ -39,4 +38,4 @@ export const Default: Story = {
       </StorybookComponent>
     );
   },
-} satisfies Story;
+};

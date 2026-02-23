@@ -1,5 +1,5 @@
-import { Meta, StoryObj } from '@storybook/react';
-import { createStorybookComponentStates } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { InternalText } from './InternalText';
 import { useUpdatableState } from '../../hooks';
 
@@ -11,20 +11,23 @@ export default meta;
 type Story = StoryObj<typeof InternalText>;
 
 const config = {
-  storyName: '',
   args: {
     tagName: 'field',
     label: 'Label',
-    value: 'Hey'
+    value: 'Hey',
   },
-  render: props => {
+  render: (props: React.ComponentProps<typeof InternalText>) => {
     const [value, setValue] = useUpdatableState(() => props.value, [props.value]);
-
     return (
       <InternalText {...props} value={value} onChange={setValue} />
     );
   },
 } satisfies Story;
 
+const waitForStoryReady = async () => {
+  await new Promise(r => setTimeout(r, 200));
+};
+
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
-UIStates.storyName = 'UI States';
+UIStates.name = 'UI States';
+UIStates.play = waitForStoryReady;

@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { createStory } from '../../Storybook';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { createStory } from '../../Storybook/createStory';
 import { Expander } from './Expander';
 import { Flex } from '../Flex';
 import { Button } from '../Button';
@@ -24,7 +24,7 @@ const sampleContent = (
   </Flex>
 );
 
-const ColouredBackground = ({ children }: { children: ReactNode; }) => (
+const ColouredBackground = ({ children }: { children: ReactNode }) => (
   <Tag name="coloured-background" style={{ backgroundColor: '#9a9a9a' }}>
     {children}
   </Tag>
@@ -36,7 +36,7 @@ export const Collapsed: Story = createStory<typeof Expander>({
   },
   width: 360,
   height: 240,
-  render: props => (
+  render: (props: React.ComponentProps<typeof Expander>) => (
     <ColouredBackground>
       <Expander {...props}>
         {sampleContent}
@@ -51,7 +51,7 @@ export const Expanded: Story = createStory<typeof Expander>({
   },
   width: 360,
   height: 240,
-  render: props => (
+  render: (props: React.ComponentProps<typeof Expander>) => (
     <ColouredBackground>
       <Expander {...props}>
         {sampleContent}
@@ -66,7 +66,7 @@ export const Toggle: Story = createStory<typeof Expander>({
   },
   width: 360,
   height: 240,
-  render: props => {
+  render: (props: React.ComponentProps<typeof Expander>) => {
     const [isExpanded, setExpanded] = useState(props.isExpanded ?? false);
     const toggle = useBound(() => setExpanded(prev => !prev));
     return (
