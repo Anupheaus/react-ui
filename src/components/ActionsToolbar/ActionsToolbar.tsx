@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
+import { useContext } from 'react';
 import { ThemeProvider, createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Button } from '../Button';
 import { Flex } from '../Flex';
-import { useConfirmationDialog } from '../Dialog/ConfirmationDialogContext';
+import { ConfirmationDialogContext } from '../Dialog/ConfirmationDialogContext';
 import { useBound } from '../../hooks/useBound';
 import { useFormActions } from '../Form';
 import { UIState } from '../../providers/UIStateProvider';
@@ -62,14 +63,17 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
 }: ActionsToolbarProps) => {
   const { isInForm, save: saveForm, cancel: cancelForm } = useFormActions();
   const { css, alterTheme, tools: { modifyColor }, join } = useStyles();
-  const { ConfirmationDialog: CancelConfirmationDialog, openConfirmationDialog: openCancelConfirmationDialog } = useConfirmationDialog();
-  const { ConfirmationDialog: DeleteConfirmationDialog, openConfirmationDialog: openDeleteConfirmationDialog } = useConfirmationDialog();
+  const confirmationContext = useContext(ConfirmationDialogContext);
+  if ((cancelDialogMessage != null || deleteDialogMessage != null) && !confirmationContext) {
+    throw new Error('ActionsToolbar with cancelDialogMessage or deleteDialogMessage must be used within Dialogs.');
+  }
+  const openConfirmationDialog = confirmationContext?.openConfirmationDialog ?? (() => Promise.resolve(true));
 
   const showSaveButton = onSave != null || (isInForm && saveForm != null);
   const showCancelButton = onCancel != null || (isInForm && cancelForm != null);
 
   const cancel = useBound(async () => {
-    if (cancelDialogMessage != null && !await openCancelConfirmationDialog()) return;
+    if (cancelDialogMessage != null && !await openConfirmationDialog(cancelDialogTitle, cancelDialogMessage)) return;
     if (onCancel) {
       onCancel();
     } else if (isInForm) {
@@ -81,7 +85,7 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
     if (deleteDialogMessage == null) {
       onDelete?.();
     } else {
-      if (await openDeleteConfirmationDialog()) onDelete?.();
+      if (await openConfirmationDialog(deleteDialogTitle, deleteDialogMessage)) onDelete?.();
     }
   });
 
@@ -119,15 +123,9 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
           <ThemeProvider theme={deleteButtonTheme}>
             <Button onSelect={remove} className={join(css.deleteButton, deleteClassName)}>{deleteLabel}</Button>
           </ThemeProvider>
-          {deleteDialogMessage != null && (
-            <DeleteConfirmationDialog title={deleteDialogTitle} message={deleteDialogMessage} />
-          )}
         </>)}
         {showCancelButton && (<>
           <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>
-          {cancelDialogMessage != null && (
-            <CancelConfirmationDialog title={cancelDialogTitle} message={cancelDialogMessage} />
-          )}
         </>)}
         {showSaveButton && <Button onSelect={save} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>}
         {children}

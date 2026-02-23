@@ -7,7 +7,8 @@ import { Button } from '../Button';
 import { StorybookComponent } from '../../Storybook';
 import { Dialogs } from './Dialogs';
 import { createDialog } from './createDialog';
-import { useConfirmationDialog } from './ConfirmationDialogContext';
+import { useDialog } from './useDialog';
+import { useConfirmationDialog } from './useConfirmationDialog';
 import type { ReactNode } from 'react';
 
 const meta: Meta<typeof DialogType> = {
@@ -30,15 +31,10 @@ const useStyles = createStyles({
   },
 });
 
-interface Props {
-  something: number;
-  children: ReactNode;
-}
-
-const useTestDialog = createDialog('TestDialog', ({ Dialog, Content, Actions, OkButton }) => ({ children }: Props) => () => (
-  <Dialog title={'Test Dialog'}>
+const TestDialogDefinition = createDialog('TestDialog', ({ Dialog, Content, Actions, OkButton }) => (something?: number, children?: ReactNode) => (
+  <Dialog title={`Test Dialog ${something ?? ''}`}>
     <Content>
-      {children}
+      {children ?? 'This is the content of the dialog'}
     </Content>
     <Actions>
       <OkButton />
@@ -52,11 +48,11 @@ export const Default: Story = {
   },
   render: () => {
     const { css } = useStyles();
-    const { TestDialog, openTestDialog } = useTestDialog();
-    const { ConfirmationDialog, openConfirmationDialog } = useConfirmationDialog();
+    const { openTestDialog } = useDialog(TestDialogDefinition);
+    const { openConfirmationDialog } = useConfirmationDialog();
 
     const onOpen = useBound(async () => {
-      const result = await openTestDialog();
+      const result = await openTestDialog(123, 'This is the content of the dialog');
       // eslint-disable-next-line no-console
       console.log('Dialog closed with result:', result);
     });
@@ -77,10 +73,6 @@ export const Default: Story = {
           <Dialogs shouldBlurBackground>
             <Flex tagName="background" className={css.background} />
             <Flex className={css.text}>This should be blurred!</Flex>
-            <TestDialog something={123}>
-              This is the content of the dialog
-            </TestDialog>
-            <ConfirmationDialog title="Should be overridden" message="Should be overridden" />
           </Dialogs>
         </StorybookComponent>
       </Flex>

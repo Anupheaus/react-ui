@@ -1,16 +1,17 @@
 import type { ReactNode } from 'react';
-import { useConfirmationDialogInternal } from './useConfirmationDialog';
-import { ConfirmationDialogContextProvider } from './ConfirmationDialogContext';
+import { useConfirmationDialog } from './useConfirmationDialog';
+import { ConfirmationDialogContext } from './ConfirmationDialogContext';
 
 interface Props {
   children: ReactNode;
 }
 
+/** Provides confirmation dialog via context. Must be used within Dialogs. */
 export function ConfirmationDialogProvider({ children }: Props) {
-  const value = useConfirmationDialogInternal();
+  const value = useConfirmationDialog();
   return (
-    <ConfirmationDialogContextProvider value={value}>
+    <ConfirmationDialogContext.Provider value={value}>
       {children}
-    </ConfirmationDialogContextProvider>
+    </ConfirmationDialogContext.Provider>
   );
 }

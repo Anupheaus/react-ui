@@ -1,5 +1,5 @@
 import { createComponent } from '../Component';
-import { Window } from '../Windows';
+import { Window } from '../Windows/Window';
 import { createLegacyStyles } from '../../theme';
 import type { ComponentProps } from 'react';
 

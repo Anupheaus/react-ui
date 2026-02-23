@@ -5,6 +5,7 @@ import { useBound } from '../useBound';
 interface Props<T> {
   type?: 'local' | 'session' | 'both';
   defaultValue?(): T;
+  disabled?: boolean;
 }
 
 function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] | undefined, storage: Storage): T | undefined {
@@ -20,11 +21,14 @@ function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] |
   }
 }
 
-function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => T) {
-  const hasKey = (key in storage);
-  const [state, internalSetState] = useState(getFromStorage<T>(key, defaultValue, storage));
+function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => T, disabled?: boolean) {
+  const hasKey = disabled ? false : (key in storage);
+  const [state, internalSetState] = useState<T | undefined>(() =>
+    disabled ? undefined : getFromStorage<T>(key, defaultValue, storage),
+  );
 
-  const setState = useBound((param: SetStateAction<T | undefined>) =>
+  const setState = useBound((param: SetStateAction<T | undefined>) => {
+    if (disabled) return;
     internalSetState(prevState => {
       const newState = typeof (param) === 'function' ? (param as (prevState: T | undefined) => T | undefined)(prevState) : param;
       if (newState == null) {
@@ -34,13 +38,15 @@ function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => 
         storage.setItem(key, value);
       }
       return newState;
-    }));
+    });
+  });
 
   return { hasKey, state, setState };
 }
 
 export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defaultValue'] | Props<T>) {
-  const { defaultValue, type = 'local' } = typeof (propsOrDefaultValue) === 'function' ? { defaultValue: propsOrDefaultValue } : propsOrDefaultValue ?? {};
+  const { defaultValue, type = 'local', disabled = false } = typeof (propsOrDefaultValue) === 'function'
+    ? { defaultValue: propsOrDefaultValue } : propsOrDefaultValue ?? {};
   const firstStorage = type === 'local' ? window.localStorage : window.sessionStorage;
   const secondStorage = type === 'both' ? window.localStorage : undefined;
   const batchUpdates = useBatchUpdates();
@@ -53,15 +59,16 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
   if (!firstStorage && !secondStorage) throw new Error('No browser storage available.');
 
   if (firstStorage) {
-    const { hasKey, state: innerState, setState: innerSetState } = useStorageState(key, firstStorage, defaultValue);
+    const { hasKey, state: innerState, setState: innerSetState } = useStorageState(key, firstStorage, defaultValue, disabled);
     state = innerState;
     firstSetState = setState = innerSetState;
     if (hasKey) hasState = true;
   }
 
   if (secondStorage) {
-    const { state: innerState, setState: innerSetState } = useStorageState(key, secondStorage, defaultValue);
+    const { state: innerState, setState: innerSetState } = useStorageState(key, secondStorage, defaultValue, disabled);
     setState = useBound((param: SetStateAction<T | undefined>) => {
+      if (disabled) return;
       batchUpdates(() => {
         firstSetState?.(param);
         innerSetState(param);
@@ -72,8 +79,8 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
 
   return {
     state: state,
-    get isInSessionStorage() { return key in window.sessionStorage; },
-    get isInLocalStorage() { return key in window.localStorage; },
+    get isInSessionStorage() { return !disabled && key in window.sessionStorage; },
+    get isInLocalStorage() { return !disabled && key in window.localStorage; },
     setState: setState!,
   };
 }

@@ -1,7 +1,5 @@
 import { createContext } from 'react';
 
-export const WindowManagerIdContext = createContext('default');
-
 export interface WindowContextProps {
   id: string;
   managerId: string;

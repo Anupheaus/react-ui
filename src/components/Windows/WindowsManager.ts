@@ -5,10 +5,18 @@ import { windowsDefinitionsManager } from './WindowDefinitionsManager';
 import type { ActiveWindowState } from './InternalWindowModels';
 
 const windowManagers = new Map<string, WindowsManager>();
+const managerTypes = new Map<string, 'windows' | 'dialogs'>();
 
 (window as AnyObject).windows = windowManagers;
 
+export const WINDOWS_DEFAULT_ID = 'windows-default';
+export const DIALOGS_DEFAULT_ID = 'dialogs-default';
+
+export type ManagerType = 'windows' | 'dialogs';
+
 export class WindowsManager {
+  static readonly WINDOWS_DEFAULT_ID = WINDOWS_DEFAULT_ID;
+  static readonly DIALOGS_DEFAULT_ID = DIALOGS_DEFAULT_ID;
   private constructor(id: string, instanceId: string) {
     this.#windows = new Records();
     this.#events = new Records();
@@ -25,6 +33,7 @@ export class WindowsManager {
 
   public get entries() { return this.#windows.toArray(); }
   public get instanceId() { return this.#instanceId; }
+  public get id() { return this.#id; }
 
   public static get(id: string) {
     const manager = windowManagers.get(id);
@@ -32,21 +41,60 @@ export class WindowsManager {
     return manager;
   }
 
-  public static getOrCreate(id: string, instanceId: string) {
+  public static getManagerType(id: string): ManagerType | undefined {
+    return managerTypes.get(id);
+  }
+
+  public static getDefaultManagerId(type: ManagerType): string {
+    return type === 'windows' ? WINDOWS_DEFAULT_ID : DIALOGS_DEFAULT_ID;
+  }
+
+  public static getOrCreate(id: string, instanceId: string, type: ManagerType) {
+    const defaultId = this.getDefaultManagerId(type);
+    const isDefault = id === defaultId;
+
     const existingManager = windowManagers.get(id);
     if (existingManager != null) {
-      if (existingManager.instanceId !== instanceId) throw new Error(`A Windows component with id "${id}" already exists.`);
+      if (existingManager.instanceId !== instanceId) {
+        const componentName = type === 'windows' ? 'Windows' : 'Dialogs';
+        throw new Error(isDefault
+          ? `Two ${componentName} components cannot both be default. Provide an explicit id to one or both.`
+          : `A Windows component with id "${id}" already exists.`);
+      }
       return existingManager;
-    } else {
-      const newManager = new WindowsManager(id, instanceId);
-      windowManagers.set(id, newManager);
-      return newManager;
     }
+
+    const existingType = managerTypes.get(id);
+    if (existingType != null && existingType !== type) {
+      throw new Error(`Manager id "${id}" is already registered as type "${existingType}".`);
+    }
+
+    const newManager = new WindowsManager(id, instanceId);
+    windowManagers.set(id, newManager);
+    managerTypes.set(id, type);
+    return newManager;
   }
 
   public static remove(id: string) {
     windowManagers.delete(id);
-    windowsDefinitionsManager.removeInstance(id);
+    managerTypes.delete(id);
+    windowsDefinitionsManager.removeAllInstancesForManager(id);
+  }
+
+  public static getManagerForType(type: ManagerType, managerId?: string): WindowsManager {
+    if (managerId != null) {
+      const manager = windowManagers.get(managerId);
+      if (manager == null) throw new Error(`Window manager with id "${managerId}" not found.`);
+      const actualType = managerTypes.get(managerId);
+      if (actualType !== type) {
+        throw new Error(`Manager "${managerId}" is type "${actualType ?? 'unknown'}", not "${type}".`);
+      }
+      return manager;
+    }
+    const defaultId = this.getDefaultManagerId(type);
+    const manager = windowManagers.get(defaultId);
+    if (manager == null) throw new Error(`No default ${type} manager found. Ensure a ${type === 'windows' ? 'Windows' : 'Dialogs'} component is mounted.`);
+    return manager;
   }
 
   public getArgs<Args extends unknown[]>(id: string): Args {
@@ -58,7 +106,7 @@ export class WindowsManager {
   @bind
   public async open(state: WindowState): Promise<void> {
     if (this.#windows.get(state.id) != null) return this.focus(state.id);
-    windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId);
+    windowsDefinitionsManager.addInstance(state.id, this.#id, state.definitionId, state.windowTypeName);
     return this.#createEvent(state.id, 'opening', () => { this.#windows.add(state); });
   }
 
@@ -104,7 +152,10 @@ export class WindowsManager {
   public add(states: WindowState[]) {
     states.forEach(state => {
       if (this.#windows.has(state.id)) return;
-      this.open(state);
+      const enrichedState = state.windowTypeName == null && windowsDefinitionsManager.getGlobalDefinition(state.definitionId) != null
+        ? { ...state, windowTypeName: state.definitionId }
+        : state;
+      this.open(enrichedState);
     });
   }
 
@@ -114,7 +165,15 @@ export class WindowsManager {
 
   @bind
   public async focus(id: string): Promise<void> {
-    this.#ensureGetId(id);
+    try {
+      const state = this.#windows.get(id);
+      if (state == null) return;
+      this.#ensureGetId(id);
+    } catch {
+      // eslint-disable-next-line no-console
+      console.warn(`Window with id "${id}" not found when focusing - it may have been closed or not yet added.`);
+      return;
+    }
     const events = this.#events.get(id);
     if (events?.closing != null) return;
     if (events?.opening != null) return events.opening.then(() => this.focus(id));
@@ -143,6 +202,7 @@ export class WindowsManager {
 
   @bind
   public async maximize(id: string): Promise<void> {
+    if (this.#windows.get(id) == null) return;
     const state = this.#ensureGetId(id);
     if (state.isMaximized === true) return;
     await Promise.whenAllSettled([this.focus(id), this.#createEvent(id, 'maximizing', () => {
@@ -152,6 +212,7 @@ export class WindowsManager {
 
   @bind
   public async restore(id: string): Promise<void> {
+    if (this.#windows.get(id) == null) return;
     const state = this.#ensureGetId(id);
     if (state.isMaximized === false) return;
     await Promise.whenAllSettled([this.focus(id), this.#createEvent(id, 'restoring', () => {
@@ -220,7 +281,8 @@ export class WindowsManager {
   #ensureGetId(id: string): ActiveWindowState {
     const state = this.#windows.get(id);
     if (state == null) throw new Error(`Window with id "${id}" not found.`);
-    const definition = windowsDefinitionsManager.getDefinition(state.definitionId, this.#id);
+    const definition = windowsDefinitionsManager.getDefinition(state.definitionId, this.#id)
+      ?? (state.windowTypeName != null ? windowsDefinitionsManager.getGlobalDefinition(state.windowTypeName) : undefined);
     const ids = this.#windows.ids();
     const index = ids.indexOf(id);
     const isFocused = ids.last() === id;

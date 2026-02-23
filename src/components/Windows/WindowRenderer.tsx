@@ -1,4 +1,5 @@
 import { useLayoutEffect, useMemo, useState } from 'react';
+import type { ComponentType } from 'react';
 import { createComponent } from '../Component';
 import type { WindowDefinitionUtils } from './WindowsModels';
 import { type WindowDefinition } from './WindowsModels';
@@ -13,12 +14,15 @@ import { createPortal } from 'react-dom';
 
 interface Props<Args extends unknown[], CloseResponseType = string | undefined> extends WindowDefinitionState {
   definition: WindowDefinition<Args, CloseResponseType>;
+  /** When provided (e.g. for dialogs), used instead of Window in utils. */
+  windowComponent?: ComponentType<any>;
 }
 
 export const WindowRenderer = createComponent('WindowRenderer', <Args extends unknown[], CloseResponseType = string | undefined>({
   windowId,
   managerId,
   definition,
+  windowComponent: WindowOrDialog = Window,
 }: Props<Args, CloseResponseType>) => {
   const manager = WindowsManager.get(managerId);
   const args = manager.getArgs<Args>(windowId);
@@ -26,20 +30,23 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
   const close = useBound((response?: CloseResponseType) => manager.close(windowId, response));
   const utils = useMemo<WindowDefinitionUtils<CloseResponseType>>(() => ({
     id: windowId,
-    Window,
+    Window: WindowOrDialog,
     Content: WindowContent,
     Actions: WindowActions,
     Action: WindowAction,
     OkButton: WindowOkAction,
     close,
-  }), [windowId]);
+  }), [windowId, WindowOrDialog]);
 
   const context = useMemo<WindowContextProps>(() => ({
     id: windowId,
     managerId,
   }), [windowId, managerId]);
 
-  const content = definition(utils)(...args);
+  const firstCall = definition(utils);
+  const content: JSX.Element | null = typeof firstCall === 'function'
+    ? (firstCall as (...a: unknown[]) => JSX.Element | null)(...(args as unknown[]))
+    : firstCall as JSX.Element | null;
 
   useLayoutEffect(() => {
     let stopFindingElement = false;

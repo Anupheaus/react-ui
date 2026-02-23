@@ -26,11 +26,11 @@ export const SimpleList = createComponent('SimpleList', function <T = void>({
   ...props
 }: Props<T>) {
   const items = useMemo(() => value ?? [], [value]);
-  const { SimpleListItemDialog, openSimpleListItemDialog } = useSimpleListItemDialog();
+  const { openSimpleListItemDialog } = useSimpleListItemDialog();
 
   const addNewItem = useBound(async (event: MouseEvent<HTMLElement>) => {
     if (props.onAdd != null) return await props.onAdd(event);
-    const item = await openSimpleListItemDialog();
+    const item = await openSimpleListItemDialog(undefined, allowDelete, textFieldLabel);
     if (item == null) return;
     onChange?.([...items, item as ReactListItem<T>]);
   });
@@ -51,7 +51,6 @@ export const SimpleList = createComponent('SimpleList', function <T = void>({
         items={items}
         onAdd={is.function(props.onAdd) ? props.onAdd : (allowAdd ? addNewItem : undefined)}
       />
-      <SimpleListItemDialog allowDelete={allowDelete} textFieldLabel={textFieldLabel} />
     </>
   );
 });

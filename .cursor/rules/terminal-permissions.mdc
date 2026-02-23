@@ -1,0 +1,23 @@
+---
+description: Use minimal permissions for read-only terminal commands
+alwaysApply: true
+---
+
+# Terminal Command Permissions
+
+When running **read-only** commands that do not modify files or require full system access, use the **minimum required permissions**:
+
+## Read-only commands (no extra permissions or `network` only)
+
+- `npx eslint` / `npm run lint` — linting (no writes)
+- `tsc --noEmit` — type checking only
+- `npm run build` — when verifying a build (request `all` only if sandbox fails)
+- `git status`, `git diff`, `git log` — git read operations
+- `jest` / `npm test` — tests (use `network` if tests need it)
+
+## When to request permissions
+
+- **`network`**: Package installs (`npm install`, `pnpm i`), commands that fetch from registry
+- **`all`**: Only when the sandbox blocks a read-only command (e.g. build fails with "Cursor Sandbox is unsupported") or when the command genuinely needs full access
+
+Prefer running read-only commands without requesting `all` first; fall back to `all` only if they fail in the sandbox.

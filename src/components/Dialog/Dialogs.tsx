@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
-import { useBound, useId } from '../../hooks';
+import { useBound } from '../../hooks';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import type { WindowState } from '../Windows';
-import { Windows } from '../Windows';
-import { DialogsManagerIdContext } from './DialogsContext';
+import type { InternalWindowsProps } from '../Windows/InternalWindows';
+import { InternalWindows } from '../Windows/InternalWindows';
+import { WindowsManager } from '../Windows/WindowsManager';
 import { ConfirmationDialogProvider } from './ConfirmationDialogProvider';
 
 const useStyles = createLegacyStyles({
@@ -44,18 +45,19 @@ const useStyles = createLegacyStyles({
   },
 });
 
-interface Props {
-  id?: string;
+interface Props extends InternalWindowsProps {
   shouldBlurBackground?: boolean;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export const Dialogs = createComponent('Dialogs', ({
   id,
+  className,
   shouldBlurBackground = false,
-  children,
+  children = null,
+  ...props
 }: Props) => {
-  const managerId = id ?? useId();
+  const managerId = id ?? WindowsManager.DIALOGS_DEFAULT_ID;
   const { css, join } = useStyles();
   const [areDialogsOpen, setAreDialogsOpen] = useState(false);
 
@@ -65,12 +67,10 @@ export const Dialogs = createComponent('Dialogs', ({
 
   return (
     <Tag name="dialogs" className={join(css.dialogs, shouldBlurBackground && areDialogsOpen && 'blur-background')}>
-      <DialogsManagerIdContext.Provider value={managerId}>
-        <ConfirmationDialogProvider>
-          <Windows id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction')} onChange={handleStatesChanged} />
-          {children}
-        </ConfirmationDialogProvider>
-      </DialogsManagerIdContext.Provider>
+      <InternalWindows {...props} id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction', className)} onChange={handleStatesChanged} managerType="dialogs" />
+      <ConfirmationDialogProvider>
+        {children}
+      </ConfirmationDialogProvider>
     </Tag >
   );
 });

@@ -1,3 +1,4 @@
 export * from './createDialog';
-export { ConfirmationDialogResult, useConfirmationDialog } from './ConfirmationDialogContext';
+export * from './useDialog';
+export { ConfirmationDialogResult, useConfirmationDialog } from './useConfirmationDialog';
 export * from './Dialogs';

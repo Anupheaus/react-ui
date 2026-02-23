@@ -1,10 +1,12 @@
 import { createLegacyStyles } from '../../theme/createStyles';
 import { to } from '@anupheaus/common';
-import { RefObject, useRef } from 'react';
+import type { RefObject } from 'react';
+import { useRef } from 'react';
 import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { useDrag, UseDragEvent } from '../../hooks/useDrag/useDrag';
+import type { UseDragEvent } from '../../hooks/useDrag/useDrag';
+import { useDrag } from '../../hooks/useDrag/useDrag';
 
 interface Props {
   isEnabled: boolean;

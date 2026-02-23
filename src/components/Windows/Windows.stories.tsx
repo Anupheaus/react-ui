@@ -87,7 +87,7 @@ const WindowActions = createComponent('WindowActions', () => {
       <Button onClick={handleWindowAction('focus', focusWindowType1)}>Focus Type 1</Button>
       <Button onClick={handleWindowAction('restore', restoreWindowType1)}>Restore Type 1</Button>
       <Button onClick={handleWindowAction('maximize', maximizeWindowType1)}>Maximize Type 1</Button>
-      <Button onClick={handleWindowAction('close', () => closeWindowType1('custom'))}>Close Type 1</Button>
+      <Button onClick={handleWindowAction('close', closeWindowType1, 'custom')}>Close Type 1</Button>
       <Button onClick={handleWindowAction('open', openWindowType2, 'def')}>Open Type 2.1</Button>
       <Button onClick={handleWindowAction('focus', focusWindowType2, 'def')}>Focus Type 2.1</Button>
       <Button onClick={handleWindowAction('restore', restoreWindowType2, 'def')}>Restore Type 2.1</Button>
@@ -114,10 +114,47 @@ export const Default: Story = {
       <StorybookComponent width={1200} height={600} title={'Default'} showComponentBorders>
         <Flex isVertical>
           <WindowActions />
-          <Windows /*localStorageKey="windows"*/>
-            <WindowType1 />
-            <WindowType2 />
-          </Windows>
+          <Windows /*localStorageKey="windows"*/ />
+        </Flex>
+      </StorybookComponent>
+    );
+  },
+};
+
+export const WithoutChildren: Story = {
+  render() {
+    const { openWindowType1 } = useWindow(WindowType1);
+    const { openWindowType2 } = useWindow(WindowType2);
+
+    useLayoutEffect(() => {
+      openWindowType1('global-registration');
+      openWindowType2('instance-1');
+      openWindowType2('instance-2');
+    }, []);
+
+    return (
+      <StorybookComponent width={1200} height={600} title={'Without Children - Global Registration'} showComponentBorders>
+        <Flex isVertical>
+          <p>Windows are registered globally at createWindow - no need to add them as children of Windows.</p>
+          <Windows />
+        </Flex>
+      </StorybookComponent>
+    );
+  },
+};
+
+export const FocusExistingWindow: Story = {
+  render() {
+    const { openWindowType1 } = useWindow(WindowType1);
+
+    return (
+      <StorybookComponent width={1200} height={600} title={'Focus Existing - Same Args'} showComponentBorders>
+        <Flex isVertical gap={4}>
+          <p>Click &quot;Open&quot; multiple times with the same args - it will focus the existing window instead of opening a new one.</p>
+          <Flex gap={4}>
+            <Button onClick={() => openWindowType1('same-args')}>Open (same args)</Button>
+          </Flex>
+          <Windows />
         </Flex>
       </StorybookComponent>
     );
