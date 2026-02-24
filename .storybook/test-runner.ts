@@ -10,6 +10,7 @@ const config: TestRunnerConfig = {
   },
   async postVisit(page, context) {
     await waitForPageReady(page);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     const element = page.locator('#storybook-root');
     const image = await element.screenshot();
