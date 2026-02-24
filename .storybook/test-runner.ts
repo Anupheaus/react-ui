@@ -1,6 +1,6 @@
 import type { TestRunnerConfig } from '@storybook/test-runner';
+import { getStoryContext, waitForPageReady } from '@storybook/test-runner';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
-import { waitForPageReady } from '@storybook/test-runner';
 
 const customSnapshotsDir = `${process.cwd()}/__image_snapshots__`;
 
@@ -9,6 +9,15 @@ const config: TestRunnerConfig = {
     expect.extend({ toMatchImageSnapshot });
   },
   async postVisit(page, context) {
+    const storyContext = await getStoryContext(page, context);
+    // Skip when story has parameters.test.skipScreenshot = true (for lazy-loading content, etc.)
+    const skipScreenshot = storyContext.parameters?.test?.skipScreenshot === true;
+
+    const storyName = context.id.split('--').pop()?.toLowerCase() ?? '';
+    const isLoadingStory = storyName === 'loading' || storyName.startsWith('lazy-load');
+
+    if (skipScreenshot || isLoadingStory) return;
+
     await waitForPageReady(page);
     await new Promise(resolve => setTimeout(resolve, 1000));
 

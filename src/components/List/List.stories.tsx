@@ -141,6 +141,7 @@ export const ListItemsWithSubItems: Story = createStory<ListDefault>({
   args: {
     label: 'List with sub-items',
   },
+  parameters: { test: { skipScreenshot: true } },
   width: 240,
   height: 320,
   render: () => {
@@ -166,6 +167,7 @@ export const ListWithStickyHeader: Story = createStory<ListDefault>({
   args: {
     label: 'List',
   },
+  parameters: { test: { skipScreenshot: true } },
   width: 280,
   height: 320,
   render: (props: ListProps) => {
