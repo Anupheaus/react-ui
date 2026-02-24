@@ -1,0 +1,14 @@
+---
+description: Always use --no-frozen-lockfile when running pnpm install
+alwaysApply: true
+---
+
+# pnpm Install
+
+When running `pnpm install` (or `pnpm i`), **always** include `--no-frozen-lockfile`:
+
+```bash
+pnpm install --no-frozen-lockfile
+```
+
+This allows the lockfile to be updated when package.json has changed (e.g. after adding new dependencies), avoiding `ERR_PNPM_OUTDATED_LOCKFILE` failures.

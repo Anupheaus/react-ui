@@ -21,3 +21,7 @@ storybook-static
 
 replaceCode.js
 *storybook.log
+
+.env
+
+.pnpm-store
