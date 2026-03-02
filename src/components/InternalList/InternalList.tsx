@@ -1,7 +1,7 @@
 import type { MouseEvent, ReactNode } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound } from '../../hooks/useBound';
-import type { ListItemClickEvent, ReactListItem } from '../../models';
+import type { ListItemClickEvent, ListItemEvent, ReactListItem } from '../../models';
 import type { FlexProps } from '../Flex';
 import { Flex } from '../Flex';
 import { createComponent } from '../Component';
@@ -60,10 +60,11 @@ export interface InternalListProps<T = void> {
   minHeight?: FlexProps['minHeight'];
   maxSelectableItems?: number;
   fullHeight?: boolean;
-  onDelete?(id: string, data: T, index: number): void;
+  deleteTooltip?: ReactNode;
+  onDelete?(event: ListItemEvent<T>): void;
   actions?: UseActions<InternalListActions>;
   onRequest?(request: UseDataRequest, response: (data: UseDataResponse<ReactListItem<T>>) => void): Promise<void>;
-  onActive?(data: T | undefined): void;
+  onActive?(event: ListItemEvent<T>, isActive: boolean): void;
   onSelectedItemsChange?(ids: string[]): void;
   onError?(error: Error): void;
   onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
@@ -84,6 +85,7 @@ interface Props<T = void> extends InternalListProps<T> {
   selectedItemIds?: string[];
   showSkeletons?: boolean;
   addTooltip?: ReactNode;
+  deleteTooltip?: ReactNode;
   onScroll?(values: OnScrollEventData): void;
   onItemsChange?(items: ReactListItem<T>[]): void;
   onMouseEnter?(event: MouseEvent): void;
@@ -105,6 +107,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   minHeight,
   showSkeletons,
   addTooltip,
+  deleteTooltip,
   actions,
   onScroll,
   onRequest,
@@ -129,7 +132,6 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const [selectedItemIds, updateSelectedItemIds] = useUpdatableState<string[]>(prevValues => (providedSelectedItemIds ?? prevValues ?? []).removeNull(), [providedSelectedItemIds]);
   const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, selectedItemIds, items: providedItems, useSkeletons: showSkeletons, onItemsChange });
   const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
-  const [activeItemId, setActiveItemId] = useState<string>();
   const [stickyHeaderHeight, setStickyHeaderHeight] = useState<number>();
 
   actions?.({
@@ -176,8 +178,20 @@ export const InternalList = createComponent('InternalList', function <T = void>(
 
   const renderedItems = useMemo(() => {
     return (allowedToRenderItems ? items : []).slice(offset, offset + limit)
-      .map((item, index) => <InternalListItem key={item.id} item={item} index={offset + index} isSelectable={(maxSelectableItems ?? 0) > 0} onClick={onClick} InternalListComponent={InternalList} />);
-  }, [allowedToRenderItems, items, offset, limit, maxSelectableItems, onClick]);
+      .map((item, index) => (
+        <InternalListItem
+          key={item.id}
+          item={item}
+          index={offset + index}
+          isSelectable={(maxSelectableItems ?? 0) > 0}
+          onClick={onClick}
+          InternalListComponent={InternalList}
+          maxSelectableItems={maxSelectableItems}
+          selectedItemIds={providedSelectedItemIds}
+          onSelectedItemsChange={onSelectedItemsChange}
+        />
+      ));
+  }, [allowedToRenderItems, items, offset, limit, maxSelectableItems, onClick, providedSelectedItemIds, onSelectedItemsChange]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => {
     if (containerElement == null) setContainerElement(values.element);
@@ -208,22 +222,16 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     );
   }, [stickyHeader, onAdd, handleAdd, setStickyHeaderHeight]);
 
-  const handleActiveChange = useBound((id: string, data: T, _index: number, isActive: boolean) => {
-    if (isActive) {
-      onActive?.(data);
-      setActiveItemId(id);
-    } else if (activeItemId === id) {
-      onActive?.(undefined);
-      setActiveItemId(undefined);
-    }
+  const handleActiveChange = useBound((event: ListItemEvent<T>, isActive: boolean) => {
+    onActive?.(event, isActive);
   });
 
-  const handleSelectChange = useBound((id: string, _data: T, _index: number, isSelected: boolean) => {
+  const handleSelectChange = useBound((event: ListItemEvent<T>, isSelected: boolean) => {
     let isSelectedItemsChanged = false;
     const newSelectedItemIds = selectedItemIds.slice();
-    const indexOfSelectedItem = newSelectedItemIds.indexOf(id);
+    const indexOfSelectedItem = newSelectedItemIds.indexOf(event.id);
     if (isSelected && indexOfSelectedItem === -1) {
-      newSelectedItemIds.push(id);
+      newSelectedItemIds.push(event.id);
       isSelectedItemsChanged = true;
     } else if (!isSelected && indexOfSelectedItem !== -1) {
       newSelectedItemIds.splice(indexOfSelectedItem, 1);
@@ -280,7 +288,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         style={{ paddingTop: stickyHeaderHeight }}
       >
         {header}
-        <InternalListContextProvider onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
+        <InternalListContextProvider deleteTooltip={deleteTooltip} onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
           {renderedItems}
         </InternalListContextProvider>
         {footer}

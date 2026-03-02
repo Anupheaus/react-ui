@@ -1,4 +1,4 @@
-import { MemoExoticComponent } from 'react';
+import type { MemoExoticComponent } from 'react';
 import { ReCaptcha } from './Recaptcha';
 import makeAsyncScriptLoader from 'react-async-script';
 

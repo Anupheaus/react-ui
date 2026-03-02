@@ -2,7 +2,7 @@ import { is } from '@anupheaus/common';
 import type { KeyboardEvent } from 'react';
 import type { DistributedState } from '../../hooks';
 import { useBound, useDistributedState } from '../../hooks';
-import type { ReactListItem } from '../../models';
+import { ReactListItem } from '../../models';
 import { useUIState } from '../../providers';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -87,14 +87,14 @@ export const RadioOption = createComponent('RadioOption', ({
   const handleClick = useBound(() => {
     if (isReadOnly || isLoading) return;
     set(item.id);
-    item.onSelectChange?.(item.id, item.data, 0, !isSelected);
+    item.onSelectChange?.(ReactListItem.createEvent(item), !isSelected);
   });
 
   const handleKeyUp = useBound((event: KeyboardEvent<HTMLDivElement>) => {
     if (isReadOnly || isLoading) return;
     if (![' ', 'Enter'].includes(event.key)) return;
     set(item.id);
-    item.onSelectChange?.(item.id, item.data, 0, !isSelected);
+    item.onSelectChange?.(ReactListItem.createEvent(item), !isSelected);
   });
 
   return (

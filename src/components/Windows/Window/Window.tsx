@@ -140,7 +140,8 @@ export const Window = createComponent('Window', ({
   onClosed,
   onFocus,
 }: Props) => {
-  const { id: contextId, managerId } = useContext(WindowContext);
+  const { id: contextId, managerId, title: contextTitle } = useContext(WindowContext);
+  const displayTitle = contextTitle ?? title;
   const manager = WindowsManager.get(managerId);
   const id = providedId ?? contextId;
   const [state, setState] = useWindowState(manager, id, providedWidth, providedHeight);
@@ -226,7 +227,7 @@ export const Window = createComponent('Window', ({
         {...dragTargetProps}
         className={css.titlebar}
         icon={icon}
-        title={title}
+        title={displayTitle}
         endAdornment={<>
           {windowControls}
           {!hideMaximizeButton && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}

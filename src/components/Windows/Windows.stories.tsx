@@ -42,6 +42,28 @@ const WindowType1 = createWindow('WindowType1', ({ Window, Content, id }) => () 
   );
 });
 
+const WindowWithUtilities = createWindow('WindowWithUtilities', ({ Window, Content }) => (initialTitle: string) => (
+  <Window title={initialTitle}>
+    <Content>
+      <WindowContentWithUtilities />
+    </Content>
+  </Window>
+));
+
+const WindowContentWithUtilities = createComponent('WindowContentWithUtilities', () => {
+  const { setTitle, close } = useWindow();
+  return (
+    <Flex gap={4} isVertical>
+      <p>This window uses useWindow() with no args to get setTitle and close.</p>
+      <Flex gap={4}>
+        <Button onClick={() => setTitle('Updated title!')}>Change title</Button>
+        <Button onClick={() => setTitle(`Title at ${new Date().toLocaleTimeString()}`)}>Set time as title</Button>
+        <Button onClick={() => close('saved')}>Save & close</Button>
+      </Flex>
+    </Flex>
+  );
+});
+
 const WindowType2 = createWindow('WindowType2', ({ Window, Content, id }) => () => {
   const onFocus = useBound((isFocused: boolean) => {
     // eslint-disable-next-line no-console
@@ -135,6 +157,22 @@ export const WithoutChildren: Story = {
       <StorybookComponent width={1200} height={600} title="Without Children - Global Registration" showComponentBorders>
         <Flex isVertical>
           <p>Windows are registered globally at createWindow - no need to add them as children of Windows.</p>
+          <Windows />
+        </Flex>
+      </StorybookComponent>
+    );
+  },
+};
+
+export const UseWindowUtilities: Story = {
+  render() {
+    const { openWindowWithUtilities } = useWindow(WindowWithUtilities);
+
+    return (
+      <StorybookComponent width={1200} height={600} title="useWindow() - Current Window Utilities" showComponentBorders>
+        <Flex isVertical gap={4}>
+          <p>Open a window and use the buttons inside to change its title or close it via useWindow() with no args.</p>
+          <Button onClick={() => openWindowWithUtilities('my-dynamic-window', 'Initial Title')}>Open window</Button>
           <Windows />
         </Flex>
       </StorybookComponent>

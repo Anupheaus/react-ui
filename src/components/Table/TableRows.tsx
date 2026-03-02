@@ -54,11 +54,11 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
         id: record.id,
         text: record.id,
         data: record,
-        renderLoading: (_id, index) => (
-          <TableRow<RecordType> index={index} columns={columns} />
+        renderLoading: event => (
+          <TableRow<RecordType> index={event.ordinal ?? 0} columns={columns} />
         ),
-        renderItem: (_item: ReactListItem<RecordType>, index: number, resolvedData?: RecordType) => (
-          <TableRow<RecordType> record={resolvedData} index={index} columns={columns} />
+        renderItem: event => (
+          <TableRow<RecordType> record={event.data as RecordType} index={event.ordinal ?? 0} columns={columns} />
         ),
       })) as ReactListItem<RecordType>[];
       response({ requestId, items, total });

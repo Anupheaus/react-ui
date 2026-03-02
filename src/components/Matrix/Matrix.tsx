@@ -178,6 +178,7 @@ export const Matrix = createComponent('Matrix', function <T = unknown>({
       tagName="matrix"
       className={className}
       isVertical
+      gap={4}
     >
       <Flex
         tagName="matrix-cells"

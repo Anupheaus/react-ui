@@ -53,7 +53,7 @@ export const Section = createComponent('Section', ({
   const { css, join } = useStyles();
 
   return (
-    <Flex tagName="section" className={css.section} maxHeight={maxHeight}>
+    <Flex tagName="section" className={css.section} maxHeight={maxHeight} disableOverflow={maxHeight === true}>
       <Flex tagName="section-border" className={join(css.sectionBorder, label == null && 'no-clip')} />
       {label != null && (
         <Flex tagName="section-label" className={css.sectionLabel} gap={8}>

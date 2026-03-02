@@ -50,6 +50,10 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
       flexGrow: 1,
       flexShrink: 1,
     },
+
+    '&.disable-overflow': {
+      overflow: 'hidden',
+    },
   },
   fieldContainer: {
     ...normal,
@@ -122,6 +126,7 @@ interface Props extends FieldProps {
   height?: string | number;
   fullHeight?: boolean;
   skeleton?: 'outlineOnly';
+  disableOverflow?: boolean;
   onBlur?(event: FocusEvent<HTMLDivElement>): void;
   onContainerSelect?(): void;
 }
@@ -156,6 +161,7 @@ export const Field = createComponent('Field', ({
   height,
   fullHeight,
   skeleton,
+  disableOverflow = false,
   onBlur,
   onContainerSelect,
   ...props
@@ -251,7 +257,7 @@ export const Field = createComponent('Field', ({
     <Tag
       {...props}
       name={tagName}
-      className={join(css.field, width != null && 'is-set-width', fullHeight && 'full-height', className)}
+      className={join(css.field, width != null && 'is-set-width', fullHeight && 'full-height', disableOverflow && 'disable-overflow', className)}
       width={width ?? (wide === true ? '100%' : undefined)}
       height={height}
       style={style}

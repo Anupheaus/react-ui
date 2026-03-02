@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useLayoutEffect, useMemo, useState } from 'react';
 import type { ComponentType } from 'react';
 import { createComponent } from '../Component';
@@ -28,6 +29,7 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
   const args = manager.getArgs<Args>(windowId);
   const [element, setElement] = useState<HTMLElement>();
   const close = useBound((response?: CloseResponseType) => manager.close(windowId, response));
+  const [title, setTitle] = useState<ReactNode | undefined>(undefined);
   const utils = useMemo<WindowDefinitionUtils<CloseResponseType>>(() => ({
     id: windowId,
     Window: WindowOrDialog,
@@ -38,10 +40,15 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
     close,
   }), [windowId, WindowOrDialog]);
 
+  const setTitleStable = useBound((newTitle: ReactNode) => setTitle(newTitle));
+  const closeWithUnknown = useBound((response?: unknown) => close(response as CloseResponseType));
   const context = useMemo<WindowContextProps>(() => ({
     id: windowId,
     managerId,
-  }), [windowId, managerId]);
+    close: closeWithUnknown,
+    setTitle: setTitleStable,
+    title,
+  }), [windowId, managerId, closeWithUnknown, setTitleStable, title]);
 
   const firstCall = definition(utils);
   const content: JSX.Element | null = typeof firstCall === 'function'

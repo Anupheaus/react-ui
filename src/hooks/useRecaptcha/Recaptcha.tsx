@@ -1,5 +1,6 @@
-import { useMemo, memo, useRef, useCallback, useEffect, MutableRefObject } from 'react';
-import { ReCaptchaState } from './RecaptchaModels';
+import type { MutableRefObject } from 'react';
+import { useMemo, memo, useRef, useCallback, useEffect } from 'react';
+import type { ReCaptchaState } from './RecaptchaModels';
 
 export interface ReCaptchaProps {
   className?: string;

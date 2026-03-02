@@ -9,6 +9,9 @@ import { useBound } from '../../hooks';
 import { useState } from 'react';
 import { Button } from '../Button';
 import { useScroller } from '../Scroller/useScroller';
+import { Flex } from '../Flex';
+import { Text } from '../Text';
+import { Scroller } from '../Scroller';
 
 function ScrollPositionLabel() {
   const { scrollTop } = useScroller();
@@ -201,6 +204,113 @@ export const ListWithStickyHeader: Story = createStory<ListDefault>({
           </>
         )}
       />
+    );
+  },
+});
+
+export const InlineListWithTooLittleContent: Story = createStory<ListDefault>({
+  args: {
+    label: 'List',
+  },
+  width: 280,
+  height: 500,
+  render: (props: ListProps) => {
+    const smallerList = staticItems.slice(0, 3);
+
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) =>
+      respondWith({
+        requestId,
+        items: smallerList.slice(offset, offset + limit),
+        total: smallerList.length,
+      }));
+
+    const handleAdd = useBound(() => {
+      // eslint-disable-next-line no-alert
+      window.alert('Add');
+    });
+
+    return (
+      <Flex isVertical gap="fields">
+        <Text value="Test" wide />
+        <List
+          label="List"
+          {...props}
+          onRequest={handleRequest}
+          onAdd={handleAdd}
+        />
+      </Flex>
+    );
+  },
+});
+
+export const InlineListWithTooMuchContent: Story = createStory<ListDefault>({
+  args: {
+    label: 'List',
+  },
+  width: 280,
+  height: 500,
+  render: (props: ListProps) => {
+    const smallerList = staticItems.slice(0, 20);
+
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) =>
+      respondWith({
+        requestId,
+        items: smallerList.slice(offset, offset + limit),
+        total: smallerList.length,
+      }));
+
+    const handleAdd = useBound(() => {
+      // eslint-disable-next-line no-alert
+      window.alert('Add');
+    });
+
+    return (
+      <Flex isVertical gap="fields">
+        <Text value="Test" wide />
+        <List
+          label="List"
+          {...props}
+          onRequest={handleRequest}
+          onAdd={handleAdd}
+        />
+      </Flex>
+    );
+  },
+});
+
+export const InlineListWithTooMuchContentInsideScrollableContainer: Story = createStory<ListDefault>({
+  args: {
+    label: 'List',
+  },
+  width: 280,
+  height: 500,
+  render: (props: ListProps) => {
+    const smallerList = staticItems.slice(0, 20);
+
+    const handleRequest = useBound<ListOnRequest>(async ({ requestId, pagination: { offset = 0, limit } }, respondWith) =>
+      respondWith({
+        requestId,
+        items: smallerList.slice(offset, offset + limit),
+        total: smallerList.length,
+      }));
+
+    const handleAdd = useBound(() => {
+      // eslint-disable-next-line no-alert
+      window.alert('Add');
+    });
+
+    return (
+      <Scroller>
+        <Flex isVertical gap="fields">
+          <Text value="Test" wide />
+          <List
+            label="List"
+            {...props}
+            onRequest={handleRequest}
+            onAdd={handleAdd}
+          />
+        </Flex>
+      </Scroller>
     );
   },
 });

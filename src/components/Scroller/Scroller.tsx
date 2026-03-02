@@ -25,6 +25,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     flex: 'auto',
     position: 'relative',
     flexDirection: 'inherit',
+    maxHeight: '100%',
 
     '&.keep-height-to-content': {
       height: 'fit-content',
@@ -37,7 +38,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     height: 'fit-content',
     // minHeight: '100%',
     width: 'fit-content',
-    // minWidth: '100%',
+    minWidth: '100%',
     flexDirection: 'inherit',
     gap: 'var(--gap)',
 

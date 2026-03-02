@@ -1,10 +1,11 @@
 import type { AnyFunction } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
-import type { ReactUIWindowOnly, UseWindowApiCommands, UseWindowApiCommandsWithId } from './WindowsModels';
+import type { ReactUIWindowOnly, UseWindowApiCommands, UseWindowApiCommandsWithId, UseWindowCurrentWindowUtils } from './WindowsModels';
 import { InitialWindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
-import { useRef } from 'react';
+import { useContext, useRef } from 'react';
 import { useBound, useId } from '../../hooks';
+import { WindowContext } from './WindowsContexts';
 
 interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
   id?: string;
@@ -20,12 +21,20 @@ function getProps<Name extends string, Args extends unknown[]>(args: unknown[]):
   return args[0] as any;
 }
 
+export function useWindow(): UseWindowCurrentWindowUtils;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(props: Props<Name, Args, CloseResponseType>): UseWindowApiCommands<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(window: ReactUIWindowOnly<Name, Args, CloseResponseType>,
   id: string): UseWindowApiCommands<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(
   window: ReactUIWindowOnly<Name, Args, CloseResponseType>): UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
+  if (args.length === 0) {
+    const { setTitle, close } = useContext(WindowContext);
+    if (setTitle == null || close == null) {
+      throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
+    }
+    return { setTitle, close } as UseWindowCurrentWindowUtils;
+  }
   const hookId = useId();
   const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
   if ((window as { dialogOnly?: boolean }).dialogOnly === true) {

@@ -58,6 +58,32 @@ await openMyWindow('instance-2', 'world');
 await closeMyWindow('instance-1', 'done');
 ```
 
+**When you provide no arguments** (`useWindow()`):
+
+- Returns utilities for the **current window** — must be called from within window content (inside a window created with `createWindow`).
+- `setTitle(title)` — update the window title dynamically
+- `close(response?)` — close the current window
+
+```tsx
+const MyWindow = createWindow('MyWindow', ({ Window, Content, id }) => (name: string) => (
+  <Window title={`Hello ${name}`}>
+    <Content>
+      <MyContent />
+    </Content>
+  </Window>
+));
+
+function MyContent() {
+  const { setTitle, close } = useWindow();
+  return (
+    <>
+      <button onClick={() => setTitle('Updated title')}>Change title</button>
+      <button onClick={() => close('saved')}>Save & close</button>
+    </>
+  );
+}
+```
+
 ## Props
 
 | Prop | Type | Description |

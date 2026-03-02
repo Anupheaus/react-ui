@@ -3,7 +3,7 @@ import { Popover } from '@mui/material';
 import type { FocusEvent, ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
 import { useAsync, useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
-import type { ListItemClickEvent } from '../../models';
+import type { ListItemEvent } from '../../models';
 import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { Button } from '../Button';
@@ -83,7 +83,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
   const { validate } = useValidation(`${props.tagName}-${props.label}`);
 
-  const click = useBound((event: ListItemClickEvent<T>) => {
+  const click = useBound((event: ListItemEvent<T>) => {
     const item = values.findById(event.id);
     if (item == null) return;
     setIsClosed();

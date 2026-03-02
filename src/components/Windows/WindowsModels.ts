@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { is, type DeferredPromise } from '@anupheaus/common';
 import type { Window, WindowAction, WindowContent, WindowOkAction } from './Window';
 import type { ReactUIComponent } from '../Component';
@@ -106,6 +106,12 @@ export type UseWindowApiCommands<Name extends string, Args extends unknown[], Cl
   { [key in `focus${Name}`]: () => Promise<void>; } &
   { [key in `restore${Name}`]: () => Promise<void>; } &
   { [key in `maximize${Name}`]: () => Promise<void>; };
+
+/** useWindow() with no args - returns utilities for the current window (must be used inside window content). */
+export interface UseWindowCurrentWindowUtils {
+  setTitle: (title: ReactNode) => void;
+  close: (response?: unknown) => Promise<void>;
+}
 
 /** useWindow(definition) return type - id required in open, open(id, args). */
 export type UseWindowApiCommandsWithId<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> =

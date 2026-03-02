@@ -271,6 +271,31 @@ export const DefaultTheme: Theme = {
       thumbColor: 'rgba(255 255 255 / 85%)',
     },
   },
+  notifications: {
+    base: {
+      backgroundColor: 'white',
+      color: 'black',
+      fontSize: 13,
+      fontWeight: 400,
+      boxShadow: '0 0 8px 2px rgba(0 0 0 / 30%)',
+    },
+    success: {
+      backgroundColor: '#22c115',
+      color: '#fff',
+    },
+    error: {
+      backgroundColor: '#6e0000',
+      color: '#fff',
+    },
+    warning: {
+      backgroundColor: '#fef3c7',
+      color: '#92400e',
+    },
+    info: {
+      backgroundColor: '#dbeafe',
+      color: '#1e40af',
+    },
+  },
   // datePicker: {
   //   popup: {
   //     header: {

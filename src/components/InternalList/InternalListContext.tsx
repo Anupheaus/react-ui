@@ -1,11 +1,13 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import { createContext, useContext } from 'react';
 import { createComponent } from '../Component';
+import type { ListItemEvent } from '../../models';
 
 interface InternalListContextProps<T = void> {
-  onDelete?(id: string, item: T, index: number): void;
-  onSelectChange(id: string, item: T, index: number, isSelected: boolean): void;
-  onActiveChange(id: string, item: T, index: number, isActive: boolean): void;
+  deleteTooltip?: ReactNode;
+  onDelete?(event: ListItemEvent<T>): void;
+  onSelectChange(event: ListItemEvent<T>, isSelected: boolean): void;
+  onActiveChange(event: ListItemEvent<T>, isActive: boolean): void;
 }
 
 const InternalListItemContext = createContext<InternalListContextProps<any>>({

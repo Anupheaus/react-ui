@@ -1,4 +1,5 @@
-import { CSSProperties, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { createLegacyStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';

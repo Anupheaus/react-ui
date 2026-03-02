@@ -165,6 +165,14 @@ interface SwitchTheme {
   thumbColor: string;
 }
 
+interface NotificationTypeTheme {
+  backgroundColor?: string;
+  color?: string;
+  fontSize?: number;
+  fontWeight?: number;
+  boxShadow?: string;
+}
+
 export interface Theme {
   assistiveLabel: {
     normal: AssistiveLabelTheme;
@@ -323,6 +331,13 @@ export interface Theme {
     active: Partial<SwitchTheme>;
     checked: Partial<SwitchTheme>;
     readOnly: Partial<SwitchTheme>;
+  };
+  notifications?: {
+    base: Required<NotificationTypeTheme>;
+    success: NotificationTypeTheme;
+    error: NotificationTypeTheme;
+    warning: NotificationTypeTheme;
+    info: NotificationTypeTheme;
   };
 
 

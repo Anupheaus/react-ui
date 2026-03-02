@@ -32,6 +32,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   width?: string | number;
   wide?: boolean;
   addTooltip?: ReactNode;
+  deleteTooltip?: ReactNode;
   delayRenderingItems?: boolean;
   error?: ReactNode;
   adornments?: ReactNode;
@@ -42,7 +43,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   actions?: UseActions<ListActions>;
   onAdd?(event: MouseEvent<HTMLElement>): PromiseMaybe<T | void>;
   value?: V;
-  onChange?(newValue: V): void;
+  onChange?: V extends string[] ? (newValue: string[]) => void : (newValue: string) => void;
 };
 
 const useStyles = createStyles(({ list }, { applyTransition, gap }) => ({
@@ -76,7 +77,7 @@ const useStyles = createStyles(({ list }, { applyTransition, gap }) => ({
   },
 }));
 
-export const List = createComponent('List', function <T = void>({
+export const List = createComponent('List', function <T = void, V extends string | string[] = string | string[]>({
   className,
   containerClassName,
   contentClassName,
@@ -95,9 +96,10 @@ export const List = createComponent('List', function <T = void>({
   maxSelectableItems,
   selectionRequiredMessage,
   addTooltip = 'Add a new item to this list',
+  deleteTooltip = 'Delete this item from this list',
   onAdd,
   ...props
-}: ListProps<T>) {
+}: ListProps<T, V>) {
   const { css, join } = useStyles();
   const { validate } = useValidation(`list-${label}`);
   const [hasItems, setHasItems] = useState(false);
@@ -145,11 +147,13 @@ export const List = createComponent('List', function <T = void>({
       width={width}
       wide={wide}
       assistiveHelp={assistiveHelp}
+      disableOverflow
     >
       <InternalList
         tagName="list-content"
         {...props}
         addTooltip={addTooltip}
+        deleteTooltip={deleteTooltip}
         onAdd={onAdd != null ? handleAdd : undefined}
         showSkeletons
         contentClassName={join(css.internalList, contentClassName)}

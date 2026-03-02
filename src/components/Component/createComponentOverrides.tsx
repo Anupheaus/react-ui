@@ -1,5 +1,6 @@
-import { AnyObject } from '@anupheaus/common';
-import { ReactNode, createContext, memo, useContext } from 'react';
+import type { AnyObject } from '@anupheaus/common';
+import type { ReactNode } from 'react';
+import { createContext, memo, useContext } from 'react';
 
 interface Props {
   children?: ReactNode;

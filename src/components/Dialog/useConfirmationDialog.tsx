@@ -20,8 +20,8 @@ const ConfirmationDialog = createDialog('ConfirmationDialog', ({ Dialog, Content
   const content = message ?? 'Are you sure?';
 
   return (
-    <Dialog title={title ?? 'Confirmation'}>
-      <Content>
+    <Dialog title={title ?? 'Confirmation'} minHeight="150">
+      <Content disableScrolling>
         {content}
       </Content>
       <Actions>

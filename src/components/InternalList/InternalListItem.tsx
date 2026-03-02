@@ -1,7 +1,7 @@
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { createStyles } from '../../theme';
-import type { ListItemClickEvent } from '../../models';
+import type { ListItemClickEvent, ListItemEvent } from '../../models';
 import { ReactListItem } from '../../models';
 import { createComponent } from '../Component';
 import { UIState, useUIState } from '../../providers';
@@ -19,6 +19,7 @@ import { Skeleton } from '../Skeleton';
 import { Checkbox } from '../Checkbox';
 import { Expander } from '../Expander';
 import { Tag } from '../Tag';
+import { Tooltip } from '../Tooltip';
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -84,6 +85,10 @@ interface Props<T> {
   isSelectable: boolean;
   onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
   InternalListComponent?: ComponentType<InternalListComponentProps>;
+  /** Forwarded to nested InternalList so sub-items can show checkboxes */
+  maxSelectableItems?: number;
+  selectedItemIds?: string[];
+  onSelectedItemsChange?(ids: string[]): void;
 }
 
 export const InternalListItem = createComponent('InternalListItem', function <T = void>({
@@ -92,9 +97,12 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   isSelectable: providedIsSelectable,
   onClick,
   InternalListComponent,
+  maxSelectableItems,
+  selectedItemIds,
+  onSelectedItemsChange,
 }: Props<T>) {
   const { css, join } = useStyles();
-  const { onSelectChange, onActiveChange, onDelete } = useInternalListContext<T>();
+  const { deleteTooltip, onSelectChange, onActiveChange, onDelete } = useInternalListContext<T>();
   let { isReadOnly } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
   const { response: data, isLoading, error } = useAsync(() => item.data, [item.data]);
@@ -107,23 +115,40 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   const [isExpanded, setExpanded] = useState(item.isExpanded ?? false);
 
   let { content, doNotWrap } = useMemo<{ content: ReactNode; doNotWrap: boolean; }>(() => {
-    if (is.function(item.renderItem)) return { content: item.renderItem(item, index, data as T), doNotWrap: true };
+    const event = ReactListItem.createEvent(item);
+    event.data = data as T;
+    event.ordinal = index;
+    if (is.function(item.renderItem)) return { content: item.renderItem(event), doNotWrap: true };
     const render = item.render;
-    if (error != null) return { content: item.renderError?.(item.id, error, index), doNotWrap: false };
+    if (error != null) return { content: item.renderError?.(event), doNotWrap: false };
     if (!isLoading) {
       if (!is.function(render)) {
         return { content: item.label ?? item.text, doNotWrap: false };
       } else {
-        return { content: render(item.id, data as T, index), doNotWrap: false };
+        return { content: render(event), doNotWrap: false };
       }
     }
     return {
-      content: item.renderLoading?.(item.id, index) ?? (isSelectable ? '' : (
+      content: item.renderLoading?.(event) ?? (isSelectable ? '' : (
         <Skeleton type="text" useRandomWidth isVisible />
       )),
       doNotWrap: false,
     };
   }, [item, data, isLoading, error, index, isSelectable]);
+
+  const createItemEvent = useBound((): ListItemEvent<T> => {
+    const event = ReactListItem.createEvent(item);
+    event.data = data as T;
+    event.ordinal = index;
+    return event;
+  });
+
+  const remove = useBound(() => {
+    if (!isDeletable || isLoading) return;
+    const event = createItemEvent();
+    item.onDelete?.(event);
+    onDelete?.(event);
+  });
 
   const actions = useMemo(() => {
     if (doNotWrap) return null;
@@ -132,37 +157,36 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
       <Flex tagName="list-item-actions" disableGrow>
         {item.actions}
         {isDeletable && (
-          <Button variant="hover" size="small" iconOnly onSelect={remove}>
-            <Icon name="delete-list-item" size="small" />
-          </Button>
+          <Tooltip content={deleteTooltip}>
+            <Button variant="hover" size="small" iconOnly onSelect={remove}>
+              <Icon name="delete-list-item" size="small" />
+            </Button>
+          </Tooltip>
         )}
       </Flex>
     );
   }, [item.actions, isDeletable, doNotWrap]);
 
-  const remove = useBound(() => {
-    if (!isDeletable || isLoading) return;
-    item.onDelete?.(item.id, data as T, index);
-    onDelete?.(item.id, data as T, index);
-  });
-
   const handleSelect = useBound(() => {
     if (!isSelectable || isLoading) return;
     const newIsSelected = !item.isSelected;
-    item.onSelectChange?.(item.id, data as T, index, newIsSelected);
-    onSelectChange(item.id, data as T, index, newIsSelected);
+    const event = createItemEvent();
+    item.onSelectChange?.(event, newIsSelected);
+    onSelectChange(event, newIsSelected);
   });
 
   const focus = useBound(() => {
     if (!isClickable || isLoading) return;
-    item.onActiveChange?.(item.id, data as T, index, true);
-    onActiveChange(item.id, data as T, index, true);
+    const event = createItemEvent();
+    item.onActiveChange?.(event, true);
+    onActiveChange(event, true);
   });
 
   const blur = useBound(() => {
     if (!isClickable || isLoading) return;
-    item.onActiveChange?.(item.id, data as T, index, false);
-    onActiveChange(item.id, data as T, index, false);
+    const event = createItemEvent();
+    item.onActiveChange?.(event, false);
+    onActiveChange(event, false);
   });
 
   const click = useBound((event: MouseEvent) => {
@@ -241,6 +265,9 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
                 contentClassName={css.subItemsList}
                 gap={2}
                 onClick={onClick}
+                maxSelectableItems={maxSelectableItems}
+                selectedItemIds={selectedItemIds}
+                onSelectedItemsChange={onSelectedItemsChange}
               />
             )}
           </Expander>
