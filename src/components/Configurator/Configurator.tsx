@@ -118,7 +118,7 @@ export const Configurator = createComponent('Configurator', ({
       disableRipple
       noContainer
     >
-      <Flex tagName="configurator-grid" isVertical className={css.configuratorGrid} maxWidthAndHeight>
+      <Flex tagName="configurator-grid" isVertical className={css.configuratorGrid} gap={0} maxWidthAndHeight>
         <Scroller
           disableShadows
           footerContent={(<>

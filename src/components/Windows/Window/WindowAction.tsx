@@ -3,7 +3,7 @@ import type { PromiseMaybe } from '@anupheaus/common';
 import { createComponent } from '../../Component';
 import { useBound } from '../../../hooks';
 import { Button } from '../../Button';
-import { WindowContext } from '../WindowsContexts';
+import { WindowRenderContext } from '../WindowsContexts';
 import { WindowsManager } from '../WindowsManager';
 
 interface Props {
@@ -17,7 +17,7 @@ export const WindowAction = createComponent('WindowAction', ({
   children,
   onClick,
 }: Props) => {
-  const { id, managerId } = useContext(WindowContext);
+  const { id, managerId } = useContext(WindowRenderContext);
   const manager = WindowsManager.get(managerId);
 
   const handleClick = useBound(async () => {

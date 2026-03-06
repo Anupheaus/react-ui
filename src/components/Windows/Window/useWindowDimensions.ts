@@ -1,7 +1,15 @@
 import type { CSSProperties, RefObject } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type { InitialWindowPosition, WindowState } from '../WindowsModels';
 import { useBatchUpdates, useOnUnmount } from '../../../hooks';
+import { DEFAULT_WINDOW_MIN_HEIGHT, DEFAULT_WINDOW_MIN_WIDTH } from '../WindowsConstants';
+
+function toPx(value: number | string | undefined, fallback: number): number {
+  if (value == null) return fallback;
+  if (typeof value === 'number') return value;
+  const n = parseFloat(String(value));
+  return Number.isFinite(n) ? n : fallback;
+}
 
 interface Props {
   state: WindowState;
@@ -14,10 +22,12 @@ interface Props {
   windowElementRef: RefObject<HTMLDivElement>;
   initialPosition: InitialWindowPosition | undefined;
   setState(changes: Partial<WindowState>): void;
+  contentWrapperRef?: RefObject<HTMLElement>;
+  disableScrolling?: boolean;
 }
 
 export function useWindowDimensions({ state: { x, y, width, height, isMaximized }, minWidth, minHeight, windowIndex, actualWidth, actualHeight,
-  wantingToBeMaximized, windowElementRef, initialPosition, setState }: Props) {
+  wantingToBeMaximized, windowElementRef, initialPosition, setState, contentWrapperRef, disableScrolling = false }: Props) {
   const [initialDimensionsHaveBeenSet, setInitialDimensionsHaveBeenSet] = useState(false);
   const [preparationClassName, setPreparationClassName] = useState<string | undefined>('preparing');
   const isUnmounted = useOnUnmount();
@@ -28,17 +38,34 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     left: x,
     width,
     height,
-    minWidth: minWidth ?? 200,
-    minHeight: minHeight ?? 150,
+    minWidth: minWidth ?? DEFAULT_WINDOW_MIN_WIDTH,
+    minHeight: minHeight ?? DEFAULT_WINDOW_MIN_HEIGHT,
     zIndex: windowIndex + 1,
   }), [x, y, width, height, minWidth, minHeight, windowIndex]);
 
+  const minWidthNum = toPx(minWidth, DEFAULT_WINDOW_MIN_WIDTH);
+  const minHeightNum = toPx(minHeight, DEFAULT_WINDOW_MIN_HEIGHT);
+
+  useLayoutEffect(() => {
+    if (preparationClassName === undefined) return;
+    const el = contentWrapperRef?.current;
+    if (el == null) return;
+    const rect = el.getBoundingClientRect();
+    const measuredWidth = Math.round(rect.width);
+    const measuredHeight = Math.round(rect.height);
+    const stateChanges: Partial<WindowState> = {};
+    if (width == null && measuredWidth > 0) stateChanges.width = Math.max(measuredWidth, minWidthNum);
+    if (disableScrolling && height == null && measuredHeight > 0) stateChanges.height = Math.max(measuredHeight, minHeightNum);
+    if (Object.keys(stateChanges).length > 0) setState(stateChanges);
+  }, [preparationClassName, contentWrapperRef, disableScrolling, width, height, minWidthNum, minHeightNum, setState]);
+
   useEffect(() => {
+    if (preparationClassName === undefined) return;
     if (initialDimensionsHaveBeenSet || isUnmounted()) return;
     const stateChanges: Partial<WindowState> = {};
-    if (width == null && actualWidth != null) { stateChanges.width = actualWidth; width = actualWidth; }
-    if (height == null && actualHeight != null) { stateChanges.height = actualHeight; height = actualHeight; }
-    if (x == null && actualWidth != null) {
+    if (width == null && actualWidth != null && actualWidth > 0) { stateChanges.width = actualWidth; width = actualWidth; }
+    if (height == null && actualHeight != null && actualHeight > 0) { stateChanges.height = actualHeight; height = actualHeight; }
+    if (x == null && actualWidth != null && actualWidth > 0) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
@@ -51,7 +78,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
         stateChanges.x = 0;
       }
     }
-    if (y == null && actualHeight != null) {
+    if (y == null && actualHeight != null && actualHeight > 0) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
@@ -73,14 +100,18 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
   useEffect(() => {
     if (preparationClassName === undefined || isMaximized === true) return;
     if (actualHeight == null && actualWidth == null) return;
+    const safeWidth = actualWidth != null && actualWidth > 0 ? actualWidth : width;
+    const safeHeight = actualHeight != null && actualHeight > 0 ? actualHeight : height;
     if (width == null || height == null) {
-      batchUpdates(() => {
-        setState({ width: width ?? actualWidth, height: height ?? actualHeight });
-        setInitialDimensionsHaveBeenSet(false);
-        setPreparationClassName('preparing');
-      });
+      if (safeWidth != null && safeHeight != null) {
+        batchUpdates(() => {
+          setState({ width: safeWidth, height: safeHeight });
+          setInitialDimensionsHaveBeenSet(false);
+          setPreparationClassName('preparing');
+        });
+      }
     }
-  }, [initialDimensionsHaveBeenSet, preparationClassName, actualWidth, actualHeight, width, height]);
+  }, [initialDimensionsHaveBeenSet, preparationClassName, actualWidth, actualHeight, width, height, isMaximized]);
 
   useEffect(() => {
     if (!initialDimensionsHaveBeenSet) return;

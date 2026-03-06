@@ -9,6 +9,7 @@ import { Scroller } from '../Scroller';
 import { useUIState, useValidation } from '../../providers';
 import { useBound, useUpdatableState } from '../../hooks';
 import { processSelectedItemsWithSections } from './processSelectedItemsWithSections';
+import { useListStyles } from '../List/ListStyles';
 
 const fakeItems: SelectorItem[] = [
   { id: '1', text: 'Item 1', subItems: [{ id: '1-1', text: 'Sub Item 1' }, { id: '1-2', text: 'Sub Item 2' }] },
@@ -39,6 +40,7 @@ export const Selector = createComponent('Selector', ({
   onSelect,
   ...props
 }: Props) => {
+  const { css } = useListStyles();
   const { isLoading } = useUIState();
   const [ids, setIds] = useUpdatableState<string[]>(() => items.mapMany(item => item.subItems.mapWithoutNull(subItem => subItem?.isSelected ? subItem.id : undefined)), [items]);
   const { validate } = useValidation();
@@ -71,9 +73,19 @@ export const Selector = createComponent('Selector', ({
 
 
   return (
-    <Field tagName="selector" disableRipple skeleton="outlineOnly" {...props} fullHeight={height == null} height={height} error={error ?? props.error}>
+    <Field
+      tagName="selector"
+      disableRipple
+      skeleton="outlineOnly"
+      {...props}
+      disableOverflow
+      height={height}
+      className={css.list}
+      containerClassName={css.listContainer}
+      error={error ?? props.error}
+    >
       <Flex tagName="selector-items" isVertical gap="fields">
-        <Scroller fullHeight={fullHeight}>
+        <Scroller>
           {sections}
         </Scroller>
       </Flex>

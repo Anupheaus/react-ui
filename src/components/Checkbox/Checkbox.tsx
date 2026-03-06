@@ -29,6 +29,7 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     gap: 4,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
+    flexDirection: 'column',
     '--checkbox-cursor': 'pointer',
     // '--checkbox-color': 'transparent',
 

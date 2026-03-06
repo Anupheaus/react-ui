@@ -5,7 +5,7 @@ import { InitialWindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
 import { useContext, useRef } from 'react';
 import { useBound, useId } from '../../hooks';
-import { WindowContext } from './WindowsContexts';
+import { WindowRenderContext } from './WindowsContexts';
 
 interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
   id?: string;
@@ -29,7 +29,7 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   window: ReactUIWindowOnly<Name, Args, CloseResponseType>): UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
   if (args.length === 0) {
-    const { setTitle, close } = useContext(WindowContext);
+    const { setTitle, close } = useContext(WindowRenderContext);
     if (setTitle == null || close == null) {
       throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
     }

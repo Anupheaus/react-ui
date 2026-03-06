@@ -13,7 +13,8 @@ import { WindowResizer } from '../WindowResizer';
 import type { InitialWindowPosition } from '../WindowsModels';
 import { Titlebar } from '../../Titlebar';
 import { WindowsManager } from '../WindowsManager';
-import { WindowContext } from '../WindowsContexts';
+import { WindowRenderContext, WindowContext } from '../WindowsContexts';
+import { DEFAULT_WINDOW_MIN_HEIGHT, DEFAULT_WINDOW_MIN_WIDTH } from '../WindowsConstants';
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
 import { useWindowDimensions } from './useWindowDimensions';
@@ -21,6 +22,7 @@ import { UIState, useValidation } from '../../../providers';
 import { WindowValidationProvider } from './WindowValidationContext';
 import { useFormObserver } from '../../Form';
 import { useNotifications } from '../../Notifications';
+import { Tag } from '../../Tag';
 
 const useStyles = createStyles(({ windows: { window, content }, transitions }) => ({
   window: {
@@ -34,8 +36,8 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
     transitionDuration: `${transitions.duration}ms`,
     transitionTimingFunction: transitions.function,
     opacity: 0,
-    minWidth: 170,
-    minHeight: 100,
+    minWidth: DEFAULT_WINDOW_MIN_WIDTH,
+    minHeight: DEFAULT_WINDOW_MIN_HEIGHT,
     maxWidth: '100%',
     maxHeight: '100%',
     userSelect: 'none',
@@ -88,6 +90,18 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
     '& window-content.no-padding+actions-toolbar': {
       paddingTop: '12px !important',
     },
+
+    '&:not(.preparing):not(.prepared) window-content-wrapper': {
+      overflow: 'hidden',
+    },
+    '&:not(.preparing):not(.prepared) window-content': {
+      overflow: 'hidden',
+    },
+  },
+  windowContentWrapper: {
+    display: 'flex',
+    flex: 'auto',
+    flexDirection: 'column',
   },
   titlebar: {
     zIndex: 1,
@@ -106,6 +120,7 @@ interface Props {
   hideMaximizeButton?: boolean;
   disableDrag?: boolean;
   disableResize?: boolean;
+  disableScrolling?: boolean;
   children?: ReactNode;
   minWidth?: string | number;
   minHeight?: string | number;
@@ -129,6 +144,7 @@ export const Window = createComponent('Window', ({
   hideMaximizeButton = false,
   disableDrag = false,
   disableResize = false,
+  disableScrolling = false,
   windowControls = null,
   width: providedWidth,
   height: providedHeight,
@@ -140,7 +156,7 @@ export const Window = createComponent('Window', ({
   onClosed,
   onFocus,
 }: Props) => {
-  const { id: contextId, managerId, title: contextTitle } = useContext(WindowContext);
+  const { id: contextId, managerId, title: contextTitle } = useContext(WindowRenderContext);
   const displayTitle = contextTitle ?? title;
   const manager = WindowsManager.get(managerId);
   const id = providedId ?? contextId;
@@ -175,9 +191,11 @@ export const Window = createComponent('Window', ({
 
   const { dragTargetProps, dragMovableTarget, isDragging } = useWindowDrag({ isEnabled: isDraggable, onDragStart: handleDragStart, onDragEnd });
   const windowElementRef = useRef<HTMLDivElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const { style, preparationClassName, allowIsMaximized } = useWindowDimensions({
     state, minWidth, minHeight, windowIndex, actualWidth, actualHeight,
-    windowElementRef, wantingToBeMaximized: providedIsMaximized, initialPosition, setState
+    windowElementRef, wantingToBeMaximized: providedIsMaximized, initialPosition, setState,
+    contentWrapperRef, disableScrolling,
   });
   const windowElementTarget = useDOMRef([windowElementRef, resizeTarget, dragMovableTarget]);
   const { isVisible } = useWindowEvents({ manager, windowElementRef, id, onClosing, onClosed, onFocus });
@@ -223,28 +241,36 @@ export const Window = createComponent('Window', ({
       style={style}
       onMouseDownCapture={handleMouseDown}
     >
-      <Titlebar
-        {...dragTargetProps}
-        className={css.titlebar}
-        icon={icon}
-        title={displayTitle}
-        endAdornment={<>
-          {windowControls}
-          {!hideMaximizeButton && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
-          {!hideMaximizeButton && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
-          {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
-        </>}
-      />
-      <UIState isLoading={isLoading}>
-        <WindowValidationProvider onCheckIsValid={isValid}>
-          <FormObserver>
-            <ValidateSection id={`window-validation-${id}`}>
-              {children}
-            </ValidateSection>
-          </FormObserver>
-        </WindowValidationProvider>
-        <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
-      </UIState>
+      <Tag
+        name="window-content-wrapper"
+        ref={contentWrapperRef}
+        className={css.windowContentWrapper}
+      >
+        <Titlebar
+          {...dragTargetProps}
+          className={css.titlebar}
+          icon={icon}
+          title={displayTitle}
+          endAdornment={<>
+            {windowControls}
+            {!hideMaximizeButton && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
+            {!hideMaximizeButton && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
+            {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
+          </>}
+        />
+        <UIState isLoading={isLoading}>
+          <WindowValidationProvider onCheckIsValid={isValid}>
+            <FormObserver>
+              <ValidateSection id={`window-validation-${id}`}>
+                <WindowContext.Provider value={{ disableScrolling }}>
+                  {children}
+                </WindowContext.Provider>
+              </ValidateSection>
+            </FormObserver>
+          </WindowValidationProvider>
+          <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
+        </UIState>
+      </Tag>
     </Flex >
   );
 });

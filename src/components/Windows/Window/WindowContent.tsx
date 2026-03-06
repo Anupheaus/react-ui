@@ -1,8 +1,10 @@
+import { useContext } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import type { FlexProps } from '../../Flex';
 import { Flex } from '../../Flex';
 import { Scroller } from '../../Scroller';
+import { WindowContext } from '../WindowsContexts';
 
 const useStyles = createStyles(({ windows: { content } }) => ({
   content: {
@@ -28,10 +30,12 @@ interface Props extends Pick<FlexProps, 'className' | 'isVertical' | 'gap' | 'ch
 export const WindowContent = createComponent('WindowContent', ({
   className,
   disablePadding = false,
-  disableScrolling = false,
+  disableScrolling: disableScrollingProp,
   children,
   ...props
 }: Props) => {
+  const { disableScrolling: disableScrollingFromContext } = useContext(WindowContext);
+  const disableScrolling = disableScrollingProp ?? disableScrollingFromContext ?? false;
   const { css, join } = useStyles();
 
   const content = (() => {

@@ -257,7 +257,7 @@ export const Field = createComponent('Field', ({
     <Tag
       {...props}
       name={tagName}
-      className={join(css.field, width != null && 'is-set-width', fullHeight && 'full-height', disableOverflow && 'disable-overflow', className)}
+      className={join(css.field, width != null && 'is-set-width', height != null && 'is-set-height', fullHeight && 'full-height', disableOverflow && 'disable-overflow', className)}
       width={width ?? (wide === true ? '100%' : undefined)}
       height={height}
       style={style}

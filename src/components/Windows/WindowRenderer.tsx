@@ -9,8 +9,8 @@ import { WindowAction } from './Window/WindowAction';
 import type { WindowDefinitionState } from './InternalWindowModels';
 import { WindowsManager } from './WindowsManager';
 import { useBound } from '../../hooks';
-import type { WindowContextProps } from './WindowsContexts';
-import { WindowContext } from './WindowsContexts';
+import type { WindowRenderContextProps } from './WindowsContexts';
+import { WindowRenderContext } from './WindowsContexts';
 import { createPortal } from 'react-dom';
 
 interface Props<Args extends unknown[], CloseResponseType = string | undefined> extends WindowDefinitionState {
@@ -42,7 +42,7 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
 
   const setTitleStable = useBound((newTitle: ReactNode) => setTitle(newTitle));
   const closeWithUnknown = useBound((response?: unknown) => close(response as CloseResponseType));
-  const context = useMemo<WindowContextProps>(() => ({
+  const context = useMemo<WindowRenderContextProps>(() => ({
     id: windowId,
     managerId,
     close: closeWithUnknown,
@@ -76,8 +76,8 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
   if (element == null) return null;
 
   return (
-    <WindowContext.Provider value={context}>
+    <WindowRenderContext.Provider value={context}>
       {createPortal(content, element)}
-    </WindowContext.Provider>
+    </WindowRenderContext.Provider>
   );
 });

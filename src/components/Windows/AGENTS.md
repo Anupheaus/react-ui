@@ -109,3 +109,15 @@ Only windows with simple (JSON-serializable) args are persisted. Use `doNotPersi
 
 - The `Windows` component must be mounted before any `open` calls. Manager lookup is deferred until open/close/focus/etc. are invoked, so opening in `useLayoutEffect` works even when the component using `useWindow` is an ancestor of `Windows`.
 - `InternalWindows` is used internally by `Dialogs` and is not part of the public API.
+
+## Contexts and content-based sizing
+
+- **WindowRenderContext** is provided by `WindowRenderer` and holds `id`, `managerId`, `close`, `setTitle`, `title`. It is consumed by `Window`, `useWindow()` (no-arg form), and `WindowAction`. Definitions do not receive or pass any context to `Window`.
+- **WindowContext** is provided by `Window` and holds only `{ disableScrolling?: boolean }`. It is consumed by `WindowContent` so content can opt out of the default Scroller (e.g. for layout that defines intrinsic height).
+
+**Window sizing:**
+
+- **disableScrolling** can be set on `Window`. When `true`, it is passed via `WindowContext` to `WindowContent` (which then does not wrap children in `Scroller`), and the window's initial **height** can be driven by the measured content wrapper. When `disableScrolling` is `false`, height follows the existing ResizeObserver/minHeight path.
+- **Width** is set from the inner content wrapper measurement when no explicit width is provided (during the preparation phase).
+- **Height** from the content wrapper is used only when `Window` has `disableScrolling` and no explicit height; otherwise height comes from ResizeObserver/minHeight.
+- Auto-size (from content or ResizeObserver) runs only while the window is in the preparation phase (`preparationClassName !== undefined`). After preparation completes, dimensions change only via user resize.

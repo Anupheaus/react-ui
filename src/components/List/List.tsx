@@ -13,6 +13,7 @@ import type { UseActions } from '../../hooks';
 import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
 import { useValidation } from '../../providers';
+import { useListStyles } from './ListStyles';
 
 export type ListOnRequest<T = void> = Required<ListProps<T>>['onRequest'];
 
@@ -46,19 +47,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   onChange?: V extends string[] ? (newValue: string[]) => void : (newValue: string) => void;
 };
 
-const useStyles = createStyles(({ list }, { applyTransition, gap }) => ({
-  list: {
-    display: 'flex',
-    flex: 'auto',
-    flexDirection: 'column',
-    position: 'relative',
-  },
-  listContent: {
-  },
-  listContainer: {
-    flexGrow: 1,
-    flexShrink: 1,
-  },
+const useStyles = createStyles(({ list }, { gap }) => ({
   adornments: {
     position: 'absolute',
     top: 0,
@@ -66,14 +55,6 @@ const useStyles = createStyles(({ list }, { applyTransition, gap }) => ({
   },
   internalList: {
     padding: `0 ${gap(list.normal.gap, 4)}px`,
-  },
-  floatingActionButton: {
-    opacity: 0,
-    ...applyTransition('opacity'),
-
-    '&.is-visible': {
-      opacity: 1,
-    },
   },
 }));
 
@@ -100,6 +81,7 @@ export const List = createComponent('List', function <T = void, V extends string
   onAdd,
   ...props
 }: ListProps<T, V>) {
+  const { css: listCss } = useListStyles();
   const { css, join } = useStyles();
   const { validate } = useValidation(`list-${label}`);
   const [hasItems, setHasItems] = useState(false);
@@ -131,9 +113,8 @@ export const List = createComponent('List', function <T = void, V extends string
       tagName="list"
       label={label}
       help={help}
-      className={join(css.list, className)}
-      contentClassName={css.listContent}
-      containerClassName={join(css.listContainer, containerClassName)}
+      className={join(listCss.list, className)}
+      containerClassName={join(listCss.listContainer, containerClassName)}
       containerAdornments={adornments != null && (
         <Flex tagName="list-actions" gap={4} valign="center" className={css.adornments}>
           {adornments}
