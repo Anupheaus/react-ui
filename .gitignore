@@ -25,3 +25,6 @@ replaceCode.js
 .env
 
 .pnpm-store
+
+# git worktrees
+.worktrees
