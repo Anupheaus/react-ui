@@ -102,3 +102,7 @@ Table
 4. **onRequest** should return **records** (or items with **data** as the record or **Promise\<record\>**); **InternalList** resolves **data** and passes it to **renderItem** as the third argument so **TableRow** receives the resolved record.
 
 See **Table.stories.tsx** for examples: loading state, requested records with pagination, edit/remove, and minimum records.
+
+---
+
+[← Back to Components](../README.md)
