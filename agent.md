@@ -11,6 +11,10 @@ When working in this repository, **read the `agent.md` file at the root of the `
 
 Follow the guidance in that file when using or integrating with `@anupheaus/common` in this codebase.
 
+## Codebase navigation
+
+The codebase is documented through a hierarchy of `README.md` files. Start at [README.md](README.md) and follow links to any section or component. Every component, hook, and provider folder has its own README.
+
 ## README freshness
 
 Whenever changes are made to this codebase — new components, hooks, providers, modified APIs, renamed files, changed behaviour — the relevant `README.md` files **must be updated to reflect those changes**. Documentation that contradicts or omits current behaviour is worse than no documentation.
@@ -22,6 +26,6 @@ Whenever changes are made to this codebase — new components, hooks, providers,
 
 ## Component-specific guidance
 
-- **Windows** (`src/components/Windows/AGENTS.md`): Draggable windows, `useWindow`, `createWindow`, persistence.
-- **Dialogs** (`src/components/Dialog/AGENTS.md`): Modal dialogs, `useDialog`, `createDialog`, `useConfirmationDialog`.
+- **Windows** (`src/components/Windows/README.md`): Draggable windows, `useWindow`, `createWindow`, persistence.
+- **Dialogs** (`src/components/Dialog/README.md`): Modal dialogs, `useDialog`, `createDialog`, `useConfirmationDialog`.
 
