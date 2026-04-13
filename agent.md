@@ -11,6 +11,15 @@ When working in this repository, **read the `agent.md` file at the root of the `
 
 Follow the guidance in that file when using or integrating with `@anupheaus/common` in this codebase.
 
+## README freshness
+
+Whenever changes are made to this codebase — new components, hooks, providers, modified APIs, renamed files, changed behaviour — the relevant `README.md` files **must be updated to reflect those changes**. Documentation that contradicts or omits current behaviour is worse than no documentation.
+
+- If you add or remove a prop, update the props table in the component's README.
+- If you add a new hook or component, add a README for it and add an entry to the relevant section index README.
+- If you change how something works, update the description and examples.
+- If you delete something, remove it from all READMEs that reference it.
+
 ## Component-specific guidance
 
 - **Windows** (`src/components/Windows/AGENTS.md`): Draggable windows, `useWindow`, `createWindow`, persistence.

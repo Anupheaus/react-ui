@@ -92,6 +92,14 @@ Each agent reads its assigned component folders and writes one README.md per fol
 
 After all streams complete, final consistency pass to verify back-links.
 
+## README freshness rule
+
+`agent.md` must include an explicit instruction: whenever changes are made to the codebase (new components, modified APIs, renamed files, changed behaviour), the relevant README files must be updated to reflect those changes. Specifically:
+- Added/removed props → update props table in component README
+- New hook/component/provider → add its README and update the section index
+- Behavioural change → update description and examples
+- Deletion → remove from all READMEs that reference it
+
 ## Scope boundaries
 
 - No changes to source code.
