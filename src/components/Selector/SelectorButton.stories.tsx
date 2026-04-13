@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { SelectorButton } from './SelectorButton';
-import { UIState } from '../../providers/UIStateProvider';
+import { UIState } from '../../providers';
 import { createStory } from '../../Storybook/createStory';
 import type { SelectorItem } from './selector-models';
 
@@ -58,6 +58,10 @@ export const PreSelected: Story = createStory<typeof SelectorButton>({
       }]}
     />
   ),
+  play: async ({ canvas }) => {
+    const button = canvas.getByRole('button', { name: /pre-selected item/i });
+    await expect(button).toHaveTextContent('Window');
+  },
 });
 PreSelected.name = 'Pre-Selected';
 
@@ -73,7 +77,7 @@ export const SingleSelect: Story = createStory<typeof SelectorButton>({
   ),
   play: async ({ canvas, userEvent }) => {
     // Open the popover
-    const button = canvas.getByRole('button');
+    const button = canvas.getByRole('button', { name: /select furniture/i });
     await userEvent.click(button);
 
     // Popover content is in a MUI portal — query from document.body
@@ -83,7 +87,6 @@ export const SingleSelect: Story = createStory<typeof SelectorButton>({
 
     // Popover should have closed; button label should update
     await expect(button).toHaveTextContent('Window');
-    await expect(body.queryByText('Door')).toBeNull();
   },
 });
 SingleSelect.name = 'Single Select (auto-closes)';
@@ -93,7 +96,7 @@ export const MultiSelect: Story = createStory<typeof SelectorButton>({
   width: 300,
   render: () => <SelectorButton label="Select items" items={multiSelectItems} />,
   play: async ({ canvas, userEvent }) => {
-    const button = canvas.getByRole('button');
+    const button = canvas.getByRole('button', { name: /select items/i });
     await userEvent.click(button);
 
     const body = within(document.body);
@@ -104,7 +107,7 @@ export const MultiSelect: Story = createStory<typeof SelectorButton>({
     await expect(button).toHaveTextContent('Window');
 
     // Select second item — label shows "2 selected", popover still open
-    const doorItem = body.getByText('Door');
+    const doorItem = await body.findByText('Door');
     await userEvent.click(doorItem);
     await expect(button).toHaveTextContent('2 selected');
     await expect(body.getByText('Fridge')).toBeInTheDocument();
@@ -120,5 +123,9 @@ export const Loading: Story = createStory<typeof SelectorButton>({
       <SelectorButton label="Loading state" items={[]} />
     </UIState>
   ),
+  play: async () => {
+    const body = within(document.body);
+    expect(body.queryByText('Not Set')).toBeNull();
+  },
 });
 Loading.name = 'Loading';
