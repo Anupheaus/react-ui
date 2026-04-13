@@ -49,3 +49,7 @@ function RiskyComponent() {
   return <button onClick={handleClick}>Load data</button>;
 }
 ```
+
+---
+
+[← Back to root](../../README.md)
