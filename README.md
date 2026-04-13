@@ -4,50 +4,19 @@
 
 React component library built on MUI, Emotion, and `@anupheaus/common`. Provides draggable windows, modal dialogs, forms, tables, configurators, and UI primitives.
 
-## Repository overview
+## Codebase navigation
 
-### Components (`src/components/`)
+Browse documentation by section — each README links further down to individual components, hooks, and providers:
 
-| Category | Components |
-|----------|------------|
-| **Layout** | Flex, Grid, Section, Scroller, StickyHideHeader |
-| **Windows & dialogs** | Windows, Dialogs, Dialog, createWindow, createDialog, useWindow, useDialog, useConfirmationDialog |
-| **Forms & inputs** | Form (useForm, useFormActions), Field, useFields, Text, Password, Number, Email, PhoneNumber, PIN, Checkbox, Radio, Switch |
-| **Data display** | Table, Configurator, List, InternalList, SimpleList, Matrix, ReadOnlyValue |
-| **Pickers & selectors** | DatePicker, Calendar, Autocomplete, Selector, DropDown |
-| **Feedback** | Button, Busy, Skeleton, Tooltip, HelpInfo, Notifications, ModalLoader, SplashScreen |
-| **Navigation** | Tabs, Menu, UserProfileMenu, Drawer |
-| **Surfaces** | Tag, Chips, Badge, Avatar, Image |
-| **Other** | Icon, Label, AssistiveLabel, Typography, Ripple, Fader, Carousel, ParallaxScrollers, DragAndDrop, Countdown, AnimatingBorder, FloatingActionButton, Titlebar, ActionsToolbar, Toolbar, Expander, SignInDialog |
+| Section | Description |
+|---------|-------------|
+| [Components](src/components/README.md) | All UI components, grouped by category |
+| [Hooks](src/hooks/README.md) | React hooks for state, async, DOM, and utilities |
+| [Providers](src/providers/README.md) | Context providers for API, locale, validation, and more |
+| [Theme](src/theme/README.md) | Theming system — createTheme, createStyles, ThemesProvider |
+| [Errors](src/errors/README.md) | Error boundaries, hooks, and display components |
 
-### Hooks (`src/hooks/`)
-
-useBound, useId, useStorage, useAsync, useDebounce, useInterval, useTimeout, useOnMount, useOnUnmount, useOnChange, useOnResize, useOnDOMChange, useForceUpdate, useBooleanState, useToggleState, useUpdatableState, useSyncState, useDistributedState, useCallbacks, useEventIsolator, useBatchUpdates, useDOMRef, useRef, useSet, useMap, useDrag, useActions, useRecaptcha, useObservable, useObserver, useFileUploader, useBrowserInfo
-
-### Providers (`src/providers/`)
-
-ApiProvider, UIStateProvider, RecordsProvider, LocaleProvider, ValidationProvider, LoggerProvider, SubscriptionProvider
-
-### Theme (`src/theme/`)
-
-createTheme, createStyles, createStyles2, ThemesProvider, ThemeProvider2, createRootThemeProvider, createAnimationKeyFrame, mergeThemes, useTheme, useThemeMixer, colors, themes
-
-### Errors (`src/errors/`)
-
-ErrorBoundary, useErrors, ErrorPanel, ErrorTooltip, ErrorIcon
-
-### Models (`src/models/`)
-
-ReactListItem, ListItemType, ListItemClickEvent
-
-### Extensions (`src/extensions/`)
-
-Document, HTMLElement, is, global (polyfills and extensions)
-
-### Other
-
-- **Storybook** (`src/Storybook/`) — Storybook components and utilities
-- **Tests** (`tests/jest/`) — Jest config and tests
+`src/models/` exports `ReactListItem` and related types used throughout the library. `src/extensions/` provides polyfills and global extensions.
 
 ## Development
 
@@ -58,12 +27,9 @@ pnpm run build      # Production build
 pnpm run test-ci    # Run tests
 ```
 
-## Documentation
+## Agent instructions
 
-- **AGENTS.md** — Agent instructions, `@anupheaus/common` integration
-- **src/components/Windows/AGENTS.md** — Windows, useWindow, createWindow
-- **src/components/Dialog/AGENTS.md** — Dialogs, useDialog, createDialog
-- **src/components/Configurator/AGENTS.md** — Configurator data model and structure
+See [agent.md](agent.md) for instructions on working in this codebase, including the README freshness rule.
 
 ## License
 
