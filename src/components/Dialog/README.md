@@ -68,3 +68,7 @@ if (confirmed) {
 - Dialogs must be used within a mounted `<Dialogs>` component.
 - `createDialog` returns a dialog-only definition; use `useDialog` (not `useWindow`) with it.
 - The `close` method returns a promise that resolves with the value passed to `close()` when the dialog is dismissed.
+
+---
+
+[← Back to Components](../README.md)

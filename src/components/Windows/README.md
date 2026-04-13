@@ -121,3 +121,7 @@ Only windows with simple (JSON-serializable) args are persisted. Use `doNotPersi
 - **Width** is set from the inner content wrapper measurement when no explicit width is provided (during the preparation phase).
 - **Height** from the content wrapper is used only when `Window` has `disableScrolling` and no explicit height; otherwise height comes from ResizeObserver/minHeight.
 - Auto-size (from content or ResizeObserver) runs only while the window is in the preparation phase (`preparationClassName !== undefined`). After preparation completes, dimensions change only via user resize.
+
+---
+
+[← Back to Components](../README.md)
