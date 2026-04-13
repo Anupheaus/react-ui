@@ -55,6 +55,7 @@ export const Selector = createComponent('Selector', ({
       {...props}
       disableOverflow
       height={height}
+      fullHeight={fullHeight}
       className={css.list}
       containerClassName={css.listContainer}
       error={error ?? props.error}
