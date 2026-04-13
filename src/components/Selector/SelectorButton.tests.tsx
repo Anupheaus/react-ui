@@ -14,6 +14,10 @@ describe('getButtonLabel', () => {
     expect(getButtonLabel([{ id: '1', text: 'Window', label: 'A Window' }])).toBe('A Window');
   });
 
+  it('falls back to text when label is null', () => {
+    expect(getButtonLabel([{ id: '1', text: 'Window', label: null }])).toBe('Window');
+  });
+
   it('returns "2 selected" when two items are selected', () => {
     expect(getButtonLabel([{ id: '1', text: 'A' }, { id: '2', text: 'B' }])).toBe('2 selected');
   });
@@ -64,5 +68,12 @@ describe('isSingleSelect', () => {
       { id: '2', text: 'B', subItems: [] },
     ];
     expect(isSingleSelect(items)).toBe(false);
+  });
+
+  it('uses items-based check when config has no totalSelectableItems', () => {
+    const items: SelectorItem[] = [
+      { id: '1', text: 'Category', maxSelectableItems: 1, subItems: [] },
+    ];
+    expect(isSingleSelect(items, { maxSectionsWithSelectableItems: 2 })).toBe(true);
   });
 });
