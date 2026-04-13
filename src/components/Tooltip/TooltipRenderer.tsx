@@ -1,36 +1,29 @@
-import { createLegacyStyles } from '../../theme/createStyles';
+import { createStyles } from '../../theme';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import { Children, Fragment, useContext, useMemo } from 'react';
 import { Tooltip as MuiTooltip } from '@mui/material';
 import { createComponent } from '../Component';
-import { TooltipTheme } from './TooltipTheme';
 import { blankTooltipContext, TooltipContext } from './TooltipContext';
 
 interface Props {
   children: ReactNode;
 }
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { backgroundColor, fontSize, fontWeight, textColor } = useTheme(TooltipTheme);
-  return {
-    styles: {
-      tooltip: {},
-      muiPopper: {
-        maxWidth: '60%',
-      },
-      muiTooltip: {
-        cursor: 'default',
-        backgroundColor,
-        color: textColor,
-        fontSize,
-        fontWeight,
-        maxWidth: 'unset',
-      },
-      arrow: {
-        color: backgroundColor,
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ tooltip }) => ({
+  muiPopper: {
+    maxWidth: '60%',
+  },
+  muiTooltip: {
+    cursor: 'default',
+    backgroundColor: tooltip.backgroundColor,
+    color: tooltip.textColor,
+    fontSize: tooltip.fontSize,
+    fontWeight: tooltip.fontWeight,
+    maxWidth: 'unset',
+  },
+  arrow: {
+    color: tooltip.backgroundColor,
+  },
+}));
 
 export const TooltipRenderer = createComponent('TooltipRenderer', ({
   children = null,

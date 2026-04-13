@@ -16,7 +16,7 @@ const fakeItems: SelectorItem[] = [
   { id: '2', text: 'Item 2', subItems: [{ id: '2-1', text: 'Sub Item 1' }, { id: '2-2', text: 'Sub Item 2' }, { id: '2-3', text: 'Sub Item 3' }] },
 ];
 
-interface SelectorSelectionConfiguration {
+export interface SelectorSelectionConfiguration {
   totalSelectableItems?: number;
   maxSectionsWithSelectableItems?: number;
 
@@ -63,7 +63,7 @@ export const Selector = createComponent('Selector', ({
 
   const sections = useMemo(() => {
     const itemsToRender = isLoading && items.length === 0 ? fakeItems : items;
-    return itemsToRender.map(item => {
+    return itemsToRender.orderBy('ordinal').map(item => {
       const selectedIds = ids.filter(id => item.subItems.findById(id) != null);
       return (
         <SelectorSection key={item.id} item={item} hideHeader={items.length === 1} selectedIds={selectedIds} onSelect={onSelected} />

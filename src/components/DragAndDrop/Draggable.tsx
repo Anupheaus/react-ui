@@ -2,7 +2,7 @@ import { Dimensions, Record } from '@anupheaus/common';
 import { CSSProperties, ReactNode, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useBound, useDOMRef, useDrag, UseDragEvent } from '../../hooks';
-import { createLegacyStyles, TransitionTheme } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
@@ -18,35 +18,29 @@ interface Props {
   onDraggingClonedClassName?: string;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const transitionSettings = useTheme(TransitionTheme);
-  return {
-    styles: {
-      draggable: {
-        boxSizing: 'border-box',
-        opacity: 1,
-        transitionProperty: 'opacity',
-        ...transitionSettings,
-      },
-      isDragging: {
-        opacity: 0.3,
-      },
-      clonedDraggable: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        opacity: 0,
-        zIndex: 50000,
-        cursor: 'grabbing',
-        pointerEvents: 'none',
-      },
-      isDraggingClone: {
-        opacity: 0.6,
-        pointerEvents: 'all',
-      },
-    },
-  };
-});
+const useStyles = createStyles((_theme, { applyTransition }) => ({
+  draggable: {
+    boxSizing: 'border-box',
+    opacity: 1,
+    ...applyTransition('opacity'),
+  },
+  isDragging: {
+    opacity: 0.3,
+  },
+  clonedDraggable: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    opacity: 0,
+    zIndex: 50000,
+    cursor: 'grabbing',
+    pointerEvents: 'none',
+  },
+  isDraggingClone: {
+    opacity: 0.6,
+    pointerEvents: 'all',
+  },
+}));
 
 export const Draggable = createComponent('Draggable', ({
   data,

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { useBound } from '../../hooks';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import type { WindowState } from '../Windows';
@@ -10,7 +10,7 @@ import { InternalWindows } from '../Windows/InternalWindows';
 import { WindowsManager } from '../Windows/WindowsManager';
 import { ConfirmationDialogProvider } from './ConfirmationDialogProvider';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   dialogs: {
     position: 'relative',
     display: 'flex',
@@ -67,10 +67,17 @@ export const Dialogs = createComponent('Dialogs', ({
 
   return (
     <Tag name="dialogs" className={join(css.dialogs, shouldBlurBackground && areDialogsOpen && 'blur-background')}>
-      <InternalWindows {...props} id={managerId} className={join(css.windows, areDialogsOpen && 'disable-interaction', className)} onChange={handleStatesChanged} managerType="dialogs" />
-      <ConfirmationDialogProvider>
-        {children}
-      </ConfirmationDialogProvider>
-    </Tag >
+      <InternalWindows
+        {...props}
+        id={managerId}
+        className={join(css.windows, areDialogsOpen && 'disable-interaction', className)}
+        onChange={handleStatesChanged}
+        managerType="dialogs"
+      >
+        <ConfirmationDialogProvider>
+          {children}
+        </ConfirmationDialogProvider>
+      </InternalWindows>
+    </Tag>
   );
 });

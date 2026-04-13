@@ -1,8 +1,7 @@
-import { createLegacyStyles } from '../../../theme/createStyles';
+import { createStyles } from '../../../theme';
 import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
-import { CalendarTheme } from '../CalendarTheme';
 import { CalendarUtils } from '../CalendarUtils';
 import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
 import { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
@@ -16,36 +15,31 @@ interface Props {
   entries: CalendarMonthEntryRecord[];
   dehighlightDate: boolean;
 }
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { monthViewCellDateFontSize, monthViewCellDateFontWeight, monthViewTodayBackgroundColor } = useTheme(CalendarTheme);
-  return {
-    styles: {
-      cell: {
-        position: 'relative',
-        width: cellSize,
-        height: cellSize,
-        padding: '2px 4px',
-        boxSizing: 'border-box',
-      },
-      dehighlightCell: {
-        backgroundColor: 'rgba(0 0 0 / 3%)',
-      },
-      isToday: {
-        backgroundColor: monthViewTodayBackgroundColor,
-      },
-      dehighlightDate: {
-        opacity: 0.3,
-      },
-      cellDate: {
-        display: 'flex',
-        fontSize: monthViewCellDateFontSize,
-        fontWeight: monthViewCellDateFontWeight,
-        cursor: 'default',
-        justifyContent: 'flex-end',
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ calendar }) => ({
+  cell: {
+    position: 'relative',
+    width: cellSize,
+    height: cellSize,
+    padding: '2px 4px',
+    boxSizing: 'border-box',
+  },
+  dehighlightCell: {
+    backgroundColor: 'rgba(0 0 0 / 3%)',
+  },
+  isToday: {
+    backgroundColor: calendar.monthViewTodayBackgroundColor,
+  },
+  dehighlightDate: {
+    opacity: 0.3,
+  },
+  cellDate: {
+    display: 'flex',
+    fontSize: calendar.monthViewCellDateFontSize,
+    fontWeight: calendar.monthViewCellDateFontWeight,
+    cursor: 'default',
+    justifyContent: 'flex-end',
+  },
+}));
 
 export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   className,

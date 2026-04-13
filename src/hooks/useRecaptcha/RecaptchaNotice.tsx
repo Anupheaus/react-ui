@@ -1,8 +1,8 @@
 import { createComponent } from '../../components/Component';
 import { Typography } from '../../components/Typography';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   recaptchaLegalText: {
     backgroundColor: 'rgba(0 0 0 / 5%)',
     padding: 4,

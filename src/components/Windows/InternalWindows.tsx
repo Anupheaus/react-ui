@@ -5,6 +5,7 @@ import { Flex } from '../Flex';
 import type { WindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
 import { WindowsContentRenderer } from './WindowsContentRenderer';
+import { DialogsManagerContext, WindowsManagerContext } from './WindowsContexts';
 import { isSimpleArgs } from './WindowsUtils';
 import { useId, useOnChange, useOnUnmount, useStorage, useUpdatableState } from '../../hooks';
 
@@ -32,6 +33,7 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   onChange,
   managerType = 'windows',
 }: Props<StateType>) => {
+  const childrenAsSibling = managerType === 'dialogs';
   const instanceId = useId();
   const defaultId = managerType === 'windows' ? WindowsManager.WINDOWS_DEFAULT_ID : WindowsManager.DIALOGS_DEFAULT_ID;
   const managerId = id ?? defaultId;
@@ -84,10 +86,23 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
     WindowsManager.remove(managerId);
   });
 
-  return (
+  const ManagerContext = managerType === 'windows' ? WindowsManagerContext : DialogsManagerContext;
+  const overlayFlex = (
     <Flex tagName="windows" id={managerId} className={className} isVertical>
-      {children}
+      {!childrenAsSibling ? children : null}
       <WindowsContentRenderer managerId={managerId} managerType={managerType} />
     </Flex>
+  );
+  return (
+    <ManagerContext.Provider value={managerId}>
+      {childrenAsSibling ? (
+        <>
+          {children}
+          {overlayFlex}
+        </>
+      ) : (
+        overlayFlex
+      )}
+    </ManagerContext.Provider>
   );
 });

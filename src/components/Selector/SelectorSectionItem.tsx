@@ -28,6 +28,9 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, b
       padding: '8px 16px',
     },
   },
+  content: {
+    position: 'unset', // unset the position so that any sub-elements that use absolute positioning will be positioned relative to the item
+  },
 }));
 
 interface Props {
@@ -68,7 +71,7 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
   return (
     <Flex ref={saveElement} tagName="selector-section-item" className={join(css.item, isSelected && 'is-selected')} style={style} allowFocus disableGrow valign="center" onClick={selectItem}>
       <Ripple stayWithinContainer />
-      <Flex tagName="selector-section-item-content" gap={6} isVertical align="center">
+      <Flex tagName="selector-section-item-content" gap={6} isVertical align="center" className={css.content}>
         {item.iconName != null && (
           <Icon name={item.iconName} />
         )}

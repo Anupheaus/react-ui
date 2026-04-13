@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo } from 'react';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Skeleton } from '../Skeleton';
 import { Tag } from '../Tag';
@@ -9,7 +9,7 @@ import type { TypographyTypes } from './Typographies';
 import { LocalTypographicDefinitions } from './Typographies';
 import { useUIState } from '../../providers/UIStateProvider';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   typography: {
     fontSize: 14,
     fontWeight: 400,

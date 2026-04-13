@@ -85,7 +85,7 @@ export const Menu = createComponent('Menu', (props: MenuProps) => {
   const batchUpdate = useBatchUpdates();
   const { isValid: isInPopup, close: closeParentPopup } = useContext(PopupMenuContext);
 
-  const isPopupMode = propsAnchorEl != null && propsIsOpen != null;
+  const isPopupMode = propsIsOpen !== undefined;
   const isSubMenuMode = isSubMenu;
 
   const anchorEl = isSubMenuMode ? element : propsAnchorEl ?? undefined;
@@ -164,6 +164,8 @@ export const Menu = createComponent('Menu', (props: MenuProps) => {
   );
 
   const shouldShowPopover = (isSubMenuMode || isPopupMode) && anchorEl != null;
+
+  if ((isSubMenuMode || isPopupMode) && !shouldShowPopover) return null;
 
   if (shouldShowPopover) {
     return (

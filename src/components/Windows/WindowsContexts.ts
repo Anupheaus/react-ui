@@ -18,3 +18,9 @@ export interface WindowContextProps {
 }
 
 export const WindowContext = createContext<WindowContextProps>({});
+
+/** Provided by InternalWindows (Windows). Consumed by useWindow to resolve manager when managerId is omitted. */
+export const WindowsManagerContext = createContext<string | undefined>(undefined);
+
+/** Provided by InternalWindows (Dialogs). Consumed by useDialog to resolve manager when managerId is omitted. */
+export const DialogsManagerContext = createContext<string | undefined>(undefined);

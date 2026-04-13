@@ -1,52 +1,45 @@
-import { createLegacyStyles } from '../../theme/createStyles';
+import { createStyles } from '../../theme';
 import { ReactNode, useLayoutEffect, useRef } from 'react';
 import { useDebounce } from '../../hooks';
 import { useUIState } from '../../providers';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import { SplashScreenTheme } from './SplashScreenTheme';
 
 interface Props {
   className?: string;
   whenLoading?: ReactNode;
   children: ReactNode;
 }
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { backgroundColor, textColor } = useTheme(SplashScreenTheme);
-
-  return {
-    styles: {
-      splashScreen: {
-        display: 'flex',
-        position: 'relative',
-        flex: 'auto',
-        width: '100%',
-        height: '100%',
-      },
-      splashScreenRenderer: {
-        display: 'flex',
-        position: 'absolute',
-        inset: 0,
-        backgroundColor,
-        color: textColor,
-        opacity: 0,
-        zIndex: 1000,
-        pointerEvents: 'none',
-        transition: 'opacity 1s ease',
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      isVisible: {
-        opacity: 1,
-        pointerEvents: 'all',
-      },
-      splashScreenLoader: {
-        display: 'flex',
-        flex: 'none',
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ splashScreen }) => ({
+  splashScreen: {
+    display: 'flex',
+    position: 'relative',
+    flex: 'auto',
+    width: '100%',
+    height: '100%',
+  },
+  splashScreenRenderer: {
+    display: 'flex',
+    position: 'absolute',
+    inset: 0,
+    backgroundColor: splashScreen.backgroundColor,
+    color: splashScreen.textColor,
+    opacity: 0,
+    zIndex: 1000,
+    pointerEvents: 'none',
+    transition: 'opacity 1s ease',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  isVisible: {
+    opacity: 1,
+    pointerEvents: 'all',
+  },
+  splashScreenLoader: {
+    display: 'flex',
+    flex: 'none',
+  },
+}));
 
 export const SplashScreen = createComponent('SplashScreen', ({
   className,

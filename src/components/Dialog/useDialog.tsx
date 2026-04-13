@@ -2,7 +2,8 @@ import type { AnyFunction } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import type { ReactUIWindow, UseDialogApi } from '../Windows/WindowsModels';
 import { WindowsManager } from '../Windows/WindowsManager';
-import { useRef } from 'react';
+import { DialogsManagerContext } from '../Windows/WindowsContexts';
+import { useContext, useRef } from 'react';
 import { useBound, useId } from '../../hooks';
 
 interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
@@ -29,8 +30,10 @@ export function useDialog<Name extends string, Args extends unknown[], CloseResp
   const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
   const id = providedId ?? hookId;
   const lastOpenedWindowIdRef = useRef<string>(id);
+  const contextManagerId = useContext(DialogsManagerContext);
+  const effectiveManagerId = providedManagerId ?? contextManagerId;
 
-  const getManager = () => WindowsManager.getManagerForType('dialogs', providedManagerId);
+  const getManager = () => WindowsManager.getManagerForType('dialogs', effectiveManagerId);
 
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();

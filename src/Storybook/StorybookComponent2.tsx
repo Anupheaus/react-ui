@@ -1,5 +1,5 @@
 import { createComponent } from '../components/Component';
-import { createStyles } from '../theme/createStyles2';
+import { createStyles } from '../theme/createStyles';
 import { CSSProperties, ReactNode, useMemo } from 'react';
 import { Tag } from '../components/Tag';
 

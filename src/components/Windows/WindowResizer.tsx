@@ -1,4 +1,4 @@
-import { createLegacyStyles } from '../../theme/createStyles';
+import { createStyles } from '../../theme';
 import { to } from '@anupheaus/common';
 import type { RefObject } from 'react';
 import { useRef } from 'react';
@@ -14,32 +14,30 @@ interface Props {
   onResizingStart(): void;
   onResizingEnd(): void;
 }
-const useStyles = createLegacyStyles(() => ({
-  styles: {
-    windowResizer: {
-      position: 'absolute',
-      inset: 0,
-      pointerEvents: 'none',
-      zIndex: 3,
-    },
-    windowResizerCommon: {
-      position: 'absolute',
-      pointerEvents: 'all',
-    },
-    windowResizerTop: { top: 0, left: 10, right: 10, height: 3, cursor: 'ns-resize' },
-    windowResizerTopRight: { top: 0, width: 10, right: 0, height: 3, cursor: 'ne-resize' },
-    windowResizerRightTop: { top: 0, width: 3, right: 0, height: 10, cursor: 'ne-resize' },
-    windowResizerRight: { top: 10, bottom: 10, right: 0, width: 3, cursor: 'ew-resize' },
-    windowResizerRightBottom: { bottom: 0, right: 0, width: 3, height: 10, cursor: 'se-resize' },
-    windowResizerBottomRight: { bottom: 0, right: 0, width: 10, height: 3, cursor: 'se-resize' },
-    windowResizerBottom: { bottom: 0, left: 10, right: 10, height: 3, cursor: 'ns-resize' },
-    windowResizerBottomLeft: { bottom: 0, left: 0, width: 10, height: 3, cursor: 'sw-resize' },
-    windowResizerLeftBottom: { bottom: 0, left: 0, width: 3, height: 10, cursor: 'sw-resize' },
-    windowResizerLeft: { left: 0, top: 10, bottom: 10, width: 3, cursor: 'ew-resize' },
-    windowResizerLeftTop: { left: 0, top: 0, height: 10, width: 3, cursor: 'nw-resize' },
-    windowResizerTopLeft: { left: 0, top: 0, height: 3, width: 10, cursor: 'nw-resize' },
+const useStyles = createStyles({
+  windowResizer: {
+    position: 'absolute',
+    inset: 0,
+    pointerEvents: 'none',
+    zIndex: 3,
   },
-}));
+  windowResizerCommon: {
+    position: 'absolute',
+    pointerEvents: 'all',
+  },
+  windowResizerTop: { top: 0, left: 10, right: 10, height: 3, cursor: 'ns-resize' },
+  windowResizerTopRight: { top: 0, width: 10, right: 0, height: 3, cursor: 'ne-resize' },
+  windowResizerRightTop: { top: 0, width: 3, right: 0, height: 10, cursor: 'ne-resize' },
+  windowResizerRight: { top: 10, bottom: 10, right: 0, width: 3, cursor: 'ew-resize' },
+  windowResizerRightBottom: { bottom: 0, right: 0, width: 3, height: 10, cursor: 'se-resize' },
+  windowResizerBottomRight: { bottom: 0, right: 0, width: 10, height: 3, cursor: 'se-resize' },
+  windowResizerBottom: { bottom: 0, left: 10, right: 10, height: 3, cursor: 'ns-resize' },
+  windowResizerBottomLeft: { bottom: 0, left: 0, width: 10, height: 3, cursor: 'sw-resize' },
+  windowResizerLeftBottom: { bottom: 0, left: 0, width: 3, height: 10, cursor: 'sw-resize' },
+  windowResizerLeft: { left: 0, top: 10, bottom: 10, width: 3, cursor: 'ew-resize' },
+  windowResizerLeftTop: { left: 0, top: 0, height: 10, width: 3, cursor: 'nw-resize' },
+  windowResizerTopLeft: { left: 0, top: 0, height: 3, width: 10, cursor: 'nw-resize' },
+});
 
 export const WindowResizer = createComponent('WindowResizer', ({
   isEnabled,

@@ -1,10 +1,10 @@
 import type { CSSProperties } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   image: {
     position: 'absolute',
     inset: 0,

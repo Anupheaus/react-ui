@@ -78,7 +78,7 @@ export const SelectorSection = createComponent('SelectorSection', ({
     }
   });
 
-  const subItems = useMemo(() => item.subItems.map(subItem => (
+  const subItems = useMemo(() => item.subItems.orderBy('ordinal').map(subItem => (
     <SelectorSectionItem key={subItem.id} item={subItem} isSelected={selectedIds.includes(subItem.id)} width={width} onUpdateWidth={updateWidth} onSelect={handleOnSelect} />
   )), [item.subItems, width, selectedIds]);
 

@@ -1,8 +1,7 @@
 import { ReactNode } from 'react';
-import { Tooltip, TooltipTheme } from '../../../components/Tooltip';
+import { Tooltip } from '../../../components/Tooltip';
 import { createComponent } from '../../../components/Component';
-import { createLegacyStyles, ThemesProvider } from '../../../theme';
-import { ErrorTooltipTheme } from './ErrorTooltipTheme';
+import { createStyles, ThemeProvider } from '../../../theme';
 import { Flex } from '../../../components/Flex';
 import { Error } from '@anupheaus/common';
 
@@ -11,37 +10,33 @@ interface Props {
   children?: ReactNode;
 }
 
-const useStyles = createLegacyStyles(({ useTheme, createThemeVariant }) => {
-  const { backgroundColor, textColor, messageFontSize, messageFontWeight, titleFontSize, titleFontWeight } = useTheme(ErrorTooltipTheme);
-  return {
-    styles: {
-      errorTitle: {
-        fontSize: titleFontSize,
-        fontWeight: titleFontWeight,
-      },
-      errorMessage: {
-        fontSize: messageFontSize,
-        fontWeight: messageFontWeight,
-      },
-    },
-    variants: {
-      errorTooltipVariant: createThemeVariant(TooltipTheme, {
-        backgroundColor,
-        fontSize: messageFontSize,
-        fontWeight: messageFontWeight,
-        textColor,
-      }),
-    },
-  };
-});
+const useStyles = createStyles(({ errorTooltip }) => ({
+  errorTitle: {
+    fontSize: errorTooltip.titleFontSize,
+    fontWeight: errorTooltip.titleFontWeight,
+  },
+  errorMessage: {
+    fontSize: errorTooltip.messageFontSize,
+    fontWeight: errorTooltip.messageFontWeight,
+  },
+}));
 
 export const ErrorTooltip = createComponent('ErrorTooltip', ({
   error,
   children = null,
 }: Props) => {
-  const { css, variants, join } = useStyles();
+  const { css, alterTheme } = useStyles();
+  const tooltipTheme = alterTheme(theme => ({
+    tooltip: {
+      ...theme.tooltip,
+      backgroundColor: theme.errorTooltip.backgroundColor,
+      textColor: theme.errorTooltip.textColor,
+      fontSize: theme.errorTooltip.messageFontSize,
+      fontWeight: theme.errorTooltip.messageFontWeight,
+    },
+  }));
   return (
-    <ThemesProvider themes={join(variants.errorTooltipVariant)}>
+    <ThemeProvider theme={tooltipTheme}>
       <Tooltip
         showArrow
         content={(
@@ -53,6 +48,6 @@ export const ErrorTooltip = createComponent('ErrorTooltip', ({
       >
         {children}
       </Tooltip>
-    </ThemesProvider>
+    </ThemeProvider>
   );
 });

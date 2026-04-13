@@ -1,11 +1,10 @@
 import { CSSProperties, useMemo } from 'react';
 import { createComponent } from '../../Component';
-import { createLegacyStyles, colors } from '../../../theme';
+import { createStyles, colors } from '../../../theme';
 import { Icon } from '../../Icon';
 import { Tag } from '../../Tag';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
 import { CalendarEntryRecord } from '../CalendarModels';
-import { CalendarTheme } from '../CalendarTheme';
 import { CalendarUtils } from '../CalendarUtils';
 import { useCalendarEntryHighlighting } from '../CalenderEntryHighlightProvider';
 
@@ -17,54 +16,47 @@ interface Props {
   dayIndex: number;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { monthViewEventFontSize, monthViewEventFontWeight } = useTheme(CalendarTheme);
-  return {
-    styles: {
-      cellEntry: {
-        position: 'absolute',
-        left: 0,
-        display: 'flex',
-        height: 19,
-        marginTop: 1,
-        zIndex: 1,
-        alignItems: 'center',
-        borderStyle: 'solid',
-        borderWidth: 0,
-        transitionProperty: 'box-shadow, opacity',
-        transitionDuration: '400ms',
-        transitionTimingFunction: 'ease-in-out',
-        cursor: 'pointer',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-        padding: '0 8px',
-        gap: 8,
-      },
-      hasStart: {
-        borderLeftWidth: 3,
-      },
-      hasEnd: {
-        borderTopRightRadius: 4,
-        borderBottomRightRadius: 4,
-      },
-      isHighlighted: {
-        boxShadow: '0 1px 4px 2px rgba(0 0 0 / 10%)',
-      },
-      isDehighlighted: {
-        opacity: 0.3,
-      },
-      cellEntryTitle: {
-        fontSize: monthViewEventFontSize,
-        fontWeight: monthViewEventFontWeight,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        cursor: 'pointer',
-        display: 'block',
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ calendar }, { applyTransition }) => ({
+  cellEntry: {
+    position: 'absolute',
+    left: 0,
+    display: 'flex',
+    height: 19,
+    marginTop: 1,
+    zIndex: 1,
+    alignItems: 'center',
+    borderStyle: 'solid',
+    borderWidth: 0,
+    cursor: 'pointer',
+    boxSizing: 'border-box',
+    overflow: 'hidden',
+    padding: '0 8px',
+    gap: 8,
+    ...applyTransition('box-shadow, opacity'),
+  },
+  hasStart: {
+    borderLeftWidth: 3,
+  },
+  hasEnd: {
+    borderTopRightRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  isHighlighted: {
+    boxShadow: '0 1px 4px 2px rgba(0 0 0 / 10%)',
+  },
+  isDehighlighted: {
+    opacity: 0.3,
+  },
+  cellEntryTitle: {
+    fontSize: calendar.monthViewEventFontSize,
+    fontWeight: calendar.monthViewEventFontWeight,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    cursor: 'pointer',
+    display: 'block',
+  },
+}));
 
 export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCellEntry', ({
   entry,

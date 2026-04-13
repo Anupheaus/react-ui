@@ -5,7 +5,7 @@ import { InitialWindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
 import { useContext, useRef } from 'react';
 import { useBound, useId } from '../../hooks';
-import { WindowRenderContext } from './WindowsContexts';
+import { WindowRenderContext, WindowsManagerContext } from './WindowsContexts';
 
 interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
   id?: string;
@@ -37,13 +37,15 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   }
   const hookId = useId();
   const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
-  if ((window as { dialogOnly?: boolean }).dialogOnly === true) {
+  if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
     throw new Error(`Window "${window.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
   }
   const id = providedId ?? hookId;
   const lastOpenedWindowIdRef = useRef<string>(id);
+  const contextManagerId = useContext(WindowsManagerContext);
+  const effectiveManagerId = providedManagerId ?? contextManagerId;
 
-  const getManager = () => WindowsManager.getManagerForType('windows', providedManagerId);
+  const getManager = () => WindowsManager.getManagerForType('windows', effectiveManagerId);
 
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();
@@ -54,20 +56,20 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
     const manager = getManager();
     const managerId = manager.id;
     let explicitId: string;
-    let args: Args;
+    let innerArgs: Args;
     if (providedId != null) {
       explicitId = id;
-      args = openArgs as Args;
+      innerArgs = openArgs as Args;
     } else {
       if (openArgs.length === 0 || typeof openArgs[0] !== 'string') {
         throw new Error(`useWindow(definition) requires id as first argument to open. Got: ${JSON.stringify(openArgs[0])}`);
       }
       explicitId = openArgs.shift() as string;
-      args = openArgs as Args;
+      innerArgs = openArgs as Args;
     }
-    let initialState = (args.length > window.argsLength ? (args as unknown[]).pop() : undefined) as InitialWindowState;
+    let initialState = (innerArgs.length > window.argsLength ? (innerArgs as unknown[]).pop() : undefined) as InitialWindowState;
     if (!InitialWindowState.isState(initialState)) {
-      if (initialState !== undefined) (args as unknown[]).push(initialState);
+      if (initialState !== undefined) (innerArgs as unknown[]).push(initialState);
       initialState = {};
     }
     const windowId = explicitId;
@@ -77,7 +79,7 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
       definitionId: windowId,
       windowTypeName: window.name,
       managerId,
-      args,
+      args: innerArgs,
       ...initialState,
     });
   });

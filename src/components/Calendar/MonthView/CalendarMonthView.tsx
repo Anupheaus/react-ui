@@ -1,7 +1,6 @@
-import { createLegacyStyles } from '../../../theme/createStyles';
+import { createStyles } from '../../../theme';
 import { Tag } from '../../Tag';
 import type { CalendarEntryRecord } from '../CalendarModels';
-import { CalendarTheme } from '../CalendarTheme';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import { CalendarMonthViewCell } from './CalendarMonthViewCell';
@@ -12,33 +11,28 @@ interface Props {
   viewingDate: Date;
   entries: readonly CalendarEntryRecord[];
 }
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { monthViewDayNameFontSize, monthViewDayNameFontWeight } = useTheme(CalendarTheme);
-  return {
-    styles: {
-      monthView: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(7, 1fr)',
-        gridGap: 1,
-        minWidth: 400,
-        overflow: 'hidden',
-        border: 'solid 1px #eee',
-        borderRadius: 8,
-      },
-      cell: {
-        outline: 'solid 1px #eee',
-      },
-      dayName: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        padding: '0px 8px 2px',
-        fontSize: monthViewDayNameFontSize,
-        fontWeight: monthViewDayNameFontWeight,
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ calendar }) => ({
+  monthView: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)',
+    gridGap: 1,
+    minWidth: 400,
+    overflow: 'hidden',
+    border: 'solid 1px #eee',
+    borderRadius: 8,
+  },
+  cell: {
+    outline: 'solid 1px #eee',
+  },
+  dayName: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: '0px 8px 2px',
+    fontSize: calendar.monthViewDayNameFontSize,
+    fontWeight: calendar.monthViewDayNameFontWeight,
+  },
+}));
 
 export const CalendarMonthView = createComponent('CalendarMonthView', ({
   viewingDate,

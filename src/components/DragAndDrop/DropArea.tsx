@@ -1,12 +1,11 @@
 import { Record } from '@anupheaus/common';
 import { ReactNode, useRef, useState } from 'react';
 import { useBinder } from '../../hooks';
-import { createLegacyStyles, TransitionTheme } from '../../theme';
+import { createStyles } from '../../theme';
 import { ComponentStylesConfig, createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
 import { DraggedItem } from './DragAndDropModels';
-import { DragAndDropTheme } from './DragAndDropTheme';
 import { InteractionProvider, MouseLeaveEvent, MouseMoveEvent, useInteractionEvents } from './InteractionEvents';
 
 interface Props<T extends Record = Record> {
@@ -20,36 +19,29 @@ interface Props<T extends Record = Record> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { validOverlayColor, invalidOverlayColor } = useTheme(DragAndDropTheme);
-  const transitionSettings = useTheme(TransitionTheme);
-  return {
-    styles: {
-      dropArea: {
-        display: 'flex',
-        flex: 'auto',
-        position: 'relative',
-      },
-      dropAreaOverlay: {
-        display: 'flex',
-        pointerEvents: 'none',
-        position: 'absolute',
-        transitionProperty: 'background-color, opacity',
-        ...transitionSettings,
-        inset: 0,
-        opacity: 0,
-      },
-      draggedItemsAreValid: {
-        backgroundColor: validOverlayColor,
-        opacity: 1,
-      },
-      draggedItemsAreInvalid: {
-        backgroundColor: invalidOverlayColor,
-        opacity: 1,
-      },
-    },
-  } satisfies ComponentStylesConfig;
-});
+const useStyles = createStyles(({ dragAndDrop }, { applyTransition }) => ({
+  dropArea: {
+    display: 'flex',
+    flex: 'auto',
+    position: 'relative',
+  },
+  dropAreaOverlay: {
+    display: 'flex',
+    pointerEvents: 'none',
+    position: 'absolute',
+    inset: 0,
+    opacity: 0,
+    ...applyTransition('background-color, opacity'),
+  },
+  draggedItemsAreValid: {
+    backgroundColor: dragAndDrop.validOverlayColor,
+    opacity: 1,
+  },
+  draggedItemsAreInvalid: {
+    backgroundColor: dragAndDrop.invalidOverlayColor,
+    opacity: 1,
+  },
+}) satisfies ComponentStylesConfig);
 
 export const DropArea = createComponent('DropArea', function <T extends Record>({
   overlayClassName,

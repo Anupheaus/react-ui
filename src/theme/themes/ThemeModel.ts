@@ -263,6 +263,40 @@ export interface Theme {
     tablet: string;
     mobile: string;
   };
+  tooltip: {
+    backgroundColor: string;
+    textColor: string;
+    fontSize: string | number;
+    fontWeight: string | number;
+  };
+  errorTooltip: {
+    backgroundColor: string;
+    textColor: string;
+    titleFontSize: string | number;
+    titleFontWeight: string | number;
+    messageFontSize: string | number;
+    messageFontWeight: string | number;
+  };
+  errorIcon: {
+    iconColor: string;
+  };
+  splashScreen: {
+    backgroundColor: string;
+    textColor: string;
+  };
+  dragAndDrop: {
+    validOverlayColor: string;
+    invalidOverlayColor: string;
+  };
+  calendar: {
+    monthViewCellDateFontSize: string | number;
+    monthViewCellDateFontWeight: string | number;
+    monthViewEventFontSize: string | number;
+    monthViewEventFontWeight: string | number;
+    monthViewDayNameFontSize: string | number;
+    monthViewDayNameFontWeight: string | number;
+    monthViewTodayBackgroundColor: string;
+  };
   chips: {
     normal: ChipsTheme;
     active: Partial<ChipsTheme>;

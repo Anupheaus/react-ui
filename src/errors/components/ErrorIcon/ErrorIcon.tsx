@@ -1,25 +1,19 @@
-import { createLegacyStyles } from '../../../theme/createStyles';
+import { createStyles } from '../../../theme';
 import { ComponentProps, useMemo } from 'react';
 import { createComponent } from '../../../components/Component';
 import type { Icon } from '../../../components/Icon';
 import { ErrorTooltip } from '../ErrorTooltip';
-import { ErrorIconTheme } from './ErrorIconTheme';
 import { Error } from '@anupheaus/common';
 
 interface Props extends Omit<ComponentProps<typeof Icon>, 'name'> {
   error: Error;
 }
 
-const useStyles = createLegacyStyles(({ useTheme }) => {
-  const { iconColor } = useTheme(ErrorIconTheme);
-  return {
-    styles: {
-      icon: {
-        color: iconColor,
-      },
-    },
-  };
-});
+const useStyles = createStyles(({ errorIcon }) => ({
+  icon: {
+    color: errorIcon.iconColor,
+  },
+}));
 
 export const ErrorIcon = createComponent('ErrorIcon', ({
   error,

@@ -32,6 +32,7 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   isRequiredMessage?: ReactNode;
   width?: string | number;
   wide?: boolean;
+  fullHeight?: boolean;
   addTooltip?: ReactNode;
   deleteTooltip?: ReactNode;
   delayRenderingItems?: boolean;
@@ -70,6 +71,7 @@ export const List = createComponent('List', function <T = void, V extends string
   width,
   minHeight = 130,
   wide,
+  fullHeight,
   delayRenderingItems,
   error: providedError,
   adornments,
@@ -127,6 +129,7 @@ export const List = createComponent('List', function <T = void, V extends string
       disableSkeleton
       width={width}
       wide={wide}
+      fullHeight={fullHeight}
       assistiveHelp={assistiveHelp}
       disableOverflow
     >

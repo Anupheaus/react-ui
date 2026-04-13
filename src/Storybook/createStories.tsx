@@ -8,7 +8,7 @@ import { Typography } from '@mui/material';
 import { TestHookOnRenderProps } from './StorybookModels';
 import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 import { createComponent } from '../components/Component';
-import { createLegacyStyles } from '../theme';
+import { createStyles } from '../theme';
 
 const localModule = global.module as undefined | (NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; });
 if (localModule?.hot) {
@@ -144,17 +144,15 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
       walkThroughTheStories(path.concat(key), value, module);
     }
     if (InternalComponent != null) {
-      const useStyles = createLegacyStyles(() => ({
-        styles: {
-          stories: {
-            display: 'flex',
-            flex: 'auto',
-            flexDirection: 'column',
-            gap: 12,
-            paddingBottom: 16,
-          },
+      const useStyles = createStyles({
+        stories: {
+          display: 'flex',
+          flex: 'auto',
+          flexDirection: 'column',
+          gap: 12,
+          paddingBottom: 16,
         },
-      }));
+      });
 
       const Component = createComponent('StorybookComponent', ({
         isTestBorderVisible = true,

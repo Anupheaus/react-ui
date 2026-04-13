@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
-import { createLegacyStyles } from '../../../theme';
+import { createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   sectionTitle: {
     backgroundColor: 'white',
     padding: '8px 4px',

@@ -1,4 +1,4 @@
-import { createAnimationKeyFrame, createLegacyStyles } from '../../theme';
+import { createAnimationKeyFrame, createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 
@@ -11,7 +11,7 @@ const animatingBorder = createAnimationKeyFrame({
   },
 });
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   global: {
     '@property --gradX': {
       syntax: '"<percentage>"',

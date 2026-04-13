@@ -1,4 +1,4 @@
-import { createLegacyStyles } from '../../theme/createStyles';
+import { createStyles } from '../../theme';
 import { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -7,12 +7,10 @@ import { ButtonContext } from './ButtonContext';
 interface Props {
   children: ReactNode;
 }
-const useStyles = createLegacyStyles(() => ({
-  styles: {
-    buttonGroup: {
-    },
+const useStyles = createStyles({
+  buttonGroup: {
   },
-}));
+});
 
 export const ButtonGroup = createComponent('ButtonGroup', ({
   children,

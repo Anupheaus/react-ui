@@ -179,6 +179,40 @@ export const DefaultTheme: Theme = {
     tablet: '@media(pointer: coarse)',
     mobile: '@media(pointer: coarse) and (max-width: 768px)',
   },
+  tooltip: {
+    backgroundColor: '#555',
+    textColor: '#fff',
+    fontSize: 13,
+    fontWeight: 400,
+  },
+  errorTooltip: {
+    backgroundColor: '#870000',
+    textColor: 'white',
+    titleFontSize: 14,
+    titleFontWeight: 600,
+    messageFontSize: 12,
+    messageFontWeight: 400,
+  },
+  errorIcon: {
+    iconColor: '#870000',
+  },
+  splashScreen: {
+    backgroundColor: '#eee',
+    textColor: '#000',
+  },
+  dragAndDrop: {
+    validOverlayColor: 'rgba(0 255 0 / 20%)',
+    invalidOverlayColor: 'rgba(255 0 0 / 20%)',
+  },
+  calendar: {
+    monthViewCellDateFontSize: 14,
+    monthViewCellDateFontWeight: 400,
+    monthViewEventFontSize: 12,
+    monthViewEventFontWeight: 400,
+    monthViewDayNameFontSize: 14,
+    monthViewDayNameFontWeight: 600,
+    monthViewTodayBackgroundColor: '#e1f7ff',
+  },
   dropDown: {
     normal: {
       gap: 4,

@@ -23,6 +23,7 @@ const useStyles = createStyles(({
     position: 'relative',
     padding: 8,
     cursor: 'pointer',
+    userSelect: 'none',
     ...normalField,
     ...normalButton,
     ...applyTransition('background-color, color'),

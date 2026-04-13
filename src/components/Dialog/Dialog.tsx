@@ -1,6 +1,6 @@
 import { createComponent } from '../Component';
 import { Window } from '../Windows/Window';
-import { createLegacyStyles } from '../../theme';
+import { createStyles } from '../../theme';
 import type { ComponentProps } from 'react';
 
 export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximizeButton' | 'hideCloseButton' | 'disableDrag' | 'disableResize' | 'initialPosition'> {
@@ -11,7 +11,7 @@ export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximize
   disableBlurBackground?: boolean;
 }
 
-const useStyles = createLegacyStyles({
+const useStyles = createStyles({
   dialogContent: {
     flexDirection: 'column',
     gap: 16,
