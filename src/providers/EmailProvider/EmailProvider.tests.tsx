@@ -109,4 +109,13 @@ describe('useEmail', () => {
       'useEmail must be used within an <EmailProvider>'
     );
   });
+
+  it('propagates onSend rejection to the caller', async () => {
+    const error = new Error('send failed');
+    const onSend = jest.fn().mockRejectedValue(error);
+    const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
+    await act(async () => {
+      await expect(result.current('World', { to: 'a@b.com' })).rejects.toThrow('send failed');
+    });
+  });
 });

@@ -4,7 +4,7 @@ import { flushSync } from 'react-dom';
 import type { ComponentType, ReactNode } from 'react';
 import { useBound } from '../../hooks';
 import type { EmailDefinitionUtils, EmailSendFunction, EmailSendProps, ReactUIEmail } from './EmailModels';
-import { EmailContext } from './EmailContexts';
+import { EmailContext } from './EmailContext';
 
 export function useEmail<Name extends string, Args extends unknown[]>(
   template: ReactUIEmail<Name, Args>,
@@ -47,5 +47,7 @@ export function useEmail<Name extends string, Args extends unknown[]>(
     })();
   });
 
+  // useBound returns a stable reference typed as Function; cast is safe because
+  // the inner IIFE always resolves to Promise<void>.
   return email as EmailSendFunction<Args>;
 }

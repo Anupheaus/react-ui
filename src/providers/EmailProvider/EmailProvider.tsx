@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { createComponent } from '../../components/Component';
 import { useBound } from '../../hooks';
 import type { EmailSendPayload } from './EmailModels';
-import { EmailContext } from './EmailContexts';
+import { EmailContext } from './EmailContext';
 
 interface Props {
   children: ReactNode;
@@ -15,7 +15,7 @@ export const EmailProvider = createComponent('EmailProvider', ({ children, onSen
     await onSend(payload);
   });
 
-  const contextValue = useMemo(() => ({ isProvided: true, send }), []);
+  const contextValue = useMemo(() => ({ isProvided: true, send }), [send]);
 
   return (
     <EmailContext.Provider value={contextValue}>
