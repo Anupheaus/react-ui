@@ -9,6 +9,14 @@ import type { SelectorSelectionConfiguration } from './Selector';
 import { InternalSelector } from './InternalSelector';
 import { getButtonLabel, isSingleSelect } from './SelectorButtonUtils';
 import { useBound, useUpdatableState } from '../../hooks';
+import { Flex } from '../Flex';
+import { createStyles } from '../../theme';
+
+const useStyles = createStyles({
+  buttonWrapper: {
+    alignSelf: 'flex-start',
+  },
+});
 
 interface Props extends FieldProps {
   items: SelectorItem[];
@@ -22,6 +30,7 @@ export const SelectorButton = createComponent('SelectorButton', ({
   onSelect,
   ...props
 }: Props) => {
+  const { css } = useStyles();
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [selectedItems, setSelectedItems] = useUpdatableState<SelectorSubItem[]>(
@@ -42,10 +51,12 @@ export const SelectorButton = createComponent('SelectorButton', ({
 
   return (
     <>
-      <Field tagName="selector-button" {...props}>
-        <Button ref={buttonRef} onClick={openPopover} align="left">
-          {label}
-        </Button>
+      <Field tagName="selector-button" noContainer {...props}>
+        <Flex disableGrow className={css.buttonWrapper}>
+          <Button ref={buttonRef} onClick={openPopover} align="left">
+            {label}
+          </Button>
+        </Flex>
       </Field>
       <Popover
         open={isOpen}

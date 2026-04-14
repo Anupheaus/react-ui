@@ -25,6 +25,7 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
     configuratorCell: {
       minHeight: 'fit-content',
       contain: 'style', // so that the shadow container does not spread the background color to the next column
+      userSelect: 'none',
 
       '&.is-first-column': {
         position: 'sticky',

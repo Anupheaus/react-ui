@@ -8,6 +8,13 @@ const config: TestRunnerConfig = {
   setup() {
     expect.extend({ toMatchImageSnapshot });
   },
+  async prepare({ browserContext }) {
+    // Seed Math.random to a constant so that skeleton random-widths are
+    // deterministic across runs and don't cause image-snapshot mismatches.
+    await browserContext.addInitScript(() => {
+      Math.random = () => 0.5;
+    });
+  },
   async postVisit(page, context) {
     const storyContext = await getStoryContext(page, context);
     // Skip when story has parameters.test.skipScreenshot = true (for lazy-loading content, etc.)

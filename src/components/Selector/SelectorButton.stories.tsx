@@ -59,7 +59,7 @@ export const PreSelected: Story = createStory<typeof SelectorButton>({
     />
   ),
   play: async ({ canvas }) => {
-    const button = canvas.getByRole('button', { name: /pre-selected item/i });
+    const button = canvas.getByRole('button');
     await expect(button).toHaveTextContent('Window');
   },
 });

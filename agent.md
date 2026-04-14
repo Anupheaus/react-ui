@@ -24,6 +24,10 @@ Whenever changes are made to this codebase — new components, hooks, providers,
 - If you change how something works, update the description and examples.
 - If you delete something, remove it from all READMEs that reference it.
 
+## Styling
+
+Always use `createStyles` and `className` to apply styles to elements. Never use inline `style` props to set CSS values. Define all styles in a `useStyles = createStyles({...})` hook at the top of the file and apply them via `className={css.myClass}`.
+
 ## Component-specific guidance
 
 - **Windows** (`src/components/Windows/README.md`): Draggable windows, `useWindow`, `createWindow`, persistence.
