@@ -374,6 +374,10 @@ export interface Theme {
     info: NotificationTypeTheme;
   };
 
+  signature?: {
+    backgroundColor?: string;
+    penColor?: string;
+  };
 
   /** @deprecated */
   animation: CSSProperties;
