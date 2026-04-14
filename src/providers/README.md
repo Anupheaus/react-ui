@@ -9,6 +9,7 @@ Context providers exported by this library. Mount these high in your component t
 | Provider | Description |
 |----------|-------------|
 | [ApiProvider](ApiProvider/README.md) | Supplies `get`, `post`, `remove`, and `query` fetch helpers to the tree, managing auth tokens (persisted to `localStorage`), shared headers, and status-code handlers. |
+| [EmailProvider](EmailProvider/README.md) | Defines typed React email templates with `createEmail`, triggers sends via `useEmail`, and delivers rendered HTML + metadata to a custom `onSend` callback. |
 | [LocaleProvider](LocaleProvider/README.md) | Sets the application locale/date-format settings (via Luxon) and makes them available to child components through context. |
 | [LoggerProvider](LoggerProvider/README.md) | Injects a `Logger` instance (or creates a named sub-logger from a parent) into context so descendants can call `useLogger()` without prop-drilling. |
 | [RecordsProvider](RecordsProvider/README.md) | Maintains a typed, keyed record map in context — supports inheritance from parent providers, merge callbacks, upsert, and change notifications. |
