@@ -15,7 +15,7 @@ export const EmailProvider = createComponent('EmailProvider', ({ children, onSen
     await onSend(payload);
   });
 
-  const contextValue = useMemo(() => ({ send }), []);
+  const contextValue = useMemo(() => ({ isProvided: true, send }), []);
 
   return (
     <EmailContext.Provider value={contextValue}>
