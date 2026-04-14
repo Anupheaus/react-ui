@@ -37,6 +37,8 @@ export const Signature = createComponent('Signature', ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const padRef = useRef<SignaturePad | null>(null);
   const latestValueRef = useRef<string | undefined>(value);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   // Keep latest value ref in sync for use inside ResizeObserver callback
   latestValueRef.current = value;
@@ -51,13 +53,15 @@ export const Signature = createComponent('Signature', ({
       backgroundColor: getComputedStyle(canvas).backgroundColor,
     });
 
-    pad.addEventListener('endStroke', () => {
-      onChange?.(canvas.toDataURL('image/png'));
-    });
+    const onEndStroke = () => {
+      onChangeRef.current?.(canvas.toDataURL('image/png'));
+    };
+    pad.addEventListener('endStroke', onEndStroke);
 
     padRef.current = pad;
 
     return () => {
+      pad.removeEventListener('endStroke', onEndStroke);
       pad.off();
       padRef.current = null;
     };
@@ -68,7 +72,7 @@ export const Signature = createComponent('Signature', ({
     const pad = padRef.current;
     if (pad == null) return;
     if (value) {
-      pad.fromDataURL(value);
+      pad.fromDataURL(value).catch(() => { /* invalid or corrupt data URL — ignore silently */ });
     } else {
       pad.clear();
     }
@@ -83,7 +87,7 @@ export const Signature = createComponent('Signature', ({
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
     if (savedValue) {
-      pad.fromDataURL(savedValue);
+      pad.fromDataURL(savedValue).catch(() => { /* ignore — best-effort redraw after resize */ });
     }
   });
 
