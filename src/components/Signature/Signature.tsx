@@ -95,7 +95,7 @@ export const Signature = createComponent('Signature', ({
 
   const handleClear = useBound(() => {
     padRef.current?.clear();
-    onChange?.(undefined);
+    onChangeRef.current?.(undefined);
   });
 
   return (
