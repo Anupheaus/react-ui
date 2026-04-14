@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { fn } from 'storybook/test';
+import { expect, fn } from 'storybook/test';
 import { useState } from 'react';
 import { createStory } from '../../Storybook/createStory';
 import { Signature } from './Signature';
@@ -12,13 +12,16 @@ export default meta;
 type Story = StoryObj<typeof Signature>;
 
 export const Default: Story = createStory<typeof Signature>({
-  args: {},
+  args: {
+    onChange: fn(),
+  },
   width: 400,
   height: 350,
-  render: () => {
+  render: props => {
     const [value, setValue] = useState<string | undefined>(undefined);
     return (
       <Signature
+        {...props}
         label="Signature"
         value={value}
         onChange={setValue}
@@ -30,6 +33,9 @@ export const Default: Story = createStory<typeof Signature>({
 export const WithClearButton: Story = createStory<typeof Signature>({
   args: {
     onChange: fn(),
+    label: 'Sign here',
+    allowClear: true,
+    assistiveHelp: 'Draw your signature above',
   },
   width: 400,
   height: 350,
@@ -37,15 +43,19 @@ export const WithClearButton: Story = createStory<typeof Signature>({
     const [value, setValue] = useState<string | undefined>(undefined);
     return (
       <Signature
-        label="Sign here"
-        allowClear
+        {...props}
         value={value}
         onChange={v => {
           setValue(v);
-          (props.onChange as ((v: string | undefined) => void) | undefined)?.(v);
+          props.onChange?.(v);
         }}
-        assistiveHelp="Draw your signature above"
       />
     );
   },
 });
+
+WithClearButton.play = async ({ canvas, userEvent, args }) => {
+  const clearButton = canvas.getByRole('button', { name: /clear/i });
+  await userEvent.click(clearButton);
+  await expect(args.onChange).toHaveBeenCalledWith(undefined);
+};
