@@ -42,6 +42,7 @@ All UI components in this library, grouped by category. Each component name link
 | [PIN](PIN/README.md) | PIN / OTP digit-by-digit input |
 | [Checkbox](Checkbox/README.md) | Checkbox input |
 | [Radio](Radio/README.md) | Radio button input |
+| [Signature](Signature/README.md) | Freehand signature capture — saves as a base64 PNG data URL |
 | [Switch](Switch/README.md) | Toggle switch input |
 | [ToggleButtonGroup](ToggleButtonGroup/README.md) | Group of mutually exclusive toggle buttons |
 | [InternalText](InternalText/README.md) | Internal base text input used by Text, Password, Email, etc. |
