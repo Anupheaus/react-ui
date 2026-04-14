@@ -36,12 +36,8 @@ export const Signature = createComponent('Signature', ({
   const { css } = useStyles();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const padRef = useRef<SignaturePad | null>(null);
-  const latestValueRef = useRef<string | undefined>(value);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
-
-  // Keep latest value ref in sync for use inside ResizeObserver callback
-  latestValueRef.current = value;
 
   // Initialise signature_pad once
   useEffect(() => {
@@ -83,12 +79,10 @@ export const Signature = createComponent('Signature', ({
     const canvas = canvasRef.current;
     const pad = padRef.current;
     if (canvas == null || pad == null) return;
-    const savedValue = latestValueRef.current;
+    const savedData = pad.toData();
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    if (savedValue) {
-      pad.fromDataURL(savedValue).catch(() => { /* ignore — best-effort redraw after resize */ });
-    }
+    pad.fromData(savedData);
   });
 
   useResizeObserver({ ref: canvasRef, onResize: handleResize });
