@@ -5,3 +5,4 @@ export * from './LocaleProvider';
 export * from './ValidationProvider';
 export * from './LoggerProvider';
 export * from './SubscriptionProvider';
+export * from './EmailProvider';
