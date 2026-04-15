@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
+import type { PointerEvent } from 'react';
 import SignaturePad from 'signature_pad';
 import useResizeObserver from 'use-resize-observer';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Field } from '../Field';
 import type { FieldProps } from '../Field';
-import { Button } from '../Button';
+import { Tag } from '../Tag';
 import { useBound } from '../../hooks';
 
 export interface SignatureProps extends FieldProps {
@@ -14,16 +15,41 @@ export interface SignatureProps extends FieldProps {
   onChange?(value: string | undefined): void;
 }
 
-const useStyles = createStyles(({ fields, signature }) => ({
+const DELIBERATE_TAP_THRESHOLD_PX = 10;
+
+const useStyles = createStyles(({ fields, signature, buttons, text }, { applyTransition }) => ({
+  canvasContainer: {
+    position: 'relative',
+    flexGrow: 1,
+    display: 'flex',
+    minHeight: 250,
+    minWidth: 300,
+  },
   canvas: {
     display: 'block',
     flexGrow: 1,
     width: '100%',
-    minHeight: 250,
-    minWidth: 300,
     backgroundColor: signature?.backgroundColor ?? fields.content.normal.backgroundColor,
     color: signature?.penColor ?? fields.content.normal.textColor,
     cursor: 'crosshair',
+  },
+  clearButton: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    padding: '4px 10px',
+    borderRadius: buttons.hover.normal.borderRadius,
+    backgroundColor: 'rgba(0 0 0 / 8%)',
+    color: text.color,
+    fontSize: text.size,
+    cursor: 'pointer',
+    userSelect: 'none',
+    touchAction: 'none',
+    ...applyTransition('background-color, opacity'),
+
+    '&:hover': {
+      backgroundColor: 'rgba(0 0 0 / 15%)',
+    },
   },
 }));
 
@@ -42,6 +68,8 @@ export const Signature = createComponent('Signature', ({
   // When true we skip fromDataURL — the canvas already has the correct content and calling fromDataURL would
   // re-draw the captured PNG at a scaled size (÷ devicePixelRatio), producing smaller ghost copies.
   const isInternalChangeRef = useRef(false);
+  // Tracks pointer-down position for deliberate-tap detection on the clear button.
+  const clearPointerStartRef = useRef<{ x: number; y: number } | null>(null);
 
   // Initialise signature_pad once
   useEffect(() => {
@@ -101,16 +129,51 @@ export const Signature = createComponent('Signature', ({
     onChangeRef.current?.(undefined);
   });
 
+  // Deliberate-tap: record pointer-down position; only fire clear on pointer-up if movement
+  // stayed within DELIBERATE_TAP_THRESHOLD_PX. This prevents a stray finger sliding across
+  // the button from triggering a clear.
+  const handleClearPointerDown = useBound((event: PointerEvent<HTMLDivElement>) => {
+    clearPointerStartRef.current = { x: event.clientX, y: event.clientY };
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    event.stopPropagation();
+  });
+
+  const handleClearPointerUp = useBound((event: PointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    const start = clearPointerStartRef.current;
+    clearPointerStartRef.current = null;
+    if (start == null) return;
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.sqrt(dx * dx + dy * dy) < DELIBERATE_TAP_THRESHOLD_PX) {
+      handleClear();
+    }
+  });
+
+  const handleClearPointerCancel = useBound(() => {
+    clearPointerStartRef.current = null;
+  });
+
   return (
     <Field
       {...fieldProps}
       tagName="signature"
       fullHeight
-      endAdornments={allowClear ? (
-        <Button variant="hover" onClick={handleClear}>Clear</Button>
-      ) : undefined}
     >
-      <canvas ref={canvasRef} className={css.canvas} />
+      <Tag name="signature-canvas-container" className={css.canvasContainer}>
+        <canvas ref={canvasRef} className={css.canvas} />
+        {allowClear && (
+          <Tag
+            name="signature-clear-button"
+            className={css.clearButton}
+            onPointerDown={handleClearPointerDown}
+            onPointerUp={handleClearPointerUp}
+            onPointerCancel={handleClearPointerCancel}
+          >
+            Clear
+          </Tag>
+        )}
+      </Tag>
     </Field>
   );
 });
