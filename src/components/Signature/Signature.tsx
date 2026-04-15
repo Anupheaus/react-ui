@@ -6,6 +6,7 @@ import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Field } from '../Field';
 import type { FieldProps } from '../Field';
+import { Button } from '../Button';
 import { Tag } from '../Tag';
 import { useBound } from '../../hooks';
 
@@ -17,7 +18,7 @@ export interface SignatureProps extends FieldProps {
 
 const DELIBERATE_TAP_THRESHOLD_PX = 10;
 
-const useStyles = createStyles(({ fields, signature, buttons, text }, { applyTransition }) => ({
+const useStyles = createStyles(({ fields, signature }) => ({
   canvasContainer: {
     position: 'relative',
     flexGrow: 1,
@@ -33,23 +34,12 @@ const useStyles = createStyles(({ fields, signature, buttons, text }, { applyTra
     color: signature?.penColor ?? fields.content.normal.textColor,
     cursor: 'crosshair',
   },
-  clearButton: {
+  clearButtonWrapper: {
     position: 'absolute',
     bottom: 8,
     right: 8,
-    padding: '4px 10px',
-    borderRadius: buttons.hover.normal.borderRadius,
-    backgroundColor: 'rgba(0 0 0 / 8%)',
-    color: text.color,
-    fontSize: text.size,
-    cursor: 'pointer',
-    userSelect: 'none',
     touchAction: 'none',
-    ...applyTransition('background-color, opacity'),
-
-    '&:hover': {
-      backgroundColor: 'rgba(0 0 0 / 15%)',
-    },
+    userSelect: 'none',
   },
 }));
 
@@ -164,13 +154,13 @@ export const Signature = createComponent('Signature', ({
         <canvas ref={canvasRef} className={css.canvas} />
         {allowClear && (
           <Tag
-            name="signature-clear-button"
-            className={css.clearButton}
+            name="signature-clear-button-wrapper"
+            className={css.clearButtonWrapper}
             onPointerDown={handleClearPointerDown}
             onPointerUp={handleClearPointerUp}
             onPointerCancel={handleClearPointerCancel}
           >
-            Clear
+            <Button variant="hover">Clear</Button>
           </Tag>
         )}
       </Tag>
