@@ -38,6 +38,10 @@ export const Signature = createComponent('Signature', ({
   const padRef = useRef<SignaturePad | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  // Tracks whether the latest value change came from the user drawing (true) or an external prop update (false).
+  // When true we skip fromDataURL — the canvas already has the correct content and calling fromDataURL would
+  // re-draw the captured PNG at a scaled size (÷ devicePixelRatio), producing smaller ghost copies.
+  const isInternalChangeRef = useRef(false);
 
   // Initialise signature_pad once
   useEffect(() => {
@@ -50,6 +54,7 @@ export const Signature = createComponent('Signature', ({
     });
 
     const onEndStroke = () => {
+      isInternalChangeRef.current = true;
       onChangeRef.current?.(canvas.toDataURL('image/png'));
     };
     pad.addEventListener('endStroke', onEndStroke);
@@ -63,8 +68,12 @@ export const Signature = createComponent('Signature', ({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sync external value changes into the pad
+  // Sync external value changes into the pad (skip when the change was triggered by the user drawing)
   useEffect(() => {
+    if (isInternalChangeRef.current) {
+      isInternalChangeRef.current = false;
+      return;
+    }
     const pad = padRef.current;
     if (pad == null) return;
     if (value) {
