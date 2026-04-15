@@ -160,7 +160,7 @@ export const Signature = createComponent('Signature', ({
             onPointerUp={handleClearPointerUp}
             onPointerCancel={handleClearPointerCancel}
           >
-            <Button variant="hover">Clear</Button>
+            <Button>Clear</Button>
           </Tag>
         )}
       </Tag>
