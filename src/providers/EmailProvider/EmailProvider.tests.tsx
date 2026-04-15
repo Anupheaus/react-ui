@@ -54,6 +54,7 @@ describe('useEmail', () => {
     const payload = onSend.mock.calls[0][0];
     expect(payload.html).toContain('Content for World');
     expect(payload.to).toBe('test@example.com');
+    expect(payload.props).toEqual(['World']);
   });
 
   it('uses the subject from the Email component', async () => {

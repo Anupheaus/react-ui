@@ -43,7 +43,7 @@ export function useEmail<Name extends string, Args extends unknown[]>(
 
       const subject = sendProps.subject ?? capturedSubject;
 
-      await send({ ...sendProps, subject, html });
+      await send({ ...sendProps, subject, html, props: templateArgs });
     })();
   });
 

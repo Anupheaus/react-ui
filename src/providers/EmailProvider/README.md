@@ -14,8 +14,9 @@ Place `EmailProvider` high in the component tree with an `onSend` callback that 
 
 ```tsx
 <EmailProvider
-  onSend={async ({ to, cc, bcc, from, alias, subject, replyTo, html }) => {
+  onSend={async ({ to, cc, bcc, from, alias, subject, replyTo, html, props }) => {
     await myEmailService.send({ to, cc, bcc, from, alias, subject, replyTo, html });
+    // props contains the template args, e.g. ['order-123', 'Alice'] for OrderEmail
   }}
 >
   {children}
@@ -88,6 +89,7 @@ The `onSend` callback receives an `EmailSendPayload`:
 | `from` | `string` | From send-time props. |
 | `alias` | `string` | From send-time props. |
 | `replyTo` | `string` | From send-time props. |
+| `props` | `unknown[]` | The template args passed to `email()`, in the order they were defined in `createEmail`. Useful for logging, auditing, or passing to your email service. |
 
 ## Notes
 

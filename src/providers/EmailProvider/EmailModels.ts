@@ -13,6 +13,8 @@ export interface EmailSendProps {
 export interface EmailSendPayload extends Omit<EmailSendProps, 'subject'> {
   subject: string;
   html: string;
+  /** The template args passed to the email() call, in the order they were defined in createEmail. */
+  props: unknown[];
 }
 
 export interface EmailDefinitionUtils {
