@@ -21,6 +21,9 @@ A pre-built toolbar for form-like views that provides Save, Cancel, and Delete b
 | `deleteClassName` | `string` | No | Additional CSS class for the Delete button |
 | `className` | `string` | No | Additional CSS class for the toolbar container |
 | `isLoading` | `boolean` | No | When `true`, disables all buttons via `UIState` |
+| `isSaveReadOnly` | `boolean` | No | When `true`, disables only the Save button |
+| `isCancelReadOnly` | `boolean` | No | When `true`, disables only the Cancel button |
+| `isDeleteReadOnly` | `boolean` | No | When `true`, disables only the Delete button |
 | `children` | `ReactNode` | No | Additional elements appended after the standard buttons |
 
 > **Note:** `cancelDialogMessage` and `deleteDialogMessage` require the toolbar to be rendered inside a `Dialog` that provides `ConfirmationDialogContext`. An error is thrown if a dialog message is set without the context.

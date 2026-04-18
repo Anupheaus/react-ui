@@ -55,11 +55,13 @@ function NestedComponent() {
 
 ## Actions behaviour
 
+The `Actions` toolbar uses a single primary button that doubles as Next or Save depending on step position. Clicking it runs form validation before advancing or closing.
+
 | Step position | Buttons rendered |
 |---------------|-----------------|
 | Single step | Save |
-| First of many | Next → Save |
-| Middle | Back → Next → Save |
+| First of many | Next |
+| Middle | Back → Next |
 | Last | Back → Save |
 
 ## Wizard Props
