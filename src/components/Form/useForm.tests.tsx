@@ -23,4 +23,20 @@ describe('useForm', () => {
     const { result } = renderHook(() => useForm<TestData>({ data: { name: 'Alice', age: 30 } }));
     expect(typeof result.current.useField).toBe('function');
   });
+
+  it("useField('name') returns the field value and a setter", () => {
+    const { result } = renderHook(() => {
+      const form = useForm<TestData>({ data: { name: 'Alice', age: 30 } });
+      return form.useField('name');
+    });
+    expect(result.current.name).toBe('Alice');
+    expect(typeof result.current.setName).toBe('function');
+    expect(result.current.Field).toBeDefined();
+  });
+
+  it('does not throw when data is undefined', () => {
+    expect(() => {
+      renderHook(() => useForm<TestData>({}));
+    }).not.toThrow();
+  });
 });
