@@ -1,11 +1,10 @@
-import React, { useLayoutEffect, useState } from 'react';
 import type { AnyObject } from '@anupheaus/common';
 import { createComponent } from '../Component';
+import { WindowDefinitionRenderer } from '../Windows/WindowDefinitionRenderer';
 import { windowsDefinitionsManager } from '../Windows/WindowDefinitionsManager';
-import { WindowsManager } from '../Windows/WindowsManager';
-import type { ReactUIWindow, WindowDefinitionProps } from '../Windows/WindowsModels';
+import type { ReactUIWindow, WindowDefinition, WindowDefinitionProps } from '../Windows/WindowsModels';
 import type { WizardDefinition } from './WizardModels';
-import { WizardRenderer } from './WizardRenderer';
+import { WizardContentComponent } from './WizardRenderer';
 
 function getArgsLength(fn: (...args: any[]) => any): number {
   try {
@@ -41,29 +40,22 @@ export function createWizard<Name extends string, Args extends unknown[], CloseR
   name: Name,
   wizardDefinition: WizardDefinition<Args, CloseResponseType>,
 ): ReactUIWindow<Name, Args, CloseResponseType> {
-  const component = createComponent(name, ({ doNotPersist = false, managerId: propsMgr, definitionId = name }: WindowDefinitionProps) => {
-    const managerId = propsMgr ?? WindowsManager.getDefaultManagerId('windows');
-    const [windows, setWindows] = useState<React.ReactNode[]>([]);
 
-    useLayoutEffect(() => {
-      windowsDefinitionsManager.register(
-        { definitionId, managerId, doNotPersist },
-        states => setWindows(
-          states.map(state => (
-            <WizardRenderer<Args, CloseResponseType>
-              key={state.windowId}
-              windowId={state.windowId}
-              managerId={managerId}
-              wizardDefinition={wizardDefinition}
-            />
-          ))
-        ),
-      );
-      return () => windowsDefinitionsManager.unregister(definitionId, managerId);
-    }, [definitionId, managerId, doNotPersist]); // eslint-disable-line react-hooks/exhaustive-deps
+  const windowDefinition: WindowDefinition<Args, CloseResponseType> = (_windowUtils) => (...args: Args) => (
+    <WizardContentComponent args={args} wizardDefinition={wizardDefinition} />
+  );
 
-    return <>{windows}</>;
-  }) as unknown as ReactUIWindow<Name, Args, CloseResponseType>;
+  const component = createComponent(name, ({ doNotPersist: propDoNotPersist = false, windowComponent, ...props }: WindowDefinitionProps) => (
+    <WindowDefinitionRenderer
+      {...props}
+      name={name}
+      doNotPersist={propDoNotPersist}
+      definition={windowDefinition}
+      definitionId={(props as AnyObject).definitionId}
+      managerId={(props as AnyObject).managerId}
+      windowComponent={windowComponent}
+    />
+  )) as unknown as ReactUIWindow<Name, Args, CloseResponseType>;
 
   try {
     component.argsLength = getArgsLength(wizardDefinition);
@@ -73,8 +65,7 @@ export function createWizard<Name extends string, Args extends unknown[], CloseR
   Reflect.defineProperty(component, 'name', { get: () => name, enumerable: true, configurable: true });
   (component as AnyObject).definition = wizardDefinition;
 
-  // Register globally so the definition can be looked up for restoration and isPersistable computation
-  windowsDefinitionsManager.registerGlobal(name, (() => null) as any, false);
+  windowsDefinitionsManager.registerGlobal(name, windowDefinition as WindowDefinition<unknown[], unknown>, false);
 
   return component;
 }
