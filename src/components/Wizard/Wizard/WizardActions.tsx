@@ -23,13 +23,18 @@ export const WizardActions = createComponent('WizardActions', ({ children }: Pro
   const isFirst = activeIndex <= 0;
   const isLast = activeIndex === steps.length - 1 || steps.length <= 1;
 
-  const handleSave = useBound(() => close?.('ok'));
+  const handleSave = useBound(() => isLast ? close?.('ok') : moveNext());
 
   return (
-    <WindowActions onSave={handleSave} saveLabel="Save">
-      {children}
-      {!isFirst && <UIState isReadOnly={!isBackEnabled}><Button onClick={moveBack}>Back</Button></UIState>}
-      {!isLast && <UIState isReadOnly={!isNextEnabled}><Button onClick={moveNext}>Next</Button></UIState>}
-    </WindowActions>
+    <UIState isReadOnly={!isNextEnabled && !isLast}>
+      <WindowActions onSave={handleSave} saveLabel={isLast ? 'Save' : 'Next'}>
+        {children}
+        {!isFirst && (
+          <UIState isReadOnly={!isBackEnabled}>
+            <Button onClick={moveBack}>Back</Button>
+          </UIState>
+        )}
+      </WindowActions>
+    </UIState>
   );
 });
