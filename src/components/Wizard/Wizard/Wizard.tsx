@@ -155,6 +155,7 @@ export const Wizard = createComponent('Wizard', ({
       disableDrag={disableDrag}
       disableResize={disableResize}
       disableScrolling
+      initialPosition="center"
       width={width}
       height={height}
       minWidth={minWidth}
