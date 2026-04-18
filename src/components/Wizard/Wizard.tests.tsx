@@ -331,3 +331,18 @@ describe('createWizardStep', () => {
     await waitFor(() => expect(typeof capturedMoveNext).toBe('function'));
   });
 });
+
+// ─── createWizard ─────────────────────────────────────────────────────────────
+
+import { createWizard } from './createWizard';
+
+describe('createWizard', () => {
+  it('returns a component with the given name', () => {
+    const MyWizard = createWizard('MyTestWizard', ({ Wizard, Step }) => () => (
+      <Wizard title="Test Wizard">
+        <Step id="s1"><div>step one</div></Step>
+      </Wizard>
+    ));
+    expect(MyWizard.name).toBe('MyTestWizard');
+  });
+});
