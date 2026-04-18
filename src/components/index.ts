@@ -37,6 +37,7 @@ export * from './ParallaxScrollers';
 export * from './PIN';
 export * from './Busy';
 export * from './Image';
+export * from './Markdown';
 export * from './List';
 export * from './DatePicker';
 export * from './Field';

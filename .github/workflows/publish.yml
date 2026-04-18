@@ -1,111 +1,274 @@
-name: Publish Package
+name: CI
 
 on:
   workflow_dispatch:
   push:
     branches: [master]
 
+env:
+  PNPM_VERSION: '9'
+  NODE_VERSION: '22'
+
+# ─── PREPARE ──────────────────────────────────────────────────────────────────
 jobs:
-  Build:
+  Prepare:
+    name: Prepare
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       packages: read
     steps:
-      - name: Download Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Setup Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      - name: Remove @anupheaus/common override before pack
-        run: jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp && mv package.json.tmp package.json
-      - name: Install Dependencies
-        run: pnpm i --no-frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Run Tests
-      #   run: pnpm run test-ci
-      - name: Build
-        run: pnpm run build
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
-      - name: Perform Version Bump
-        uses: "phips28/gh-action-bump-version@master"
-        with:
-          commit-message: "CI: bumps version to {{version}} [skip ci]"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pack
-        run: pnpm pack
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: package
-          path: "*.tgz"
 
-  StorybookTests:
-    name: Storybook Tests
-    needs: [Build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    container:
-      image: mcr.microsoft.com/playwright:v1.58.2-noble
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v3
         with:
-          node-version-file: ".nvmrc"
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: https://npm.pkg.github.com/
           scope: "@anupheaus"
 
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
         with:
-          version: 9
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - name: Patch package.json
+        run: |
+          jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp
+          mv package.json.tmp package.json
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Storybook play tests
+      - name: Upload patched package.json
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-json
+          path: package.json
+          retention-days: 1
+
+# ─── VALIDATE ─────────────────────────────────────────────────────────────────
+  Validate:
+    name: Validate
+    needs: [Prepare]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://npm.pkg.github.com/
+          scope: "@anupheaus"
+
+      - name: Download patched package.json
+        uses: actions/download-artifact@v4
+        with:
+          name: package-json
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --prefer-offline
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Type check
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high
+
+      - name: Check for outdated dependencies
+        run: pnpm outdated
+        continue-on-error: true
+
+# ─── TEST ─────────────────────────────────────────────────────────────────────
+  Test-Jest:
+    name: Jest Tests
+    needs: [Prepare]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://npm.pkg.github.com/
+          scope: "@anupheaus"
+
+      - name: Download patched package.json
+        uses: actions/download-artifact@v4
+        with:
+          name: package-json
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --prefer-offline
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Jest tests
+        run: pnpm run test-ci
+
+  Test-Storybook:
+    name: Storybook Tests
+    needs: [Prepare]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.58.2-noble
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: https://npm.pkg.github.com/
+          scope: "@anupheaus"
+
+      - name: Download patched package.json
+        uses: actions/download-artifact@v4
+        with:
+          name: package-json
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-container-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-container-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Storybook tests
         run: pnpm run build-storybook --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook -- --ci --includeTags=play-fn"
 
+# ─── PUBLISH ──────────────────────────────────────────────────────────────────
   Publish:
-    needs: [Build, StorybookTests]
+    name: Publish
+    needs: [Validate, Test-Jest, Test-Storybook]
     runs-on: ubuntu-latest
     if: github.repository_owner == 'Anupheaus'
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
-      - name: Download Package
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
         with:
-          name: package
-      - name: Setup Environment
-        uses: actions/setup-node@v4
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v3
         with:
-          node-version: "22"
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
           registry-url: https://npm.pkg.github.com/
           scope: "@anupheaus"
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v3
+
+      - name: Download patched package.json
+        uses: actions/download-artifact@v4
         with:
-          version: 9
+          name: package-json
+
+      - name: Get pnpm store path
+        id: pnpm-store
+        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Restore pnpm store cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile --prefer-offline
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build
+        run: pnpm run build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+
+      - name: Bump version
+        uses: "phips28/gh-action-bump-version@master"
+        with:
+          commit-message: "CI: bumps version to {{version}} [skip ci]"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pack
+        run: pnpm pack
+
       - name: Publish
         run: pnpm publish $(ls *.tgz) --no-git-checks
         env:

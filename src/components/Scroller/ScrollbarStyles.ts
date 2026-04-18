@@ -23,10 +23,12 @@ export const useScrollbarStyles = createStyles(({ scrollbars: { thumb, track } }
     '&::-webkit-scrollbar': {
       ...track.normal,
       padding: 0,
+      backgroundColor: 'transparent',
     },
     '&::-webkit-scrollbar-track': {
       ...track.normal,
       padding: 0,
+      backgroundColor: 'transparent',
     },
     '&::-webkit-scrollbar-track-piece:vertical:start': {
       marginTop: track.normal.paddingTop ?? track.normal.padding ?? 0,
@@ -39,6 +41,9 @@ export const useScrollbarStyles = createStyles(({ scrollbars: { thumb, track } }
     },
     '&::-webkit-scrollbar-track-piece:horizontal:corner-present:end': {
       marginRight: track.normal.paddingRight ?? track.normal.padding ?? 0,
+    },
+    '&::-webkit-scrollbar-track-piece': {
+      backgroundColor: 'transparent',
     },
     '&::-webkit-scrollbar-corner': {
       backgroundColor: 'transparent',

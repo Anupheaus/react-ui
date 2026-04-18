@@ -1,12 +1,12 @@
 import type { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
-import { useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../Component';
-import { useBooleanState, useBound, useDOMRef } from '../../hooks';
+import { useBound, useDOMRef } from '../../hooks';
 import type { FieldProps } from '../Field';
 import { Field } from '../Field';
 import { useInputStyles } from './InputStyles';
 import { useUIState, useValidation } from '../../providers';
-import { useScrollbarStyles } from '../Scroller/ScrollbarStyles';
+import { Scroller } from '../Scroller';
 
 export interface InternalTextProps<TValue = unknown> extends FieldProps {
   value?: TValue;
@@ -65,15 +65,27 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   ...props
 }: Props<T>) {
   const { css, join, useInlineStyle } = useInputStyles();
-  const { css: scrollbarCss } = useScrollbarStyles();
   const { isReadOnly } = useUIState();
-  const [isScrollbarVisible, setScrollbarVisible, setScrollbarInvisible] = useBooleanState();
   const { validate } = useValidation(`${tagName}-${props.label}`);
-  const ref = useDOMRef([innerRef]);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const ref = useDOMRef([innerRef, textareaRef as any]);
   const isMultiline = (multiline ?? 0) > 1;
+  const [rowsHeight, setRowsHeight] = useState<number | undefined>(undefined);
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {
     'data-1p-ignore': true,
   }, [type]);
+
+  useLayoutEffect(() => {
+    if (!isMultiline || textareaRef.current == null) return;
+    setRowsHeight(textareaRef.current.offsetHeight);
+  }, [isMultiline]);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (el == null || !isMultiline) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value, isMultiline]);
 
   const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(value, !isOptional, requiredMessage));
 
@@ -107,29 +119,30 @@ export const InternalText = createComponent('InternalText', function <T = unknow
 
   const style = useInlineStyle(() => ({
     width: fieldWidth,
-  }), [fieldWidth]);
+    ...(isMultiline && rowsHeight != null && { height: rowsHeight }),
+  }), [fieldWidth, isMultiline, rowsHeight]);
 
   const containerClassName = isMultiline ? css.textAreaFieldContainer : undefined;
 
   const inputOrTextArea = isMultiline
-    ? <textarea
-      ref={ref}
-      className={join(css.textArea, scrollbarCss.scrollbars, css[`textTransform_${transform}`], isScrollbarVisible && 'is-scrollbar-visible', isReadOnly && css.isReadOnly, inputClassName)}
-      value={(value ?? '') as any}
-      maxLength={maxLength}
-      onChange={handleOnChange as any}
-      onFocusCapture={handleOnFocus as any}
-      onBlurCapture={handleOnBlur as any}
-      onClick={onClick as any}
-      onKeyDown={handleKeyDown as any}
-      onKeyUp={handleKeyUp as any}
-      onMouseOver={setScrollbarVisible}
-      onMouseLeave={setScrollbarInvisible}
-      autoFocus={initialFocus}
-      rows={multiline}
-      disabled={isReadOnly}
-      placeholder={placeholder}
-    />
+    ? <Scroller fullHeight>
+      <textarea
+        ref={ref}
+        className={join(css.textArea, css[`textTransform_${transform}`], isReadOnly && css.isReadOnly, inputClassName)}
+        value={(value ?? '') as any}
+        maxLength={maxLength}
+        onChange={handleOnChange as any}
+        onFocusCapture={handleOnFocus as any}
+        onBlurCapture={handleOnBlur as any}
+        onClick={onClick as any}
+        onKeyDown={handleKeyDown as any}
+        onKeyUp={handleKeyUp as any}
+        autoFocus={initialFocus}
+        rows={multiline}
+        disabled={isReadOnly}
+        placeholder={placeholder}
+      />
+    </Scroller>
     : <input
       ref={ref}
       type={type}

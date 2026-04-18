@@ -27,6 +27,7 @@ export const useInputStyles = createStyles(({ pseudoClasses }) => ({
     appearance: 'textfield',
     border: 0,
     height: 'auto',
+    overflow: 'hidden',
     width: '100%',
     padding: '2px 8px',
     fontSize: 'unset',

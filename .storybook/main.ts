@@ -8,6 +8,15 @@ const config: StorybookConfig = {
     '@storybook/addon-webpack5-compiler-swc',
     '@storybook/addon-onboarding',
     '@storybook/addon-docs',
+    {
+      name: '@storybook/addon-coverage',
+      options: {
+        istanbul: {
+          include: ['src/**'],
+          exclude: ['src/**/*.stories.*', 'src/Storybook/**', 'src/**/*.test.*'],
+        },
+      },
+    },
   ],
   framework: {
     name: '@storybook/react-webpack5',
