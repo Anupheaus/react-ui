@@ -41,6 +41,9 @@ export interface ActionsToolbarProps {
   deleteDialogMessage?: ReactNode;
   deleteClassName?: string;
   isLoading?: boolean;
+  isSaveReadOnly?: boolean;
+  isCancelReadOnly?: boolean;
+  isDeleteReadOnly?: boolean;
   onSave?(): void;
   onCancel?(): void;
   onDelete?(): void;
@@ -60,6 +63,9 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
   deleteDialogMessage,
   deleteClassName,
   isLoading,
+  isSaveReadOnly,
+  isCancelReadOnly,
+  isDeleteReadOnly,
   onSave,
   onCancel,
   onDelete,
@@ -123,15 +129,23 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
   return (
     <UIState isLoading={isLoading}>
       <Flex tagName="actions-toolbar" className={join(css.actionsToolbar, className)} gap={8} disableGrow align="right">
-        {onDelete != null && (<>
-          <ThemeProvider theme={deleteButtonTheme}>
-            <Button onSelect={remove} className={join(css.deleteButton, (showCancelButton || showSaveButton || children != null) && css.deleteButtonWithSiblings, deleteClassName)}>{deleteLabel}</Button>
-          </ThemeProvider>
-        </>)}
-        {showCancelButton && (<>
-          <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>
-        </>)}
-        {showSaveButton && <Button onSelect={save} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>}
+        {onDelete != null && (
+          <UIState isReadOnly={isDeleteReadOnly}>
+            <ThemeProvider theme={deleteButtonTheme}>
+              <Button onSelect={remove} className={join(css.deleteButton, (showCancelButton || showSaveButton || children != null) && css.deleteButtonWithSiblings, deleteClassName)}>{deleteLabel}</Button>
+            </ThemeProvider>
+          </UIState>
+        )}
+        {showCancelButton && (
+          <UIState isReadOnly={isCancelReadOnly}>
+            <Button onSelect={cancel} className={join(css.cancelButton, cancelClassName)}>{cancelLabel}</Button>
+          </UIState>
+        )}
+        {showSaveButton && (
+          <UIState isReadOnly={isSaveReadOnly}>
+            <Button onSelect={save} className={join(css.saveButton, saveClassName)}>{saveLabel}</Button>
+          </UIState>
+        )}
         {children}
       </Flex>
     </UIState>

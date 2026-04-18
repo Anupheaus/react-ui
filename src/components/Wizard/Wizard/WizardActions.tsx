@@ -9,6 +9,7 @@ import { WindowActions } from '../../Windows/Window/WindowActions';
 import { WindowRenderContext } from '../../Windows/WindowsContexts';
 import { WizardContext } from '../WizardContexts';
 
+
 interface Props {
   children?: ReactNode;
 }
@@ -26,15 +27,13 @@ export const WizardActions = createComponent('WizardActions', ({ children }: Pro
   const handleSave = useBound(() => isLast ? close?.('ok') : moveNext());
 
   return (
-    <UIState isReadOnly={!isNextEnabled && !isLast}>
-      <WindowActions onSave={handleSave} saveLabel={isLast ? 'Save' : 'Next'}>
-        {children}
-        {!isFirst && (
-          <UIState isReadOnly={!isBackEnabled}>
-            <Button onClick={moveBack}>Back</Button>
-          </UIState>
-        )}
-      </WindowActions>
-    </UIState>
+    <WindowActions onSave={handleSave} saveLabel={isLast ? 'Save' : 'Next'} isSaveReadOnly={!isNextEnabled && !isLast}>
+      {children}
+      {!isFirst && (
+        <UIState isReadOnly={!isBackEnabled}>
+          <Button onClick={moveBack}>Back</Button>
+        </UIState>
+      )}
+    </WindowActions>
   );
 });
