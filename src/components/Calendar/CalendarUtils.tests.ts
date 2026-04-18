@@ -54,26 +54,33 @@ describe('CalendarUtils.isOnSameDay', () => {
 });
 
 describe('CalendarUtils.isBetween', () => {
-  const start = new Date(2024, 5, 10);
-  const end = new Date(2024, 5, 20);
-
   it('returns true when date is on the start day', () => {
+    const start = new Date(2024, 5, 10);
+    const end = new Date(2024, 5, 20);
     expect(CalendarUtils.isBetween(new Date(2024, 5, 10, 8, 0), start, end)).toBe(true);
   });
 
   it('returns true when date is on the end day', () => {
+    const start = new Date(2024, 5, 10);
+    const end = new Date(2024, 5, 20);
     expect(CalendarUtils.isBetween(new Date(2024, 5, 20, 23, 0), start, end)).toBe(true);
   });
 
   it('returns true when date is strictly between start and end', () => {
+    const start = new Date(2024, 5, 10);
+    const end = new Date(2024, 5, 20);
     expect(CalendarUtils.isBetween(new Date(2024, 5, 15), start, end)).toBe(true);
   });
 
   it('returns false when date is before start', () => {
+    const start = new Date(2024, 5, 10);
+    const end = new Date(2024, 5, 20);
     expect(CalendarUtils.isBetween(new Date(2024, 5, 9), start, end)).toBe(false);
   });
 
   it('returns false when date is after end', () => {
+    const start = new Date(2024, 5, 10);
+    const end = new Date(2024, 5, 20);
     expect(CalendarUtils.isBetween(new Date(2024, 5, 21), start, end)).toBe(false);
   });
 });
@@ -107,7 +114,6 @@ describe('CalendarUtils.getEntriesForDate', () => {
   const makeEntry = (date: Date, id: string): CalendarEntryRecord => ({
     id,
     startDate: date,
-    endDate: date,
     title: `Entry ${id}`,
   });
 
