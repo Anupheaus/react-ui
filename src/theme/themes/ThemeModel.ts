@@ -192,6 +192,16 @@ interface QRCodeTheme {
   cornerDotStyle?: 'square' | 'dot';
 }
 
+interface SliderTheme {
+  trackColor: string;
+  railColor: string;
+  thumbColor: string;
+  thumbBorderColor?: string;
+  markColor?: string;
+  valueLabelBackgroundColor?: string;
+  valueLabelTextColor?: string;
+}
+
 export interface Theme {
   assistiveLabel: {
     normal: AssistiveLabelTheme;
@@ -385,6 +395,11 @@ export interface Theme {
     active: Partial<SwitchTheme>;
     checked: Partial<SwitchTheme>;
     readOnly: Partial<SwitchTheme>;
+  };
+  slider: {
+    normal: SliderTheme;
+    active: Partial<SliderTheme>;
+    readOnly: Partial<SliderTheme>;
   };
   notifications?: {
     base: Required<NotificationTypeTheme>;

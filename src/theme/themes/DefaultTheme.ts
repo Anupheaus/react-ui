@@ -309,6 +309,26 @@ export const DefaultTheme: Theme = {
       thumbColor: 'rgba(255 255 255 / 85%)',
     },
   },
+  slider: {
+    normal: {
+      trackColor: 'rgba(0 0 0 / 55%)',
+      railColor: 'rgba(0 0 0 / 15%)',
+      thumbColor: 'rgba(0 0 0 / 55%)',
+      thumbBorderColor: 'transparent',
+      markColor: 'rgba(0 0 0 / 25%)',
+      valueLabelBackgroundColor: 'rgba(0 0 0 / 75%)',
+      valueLabelTextColor: '#fff',
+    },
+    active: {
+      trackColor: 'rgba(0 0 0 / 70%)',
+      thumbColor: 'rgba(0 0 0 / 70%)',
+    },
+    readOnly: {
+      trackColor: 'rgba(0 0 0 / 25%)',
+      railColor: 'rgba(0 0 0 / 10%)',
+      thumbColor: 'rgba(0 0 0 / 25%)',
+    },
+  },
   notifications: {
     base: {
       backgroundColor: 'white',
