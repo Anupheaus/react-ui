@@ -18,15 +18,28 @@ export function createWizardStep(
 
     const { moveNext, moveBack, setNextIsEnabled: ctxSetNext, setBackIsEnabled: ctxSetBack } = useContext(WizardContext);
 
-    // Capture setNextIsEnabled/setBackIsEnabled calls made during the definition render
-    // and apply them after render to avoid "setState during render" warnings.
+    const hasMountedRef = useRef(false);
     const nextEnabledCapture = useRef<boolean | undefined>(undefined);
     const backEnabledCapture = useRef<boolean | undefined>(undefined);
 
-    const captureSetNext = (v: boolean) => { nextEnabledCapture.current = v; };
-    const captureSetBack = (v: boolean) => { backEnabledCapture.current = v; };
+    const captureSetNext = (v: boolean) => {
+      if (hasMountedRef.current) {
+        ctxSetNext(v);
+      } else {
+        nextEnabledCapture.current = v;
+      }
+    };
+
+    const captureSetBack = (v: boolean) => {
+      if (hasMountedRef.current) {
+        ctxSetBack(v);
+      } else {
+        backEnabledCapture.current = v;
+      }
+    };
 
     useLayoutEffect(() => {
+      hasMountedRef.current = true;
       if (nextEnabledCapture.current !== undefined) {
         ctxSetNext(nextEnabledCapture.current);
         nextEnabledCapture.current = undefined;
