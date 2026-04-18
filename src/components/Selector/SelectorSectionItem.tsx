@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { useBound } from '../../hooks';
-import type { ReactListItem } from '../../models';
+import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
@@ -37,6 +38,7 @@ interface Props {
   item: ReactListItem;
   width: number;
   isSelected: boolean;
+  fullWidthItems?: boolean;
   onUpdateWidth(width: number): void;
   onSelect(item: ReactListItem): void;
 }
@@ -45,6 +47,7 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
   item,
   width,
   isSelected,
+  fullWidthItems = false,
   onUpdateWidth,
   onSelect,
 }: Props) => {
@@ -54,31 +57,39 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
 
   const saveElement = useBound((element: HTMLDivElement | null) => {
     rippleTarget(element);
-    if (!element) return;
+    if (!element || fullWidthItems) return;
     onUpdateWidth(element.offsetWidth);
   });
 
-  const selectItem = useBound(() => onSelect(item));
+  const selectItem = useBound((event: ReactMouseEvent<HTMLDivElement>) => {
+    onSelect(item);
+    item.onClick?.(ReactListItem.createClickEvent(event, item));
+  });
 
   const style = useInlineStyle(() => ({
-    width: width > 0 && lastItemRef.current === item ? `${width}px` : undefined,
-  }), [width]);
+    width: !fullWidthItems && width > 0 && lastItemRef.current === item ? `${width}px` : undefined,
+  }), [width, fullWidthItems]);
 
   useLayoutEffect(() => {
     lastItemRef.current = item;
   }, [item]);
 
   return (
-    <Flex ref={saveElement} tagName="selector-section-item" className={join(css.item, isSelected && 'is-selected')} style={style} allowFocus disableGrow valign="center" onClick={selectItem}>
+    <Flex ref={saveElement} tagName="selector-section-item" className={join(css.item, isSelected && 'is-selected')} style={style} allowFocus disableGrow={!fullWidthItems}
+      wide={fullWidthItems} valign="center" onClick={selectItem}>
       <Ripple stayWithinContainer />
-      <Flex tagName="selector-section-item-content" gap={6} isVertical align="center" className={css.content}>
-        {item.iconName != null && (
-          <Icon name={item.iconName} />
-        )}
-        <Typography type="field-value" disableWrap>
-          {item.label ?? item.text}
-        </Typography>
-      </Flex>
+      {fullWidthItems && item.label != null ? item.label : (
+        <Flex tagName="selector-section-item-content" gap={6} isVertical align="center" className={css.content}>
+          {item.iconName != null && (
+            <Icon name={item.iconName} />
+          )}
+          {item.label != null ? item.label : (
+            <Typography type="field-value" disableWrap>
+              {item.text}
+            </Typography>
+          )}
+        </Flex>
+      )}
     </Flex>
   );
 });

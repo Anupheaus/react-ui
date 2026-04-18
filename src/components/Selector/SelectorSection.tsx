@@ -52,6 +52,7 @@ interface Props {
   hideHeader?: boolean;
   item: SelectorItem;
   selectedIds: string[];
+  fullWidthItems?: boolean;
   onSelect?(addId: string | undefined, removeIds: string[]): void;
 }
 
@@ -59,6 +60,7 @@ export const SelectorSection = createComponent('SelectorSection', ({
   hideHeader = false,
   item,
   selectedIds,
+  fullWidthItems = false,
   onSelect,
 }: Props) => {
   const { css, join } = useStyles();
@@ -79,8 +81,8 @@ export const SelectorSection = createComponent('SelectorSection', ({
   });
 
   const subItems = useMemo(() => item.subItems.orderBy('ordinal').map(subItem => (
-    <SelectorSectionItem key={subItem.id} item={subItem} isSelected={selectedIds.includes(subItem.id)} width={width} onUpdateWidth={updateWidth} onSelect={handleOnSelect} />
-  )), [item.subItems, width, selectedIds]);
+    <SelectorSectionItem key={subItem.id} item={subItem} isSelected={selectedIds.includes(subItem.id)} width={width} fullWidthItems={fullWidthItems} onUpdateWidth={updateWidth} onSelect={handleOnSelect} />
+  )), [item.subItems, width, selectedIds, fullWidthItems]);
 
   useLayoutEffect(() => {
     if (maxWidth === 0) return;
@@ -102,7 +104,7 @@ export const SelectorSection = createComponent('SelectorSection', ({
           </Flex>
         </Flex>
       )}
-      <Flex tagName="selector-section-items" gap={4} enableWrap className={css.items}>
+      <Flex tagName="selector-section-items" gap={4} enableWrap={!fullWidthItems} isVertical={fullWidthItems} className={css.items}>
         {subItems}
       </Flex>
     </Flex>

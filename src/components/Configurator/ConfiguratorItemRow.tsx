@@ -12,6 +12,8 @@ import { ConfiguratorAddSlice } from './ConfiguratorAddSlice';
 import type { OnShadowVisibleChangeEvent } from '../Scroller';
 import { Tag } from '../Tag';
 
+const whitelistFunctions = ['renderCell'];
+
 const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransition }) => ({
   configuratorRow: {
     width: 'fit-content',
@@ -77,6 +79,31 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
       opacity: 1,
     },
   },
+  configuratorRowBottomShadow: {
+    position: 'absolute',
+    top: -30,
+    left: 0,
+    width: '100%',
+    height: 30,
+    opacity: 0,
+    pointerEvents: 'none',
+    overflow: 'hidden',
+    ...applyTransition('opacity'),
+
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: -2,
+      left: -2,
+      right: -2,
+      height: 2,
+      boxShadow: shadow(false),
+    },
+
+    '&.is-visible': {
+      opacity: 1,
+    },
+  },
 }));
 
 interface Props {
@@ -115,11 +142,11 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
     <ConfiguratorCell key={slice.id} columnIndex={index + 1} item={item} slice={slice} isHeader={isHeader} isFooter={isFooter}
       isOddItem={isOdd} isOddSlice={index % 2 === 0}
     />
-  )), [slices, isHeader, isFooter, isOdd, onExpandItem]);
+  )), [slices, item, isHeader, isFooter, isOdd, onExpandItem]);
 
   const subItemRows = useMemo(() => item.subItems.map((subItem, index) => (
     <ConfiguratorSubItemRow key={subItem.id} item={subItem} slices={slices} isOdd={index % 2 === 0} />
-  )), [item.subItems, slices]);
+  )), [item, slices]);
 
   const saveElement = useBound((element: HTMLDivElement) => {
     target(element);
@@ -132,7 +159,7 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
   const handleAddItem = useBound(() => onAddSubItem?.(item));
 
   return (
-    <Flex tagName="configurator-row" className={join(css.configuratorRow, isHeader && 'is-header', isFooter && 'is-footer')} isVertical disableGrow>
+    <Flex tagName="configurator-row" className={join(css.configuratorRow, isHeader && 'is-header', isFooter && 'is-footer')} isVertical disableGrow data-whitelist-functions={whitelistFunctions}>
       <Flex tagName="configurator-item-row" className={css.configuratorItemRow}>
         <ConfiguratorCell columnIndex={0} item={item} isHeader={isHeader} isFooter={isFooter} isOddItem={isOdd} isOddSlice={false}
           addShadowToRight={visibleShadows?.left} onExpandItem={hasSubItems ? onExpandItem : undefined} />
@@ -148,6 +175,7 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
         </Flex>
       )}
       {isHeader && (<Tag name="configurator-row-top-shadow" className={join(css.configuratorRowTopShadow, visibleShadows?.top && 'is-visible')} />)}
+      {isFooter && (<Tag name="configurator-row-bottom-shadow" className={join(css.configuratorRowBottomShadow, visibleShadows?.bottom && 'is-visible')} />)}
     </Flex>
   );
 });

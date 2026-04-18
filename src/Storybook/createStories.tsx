@@ -6,13 +6,13 @@ import { StorybookContext, StorybookContextProps } from './StorybookContext';
 // import { StorybookComponent } from './StorybookComponent';
 import { Typography } from '@mui/material';
 import { TestHookOnRenderProps } from './StorybookModels';
-import { createRootThemeProvider } from '../theme/createRootThemeProvider';
 import { createComponent } from '../components/Component';
-import { createStyles } from '../theme';
+import { createStyles, ThemeProvider } from '../theme';
+import { DefaultTheme } from '../theme/themes/DefaultTheme';
 
 const localModule = global.module as undefined | (NodeModule & { hot: { accept: () => void; addStatusHandler: (handler: (status: string) => void) => void; }; });
 if (localModule?.hot) {
-  localModule.hot.accept(); // already had this init code 
+  localModule.hot.accept(); // already had this init code
 
   localModule.hot.addStatusHandler(status => {
     // eslint-disable-next-line no-console
@@ -20,35 +20,20 @@ if (localModule?.hot) {
   });
 }
 
-const RootThemeProvider = createRootThemeProvider({
-  globalStyles: {
-    '@font-face': {
-      fontFamily: 'Mulish',
-      src: 'url(/font/Mulish-Regular.ttf)',
-    },
-    'html, body': {
-      height: '100%',
-      padding: 0,
-      margin: 0,
-      fontFamily: 'Mulish',
-      fontSize: 16,
-      overflow: 'hidden',
-      userSelect: 'none',
-    },
-    'input, button': {
-      color: 'unset',
-      cursor: 'unset',
-      fontSize: 'inherit',
-      fontWeight: 'inherit',
-      fontFamily: 'inherit',
-      backgroundColor: 'inherit',
-    },
-    'div#root': {
-      height: '100%',
-      overflow: 'auto',
-    },
+const storybookGlobalStyles = {
+  'input, button': {
+    color: 'unset',
+    cursor: 'unset',
+    fontSize: 'inherit',
+    fontWeight: 'inherit',
+    fontFamily: 'inherit',
+    backgroundColor: 'inherit',
   },
-});
+  'div#root': {
+    height: '100%',
+    overflow: 'auto',
+  },
+};
 
 interface Props {
   isTestBorderVisible?: boolean;
@@ -165,7 +150,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
         }), [isTestBorderVisible]);
         if (InternalComponent == null) return null;
         return (<>
-          <RootThemeProvider>
+          <ThemeProvider theme={DefaultTheme} globalStyles={storybookGlobalStyles}>
             <StorybookContext.Provider value={context}>
               <div className={css.stories}>
                 {(() => {
@@ -184,7 +169,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
                 })()}
               </div>
             </StorybookContext.Provider>
-          </RootThemeProvider>
+          </ThemeProvider>
         </>);
       });
 

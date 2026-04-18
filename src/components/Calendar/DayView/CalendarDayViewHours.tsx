@@ -3,7 +3,7 @@ import { createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 
-const useStyles = createStyles(({ field: { value: { normal } } }) => ({
+const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
   hours: {
     width: '100%',
   },

@@ -14,18 +14,13 @@ Each component calls `createStyles(stylesOrDelegate)` at module level to get a `
 
 | Export | Description |
 |--------|-------------|
-| `createTheme` | Creates a legacy theme config object from a `ThemeConfig` (id + definition + icons) and attaches a `createVariant` method for partial overrides. |
 | `createStyles` | Module-level factory — accepts a static style map or a `(theme, tools) => styles` delegate and returns a `useStyles` hook that resolves class names at render time. |
-| `createStyles2` | Alias / second variant of `createStyles` exported from the same module. |
-| `ThemeProvider` | Wraps children in a `ThemeContext.Provider` so that `useTheme` and `createStyles` hooks below it receive the supplied theme. |
-| `ThemeProvider2` | Additional theme provider variant (see `ThemeProvider.tsx`). |
-| `createRootThemeProvider` | Factory that produces a root-level `<ThemeProvider>` component which also mounts MUI's theme and optional global CSS styles. |
+| `ThemeProvider` | Wraps children in `ThemeContext.Provider`, mounts MUI's theme, applies global CSS from `theme.text`, and renders any `theme.fonts` as `@font-face` rules. |
 | `useTheme` | Returns the current `ThemeContextProps` (including the active `theme` object and an `isValid` flag) from the nearest `ThemeProvider`. |
-| `useThemeMixer` | Selects between `primaryValue`, `secondaryValue`, or `defaultValue` based on a `'primary' | 'secondary' | undefined` flag — useful for variant-aware components. |
 | `mergeThemes` | Deep-merges a `DeepPartial<Theme>` override onto a base `Theme`, returning a new merged theme object. |
 | `createAnimationKeyFrame` | Converts a CSS keyframe definition object into a `tss-react` `keyframes` string for use in styles. |
 | `colors` | Utility object with `lighten(color, pct)` and `darken(color, pct)` helpers backed by the `color` library. |
-| `themes` | Re-exports `DefaultTheme`, `ShadowThemes`, `TransitionTheme`, and the `Theme` model type. |
+| `DefaultTheme` | The default `Theme` implementation — use directly or pass to `mergeThemes` as a base. |
 
 ## Usage
 
@@ -35,22 +30,21 @@ import { createStyles, ThemeProvider, DefaultTheme, mergeThemes } from '@anuphea
 // 1. Define component styles once at module level
 const useStyles = createStyles((theme, tools) => ({
   root: {
-    backgroundColor: theme.backgrounds.default,
-    borderRadius: 4,
-    padding: tools.gap('normal', 8),
+    backgroundColor: theme.fields.content.normal.backgroundColor,
+    borderRadius: theme.fields.content.normal.borderRadius,
     ...tools.applyTransition('background-color'),
   },
 }));
 
 // 2. Consume styles inside the component
 function MyComponent() {
-  const { css, theme } = useStyles();
+  const { css } = useStyles();
   return <div className={css.root}>Hello</div>;
 }
 
 // 3. Provide a theme at the root (optionally merged with overrides)
 const customTheme = mergeThemes(DefaultTheme, {
-  backgrounds: { default: '#f5f5f5' },
+  text: { family: 'Inter, sans-serif' },
 });
 
 function App() {

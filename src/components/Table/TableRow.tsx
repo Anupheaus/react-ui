@@ -7,9 +7,9 @@ import { useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { UIState } from '../../providers';
 
-const useStyles = createStyles(({ field: { value: { normal: field } } }) => ({
+const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
   row: {
-    borderBottomColor: field.borderColor,
+    borderBottomColor: normal.borderColor,
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     height: 'fit-content',

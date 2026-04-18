@@ -46,4 +46,9 @@ export const useInputStyles = createStyles(({ pseudoClasses }) => ({
   textAreaFieldContainer: {
     flexGrow: 1,
   },
+  isReadOnly: {
+    caretColor: 'transparent',
+    userSelect: 'none',
+    cursor: 'default',
+  },
 }));

@@ -14,6 +14,7 @@ type Story = StoryObj<typeof Signature>;
 export const Default: Story = createStory<typeof Signature>({
   args: {
     onChange: fn(),
+    label: 'Signature',
   },
   width: 400,
   height: 350,
@@ -22,9 +23,11 @@ export const Default: Story = createStory<typeof Signature>({
     return (
       <Signature
         {...props}
-        label="Signature"
         value={value}
-        onChange={setValue}
+        onChange={v => {
+          setValue(v);
+          props.onChange?.(v);
+        }}
       />
     );
   },

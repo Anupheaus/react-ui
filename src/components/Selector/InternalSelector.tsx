@@ -17,12 +17,14 @@ const fakeItems: SelectorItem[] = [
 interface Props {
   items: SelectorItem[];
   selectionConfiguration?: SelectorSelectionConfiguration;
+  fullWidthItems?: boolean;
   onSelect?(selectedItems: SelectorSubItem[]): void;
 }
 
 export const InternalSelector = createComponent('InternalSelector', ({
   items,
   selectionConfiguration,
+  fullWidthItems = false,
   onSelect,
 }: Props) => {
   const { isLoading } = useUIState();
@@ -48,7 +50,7 @@ export const InternalSelector = createComponent('InternalSelector', ({
     return itemsToRender.orderBy('ordinal').map(item => {
       const selectedIds = ids.filter(id => item.subItems.findById(id) != null);
       return (
-        <SelectorSection key={item.id} item={item} hideHeader={items.length === 1} selectedIds={selectedIds} onSelect={onSelected} />
+        <SelectorSection key={item.id} item={item} hideHeader={items.length === 1} selectedIds={selectedIds} fullWidthItems={fullWidthItems} onSelect={onSelected} />
       );
     });
   }, [items, isLoading, ids]);

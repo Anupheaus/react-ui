@@ -1,18 +1,23 @@
 import { createStyles } from '../../theme';
 
+if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
+  try {
+    (CSS as any).registerProperty({ name: '--scrollbar-thumb-color', syntax: '<color>', inherits: true, initialValue: 'transparent' });
+  } catch { /* already registered */ }
+}
+
 export const useScrollbarStyles = createStyles(({ scrollbars: { thumb, track } }, { applyTransition }) => ({
   scrollbars: {
     overflow: 'overlay',
-    backgroundColor: 'rgba(0 0 0 / 0%)',
-    backgroundClip: 'text',
-    ...applyTransition('background-color'),
+    '--scrollbar-thumb-color': 'transparent' as unknown as undefined,
+    ...applyTransition('--scrollbar-thumb-color'),
 
     '&.is-scrollbar-visible': {
-      backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
+      '--scrollbar-thumb-color': (thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)') as unknown as undefined,
     },
 
     '@media(pointer: coarse)': {
-      backgroundColor: thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)',
+      '--scrollbar-thumb-color': (thumb.normal.backgroundColor ?? 'rgba(0 0 0 / 10%)') as unknown as undefined,
     },
 
     '&::-webkit-scrollbar': {
@@ -42,7 +47,7 @@ export const useScrollbarStyles = createStyles(({ scrollbars: { thumb, track } }
       borderRadius: 8,
       minHeight: 40,
       ...thumb.normal,
-      backgroundColor: 'inherit',
+      backgroundColor: 'var(--scrollbar-thumb-color)',
       boxShadow: 'none',
       border: 'solid 0px transparent',
       borderWidth: track.normal.padding ?? 4,

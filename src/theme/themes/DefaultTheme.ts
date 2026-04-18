@@ -1,5 +1,4 @@
 import Color from 'color';
-import { createTheme } from '../createTheme';
 import type { Theme } from './ThemeModel';
 
 const primaryTextColor = '#000';
@@ -98,8 +97,13 @@ export const DefaultTheme: Theme = {
         borderColor: 'rgba(0 0 0 / 15%)',
         borderRadius: 4,
       },
-      active: {},
-      readOnly: {},
+      active: {
+        borderColor: 'rgba(0 0 0 / 25%)',
+      },
+      readOnly: {
+        backgroundColor: 'rgba(0 0 0 / 5%)',
+        borderColor: 'rgba(0 0 0 / 10%)',
+      },
     },
     value: {
       normal: {},
@@ -330,50 +334,6 @@ export const DefaultTheme: Theme = {
       color: '#1e40af',
     },
   },
-  // datePicker: {
-  //   popup: {
-  //     header: {
-  //       backgroundColor: 'blue',
-  //     },
-  //     content: {
-  //       backgroundColor: 'red',
-  //     },
-  //     days: {
-  //       selected: {
-  //         backgroundColor: 'green',
-  //       },
-  //     },
-  //   },
-  // },
-
-
-  animation: {
-    animationDuration: '400ms',
-    animationTimingFunction: 'ease',
-  },
-  transition: {
-    transitionDuration: '400ms',
-    transitionTimingFunction: 'ease',
-  },
-  action: {
-    normal: {
-      backgroundColor: 'rgba(0 0 0 / 15%)',
-      color: primaryTextColor,
-      borderColor: 'rgba(0 0 0 / 15%)',
-      fontSize: 14,
-      fontWeight: 400,
-    },
-    active: {
-      backgroundColor: 'rgba(0 0 0 / 25%)',
-      color: primaryTextColor,
-      borderColor: 'transparent',
-    },
-    disabled: {
-      backgroundColor: 'rgba(0 0 0 / 5%)',
-      color: Color(primaryTextColor).alpha(0.45).hexa(),
-      borderColor: undefined as string | undefined,
-    },
-  },
   menu: {
     normal: {
       backgroundColor: '#fff',
@@ -414,40 +374,6 @@ export const DefaultTheme: Theme = {
     },
     content: {
       gap: 8,
-    },
-  },
-  field: {
-    label: {
-      normal: {
-        fontSize: 14,
-        fontWeight: 500,
-      },
-      active: {},
-      disabled: {},
-    },
-    value: {
-      normal: {
-        backgroundColor: 'transparent',
-        color: primaryTextColor,
-        borderColor: 'rgba(0 0 0 / 15%)',
-        fontSize: 12,
-        fontWeight: 400,
-        borderRadius: 4,
-      },
-      active: {
-        backgroundColor: 'transparent',
-        color: primaryTextColor,
-        borderColor: 'rgba(0 0 0 / 25%)',
-      },
-      disabled: {
-        backgroundColor: 'rgba(0 0 0 / 10%)',
-        color: Color(primaryTextColor).alpha(0.65).hexa(),
-        borderColor: 'rgba(0 0 0 / 15%)',
-      },
-    },
-    assistiveText: {
-      fontSize: 12,
-      fontWeight: 400,
     },
   },
   surface: {
@@ -496,15 +422,6 @@ export const DefaultTheme: Theme = {
   skeleton: {
     color: Color(primaryTextColor).alpha(0.1).hexa(),
   },
-  icon: {
-    normal: {
-      opacity: 0.7,
-    },
-    active: {
-      opacity: 1,
-    },
-    disabled: {},
-  },
   scrollbars: {
     thumb: {
       normal: {
@@ -526,60 +443,4 @@ export const DefaultTheme: Theme = {
   },
   dataPaletteColors: ['#6929c4', '#1192e8', '#005d5d', '#9f1853', '#fa4d56', '#570408', '#198038', '#002d9c', '#ee538b', '#b28600', '#009d9a', '#012749', '#8a3800', '#a56eff']
     .map(color => Color(color).lighten(0.85).hexa()),
-  activePseudoClasses: '&:hover, &:active, &:focus, &:focus-visible' as const,
 };
-
-export const ColorTheme = createTheme({
-  id: 'ColorTheme',
-
-  definition: {
-    background: {
-      action: {
-        default: '#1e88e5',
-        active: '#6ab7ff',
-        disabled: '#e3f2fd',
-      },
-      surface: {
-        default: 'transparent',
-        asAContainer: '#ddd',
-      },
-    },
-    // primary: {
-    //   background: {
-    //     main: '#1e88e5',
-    //     light: '#6ab7ff',
-    //     dark: '#005cb2',
-    //   },
-    //   text: {
-    //     main: '#000',
-    //     light: '#000',
-    //     dark: '#fff',
-    //   },
-    //   border: {
-    //     main: '#303F9F',
-    //     light: '#303F9F',
-    //     dark: '#303F9F',
-    //   },
-    // },
-    // secondary: {
-    //   background: {
-    //     main: '#FF4081',
-    //     light: '#FF80AB',
-    //     dark: '#F50057',
-    //   },
-    //   text: {
-    //     main: '#FFFFFF',
-    //     light: '#FFFFFF',
-    //     dark: '#FFFFFF',
-    //   },
-    //   border: {
-    //     main: '#F50057',
-    //     light: '#F50057',
-    //     dark: '#F50057',
-    //   },
-    // },
-    // background: {
-
-    // }
-  },
-});

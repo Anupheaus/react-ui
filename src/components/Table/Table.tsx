@@ -56,7 +56,7 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
 
 type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
 type FooterProps = ComponentProps<typeof TableFooter>;
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd'> {
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd' | 'summary' | 'hideRecordCount'> {
   className?: string;
   records?: RecordType[];
   columns: TableColumn<RecordType>[];
@@ -77,6 +77,8 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   onAdd,
   onEdit,
   onRemove,
+  summary,
+  hideRecordCount,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
   const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
@@ -123,7 +125,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
           delayRendering={delayRenderingRows}
         />
         <UIState isLoading={recordsLoading}>
-          <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} onAdd={onAdd} />
+          <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} />
         </UIState>
       </TableColumnWidthProvider>
     </Tag>

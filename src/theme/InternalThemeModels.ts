@@ -1,1 +1,0 @@
-export const ThemeRecordTypeId = 'themes_644bdf94-ef9e-473f-91de-aec066d93897';

@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import { ConfiguratorCell } from './ConfiguratorCell';
 import { Flex } from '../Flex';
 
+const whitelistFunctions = ['renderCell'];
+
 interface Props {
   item: ConfiguratorSubItem;
   slices: ConfiguratorSlice<any>[];
@@ -24,7 +26,7 @@ export const ConfiguratorSubItemRow = createComponent('ConfiguratorSubItemRow', 
   )), [slices, item, isOdd]);
 
   return (
-    <Flex tagName="configurator-sub-item-row">
+    <Flex tagName="configurator-sub-item-row" data-whitelist-functions={whitelistFunctions}>
       <ConfiguratorCell columnIndex={0} item={item} isSubItem isOddItem={isOdd} isOddSlice={false} onExpandItem={onExpandItem} />
       {cells}
     </Flex>

@@ -4,7 +4,7 @@ import { createComponent } from '../Component';
 import { Field } from '../Field';
 import { Flex } from '../Flex';
 import type { ConfiguratorFirstCell, ConfiguratorItem, ConfiguratorSlice, ConfiguratorSubItem } from './configurator-models';
-import { useBound, useUpdatableState } from '../../hooks';
+import { useBound } from '../../hooks';
 import { ConfiguratorItemRow } from './ConfiguratorItemRow';
 import { ConfiguratorAddItem } from './ConfiguratorAddItem';
 import { convertFirstCellIntoConfiguratorItem } from './configurator-column-utils';
@@ -41,10 +41,6 @@ const useStyles = createStyles(({ configurator: { borderRadius = 4 }, shadows: {
     opacity: 0,
     ...applyTransition('opacity'),
 
-    '&.is-bottom': {
-      height: 2,
-      left: -2,
-    },
     '&.is-right': {
       width: 2,
       top: -2,
@@ -82,8 +78,10 @@ export const Configurator = createComponent('Configurator', ({
   onAddSlice,
 }: Props) => {
   const { css, join } = useStyles();
-  const [items, setItems] = useUpdatableState(() => providedItems, [providedItems]);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [visibleShadows, setVisibleShadows] = useState<OnShadowVisibleChangeEvent>(() => ({ top: false, left: false, bottom: false, right: false }));
+
+  const items = useMemo(() => providedItems.map(item => expandedIds.has(item.id) ? { ...item, isExpanded: true } : item), [providedItems, expandedIds]);
 
   const renderFirstCell = useBound((item: ConfiguratorSubItem, slice: ConfiguratorSlice) => {
     if (item === firstCell) return firstCell?.label ?? null;
@@ -95,11 +93,16 @@ export const Configurator = createComponent('Configurator', ({
   ), [firstCell, slices, addItemLabel, visibleShadows, onAddSlice]);
 
   const footerRow = useMemo(() => footer == null ? null : (
-    <ConfiguratorItemRow item={footer} slices={slices} isFooter />
-  ), [footer]);
+    <ConfiguratorItemRow item={footer} slices={slices} isFooter visibleShadows={visibleShadows} />
+  ), [footer, slices, visibleShadows]);
 
   const expandItem = useBound((newItem: ConfiguratorItem) => {
-    setItems(items.map(item => item.id === newItem.id ? newItem : item));
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (newItem.isExpanded) next.add(newItem.id);
+      else next.delete(newItem.id);
+      return next;
+    });
   });
 
   const renderedItems = useMemo(() => items.map((item, itemIndex) => (
@@ -122,7 +125,6 @@ export const Configurator = createComponent('Configurator', ({
         <Scroller
           disableShadows
           footerContent={(<>
-            <Tag name="configurator-bottom-shadow" className={join(css.configuratorShadow, 'is-bottom', visibleShadows?.bottom === true && 'is-visible')} />
             <Tag name="configurator-right-shadow" className={join(css.configuratorShadow, 'is-right', visibleShadows?.right === true && 'is-visible')} />
           </>)}
           className={css.configuratorScroller}

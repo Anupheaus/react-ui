@@ -21,7 +21,7 @@ interface Props extends ComponentProps<typeof Label> {
   onChange?(value: boolean): void;
 }
 
-const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, action: { normal: actionNormal }, transition, pseudoClasses }) => ({
+const useStyles = createStyles(({ fields: { content: { normal: fieldContent } }, buttons: { default: { normal: defaultButton } }, transitions, pseudoClasses }) => ({
   checkbox: {
     display: 'flex',
     flexGrow: 0,
@@ -62,13 +62,14 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     flex: 'none',
     borderStyle: 'solid',
     borderWidth: 2,
-    borderRadius: 4,
+    borderRadius: fieldContent.borderRadius,
+    borderColor: fieldContent.borderColor,
     transitionProperty: 'border-color',
+    transitionDuration: `${transitions.duration}ms`,
+    transitionTimingFunction: transitions.function,
     cursor: 'var(--checkbox-cursor)',
     position: 'relative',
     width: 'min-content',
-    ...transition,
-    ...fieldNormal,
   },
   assistiveText: {
     alignSelf: 'flex-start',
@@ -87,9 +88,10 @@ const useStyles = createStyles(({ field: { value: { normal: fieldNormal } }, act
     pointerEvents: 'none',
     opacity: 0,
     transitionProperty: 'opacity, background-color',
-    backgroundColor: actionNormal.backgroundColor,
+    transitionDuration: `${transitions.duration}ms`,
+    transitionTimingFunction: transitions.function,
+    backgroundColor: defaultButton.backgroundColor,
     borderRadius: 2,
-    ...transition,
 
     '&.is-checked': {
       opacity: 1,

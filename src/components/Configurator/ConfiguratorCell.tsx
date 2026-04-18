@@ -291,4 +291,4 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
       {addShadowToRight != null && (<Tag name="configurator-cell-right-shadow" className={join(css.configuratorCellRightShadow, addShadowToRight && 'is-visible')} />)}
     </Flex>
   );
-});
+}, { whitelistFunctions: ['renderCell'] });

@@ -3,6 +3,7 @@ import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { PromiseMaybe } from '@anupheaus/common';
+import type { ReactNode } from 'react';
 import { to } from '@anupheaus/common';
 import { Skeleton } from '../Skeleton';
 import { Button } from '../Button';
@@ -24,6 +25,8 @@ interface Props {
   totalRecords?: number;
   unitName: string;
   error?: Error;
+  summary?: ReactNode;
+  hideRecordCount?: boolean;
   onAdd?(): PromiseMaybe<void>;
 }
 
@@ -31,6 +34,8 @@ export const TableFooter = createComponent('TableFooter', ({
   totalRecords,
   unitName,
   error,
+  summary,
+  hideRecordCount = false,
   onAdd,
 }: Props) => {
   const { css } = useStyles();
@@ -59,11 +64,20 @@ export const TableFooter = createComponent('TableFooter', ({
       {/* spacer */}
       <Flex tagName="table-footer-spacer" />
 
+      {/* summary */}
+      {summary != null && (
+        <Flex tagName="table-footer-summary" disableGrow valign="center">
+          {summary}
+        </Flex>
+      )}
+
       {/* total records */}
-      <Flex tagName="table-footer-total-records" disableGrow valign="center">
-        <Skeleton type="text">{formatNumber(totalRecords ?? 100)}</Skeleton>&nbsp;
-        <Skeleton type="text">{to.plural(unitName, totalRecords ?? 100)}</Skeleton>
-      </Flex>
+      {!hideRecordCount && (
+        <Flex tagName="table-footer-total-records" disableGrow valign="center">
+          <Skeleton type="text">{formatNumber(totalRecords ?? 100)}</Skeleton>&nbsp;
+          <Skeleton type="text">{to.plural(unitName, totalRecords ?? 100)}</Skeleton>
+        </Flex>
+      )}
 
     </Flex>
   );

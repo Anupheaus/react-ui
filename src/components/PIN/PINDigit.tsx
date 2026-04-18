@@ -8,23 +8,25 @@ import { useUIState } from '../../providers';
 import { Skeleton } from '../Skeleton';
 import { createStyles } from '../../theme';
 
-const useStyles = createStyles(({ field: { value: { normal, active, disabled } }, activePseudoClasses }) => ({
+const useStyles = createStyles(({ fields: { content: { normal, active, readOnly } }, pseudoClasses }) => ({
   digit: {
     minWidth: 28,
     maxWidth: 28,
     minHeight: 28,
     maxHeight: 28,
-    ...normal,
+    borderColor: normal.borderColor,
+    borderRadius: normal.borderRadius,
     borderWidth: 1,
     borderStyle: 'solid',
     overflow: 'hidden',
 
-    [activePseudoClasses]: {
-      ...active,
+    [pseudoClasses.active]: {
+      borderColor: active.borderColor,
     },
 
     '&.is-read-only': {
-      ...disabled,
+      backgroundColor: readOnly.backgroundColor,
+      borderColor: readOnly.borderColor,
     },
 
     '&.is-loading': {

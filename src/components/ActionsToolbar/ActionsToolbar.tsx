@@ -15,6 +15,10 @@ const useStyles = createStyles({
   },
   deleteButton: {
     order: 10,
+    marginLeft: 24,
+  },
+  deleteButtonWithSiblings: {
+    marginRight: 24,
   },
   cancelButton: {
     order: 20,
@@ -121,7 +125,7 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
       <Flex tagName="actions-toolbar" className={join(css.actionsToolbar, className)} gap={8} disableGrow align="right">
         {onDelete != null && (<>
           <ThemeProvider theme={deleteButtonTheme}>
-            <Button onSelect={remove} className={join(css.deleteButton, deleteClassName)}>{deleteLabel}</Button>
+            <Button onSelect={remove} className={join(css.deleteButton, (showCancelButton || showSaveButton || children != null) && css.deleteButtonWithSiblings, deleteClassName)}>{deleteLabel}</Button>
           </ThemeProvider>
         </>)}
         {showCancelButton && (<>

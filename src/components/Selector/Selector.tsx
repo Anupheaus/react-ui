@@ -16,17 +16,21 @@ interface Props extends FieldProps {
   items: SelectorItem[];
   selectionConfiguration?: SelectorSelectionConfiguration;
   height?: string | number;
+  minHeight?: string | number;
   fullHeight?: boolean;
+  fullWidthItems?: boolean;
   onSelect?(selectedItems: SelectorSubItem[]): void;
 }
 
-export const Selector = createComponent('Selector', ({
+const InternalSelectorWrapper = createComponent('Selector', ({
   items,
   selectionConfiguration,
   isOptional,
   requiredMessage,
   height,
+  minHeight,
   fullHeight,
+  fullWidthItems = false,
   onSelect,
   ...props
 }: Props) => {
@@ -55,12 +59,23 @@ export const Selector = createComponent('Selector', ({
       {...props}
       disableOverflow
       height={height}
+      minHeight={minHeight}
       fullHeight={fullHeight}
       className={css.list}
       containerClassName={css.listContainer}
       error={error ?? props.error}
     >
-      <InternalSelector items={items} selectionConfiguration={selectionConfiguration} onSelect={handleSelect} />
+      <InternalSelector items={items} selectionConfiguration={selectionConfiguration} fullWidthItems={fullWidthItems} onSelect={handleSelect} />
     </Field>
   );
 });
+
+type SelectorType = typeof InternalSelectorWrapper & { Configuration: { Single: SelectorSelectionConfiguration; }; };
+
+export const Selector = InternalSelectorWrapper as SelectorType;
+
+Selector.Configuration = {
+  Single: {
+    totalSelectableItems: 1,
+  },
+};

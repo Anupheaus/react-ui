@@ -114,7 +114,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   const inputOrTextArea = isMultiline
     ? <textarea
       ref={ref}
-      className={join(css.textArea, scrollbarCss.scrollbars, css[`textTransform_${transform}`], isScrollbarVisible && 'is-scrollbar-visible', inputClassName)}
+      className={join(css.textArea, scrollbarCss.scrollbars, css[`textTransform_${transform}`], isScrollbarVisible && 'is-scrollbar-visible', isReadOnly && css.isReadOnly, inputClassName)}
       value={(value ?? '') as any}
       maxLength={maxLength}
       onChange={handleOnChange as any}
@@ -133,7 +133,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     : <input
       ref={ref}
       type={type}
-      className={join(css.input, css[`textTransform_${transform}`], inputClassName)}
+      className={join(css.input, css[`textTransform_${transform}`], isReadOnly && css.isReadOnly, inputClassName)}
       value={(value ?? '') as any}
       maxLength={maxLength}
       onChange={handleOnChange}

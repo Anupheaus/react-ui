@@ -31,7 +31,7 @@ function validateAdornments(adornments: ReactNode | ReactNode[]): boolean {
   return true;
 }
 
-const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, active } } }, { applyTransition }) => ({
+const useStyles = createStyles(({ pseudoClasses, fields: { content: { normal, active } } }, { applyTransition }) => ({
   field: {
     display: 'flex',
     flexGrow: 0,
@@ -56,7 +56,9 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
     },
   },
   fieldContainer: {
-    ...normal,
+    backgroundColor: normal.backgroundColor,
+    borderColor: normal.borderColor,
+    borderRadius: normal.borderRadius,
     display: 'flex',
     flexGrow: 0,
     flexShrink: 0,
@@ -74,7 +76,7 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
     },
 
     [pseudoClasses.active]: {
-      ...active,
+      borderColor: active.borderColor,
     },
   },
   fieldContent: {
@@ -87,6 +89,9 @@ const useStyles = createStyles(({ pseudoClasses, field: { value: { normal, activ
   isLoading: {
     visibility: 'hidden',
     borderStyle: 'none',
+  },
+  isReadOnly: {
+    userSelect: 'none',
   },
   toolbarAtEnd: {
     borderRadius: 0,
@@ -123,6 +128,7 @@ interface Props extends FieldProps {
   disableRipple?: boolean;
   style?: CSSProperties;
   minWidth?: string | number;
+  minHeight?: string | number;
   height?: string | number;
   fullHeight?: boolean;
   skeleton?: 'outlineOnly';
@@ -158,6 +164,7 @@ export const Field = createComponent('Field', ({
   disableRipple = false,
   hideOptionalLabel,
   minWidth,
+  minHeight,
   height,
   fullHeight,
   skeleton,
@@ -169,7 +176,7 @@ export const Field = createComponent('Field', ({
   const { css, join, useInlineStyle, toPx } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
-  const { isLoading } = useUIState();
+  const { isLoading, isReadOnly } = useUIState();
   const [isLeftToolbarVisible, showLeftToolbar, hideLeftToolbar] = useBooleanState(useFloatingStartAdornments !== true);
   const [isRightToolbarVisible, showRightToolbar, hideRightToolbar] = useBooleanState(useFloatingEndAdornments !== true);
   const timeoutRef = useRef<any>();
@@ -208,8 +215,8 @@ export const Field = createComponent('Field', ({
       <Tag
         name={`${tagName}-container`}
         ref={containerRef}
-        className={join(css.fieldContainer, isLoading && css.isLoading, (fullHeight || height != null) && 'full-height', containerClassName)}
-        tabIndex={allowFocus ? 0 : -1}
+        className={join(css.fieldContainer, isLoading && css.isLoading, isReadOnly && css.isReadOnly, (fullHeight || height != null) && 'full-height', containerClassName)}
+        tabIndex={allowFocus && !isReadOnly ? 0 : -1}
         style={containerStyle}
         onFocusCapture={wrappedShowToolbars}
         onBlurCapture={delayedHideToolbars}
@@ -250,8 +257,9 @@ export const Field = createComponent('Field', ({
 
   const style = useInlineStyle(() => ({
     minWidth: toPx(minWidth),
+    minHeight: toPx(minHeight),
     ...props.style,
-  }), [minWidth, props.style]);
+  }), [minWidth, minHeight, props.style]);
 
   return (
     <Tag

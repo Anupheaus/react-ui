@@ -1,5 +1,12 @@
 import type { CSSProperties } from 'react';
 
+interface FontFace {
+  fontFamily: string;
+  src: string;
+  fontWeight?: string | number;
+  fontStyle?: string;
+}
+
 interface ThemeStateConfig {
   normal: CSSProperties;
   active: CSSProperties;
@@ -197,6 +204,7 @@ export interface Theme {
     };
   },
   text: TextTheme;
+  fonts?: FontFace[];
   error: TextTheme;
   fields: {
     label: {
@@ -379,31 +387,16 @@ export interface Theme {
     penColor?: string;
   };
 
-  /** @deprecated */
-  animation: CSSProperties;
-  /** @deprecated */
-  transition: CSSProperties;
-  /** @deprecated */
-  action: ThemeStateConfig;
-  /** @deprecated */
   menu: {
     normal: CSSProperties;
     disabled: CSSProperties;
 
     menuItem: ThemeStateConfig;
   };
-  /** @deprecated */
   toolbar: ThemeStateConfig & {
     title?: CSSProperties;
     content?: CSSProperties;
   };
-  /** @deprecated */
-  field: {
-    label: ThemeStateConfig;
-    value: ThemeStateConfig;
-    assistiveText: CSSProperties;
-  };
-  /** @deprecated */
   surface: {
     general: ThemeStateConfig;
     asAContainer: ThemeStateConfig;
@@ -414,19 +407,11 @@ export interface Theme {
       heavy: CSSProperties;
     };
   };
-  /** @deprecated */
   scrollbars: {
     thumb: ThemeStateConfig;
     track: ThemeStateConfig;
   };
-  /** @deprecated */
   gaps: GapsTheme;
-  /** @deprecated */
   dataPaletteColors: string[];
-  /** @deprecated */
   skeleton: CSSProperties;
-  /** @deprecated */
-  icon: ThemeStateConfig;
-  /** @deprecated */
-  activePseudoClasses: string;
 }

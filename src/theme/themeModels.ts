@@ -1,5 +1,4 @@
-import type { AnyObject, DeepPartial, MapOf } from '@anupheaus/common';
-import type { CSSObject } from 'tss-react';
+import type { AnyObject, DeepPartial } from '@anupheaus/common';
 
 export interface IconTypeProps {
   size?: 'normal' | 'small' | 'large' | number;
@@ -18,7 +17,6 @@ export type ThemeDefinition = AnyObject;
 export type ThemeIcons = {
   [iconName: string]: IconType;
 };
-export type ThemeStyles = MapOf<CSSObject>;
 
 export interface ThemeConfig<D extends ThemeDefinition, I extends ThemeIcons> {
   id: string;

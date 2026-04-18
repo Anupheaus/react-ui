@@ -66,6 +66,12 @@ export const Signature = createComponent('Signature', ({
     const canvas = canvasRef.current;
     if (canvas == null) return;
 
+    // Size the canvas correctly before pad init so the first getBoundingClientRect ratio is accurate.
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext('2d')?.scale(ratio, ratio);
+
     const pad = new SignaturePad(canvas, {
       penColor: getComputedStyle(canvas).color,
       backgroundColor: getComputedStyle(canvas).backgroundColor,
@@ -107,8 +113,10 @@ export const Signature = createComponent('Signature', ({
     const pad = padRef.current;
     if (canvas == null || pad == null) return;
     const savedData = pad.toData();
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    const ratio = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext('2d')?.scale(ratio, ratio);
     pad.fromData(savedData);
   });
 
