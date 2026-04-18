@@ -1,5 +1,6 @@
 import React, { useLayoutEffect } from 'react';
-import { act, render } from '@testing-library/react';
+import { act, fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 import { WizardStep } from './Wizard/WizardStep';
 import { WizardStepContent } from './Wizard/WizardStepContent';
 import { WizardActions } from './Wizard/WizardActions';
@@ -99,7 +100,16 @@ describe('WizardStepContent', () => {
 const TEST_MANAGER_ID = 'dialogs-default';
 const TEST_MANAGER_INSTANCE = 'wizard-actions-test-instance';
 
-function renderWizardActions(activeStepId: string, stepIds: string[]) {
+interface RenderWizardActionsOptions {
+  activeStepId: string;
+  stepIds: string[];
+  moveNext?: () => void;
+  moveBack?: () => void;
+  isNextEnabled?: boolean;
+  isBackEnabled?: boolean;
+}
+
+function renderWizardActions({ activeStepId, stepIds, moveNext = () => void 0, moveBack = () => void 0, isNextEnabled = true, isBackEnabled = true }: RenderWizardActionsOptions) {
   let capturedState: DistributedState<string> | undefined;
 
   function StateCapture() {
@@ -113,10 +123,10 @@ function renderWizardActions(activeStepId: string, stepIds: string[]) {
   const contextValue: WizardContextProps = {
     state: capturedState!,
     steps: stepIds.map(id => ({ id, children: null })),
-    isNextEnabled: true,
-    isBackEnabled: true,
-    moveNext: () => void 0,
-    moveBack: () => void 0,
+    isNextEnabled,
+    isBackEnabled,
+    moveNext,
+    moveBack,
     setNextIsEnabled: () => void 0,
     setBackIsEnabled: () => void 0,
   };
@@ -142,30 +152,54 @@ describe('WizardActions', () => {
   });
 
   it('shows only Save on a single step', () => {
-    const { queryByText } = renderWizardActions('s1', ['s1']);
+    const { queryByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1'] });
     expect(queryByText('Back')).toBeNull();
     expect(queryByText('Next')).toBeNull();
     expect(queryByText('Save')).not.toBeNull();
   });
 
   it('shows Next and Save (no Back) on the first of multiple steps', () => {
-    const { queryByText } = renderWizardActions('s1', ['s1', 's2']);
+    const { queryByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'] });
     expect(queryByText('Back')).toBeNull();
     expect(queryByText('Next')).not.toBeNull();
     expect(queryByText('Save')).not.toBeNull();
   });
 
   it('shows Back and Save (no Next) on the last step', () => {
-    const { queryByText } = renderWizardActions('s2', ['s1', 's2']);
+    const { queryByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'] });
     expect(queryByText('Back')).not.toBeNull();
     expect(queryByText('Next')).toBeNull();
     expect(queryByText('Save')).not.toBeNull();
   });
 
   it('shows Back, Next, and Save on a middle step', () => {
-    const { queryByText } = renderWizardActions('s2', ['s1', 's2', 's3']);
+    const { queryByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2', 's3'] });
     expect(queryByText('Back')).not.toBeNull();
     expect(queryByText('Next')).not.toBeNull();
     expect(queryByText('Save')).not.toBeNull();
+  });
+
+  it('calls moveNext when Next button is clicked', () => {
+    const moveNext = vi.fn();
+    const { getByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'], moveNext });
+    fireEvent.click(getByText('Next').closest('button')!);
+    expect(moveNext).toHaveBeenCalled();
+  });
+
+  it('calls moveBack when Back button is clicked', () => {
+    const moveBack = vi.fn();
+    const { getByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'], moveBack });
+    fireEvent.click(getByText('Back').closest('button')!);
+    expect(moveBack).toHaveBeenCalled();
+  });
+
+  it('Next button is read-only when isNextEnabled is false', () => {
+    const { getByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'], isNextEnabled: false });
+    expect(getByText('Next').closest('button')!.classList.contains('is-read-only')).toBe(true);
+  });
+
+  it('Back button is read-only when isBackEnabled is false', () => {
+    const { getByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'], isBackEnabled: false });
+    expect(getByText('Back').closest('button')!.classList.contains('is-read-only')).toBe(true);
   });
 });

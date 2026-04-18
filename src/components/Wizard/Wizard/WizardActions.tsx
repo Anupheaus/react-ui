@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import { useDistributedState } from '../../../hooks';
-import { useBound } from '../../../hooks/useBound';
 import { Button } from '../../Button';
 import { Flex } from '../../Flex';
 import { WindowOkAction } from '../../Windows/Window/WindowOkAction';
+import { UIState } from '../../../providers';
 import { WizardContext } from '../WizardContexts';
 
 const useStyles = createStyles(({ windows: { content } }) => ({
@@ -31,14 +31,11 @@ export const WizardActions = createComponent('WizardActions', ({ children }: Pro
   const isFirst = activeIndex <= 0;
   const isLast = activeIndex === steps.length - 1 || steps.length <= 1;
 
-  const handleNext = useBound(() => moveNext());
-  const handleBack = useBound(() => moveBack());
-
   return (
     <Flex tagName="actions-toolbar" className={css.toolbar} gap={8} disableGrow align="right">
       {children}
-      {!isFirst && <Button onClick={handleBack} disabled={!isBackEnabled}>Back</Button>}
-      {!isLast && <Button onClick={handleNext} disabled={!isNextEnabled}>Next</Button>}
+      {!isFirst && <UIState isReadOnly={!isBackEnabled}><Button onClick={moveBack}>Back</Button></UIState>}
+      {!isLast && <UIState isReadOnly={!isNextEnabled}><Button onClick={moveNext}>Next</Button></UIState>}
       <WindowOkAction>Save</WindowOkAction>
     </Flex>
   );
