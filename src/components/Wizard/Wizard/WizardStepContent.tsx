@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useBatchUpdates, useDistributedState } from '../../../hooks';
 import { createComponent } from '../../Component';
@@ -52,10 +52,12 @@ export const WizardStepContent = createComponent('WizardStepContent', ({ stepId,
   const [isFocused, setIsFocused] = useState(get() === stepId);
   const [direction, setDirection] = useState('right');
   const batchUpdate = useBatchUpdates();
+  const stepsRef = useRef(steps);
+  stepsRef.current = steps;
 
   onChange(newId => batchUpdate(() => {
-    const newIndex = steps.findIndex(s => s.id === newId);
-    const myIndex = steps.findIndex(s => s.id === stepId);
+    const newIndex = stepsRef.current.findIndex(s => s.id === newId);
+    const myIndex = stepsRef.current.findIndex(s => s.id === stepId);
     setDirection(newIndex > myIndex ? 'left' : 'right');
     setIsFocused(newId === stepId);
   }));

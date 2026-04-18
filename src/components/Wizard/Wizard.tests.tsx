@@ -1,5 +1,5 @@
-import React from 'react';
-import { render } from '@testing-library/react';
+import React, { useLayoutEffect } from 'react';
+import { act, render } from '@testing-library/react';
 import { WizardStep } from './Wizard/WizardStep';
 import { WizardStepContent } from './Wizard/WizardStepContent';
 import { WizardContext } from './WizardContexts';
@@ -33,10 +33,15 @@ interface WizardStepContentHarnessProps {
   stepIds: string[];
   targetStepId: string;
   children?: React.ReactNode;
+  setRef?: React.MutableRefObject<(id: string) => void>;
 }
 
-function WizardStepContentHarness({ initialStepId, stepIds, targetStepId, children }: WizardStepContentHarnessProps) {
+function WizardStepContentHarness({ initialStepId, stepIds, targetStepId, children, setRef }: WizardStepContentHarnessProps) {
   const { state, set } = useDistributedState(() => initialStepId);
+
+  useLayoutEffect(() => {
+    if (setRef) setRef.current = set;
+  });
 
   const contextValue: WizardContextProps = {
     state,
@@ -71,5 +76,16 @@ describe('WizardStepContent', () => {
       <WizardStepContentHarness initialStepId="step-2" stepIds={['step-1', 'step-2']} targetStepId="step-1" />
     );
     expect(container.querySelector('.is-visible')).toBeNull();
+  });
+
+  it('becomes visible when state changes to its step id', () => {
+    const setRef = React.createRef<(id: string) => void>() as React.MutableRefObject<(id: string) => void>;
+    setRef.current = () => void 0;
+    const { container } = render(
+      <WizardStepContentHarness initialStepId="step-2" stepIds={['step-1', 'step-2']} targetStepId="step-1" setRef={setRef} />
+    );
+    expect(container.querySelector('.is-visible')).toBeNull();
+    act(() => setRef.current('step-1'));
+    expect(container.querySelector('.is-visible')).not.toBeNull();
   });
 });
