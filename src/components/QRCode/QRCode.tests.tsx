@@ -1,5 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { render } from '@testing-library/react';
 import { encodeQRData } from './encodeQRData';
+import { QRCode } from './QRCode';
+
+vi.mock('qr-code-styling', () => {
+  return {
+    default: function () {
+      return {
+        append: vi.fn(),
+        update: vi.fn(),
+      };
+    },
+  };
+});
 
 describe('encodeQRData', () => {
   it('encodes url as-is', () => {
@@ -81,23 +94,6 @@ describe('encodeQRData', () => {
     const result = encodeQRData({ type: 'vcard', value: { name: 'Jane' } });
     expect(result).toContain('\r\n');
   });
-});
-
-import { render } from '@testing-library/react';
-import { vi } from 'vitest';
-import { QRCode } from './QRCode';
-
-// qr-code-styling appends a canvas/svg to the DOM — jsdom doesn't support
-// canvas, so mock the library at module level.
-vi.mock('qr-code-styling', () => {
-  return {
-    default: vi.fn().mockImplementation(function () {
-      return {
-        append: vi.fn(),
-        update: vi.fn(),
-      };
-    }),
-  };
 });
 
 describe('QRCode component', () => {

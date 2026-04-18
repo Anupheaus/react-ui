@@ -3,8 +3,9 @@ import QRCodeStyling from 'qr-code-styling';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Icon } from '../Icon';
+import { LocalIconDefinitions } from '../Icon/Icons';
 import { encodeQRData } from './encodeQRData';
-import type { Props } from './QRCodeModels';
+import type { Props, QRCodeData } from './QRCodeModels';
 
 const useStyles = createStyles(() => ({
   container: {
@@ -42,7 +43,7 @@ export const QRCode = createComponent('QRCode', ({
   // Dedicated mount point for qr-code-styling — separate from the React-managed container.
   const qrMountRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<QRCodeStyling | null>(null);
-  const encoded = encodeQRData(dataProps as Parameters<typeof encodeQRData>[0]);
+  const encoded = encodeQRData(dataProps as QRCodeData);
   const qrTheme = theme.qrCode ?? {};
   const logoSize = Math.round(size * 0.2);
 
@@ -81,7 +82,7 @@ export const QRCode = createComponent('QRCode', ({
       if (qrMountRef.current != null) qrMountRef.current.innerHTML = '';
       qrRef.current = null;
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     qrRef.current?.update({
@@ -113,7 +114,7 @@ export const QRCode = createComponent('QRCode', ({
             <img src={logo.src} className={css.logoImage} alt="" />
           )}
           {logo.type === 'icon' && (
-            <Icon name={logo.name as any} size={logoSize} />
+            <Icon name={logo.name as keyof typeof LocalIconDefinitions} size={logoSize} />
           )}
         </div>
       )}
