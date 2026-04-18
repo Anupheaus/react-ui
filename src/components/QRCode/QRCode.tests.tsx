@@ -82,3 +82,103 @@ describe('encodeQRData', () => {
     expect(result).toContain('\r\n');
   });
 });
+
+import { render } from '@testing-library/react';
+import { vi } from 'vitest';
+import { QRCode } from './QRCode';
+
+// qr-code-styling appends a canvas/svg to the DOM — jsdom doesn't support
+// canvas, so mock the library at module level.
+vi.mock('qr-code-styling', () => {
+  return {
+    default: vi.fn().mockImplementation(function () {
+      return {
+        append: vi.fn(),
+        update: vi.fn(),
+      };
+    }),
+  };
+});
+
+describe('QRCode component', () => {
+  it('renders without crashing for type url', () => {
+    const { container } = render(<QRCode type="url" value="https://example.com" />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type text', () => {
+    const { container } = render(<QRCode type="text" value="hello" />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type email', () => {
+    const { container } = render(<QRCode type="email" value={{ to: 'a@b.com' }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type phone', () => {
+    const { container } = render(<QRCode type="phone" value="+441234567890" />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type sms', () => {
+    const { container } = render(<QRCode type="sms" value={{ to: '+441234567890' }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type wifi', () => {
+    const { container } = render(<QRCode type="wifi" value={{ ssid: 'MyNet' }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type vcard', () => {
+    const { container } = render(<QRCode type="vcard" value={{ name: 'Jane' }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type geo', () => {
+    const { container } = render(<QRCode type="geo" value={{ lat: 51.5, lng: -0.12 }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('renders without crashing for type object', () => {
+    const { container } = render(<QRCode type="object" value={{ key: 'val' }} />);
+    expect(container.firstChild).not.toBeNull();
+  });
+
+  it('applies a default size of 256', () => {
+    const { container } = render(<QRCode type="url" value="https://example.com" />);
+    const el = container.firstChild as HTMLElement;
+    expect(el.style.width).toBe('256px');
+    expect(el.style.height).toBe('256px');
+  });
+
+  it('applies a custom size', () => {
+    const { container } = render(<QRCode type="url" value="https://example.com" size={128} />);
+    const el = container.firstChild as HTMLElement;
+    expect(el.style.width).toBe('128px');
+    expect(el.style.height).toBe('128px');
+  });
+
+  it('renders an image logo overlay', () => {
+    const { container } = render(
+      <QRCode type="url" value="https://example.com" logo={{ type: 'image', src: 'https://example.com/logo.png' }} />
+    );
+    expect(container.querySelector('img')).not.toBeNull();
+    expect(container.querySelector('img')?.getAttribute('src')).toBe('https://example.com/logo.png');
+  });
+
+  it('renders an icon logo overlay', () => {
+    const { container } = render(
+      <QRCode type="url" value="https://example.com" logo={{ type: 'icon', name: 'error' }} />
+    );
+    // Icon renders a tag with data-icon-type attribute
+    expect(container.querySelector('[data-icon-type="error"]')).not.toBeNull();
+  });
+
+  it('does not render a logo when logo prop is omitted', () => {
+    const { container } = render(<QRCode type="url" value="https://example.com" />);
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('[data-icon-type]')).toBeNull();
+  });
+});
