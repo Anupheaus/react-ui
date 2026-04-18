@@ -60,6 +60,7 @@ export * from './Selector';
 export * from './Expander';
 export * from './Matrix';
 export * from './Switch';
+export * from './Slider';
 export * from './Section';
 export * from './SimpleList';
 export * from './Signature';
