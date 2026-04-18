@@ -90,7 +90,7 @@ The function passed to `createWizardStep` receives:
 |------|-------------|
 | `Wizard` | The window-like container component |
 | `Step` | Inline step — takes `id?` and `children` |
-| `Actions` | Auto Back/Next/Save toolbar |
+| `Actions` | Auto Back/Next/Save toolbar — accepts `children` to prepend custom buttons |
 | `Action` | Custom action button (closes window with a value) |
 | `OkButton` | Save/OK button |
 | `id` | Wizard instance id |
