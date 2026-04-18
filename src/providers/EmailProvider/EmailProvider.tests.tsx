@@ -17,7 +17,7 @@ describe('createEmail', () => {
 describe('EmailProvider', () => {
   it('renders its children', () => {
     render(
-      <EmailProvider onSend={jest.fn()}>
+      <EmailProvider onSend={vi.fn()}>
         <span>child content</span>
       </EmailProvider>
     );
@@ -35,7 +35,7 @@ const TestEmail = createEmail('TestEmail', ({ Email, Body }) =>
   )
 );
 
-function makeWrapper(onSend: jest.Mock) {
+function makeWrapper(onSend: Mock) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return <EmailProvider onSend={onSend}>{children}</EmailProvider>;
   };
@@ -43,7 +43,7 @@ function makeWrapper(onSend: jest.Mock) {
 
 describe('useEmail', () => {
   it('renders the template to HTML and calls onSend', async () => {
-    const onSend = jest.fn().mockResolvedValue(undefined);
+    const onSend = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
 
     await act(async () => {
@@ -58,7 +58,7 @@ describe('useEmail', () => {
   });
 
   it('uses the subject from the Email component', async () => {
-    const onSend = jest.fn().mockResolvedValue(undefined);
+    const onSend = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
 
     await act(async () => {
@@ -69,7 +69,7 @@ describe('useEmail', () => {
   });
 
   it('overrides subject with send-time subject when provided', async () => {
-    const onSend = jest.fn().mockResolvedValue(undefined);
+    const onSend = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
 
     await act(async () => {
@@ -80,7 +80,7 @@ describe('useEmail', () => {
   });
 
   it('passes all send-time props through to onSend', async () => {
-    const onSend = jest.fn().mockResolvedValue(undefined);
+    const onSend = vi.fn().mockResolvedValue(undefined);
     const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
 
     await act(async () => {
@@ -113,7 +113,7 @@ describe('useEmail', () => {
 
   it('propagates onSend rejection to the caller', async () => {
     const error = new Error('send failed');
-    const onSend = jest.fn().mockRejectedValue(error);
+    const onSend = vi.fn().mockRejectedValue(error);
     const { result } = renderHook(() => useEmail(TestEmail), { wrapper: makeWrapper(onSend) });
     await act(async () => {
       await expect(result.current('World', { to: 'a@b.com' })).rejects.toThrow('send failed');
