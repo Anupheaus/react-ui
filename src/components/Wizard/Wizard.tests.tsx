@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from 'react';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { WizardStep } from './Wizard/WizardStep';
 import { WizardStepContent } from './Wizard/WizardStepContent';
@@ -344,5 +344,56 @@ describe('createWizard', () => {
       </Wizard>
     ));
     expect(MyWizard.name).toBe('MyTestWizard');
+  });
+});
+
+// ─── useWizard ────────────────────────────────────────────────────────────────
+
+import { useWizard } from './useWizard';
+
+describe('useWizard', () => {
+  it('returns open/close methods named after the wizard', () => {
+    const MyWizard = createWizard('MyHookWizard', ({ Wizard, Step }) => () => (
+      <Wizard title="Hook Wizard"><Step id="s1"><div /></Step></Wizard>
+    ));
+
+    const { result } = renderHook(() => useWizard(MyWizard, 'hw-1'));
+    expect(typeof result.current.openMyHookWizard).toBe('function');
+    expect(typeof result.current.closeMyHookWizard).toBe('function');
+  });
+});
+
+// ─── useWizardStep ────────────────────────────────────────────────────────────
+
+import { useWizardStep } from './useWizardStep';
+
+describe('useWizardStep', () => {
+  it('throws when called outside a Wizard', () => {
+    const { result } = renderHook(() => {
+      try { return useWizardStep(); }
+      catch (e) { return e as Error; }
+    });
+    expect((result.current as Error).message).toMatch(/useWizardStep.*Wizard/i);
+  });
+
+  it('returns navigation functions when called inside a WizardContext', () => {
+    const contextValue: WizardContextProps = {
+      state: {} as any, // non-null signals "inside a wizard"
+      steps: [],
+      isNextEnabled: true,
+      isBackEnabled: true,
+      moveNext: vi.fn(),
+      moveBack: vi.fn(),
+      setNextIsEnabled: vi.fn(),
+      setBackIsEnabled: vi.fn(),
+    };
+
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <WizardContext.Provider value={contextValue}>{children}</WizardContext.Provider>
+    );
+
+    const { result } = renderHook(() => useWizardStep(), { wrapper });
+    expect(typeof result.current.moveNext).toBe('function');
+    expect(typeof result.current.setNextIsEnabled).toBe('function');
   });
 });
