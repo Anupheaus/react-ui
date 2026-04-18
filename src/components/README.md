@@ -27,6 +27,7 @@ All UI components in this library, grouped by category. Each component name link
 |-----------|-------------|
 | [Windows](Windows/README.md) | Draggable, resizable application windows with persistence |
 | [Dialog](Dialog/README.md) | Modal dialogs with createDialog / useDialog / useConfirmationDialog |
+| [Wizard](Wizard/README.md) | Multi-step workflow window with Back/Next/Save navigation |
 
 ## Forms & Inputs
 
