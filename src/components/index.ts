@@ -20,6 +20,7 @@ export * from './Component';
 export * from './Checkbox';
 export * from './SplashScreen';
 export * from './Windows';
+export * from './Wizard';
 export * from './Scroller';
 export * from './StickyHideHeader';
 export * from './Menu';

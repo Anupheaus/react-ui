@@ -5,7 +5,7 @@ import { createStyles } from '../../../theme';
 import { Tag } from '../../Tag';
 import { Window } from '../../Windows/Window/Window';
 import { WizardContext, WizardRegistrationContext, WizardStepIdContext } from '../WizardContexts';
-import type { StepRecord, WizardNavigationUtils, WizardProps } from '../WizardModels';
+import type { StepRecord, WizardProps } from '../WizardModels';
 import { WizardStepContent } from './WizardStepContent';
 
 const useStyles = createStyles({

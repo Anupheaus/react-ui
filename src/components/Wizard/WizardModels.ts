@@ -1,5 +1,5 @@
 // src/components/Wizard/WizardModels.ts
-import type { ComponentType, ReactNode, RefObject } from 'react';
+import type { ComponentType, MutableRefObject, ReactNode } from 'react';
 import type { DistributedState } from '../../hooks';
 import type { WindowAction, WindowOkAction } from '../Windows/Window';
 
@@ -60,7 +60,7 @@ export interface WizardProps {
   onClosing?(reason?: string): void | boolean | Promise<void | boolean>;
   onClosed?(reason?: string): void;
   onFocus?(isFocused: boolean): void;
-  navigationRef?: RefObject<WizardNavigationUtils>;
+  navigationRef?: MutableRefObject<WizardNavigationUtils | null>;
 }
 
 export interface WizardDefinitionUtils<CloseResponseType = string | undefined> extends WizardNavigationUtils {
