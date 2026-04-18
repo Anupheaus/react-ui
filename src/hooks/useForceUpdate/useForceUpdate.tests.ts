@@ -9,14 +9,14 @@ describe('useForceUpdate', () => {
     expect(result.current).toBe(first);
   });
 
-  it('calling the returned function triggers a re-render', async () => {
+  it('calling the returned function triggers a re-render', () => {
     let renderCount = 0;
     const { result } = renderHook(() => {
       renderCount++;
       return useForceUpdate();
     });
     const countBefore = renderCount;
-    await act(async () => { result.current(); });
+    act(() => { result.current(); });
     expect(renderCount).toBeGreaterThan(countBefore);
   });
 });
