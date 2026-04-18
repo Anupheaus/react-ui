@@ -5,6 +5,7 @@ import { WizardStep } from './Wizard/WizardStep';
 import { WizardStepContent } from './Wizard/WizardStepContent';
 import { WizardActions } from './Wizard/WizardActions';
 import { Wizard } from './Wizard/Wizard';
+import { createWizardStep } from './createWizardStep';
 import { WizardContext } from './WizardContexts';
 import { useDistributedState } from '../../hooks';
 import type { WizardContextProps, WizardNavigationUtils } from './WizardModels';
@@ -19,12 +20,25 @@ class MockIntersectionObserver {
   disconnect() { return undefined; }
 }
 
+// ─── Shared module-level setup ────────────────────────────────────────────────
+
+const WIZARD_MANAGER_ID = 'wizard-test-manager';
+const WIZARD_MANAGER_INSTANCE = 'wizard-test-instance';
+const wizardRenderContext = { id: 'w1', managerId: WIZARD_MANAGER_ID };
+
 beforeAll(() => {
   Object.defineProperty(globalThis, 'IntersectionObserver', {
     writable: true,
     configurable: true,
     value: MockIntersectionObserver,
   });
+  const manager = WindowsManager.getOrCreate(WIZARD_MANAGER_ID, WIZARD_MANAGER_INSTANCE, 'windows');
+  // open() synchronously registers the window in the manager (only awaiting resolves the animation event)
+  manager.open({ id: 'w1', definitionId: 'wizard-test', args: [] });
+});
+
+afterAll(() => {
+  WindowsManager.remove(WIZARD_MANAGER_ID);
 });
 
 describe('WizardStep', () => {
@@ -207,20 +221,7 @@ describe('WizardActions', () => {
 
 // ─── Wizard ───────────────────────────────────────────────────────────────────
 
-const WIZARD_MANAGER_ID = 'wizard-test-manager';
-const WIZARD_MANAGER_INSTANCE = 'wizard-test-instance';
-const wizardRenderContext = { id: 'w1', managerId: WIZARD_MANAGER_ID };
-
 describe('Wizard', () => {
-  beforeAll(() => {
-    const manager = WindowsManager.getOrCreate(WIZARD_MANAGER_ID, WIZARD_MANAGER_INSTANCE, 'windows');
-    // open() adds the window synchronously (await only waits for animation event)
-    manager.open({ id: 'w1', definitionId: 'wizard-test', args: [] });
-  });
-
-  afterAll(() => {
-    WindowsManager.remove(WIZARD_MANAGER_ID);
-  });
 
   it('registers steps from children and renders their content', async () => {
     const { findByText } = render(
@@ -286,5 +287,47 @@ describe('Wizard', () => {
     await waitFor(() => expect(navRef.current).not.toBeNull());
     act(() => navRef.current.moveNext());
     expect(onStepChange).toHaveBeenCalledWith('s2');
+  });
+});
+
+// ─── createWizardStep ─────────────────────────────────────────────────────────
+
+describe('createWizardStep', () => {
+  it('has __isWizardStep marker', () => {
+    const MyStep = createWizardStep('MyStep', ({ id }) => <div>step-id-{id}</div>);
+    expect((MyStep as any).__isWizardStep).toBe(true);
+  });
+
+  it('creates a component that registers and renders as a wizard step', async () => {
+    const MyStep = createWizardStep('MyStep', ({ id }) => <div>step-id-{id}</div>);
+
+    const navRef = { current: null as unknown as WizardNavigationUtils };
+    const { findByText } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" navigationRef={navRef}>
+          <MyStep id="my-step" />
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+
+    expect(await findByText('step-id-my-step')).toBeTruthy();
+  });
+
+  it('receives navigation utils in the definition', async () => {
+    let capturedMoveNext: unknown;
+    const MyStep = createWizardStep('MyStep', ({ moveNext }) => {
+      capturedMoveNext = moveNext;
+      return <div>step</div>;
+    });
+
+    render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test">
+          <MyStep />
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+
+    await waitFor(() => expect(typeof capturedMoveNext).toBe('function'));
   });
 });
