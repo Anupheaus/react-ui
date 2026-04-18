@@ -172,12 +172,24 @@ interface SwitchTheme {
   thumbColor: string;
 }
 
+interface MarkdownTheme {
+  scrollPromptColor: string;
+}
+
 interface NotificationTypeTheme {
   backgroundColor?: string;
   color?: string;
   fontSize?: number;
   fontWeight?: number;
   boxShadow?: string;
+}
+
+interface QRCodeTheme {
+  foregroundColor?: string;
+  backgroundColor?: string;
+  dotStyle?: 'square' | 'dots' | 'rounded' | 'classy' | 'classy-rounded' | 'extra-rounded';
+  cornerSquareStyle?: 'square' | 'dot' | 'extra-rounded';
+  cornerDotStyle?: 'square' | 'dot';
 }
 
 export interface Theme {
@@ -407,6 +419,7 @@ export interface Theme {
       heavy: CSSProperties;
     };
   };
+  markdown: MarkdownTheme;
   scrollbars: {
     thumb: ThemeStateConfig;
     track: ThemeStateConfig;
@@ -414,4 +427,17 @@ export interface Theme {
   gaps: GapsTheme;
   dataPaletteColors: string[];
   skeleton: CSSProperties;
+  wizard: {
+    progress: {
+      currentColor: string;
+      completedColor: string;
+      futureColor: string;
+      lineCompletedColor: string;
+      lineColor: string;
+      labelColor: string;
+      panelBackgroundColor: string;
+      panelBorderColor: string;
+    };
+  };
+  qrCode?: QRCodeTheme;
 }

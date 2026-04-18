@@ -422,6 +422,9 @@ export const DefaultTheme: Theme = {
   skeleton: {
     color: Color(primaryTextColor).alpha(0.1).hexa(),
   },
+  markdown: {
+    scrollPromptColor: '#999',
+  },
   scrollbars: {
     thumb: {
       normal: {
@@ -443,4 +446,23 @@ export const DefaultTheme: Theme = {
   },
   dataPaletteColors: ['#6929c4', '#1192e8', '#005d5d', '#9f1853', '#fa4d56', '#570408', '#198038', '#002d9c', '#ee538b', '#b28600', '#009d9a', '#012749', '#8a3800', '#a56eff']
     .map(color => Color(color).lighten(0.85).hexa()),
+  wizard: {
+    progress: {
+      currentColor: '#1e88e5',
+      completedColor: '#a8d5a2',
+      futureColor: '#bdbdbd',
+      lineCompletedColor: '#a8d5a2',
+      lineColor: '#bdbdbd',
+      labelColor: primaryTextColor,
+      panelBackgroundColor: '#f8f8f8',
+      panelBorderColor: 'rgba(0 0 0 / 10%)',
+    },
+  },
+  qrCode: {
+    foregroundColor: '#000000',
+    backgroundColor: '#ffffff',
+    dotStyle: 'square',
+    cornerSquareStyle: 'square',
+    cornerDotStyle: 'square',
+  },
 };
