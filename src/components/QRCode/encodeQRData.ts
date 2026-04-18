@@ -12,8 +12,8 @@ export function encodeQRData(data: QRCodeData): string {
     case 'email': {
       const { to, subject, body } = data.value;
       const params = [
-        subject ? `subject=${subject}` : null,
-        body ? `body=${body}` : null,
+        subject ? `subject=${encodeURIComponent(subject)}` : null,
+        body    ? `body=${encodeURIComponent(body)}`       : null,
       ].filter(Boolean).join('&');
       return params ? `mailto:${to}?${params}` : `mailto:${to}`;
     }
@@ -44,7 +44,7 @@ export function encodeQRData(data: QRCodeData): string {
         address ? `ADR:${address}` : null,
         'END:VCARD',
       ].filter(Boolean) as string[];
-      return lines.join('\n');
+      return lines.join('\r\n');
     }
 
     case 'geo': {

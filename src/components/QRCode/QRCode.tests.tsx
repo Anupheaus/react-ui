@@ -71,4 +71,14 @@ describe('encodeQRData', () => {
   it('encodes geo', () => {
     expect(encodeQRData({ type: 'geo', value: { lat: 51.5, lng: -0.12 } })).toBe('geo:51.5,-0.12');
   });
+
+  it('percent-encodes email subject and body', () => {
+    expect(encodeQRData({ type: 'email', value: { to: 'a@b.com', subject: 'Hello World', body: 'Hi & bye' } }))
+      .toBe('mailto:a@b.com?subject=Hello%20World&body=Hi%20%26%20bye');
+  });
+
+  it('uses CRLF line endings in vcard output', () => {
+    const result = encodeQRData({ type: 'vcard', value: { name: 'Jane' } });
+    expect(result).toContain('\r\n');
+  });
 });
