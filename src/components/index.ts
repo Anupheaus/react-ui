@@ -55,6 +55,7 @@ export * from './Grid';
 export * from './Configurator';
 export * from './Email';
 export * from './PhoneNumber';
+export * from './QRCode';
 export * from './Selector';
 export * from './Expander';
 export * from './Matrix';

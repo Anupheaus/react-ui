@@ -44,6 +44,7 @@ All UI components in this library, grouped by category. Each component name link
 | [Checkbox](Checkbox/README.md) | Checkbox input |
 | [Radio](Radio/README.md) | Radio button input |
 | [Signature](Signature/README.md) | Freehand signature capture — saves as a base64 PNG data URL |
+| [Markdown](Markdown/README.md) | Markdown editor and viewer with themed scrollbars and scroll shadows |
 | [Switch](Switch/README.md) | Toggle switch input |
 | [ToggleButtonGroup](ToggleButtonGroup/README.md) | Group of mutually exclusive toggle buttons |
 | [InternalText](InternalText/README.md) | Internal base text input used by Text, Password, Email, etc. |
@@ -108,6 +109,7 @@ All UI components in this library, grouped by category. Each component name link
 | [Chips](Chips/README.md) | Set of removable chip inputs |
 | [Image](Image/README.md) | Image with loading and error states |
 | [Icon](Icon/README.md) | Icon component using the built-in icon set |
+| [QRCode](QRCode/README.md) | QR code renderer with logo overlay and theme-driven styling |
 
 ## Typography & Misc
 
