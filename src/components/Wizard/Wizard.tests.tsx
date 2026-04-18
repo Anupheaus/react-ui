@@ -1,12 +1,13 @@
 import React, { useLayoutEffect } from 'react';
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { WizardStep } from './Wizard/WizardStep';
 import { WizardStepContent } from './Wizard/WizardStepContent';
 import { WizardActions } from './Wizard/WizardActions';
+import { Wizard } from './Wizard/Wizard';
 import { WizardContext } from './WizardContexts';
 import { useDistributedState } from '../../hooks';
-import type { WizardContextProps } from './WizardModels';
+import type { WizardContextProps, WizardNavigationUtils } from './WizardModels';
 import { WindowRenderContext } from '../Windows/WindowsContexts';
 import { WindowsManager } from '../Windows/WindowsManager';
 import type { DistributedState } from '../../hooks';
@@ -201,5 +202,89 @@ describe('WizardActions', () => {
   it('Back button is read-only when isBackEnabled is false', () => {
     const { getByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'], isBackEnabled: false });
     expect(getByText('Back').closest('button')!.classList.contains('is-read-only')).toBe(true);
+  });
+});
+
+// ─── Wizard ───────────────────────────────────────────────────────────────────
+
+const WIZARD_MANAGER_ID = 'wizard-test-manager';
+const WIZARD_MANAGER_INSTANCE = 'wizard-test-instance';
+const wizardRenderContext = { id: 'w1', managerId: WIZARD_MANAGER_ID };
+
+describe('Wizard', () => {
+  beforeAll(() => {
+    const manager = WindowsManager.getOrCreate(WIZARD_MANAGER_ID, WIZARD_MANAGER_INSTANCE, 'windows');
+    // open() adds the window synchronously (await only waits for animation event)
+    manager.open({ id: 'w1', definitionId: 'wizard-test', args: [] });
+  });
+
+  afterAll(() => {
+    WindowsManager.remove(WIZARD_MANAGER_ID);
+  });
+
+  it('registers steps from children and renders their content', async () => {
+    const { findByText } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test">
+          <WizardStep>Step One</WizardStep>
+          <WizardStep>Step Two</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+    expect(await findByText('Step One')).toBeTruthy();
+  });
+
+  it('navigates to the next step on moveNext', async () => {
+    const navRef = { current: null as unknown as WizardNavigationUtils };
+
+    render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" navigationRef={navRef}>
+          <WizardStep id="s1">Step One</WizardStep>
+          <WizardStep id="s2">Step Two</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+
+    await waitFor(() => expect(navRef.current).not.toBeNull());
+    act(() => navRef.current.moveNext());
+
+    await waitFor(() => {
+      const visible = document.querySelector('.is-visible');
+      expect(visible?.textContent).toContain('Step Two');
+    });
+  });
+
+  it('respects default step prop (uncontrolled)', async () => {
+    const { container } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" step="s2">
+          <WizardStep id="s1">Step One</WizardStep>
+          <WizardStep id="s2">Step Two</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+    await waitFor(() => {
+      const visible = container.querySelector('.is-visible');
+      expect(visible?.textContent).toContain('Step Two');
+    });
+  });
+
+  it('calls onStepChange in controlled mode', async () => {
+    const onStepChange = vi.fn();
+    const navRef = { current: null as unknown as WizardNavigationUtils };
+
+    render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" step="s1" onStepChange={onStepChange} navigationRef={navRef}>
+          <WizardStep id="s1">Step One</WizardStep>
+          <WizardStep id="s2">Step Two</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+
+    await waitFor(() => expect(navRef.current).not.toBeNull());
+    act(() => navRef.current.moveNext());
+    expect(onStepChange).toHaveBeenCalledWith('s2');
   });
 });
