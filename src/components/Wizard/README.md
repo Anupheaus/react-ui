@@ -72,6 +72,18 @@ function NestedComponent() {
 | `children` | `ReactNode` | `Step`/`createWizardStep` children plus `Actions`. |
 | All standard `Window` props | — | `className`, `icon`, `hideCloseButton`, `disableDrag`, `disableResize`, `width`, `height`, etc. |
 
+## createWizardStep definition utils
+
+The function passed to `createWizardStep` receives:
+
+| Util | Description |
+|------|-------------|
+| `id` | Step instance id |
+| `moveNext()` | Advance to next step |
+| `moveBack()` | Return to previous step |
+| `setNextIsEnabled(bool)` | Enable/disable Next button |
+| `setBackIsEnabled(bool)` | Enable/disable Back button |
+
 ## createWizard definition utils
 
 | Util | Description |
