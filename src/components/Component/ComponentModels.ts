@@ -1,5 +1,5 @@
-import { DeepPartial, MapOf } from '@anupheaus/common';
-import { CSSObject } from 'tss-react';
+import type { DeepPartial, MapOf } from '@anupheaus/common';
+import type { CSSObject } from 'tss-react';
 import type { GetThemeDefinition, GetThemeIcons, IconType, LegacyTheme } from '../../theme/themeModels';
 
 /** @deprecated */

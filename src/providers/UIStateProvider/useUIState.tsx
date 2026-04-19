@@ -1,4 +1,5 @@
-import { ComponentProps, useContext, useMemo } from 'react';
+import type { ComponentProps} from 'react';
+import { useContext, useMemo } from 'react';
 import { createComponent } from '../../components/Component';
 import { useBound } from '../../hooks/useBound';
 import { UIState } from './UIState';

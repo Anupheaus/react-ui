@@ -3,7 +3,7 @@ import QRCodeStyling from 'qr-code-styling';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Icon } from '../Icon';
-import { LocalIconDefinitions } from '../Icon/Icons';
+import type { LocalIconDefinitions } from '../Icon/Icons';
 import { encodeQRData } from './encodeQRData';
 import type { Props, QRCodeData } from './QRCodeModels';
 
@@ -82,7 +82,7 @@ export const QRCode = createComponent('QRCode', ({
       if (qrMountRef.current != null) qrMountRef.current.innerHTML = '';
       qrRef.current = null;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // intentional: only run on mount
 
   useEffect(() => {
     qrRef.current?.update({

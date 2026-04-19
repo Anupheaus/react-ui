@@ -1,9 +1,10 @@
 import { createStyles } from '../../../theme';
-import { ComponentProps, useMemo } from 'react';
+import type { ComponentProps} from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../../../components/Component';
 import type { Icon } from '../../../components/Icon';
 import { ErrorTooltip } from '../ErrorTooltip';
-import { Error } from '@anupheaus/common';
+import type { Error } from '@anupheaus/common';
 
 interface Props extends Omit<ComponentProps<typeof Icon>, 'name'> {
   error: Error;

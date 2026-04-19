@@ -1,6 +1,6 @@
-import { MouseEnteredEvent, MouseLeaveEvent, MouseMoveEvent } from './InteractionEvents';
+import type { MouseEnteredEvent, MouseLeaveEvent, MouseMoveEvent } from './InteractionEvents';
 import { calculateIfEventIsOverElement, cloneEvent } from './InterationEventUtils';
-import { UseInteractionEventsProps } from './useInteractionEvents';
+import type { UseInteractionEventsProps } from './useInteractionEvents';
 
 function raiseMouseEntered(oldIsOverElement: boolean, isOverElement: boolean, event: MouseEnteredEvent, onMouseEntered?: (event: MouseEnteredEvent) => void) {
   if (oldIsOverElement === isOverElement || !isOverElement || onMouseEntered == null) return;

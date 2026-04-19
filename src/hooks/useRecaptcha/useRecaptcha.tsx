@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import { ReCaptchaWrapper } from './RecaptchaWrapper';
 import { createComponent } from '../../components/Component';
 import { useBound } from '../useBound';
-import { ReCaptchaState } from './RecaptchaModels';
+import type { ReCaptchaState } from './RecaptchaModels';
 import type { ReCaptchaProps } from './Recaptcha';
 import { RecaptchaNotice } from './RecaptchaNotice';
 

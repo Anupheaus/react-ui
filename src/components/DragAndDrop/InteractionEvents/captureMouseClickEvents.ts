@@ -1,5 +1,5 @@
 import { calculateIfEventIsOverElement, cloneEvent } from './InterationEventUtils';
-import { UseInteractionEventsProps } from './useInteractionEvents';
+import type { UseInteractionEventsProps } from './useInteractionEvents';
 
 export function captureMouseClickEvents(detachEvents: Set<() => void>, element: HTMLElement, { data, onMouseUp, onMouseDown }: UseInteractionEventsProps): void {
   const wrappedHandler = (event: MouseEvent) => {

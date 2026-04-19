@@ -1,8 +1,11 @@
-import { ReactNode, useMemo } from 'react';
+import type { ReactNode} from 'react';
+import { useMemo } from 'react';
 import { useBound } from '../../hooks/useBound';
 import { createComponent } from '../Component';
-import { Drawer as MuiDrawer, AppBar, Toolbar, DrawerProps as MuiDrawerProps, ModalProps } from '@mui/material';
-import { DistributedState, useDistributedState } from '../../hooks';
+import type { DrawerProps as MuiDrawerProps, ModalProps } from '@mui/material';
+import { Drawer as MuiDrawer, AppBar, Toolbar } from '@mui/material';
+import type { DistributedState} from '../../hooks';
+import { useDistributedState } from '../../hooks';
 import { Button } from '../Button';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';

@@ -1,4 +1,4 @@
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 
 export interface CalendarMonthEntryRecord {
   renderedOnRow: number;

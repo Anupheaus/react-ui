@@ -36,7 +36,7 @@ export const WizardContentComponent = createComponent('WizardContentComponent', 
   const BoundWizard = useMemo(() =>
     createComponent('Wizard', (props: ComponentProps<typeof Wizard>) => (
       <Wizard {...props} navigationRef={navigationRef} />
-    )), []); // eslint-disable-line react-hooks/exhaustive-deps
+    )), []); // intentional: navigationRef is stable
 
   const utils = useMemo(() => ({
     id: windowId,
@@ -50,7 +50,7 @@ export const WizardContentComponent = createComponent('WizardContentComponent', 
     moveBack: () => navigationRef.current.moveBack(),
     setNextIsEnabled: (v: boolean) => navigationRef.current.setNextIsEnabled(v),
     setBackIsEnabled: (v: boolean) => navigationRef.current.setBackIsEnabled(v),
-  }), [windowId, BoundWizard, close]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [windowId, BoundWizard, close]); // intentional: navigationRef methods are stable
 
   const firstCall = wizardDefinition(utils as any);
   const content: JSX.Element | null = typeof firstCall === 'function'

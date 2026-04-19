@@ -1,7 +1,9 @@
-import { is, Record } from '@anupheaus/common';
+import type { Record } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
 import { useContext, useRef } from 'react';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
-import { createRecordsProviderContextEntry, RecordsProviderContext, RecordsProviderContextProps } from './RecordsProviderContext';
+import type { RecordsProviderContextProps } from './RecordsProviderContext';
+import { createRecordsProviderContextEntry, RecordsProviderContext } from './RecordsProviderContext';
 
 function useEmptyRecordsProvider<T extends Record = Record>(typeId: string) {
   const recordsMap = useContext(RecordsProviderContext) as RecordsProviderContextProps<T>;

@@ -1,5 +1,6 @@
 import { Error as CommonError } from '@anupheaus/common';
-import { Component, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Component } from 'react';
 
 interface Props {
   onError(error: CommonError): JSX.Element | null;

@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
-import { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
+import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 
 function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date) /*: CalendarMonthEntryRecord[]*/ {
   return useMemo(() => {

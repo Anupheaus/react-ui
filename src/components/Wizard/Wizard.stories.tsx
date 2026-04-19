@@ -135,7 +135,7 @@ const ControlledStory = createComponent('ControlledStory', () => {
   const [, setStep] = useState('alpha');
   const { openControlledWizard } = useWizard(ControlledWizardDef, 'ctrl-1');
 
-  useLayoutEffect(() => { openControlledWizard('alpha'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { openControlledWizard('alpha'); }, []); // intentional: only run on mount
 
   return (
     <Flex isVertical gap={8}>
@@ -177,7 +177,7 @@ const ProgressWizard = createWizard('ProgressWizard', ({ Wizard, Step, Actions }
 
 const ProgressStory = createComponent('ProgressStory', () => {
   const { openProgressWizard } = useWizard(ProgressWizard, 'progress-1');
-  useLayoutEffect(() => { openProgressWizard(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { openProgressWizard(); }, []); // intentional: only run on mount
   return <Windows />;
 });
 

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useBound } from '../../../hooks/useBound';
-import { AnyObject } from '@anupheaus/common';
-import { MouseDownEvent, MouseEnteredEvent, MouseLeaveEvent, MouseMoveEvent, MouseUpEvent } from './InteractionEvents';
+import type { AnyObject } from '@anupheaus/common';
+import type { MouseDownEvent, MouseEnteredEvent, MouseLeaveEvent, MouseMoveEvent, MouseUpEvent } from './InteractionEvents';
 import { captureMouseMoveEvents } from './captureMouseMoveEvents';
 import { captureMouseClickEvents } from './captureMouseClickEvents';
 

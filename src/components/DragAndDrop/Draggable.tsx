@@ -1,7 +1,9 @@
-import { Dimensions, Record } from '@anupheaus/common';
-import { CSSProperties, ReactNode, useMemo, useRef, useState } from 'react';
+import type { Dimensions, Record } from '@anupheaus/common';
+import type { CSSProperties, ReactNode} from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useBound, useDOMRef, useDrag, UseDragEvent } from '../../hooks';
+import type { UseDragEvent } from '../../hooks';
+import { useBound, useDOMRef, useDrag } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';

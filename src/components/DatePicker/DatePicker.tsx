@@ -1,10 +1,12 @@
 
-import { ComponentProps, ReactNode, useMemo } from 'react';
+import type { ComponentProps, ReactNode} from 'react';
+import { useMemo } from 'react';
 import { DatePicker as MuiDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
-import { Field, FieldProps } from '../Field';
+import type { FieldProps } from '../Field';
+import { Field } from '../Field';
 import { useBooleanState, useBound } from '../../hooks';
 import { DateTime } from 'luxon';
 import { Icon } from '../Icon';

@@ -1,6 +1,7 @@
 import { createComponent } from '../components/Component';
 import { createStyles } from '../theme/createStyles';
-import { CSSProperties, ReactNode, useMemo } from 'react';
+import type { CSSProperties, ReactNode} from 'react';
+import { useMemo } from 'react';
 import { Tag } from '../components/Tag';
 
 const useStyles = createStyles({

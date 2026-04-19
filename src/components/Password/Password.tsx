@@ -1,8 +1,10 @@
-import { ReactElement, useMemo, useState } from 'react';
+import type { ReactElement} from 'react';
+import { useMemo, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound } from '../../hooks';
 import { Button } from '../Button';
-import { InternalText, InternalTextProps } from '../InternalText';
+import type { InternalTextProps } from '../InternalText';
+import { InternalText } from '../InternalText';
 import { Icon } from '../Icon';
 
 interface Props extends InternalTextProps<string> {

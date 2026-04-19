@@ -1,6 +1,7 @@
-import { DeferredPromise, is } from '@anupheaus/common';
-import { FullPagination } from './UseItemsModels';
-import { ListItemType } from '../../models';
+import type { DeferredPromise} from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { FullPagination } from './UseItemsModels';
+import type { ListItemType } from '../../models';
 
 interface Props<T extends ListItemType> extends FullPagination {
   total?: number;

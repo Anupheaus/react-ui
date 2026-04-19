@@ -1,5 +1,5 @@
 import { createStyles } from '../../theme';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { ButtonContext } from './ButtonContext';

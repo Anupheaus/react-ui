@@ -1,4 +1,5 @@
-import { CSSProperties, ComponentProps, ReactNode, useMemo } from 'react';
+import type { CSSProperties, ComponentProps, ReactNode} from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Badge as MuiBadge } from '@mui/material';
 import { createStyles } from '../../theme';

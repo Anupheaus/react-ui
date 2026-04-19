@@ -1,4 +1,4 @@
-import { AnyFunction } from '@anupheaus/common';
+import type { AnyFunction } from '@anupheaus/common';
 import { useEffect, useRef } from 'react';
 import { useBound, useDelegatedBound } from '../useBound';
 

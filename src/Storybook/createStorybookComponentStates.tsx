@@ -1,9 +1,9 @@
-import { AnyObject } from '@anupheaus/common';
-import { StoryContext, StoryObj } from '@storybook/react-webpack5';
+import type { AnyObject } from '@anupheaus/common';
+import type { StoryContext, StoryObj } from '@storybook/react-webpack5';
 import { UIState } from '../providers';
 import { StorybookComponent } from './StorybookComponent2';
 import { Flex } from '../components';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 const states = {
   'Normal': {},

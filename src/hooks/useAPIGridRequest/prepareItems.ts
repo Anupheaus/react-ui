@@ -1,6 +1,6 @@
-import { DeferredPromise } from '@anupheaus/common';
-import { FullPagination } from './UseItemsModels';
-import { ListItemType } from '../../models';
+import type { DeferredPromise } from '@anupheaus/common';
+import type { FullPagination } from './UseItemsModels';
+import type { ListItemType } from '../../models';
 
 export function prepareItems<T extends ListItemType>(items: (DeferredPromise<T> | T)[], request: FullPagination): void {
   for (let index = request.offset; index < request.offset + request.limit; index++) {

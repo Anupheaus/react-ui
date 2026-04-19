@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { SimpleImageCarousel } from './SimpleImageCarousel';

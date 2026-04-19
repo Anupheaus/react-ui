@@ -1,5 +1,5 @@
 import { to } from '@anupheaus/common';
-import { DOMAttributes, MouseEvent } from 'react';
+import type { DOMAttributes, MouseEvent } from 'react';
 import { useMemo, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useDOMRef } from '../useDOMRef';

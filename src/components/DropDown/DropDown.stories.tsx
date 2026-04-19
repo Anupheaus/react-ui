@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useState } from 'react';
 import { DropDown } from './DropDown';
-import { ListItem } from '@anupheaus/common';
+import type { ListItem } from '@anupheaus/common';
 
 const meta: Meta<typeof DropDown> = {
   component: DropDown,

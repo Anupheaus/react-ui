@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { Calendar } from './Calendar';
-import { CalendarEntryRecord } from './CalendarModels';
+import type { CalendarEntryRecord } from './CalendarModels';
 import { DateTime } from 'luxon';
 import type { IconName } from '../Icon';
 

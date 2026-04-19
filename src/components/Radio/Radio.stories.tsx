@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useUpdatableState } from '../../hooks';
 import { Radio } from './Radio';
-import { ListItem } from '@anupheaus/common';
+import type { ListItem } from '@anupheaus/common';
 import type { ComponentProps } from 'react';
 
 const meta: Meta<typeof Radio> = {

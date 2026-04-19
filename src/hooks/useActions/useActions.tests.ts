@@ -57,14 +57,14 @@ describe('useActions', () => {
 
   it('getMappedActions hasActions is true after setMappedActions is called', () => {
     const { result } = renderHook(() => useActions<TestActions>());
-    result.current.setMappedActions('test-id')({ greet: (name) => `Hi ${name}` });
+    result.current.setMappedActions('test-id')({ greet: name => `Hi ${name}` });
     const mapped = result.current.getMappedActions('test-id');
     expect(mapped.hasActions).toBe(true);
   });
 
   it('invokes a mapped action', () => {
     const { result } = renderHook(() => useActions<TestActions>());
-    result.current.setMappedActions('test-id')({ greet: (name) => `Hi ${name}` });
+    result.current.setMappedActions('test-id')({ greet: name => `Hi ${name}` });
     const mapped = result.current.getMappedActions('test-id') as TestActions;
     expect(mapped.greet('Alice')).toBe('Hi Alice');
   });

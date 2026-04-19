@@ -41,7 +41,7 @@ export function createWizard<Name extends string, Args extends unknown[], CloseR
   wizardDefinition: WizardDefinition<Args, CloseResponseType>,
 ): ReactUIWindow<Name, Args, CloseResponseType> {
 
-  const windowDefinition: WindowDefinition<Args, CloseResponseType> = (_windowUtils) => (...args: Args) => (
+  const windowDefinition: WindowDefinition<Args, CloseResponseType> = _windowUtils => (...args: Args) => (
     <WizardContentComponent args={args} wizardDefinition={wizardDefinition} />
   );
 

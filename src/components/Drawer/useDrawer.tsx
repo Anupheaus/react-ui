@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { useDistributedState } from '../../hooks';
 import { useBound } from '../../hooks/useBound';
-import { Drawer as DrawerComponent, DrawerProps } from './Drawer';
+import type { DrawerProps } from './Drawer';
+import { Drawer as DrawerComponent } from './Drawer';
 
 export function useDrawer() {
   const { state, set: changeOpenState } = useDistributedState(() => false);

@@ -6,7 +6,7 @@ import { useLogger } from './useLogger';
 import { Logger } from '@anupheaus/common';
 
 function wrapper({ children }: { children: ReactNode }) {
-  return createElement(LoggerProvider, { loggerName: 'test', logger: undefined, children });
+  return createElement(LoggerProvider, { loggerName: 'test', logger: undefined }, children);
 }
 
 describe('useLogger', () => {

@@ -4,7 +4,7 @@ import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { CalendarUtils } from '../CalendarUtils';
 import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
-import { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
+import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 
 const cellSize = 100;
 

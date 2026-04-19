@@ -1,5 +1,5 @@
-import { Error } from '@anupheaus/common';
-import { ReactNode } from 'react';
+import type { Error } from '@anupheaus/common';
+import type { ReactNode } from 'react';
 
 export interface OnRenderProps {
   error: Error;

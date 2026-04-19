@@ -1,6 +1,7 @@
-import { MapOf } from '@anupheaus/common';
-import { FunctionComponent as ComponentType } from 'react';
-import { StorybookComponent, StoryConfig } from '../../Storybook';
+import type { MapOf } from '@anupheaus/common';
+import type { FunctionComponent as ComponentType } from 'react';
+import type { StoryConfig } from '../../Storybook';
+import { StorybookComponent } from '../../Storybook';
 import { UIState } from './UIState';
 
 export function generateUIStateStories<T extends {}>(Component: ComponentType<T>): MapOf<StoryConfig<T>> {

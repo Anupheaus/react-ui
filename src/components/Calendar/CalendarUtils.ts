@@ -1,4 +1,4 @@
-import { CalendarEntryRecord } from './CalendarModels';
+import type { CalendarEntryRecord } from './CalendarModels';
 
 function startOfDay(date: Date) {
   const newDate = new Date(date.getTime());

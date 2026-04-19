@@ -1,8 +1,8 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createComponent } from '../../../components/Component';
 import { useBound } from '../../../hooks/useBound';
 import { InteractionContext } from './InteractionContext';
-import { MouseMoveEvent } from './InteractionEvents';
+import type { MouseMoveEvent } from './InteractionEvents';
 
 interface Props {
   children: ReactNode;

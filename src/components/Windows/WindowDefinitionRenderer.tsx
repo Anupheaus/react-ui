@@ -1,7 +1,7 @@
 import { createComponent } from '../Component';
+import type { ComponentType, ReactNode } from 'react';
 import type { WindowDefinition, WindowDefinitionProps } from './WindowsModels';
 import { WindowRenderer } from './WindowRenderer';
-import type { ReactNode } from 'react';
 import { useLayoutEffect, useState } from 'react';
 import { windowsDefinitionsManager } from './WindowDefinitionsManager';
 import { WindowsManager } from './WindowsManager';
@@ -11,7 +11,7 @@ interface Props<Args extends unknown[], CloseResponseType = string | undefined> 
   definition: WindowDefinition<Args, CloseResponseType>;
   definitionId?: string;
   managerId?: string;
-  windowComponent?: import('react').ComponentType<any>;
+  windowComponent?: ComponentType<any>;
 }
 
 export const WindowDefinitionRenderer = createComponent('WindowDefinitionRenderer', <Args extends unknown[], CloseResponseType = string | undefined>({

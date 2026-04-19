@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';

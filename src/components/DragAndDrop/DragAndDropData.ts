@@ -1,4 +1,4 @@
 import { Records } from '@anupheaus/common';
-import { DraggedItem } from './DragAndDropModels';
+import type { DraggedItem } from './DragAndDropModels';
 
 export const DragAndDropData = new Records<DraggedItem>();

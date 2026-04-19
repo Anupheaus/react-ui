@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { UIState, useLocale } from '../../providers';
-import { PromiseMaybe, to } from '@anupheaus/common';
+import type { PromiseMaybe} from '@anupheaus/common';
+import { to } from '@anupheaus/common';
 import { useAsync } from '../../hooks';
 
 interface NumberProps {

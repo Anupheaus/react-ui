@@ -87,6 +87,7 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.54.0",
     "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-storybook": "10.2.10",
     "http-server": "^14.1.1",
     "playwright": "^1.49.0",

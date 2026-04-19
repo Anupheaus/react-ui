@@ -1,4 +1,4 @@
-import { PromiseMaybe, UnPromise, Unsubscribe } from '@anupheaus/common';
+import type { PromiseMaybe, UnPromise, Unsubscribe } from '@anupheaus/common';
 import { useMemo, useRef, useState } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';

@@ -73,12 +73,12 @@ export const Wizard = createComponent('Wizard', ({
   // Sync controlled mode when step prop changes
   useLayoutEffect(() => {
     if (providedStep != null && onStepChange != null) set(providedStep);
-  }, [providedStep]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [providedStep]); // intentional: stable refs/bound fns excluded
 
   // When steps first register, set initial active step if none is set
   useLayoutEffect(() => {
     if (steps.length > 0 && !get()) set(steps[0].id);
-  }, [steps]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [steps]); // intentional: stable refs/bound fns excluded
 
   const moveNext = useBound(() => {
     const currentId = get();
@@ -127,7 +127,7 @@ export const Wizard = createComponent('Wizard', ({
     return filtered;
   }));
 
-  const registrationContext = useMemo(() => ({ isValid: true, upsertStep, removeStep }), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const registrationContext = useMemo(() => ({ isValid: true, upsertStep, removeStep }), []); // intentional: stable refs/bound fns excluded
 
   type StepValidator = { isValid: () => boolean; highlight: () => void };
   const stepValidatorsRef = useRef(new Map<string, StepValidator>());
@@ -151,7 +151,7 @@ export const Wizard = createComponent('Wizard', ({
     setBackIsEnabled: handleSetBackIsEnabled,
     registerStepValidator,
     checkStepIsValid,
-  }), [state, steps]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [state, steps]); // intentional: stable refs/bound fns excluded
 
   const wizardEnabledContext = useMemo(() => ({
     isNextEnabled,

@@ -1,10 +1,11 @@
-import { CSSProperties, useMemo } from 'react';
+import type { CSSProperties} from 'react';
+import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles, colors } from '../../../theme';
 import { Icon } from '../../Icon';
 import { Tag } from '../../Tag';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
-import { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
 import { useCalendarEntryHighlighting } from '../CalenderEntryHighlightProvider';
 

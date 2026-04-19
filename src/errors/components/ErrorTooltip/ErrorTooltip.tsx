@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Tooltip } from '../../../components/Tooltip';
 import { createComponent } from '../../../components/Component';
 import { createStyles, ThemeProvider } from '../../../theme';
 import { Flex } from '../../../components/Flex';
-import { Error } from '@anupheaus/common';
+import type { Error } from '@anupheaus/common';
 
 interface Props {
   error: Error;

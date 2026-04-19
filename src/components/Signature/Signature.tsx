@@ -101,7 +101,7 @@ export const Signature = createComponent('Signature', ({
       pad.off();
       padRef.current = null;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // intentional: only run on mount
 
   // Sync external value changes into the pad (skip when the change was triggered by the user drawing)
   useEffect(() => {

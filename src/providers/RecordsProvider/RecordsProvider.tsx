@@ -1,10 +1,13 @@
-import { is, Record } from '@anupheaus/common';
-import { ReactNode, useContext, useMemo } from 'react';
+import type { Record } from '@anupheaus/common';
+import { is } from '@anupheaus/common';
+import type { ReactNode} from 'react';
+import { useContext, useMemo } from 'react';
 import { createComponent } from '../../components/Component';
 import { useOnChange } from '../../hooks/useOnChange';
 import { useCallbacks } from '../../hooks/useCallbacks';
 import { useBound } from '../../hooks/useBound';
-import { createRecordsProviderContextEntry, RecordsProviderContext, RecordsProviderContextEntry, RecordsProviderContextProps } from './RecordsProviderContext';
+import type { RecordsProviderContextEntry, RecordsProviderContextProps } from './RecordsProviderContext';
+import { createRecordsProviderContextEntry, RecordsProviderContext } from './RecordsProviderContext';
 
 interface Props<T> {
   typeId: string;

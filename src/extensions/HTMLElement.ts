@@ -1,4 +1,4 @@
-import { Coordinates, Dimensions, Geometry } from '@anupheaus/common';
+import type { Coordinates, Dimensions, Geometry } from '@anupheaus/common';
 import './Document';
 
 interface IDimensionOptions {

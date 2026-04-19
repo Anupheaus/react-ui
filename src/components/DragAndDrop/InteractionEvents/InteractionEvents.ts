@@ -1,4 +1,4 @@
-import { AnyObject } from '@anupheaus/common';
+import type { AnyObject } from '@anupheaus/common';
 
 export interface MouseEnteredEvent<T extends AnyObject = AnyObject> extends MouseEvent {
   data?: T;

@@ -63,14 +63,14 @@ export const WizardStepContent = createComponent('WizardStepContent', ({ stepId,
 
   const { ValidateSection, isValid, highlightValidationErrors } = useValidation();
 
-  useLayoutEffect(() => registerStepValidator(stepId, isValid, highlightValidationErrors), [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => registerStepValidator(stepId, isValid, highlightValidationErrors), [stepId]); // intentional: stable bound fns excluded
 
   useLayoutEffect(() => {
     if (get() === stepId) {
       lastIsActiveRef.current = true;
       onStepRef.current?.(true);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // intentional: stable bound fns excluded
 
   onChange(newId => batchUpdate(() => {
     const newIndex = stepsRef.current.findIndex(s => s.id === newId);

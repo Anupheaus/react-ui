@@ -1,4 +1,4 @@
-import { Args, StoryObj } from '@storybook/react';
+import type { Args, StoryObj } from '@storybook/react';
 import { StorybookComponent } from './StorybookComponent2';
 
 type StoryConfig<TMetaOrCmpOrArgs = Args> = StoryObj<TMetaOrCmpOrArgs> & {

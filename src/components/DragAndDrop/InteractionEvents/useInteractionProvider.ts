@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { InteractionContext } from './InteractionContext';
-import { EventName, useInteractionEvents } from './useInteractionEvents';
+import type { EventName} from './useInteractionEvents';
+import { useInteractionEvents } from './useInteractionEvents';
 
 interface Props {
   captureEvents?: EventName[];

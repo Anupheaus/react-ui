@@ -1,6 +1,6 @@
 import { useOnChange } from '../useOnChange';
-import { UseDataRequest, UseDataResponse } from '../../extensions';
-import { ListItemType } from '../../models';
+import type { UseDataRequest, UseDataResponse } from '../../extensions';
+import type { ListItemType } from '../../models';
 
 export function makeOnRequest<T extends ListItemType>(providedItems: T[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();

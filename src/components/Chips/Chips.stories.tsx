@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { useState } from 'react';
-import { ListItem } from '@anupheaus/common';
+import type { ListItem } from '@anupheaus/common';
 import { Chips } from './Chips';
 
 const meta: Meta<typeof Chips> = {

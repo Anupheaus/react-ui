@@ -1,9 +1,10 @@
 import { is } from '@anupheaus/common';
-import { MutableRefObject, useLayoutEffect, useRef } from 'react';
+import type { MutableRefObject} from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
 import { useCallbacks } from '../useCallbacks';
-import { DistributedState, DistributedStateApi } from './DistributedStateModels';
+import type { DistributedState, DistributedStateApi } from './DistributedStateModels';
 
 interface InternalState<T> {
   state: T;

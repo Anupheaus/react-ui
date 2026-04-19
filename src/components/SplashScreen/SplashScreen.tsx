@@ -1,5 +1,6 @@
 import { createStyles } from '../../theme';
-import { ReactNode, useLayoutEffect, useRef } from 'react';
+import type { ReactNode} from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { useDebounce } from '../../hooks';
 import { useUIState } from '../../providers';
 import { createComponent } from '../Component';
