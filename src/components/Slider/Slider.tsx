@@ -3,7 +3,6 @@ import { createComponent } from '../Component';
 import { Field, type FieldProps } from '../Field';
 import { useBound } from '../../hooks';
 import { createStyles } from '../../theme';
-import { useUIState } from '../../providers';
 
 type SingleProps = {
   type: 'single';
@@ -47,7 +46,7 @@ const useStyles = createStyles(({ slider: { normal, active, readOnly }, pseudoCl
     },
     '& .MuiSlider-thumb': {
       backgroundColor: normal.thumbColor,
-      borderColor: normal.thumbBorderColor ?? 'transparent',
+      borderColor: normal.thumbBorderColor,
       ...applyTransition('background-color'),
     },
     '& .MuiSlider-mark': {
@@ -85,7 +84,6 @@ const useStyles = createStyles(({ slider: { normal, active, readOnly }, pseudoCl
 
 export const Slider = createComponent('Slider', (props: Props) => {
   const { css } = useStyles();
-  const { isReadOnly } = useUIState();
 
   const {
     min = 0,
@@ -94,16 +92,7 @@ export const Slider = createComponent('Slider', (props: Props) => {
     showValue = 'none',
     showMarks = false,
     orientation = 'horizontal',
-    label,
-    isOptional,
-    hideOptionalLabel,
-    requiredMessage,
-    help,
-    assistiveHelp,
-    error,
-    wide,
-    width,
-    className,
+    ...fieldProps
   } = props;
 
   const muiValue = props.type === 'range'
@@ -123,16 +112,7 @@ export const Slider = createComponent('Slider', (props: Props) => {
     <Field
       tagName="slider"
       noContainer
-      label={label}
-      isOptional={isOptional}
-      hideOptionalLabel={hideOptionalLabel}
-      requiredMessage={requiredMessage}
-      help={help}
-      assistiveHelp={assistiveHelp}
-      error={error}
-      wide={wide}
-      width={width}
-      className={className}
+      {...fieldProps}
     >
       <MuiSlider
         className={css.slider}
@@ -143,7 +123,6 @@ export const Slider = createComponent('Slider', (props: Props) => {
         marks={showMarks}
         orientation={orientation}
         valueLabelDisplay={valueLabelDisplayMap[showValue]}
-        disabled={isReadOnly}
         onChange={handleChange}
       />
     </Field>

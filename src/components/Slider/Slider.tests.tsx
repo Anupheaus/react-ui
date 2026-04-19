@@ -39,10 +39,8 @@ describe('Slider', () => {
     expect(container.querySelector('.MuiSlider-mark')).not.toBeNull();
   });
 
-  it('renders in disabled state when read-only', () => {
-    const { container } = render(<Slider type="single" value={50} />);
-    // Slider itself is not disabled by default
-    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
-    expect(input.disabled).toBe(false);
+  it('does not render marks when showMarks is false', () => {
+    const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} />);
+    expect(container.querySelector('.MuiSlider-markActive')).toBeNull();
   });
 });
