@@ -43,4 +43,36 @@ describe('Slider', () => {
     const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} />);
     expect(container.querySelector('.MuiSlider-markActive')).toBeNull();
   });
+
+  it('clamps onChange value to clampMin for type single', () => {
+    const onChange = vi.fn();
+    const { container } = render(
+      <Slider type="single" value={60} min={0} max={100} clampMin={50} onChange={onChange} />
+    );
+    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '20' } });
+    expect(onChange).toHaveBeenCalledWith(50);
+  });
+
+  it('clamps onChange value to clampMax for type single', () => {
+    const onChange = vi.fn();
+    const { container } = render(
+      <Slider type="single" value={60} min={0} max={100} clampMax={80} onChange={onChange} />
+    );
+    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '95' } });
+    expect(onChange).toHaveBeenCalledWith(80);
+  });
+
+  it('renders a forbidden overlay when clampMin is set', () => {
+    const { container } = render(
+      <Slider type="single" value={60} min={0} max={100} clampMin={50} />
+    );
+    expect(container.querySelector('[data-testid="forbidden-overlay"]')).not.toBeNull();
+  });
+
+  it('does not render a forbidden overlay when neither clampMin nor clampMax is set', () => {
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} />);
+    expect(container.querySelector('[data-testid="forbidden-overlay"]')).toBeNull();
+  });
 });
