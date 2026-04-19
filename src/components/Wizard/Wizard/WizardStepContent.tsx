@@ -1,10 +1,11 @@
-import { useContext, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useBatchUpdates, useDistributedState } from '../../../hooks';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import { Flex } from '../../Flex';
 import { Scroller } from '../../Scroller';
+import { useValidation } from '../../../providers';
 import { WizardContext } from '../WizardContexts';
 
 const useStyles = createStyles(({ windows: { content: { active: contentActive } } }) => ({
@@ -42,11 +43,12 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
 
 interface Props {
   stepId: string;
+  onStep?: (isActive: boolean) => void;
   children: ReactNode;
 }
 
-export const WizardStepContent = createComponent('WizardStepContent', ({ stepId, children }: Props) => {
-  const { state, steps } = useContext(WizardContext);
+export const WizardStepContent = createComponent('WizardStepContent', ({ stepId, onStep, children }: Props) => {
+  const { state, steps, registerStepValidator } = useContext(WizardContext);
   const { onChange, get } = useDistributedState(state);
   const { css, join } = useStyles();
   const [isFocused, setIsFocused] = useState(get() === stepId);
@@ -55,18 +57,40 @@ export const WizardStepContent = createComponent('WizardStepContent', ({ stepId,
   const stepsRef = useRef(steps);
   stepsRef.current = steps;
 
+  const onStepRef = useRef(onStep);
+  onStepRef.current = onStep;
+  const lastIsActiveRef = useRef<boolean | undefined>(undefined);
+
+  const { ValidateSection, isValid, highlightValidationErrors } = useValidation();
+
+  useLayoutEffect(() => registerStepValidator(stepId, isValid, highlightValidationErrors), [stepId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useLayoutEffect(() => {
+    if (get() === stepId) {
+      lastIsActiveRef.current = true;
+      onStepRef.current?.(true);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   onChange(newId => batchUpdate(() => {
     const newIndex = stepsRef.current.findIndex(s => s.id === newId);
     const myIndex = stepsRef.current.findIndex(s => s.id === stepId);
     setDirection(newIndex > myIndex ? 'left' : 'right');
-    setIsFocused(newId === stepId);
+    const newIsFocused = newId === stepId;
+    setIsFocused(newIsFocused);
+    if (newIsFocused !== lastIsActiveRef.current) {
+      lastIsActiveRef.current = newIsFocused;
+      onStepRef.current?.(newIsFocused);
+    }
   }));
 
   return (
     <Flex tagName="wizard-step" className={join(css.step, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
       <Scroller fullHeight>
         <Flex tagName="wizard-step-content" isVertical className={css.stepContent}>
-          {children}
+          <ValidateSection>
+            {children}
+          </ValidateSection>
         </Flex>
       </Scroller>
     </Flex>

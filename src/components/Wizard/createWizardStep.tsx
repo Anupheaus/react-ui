@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useRef } from 'react';
+import React, { useContext, useLayoutEffect, useRef } from 'react';
 import { useId } from '../../hooks';
 import { createComponent } from '../Component';
 import { WizardContext, WizardStepIdContext } from './WizardContexts';
@@ -11,7 +11,7 @@ export function createWizardStep(
   name: string,
   definition: StepDefinition,
 ) {
-  const component = createComponent(name, ({ id: providedId }: { id?: string }) => {
+  const component = createComponent(name, ({ id: providedId, label }: { id?: string; label?: React.ReactNode }) => {
     const { id: contextId } = useContext(WizardStepIdContext);
     const generatedId = useId();
     const id = providedId ?? (contextId || generatedId);
@@ -53,9 +53,12 @@ export function createWizardStep(
       }
     });
 
-    const content = definition({ id, moveNext, moveBack, setNextIsEnabled: captureSetNext, setBackIsEnabled: captureSetBack });
+    let onStepCallback: ((isActive: boolean) => void) | undefined;
+    const onStep = (callback: (isActive: boolean) => void) => { onStepCallback = callback; };
 
-    return <WizardStep id={id}>{content}</WizardStep>;
+    const content = definition({ id, moveNext, moveBack, setNextIsEnabled: captureSetNext, setBackIsEnabled: captureSetBack, onStep });
+
+    return <WizardStep id={id} label={label} onStep={onStepCallback}>{content}</WizardStep>;
   });
 
   (component as any).__isWizardStep = true;

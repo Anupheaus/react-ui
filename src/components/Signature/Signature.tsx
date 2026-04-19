@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import type { PointerEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { PointerEvent, ReactNode } from 'react';
 import SignaturePad from 'signature_pad';
 import useResizeObserver from 'use-resize-observer';
 import { createComponent } from '../Component';
@@ -9,10 +9,13 @@ import type { FieldProps } from '../Field';
 import { Button } from '../Button';
 import { Tag } from '../Tag';
 import { useBound } from '../../hooks';
+import { useValidation } from '../../providers';
 
 export interface SignatureProps extends FieldProps {
   value?: string;
   allowClear?: boolean;
+  minStrokes?: number;
+  minStrokesMessage?: ReactNode;
   onChange?(value: string | undefined): void;
 }
 
@@ -46,14 +49,19 @@ const useStyles = createStyles(({ fields, signature }) => ({
 export const Signature = createComponent('Signature', ({
   value,
   allowClear = false,
+  minStrokes,
+  minStrokesMessage,
   onChange,
   ...fieldProps
 }: SignatureProps) => {
   const { css } = useStyles();
+  const { validate } = useValidation({ id: `Signature-${fieldProps.label}` });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const padRef = useRef<SignaturePad | null>(null);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+  const [strokeCount, setStrokeCount] = useState(0);
+  const strokeCountRef = useRef(0);
   // Tracks whether the latest value change came from the user drawing (true) or an external prop update (false).
   // When true we skip fromDataURL — the canvas already has the correct content and calling fromDataURL would
   // re-draw the captured PNG at a scaled size (÷ devicePixelRatio), producing smaller ghost copies.
@@ -79,6 +87,9 @@ export const Signature = createComponent('Signature', ({
 
     const onEndStroke = () => {
       isInternalChangeRef.current = true;
+      strokeCountRef.current = pad.toData().length;
+      setStrokeCount(strokeCountRef.current);
+      enableErrorsRef.current();
       onChangeRef.current?.(canvas.toDataURL('image/png'));
     };
     pad.addEventListener('endStroke', onEndStroke);
@@ -122,8 +133,17 @@ export const Signature = createComponent('Signature', ({
 
   useResizeObserver({ ref: canvasRef, onResize: handleResize });
 
+  const { error, enableErrors } = validate(() => {
+    if (minStrokes == null || strokeCount >= minStrokes) return;
+    return minStrokesMessage ?? `Please provide at least ${minStrokes} stroke${minStrokes === 1 ? '' : 's'}`;
+  });
+  const enableErrorsRef = useRef(enableErrors);
+  enableErrorsRef.current = enableErrors;
+
   const handleClear = useBound(() => {
     padRef.current?.clear();
+    strokeCountRef.current = 0;
+    setStrokeCount(0);
     onChangeRef.current?.(undefined);
   });
 
@@ -157,6 +177,7 @@ export const Signature = createComponent('Signature', ({
       {...fieldProps}
       tagName="signature"
       fullHeight
+      error={error}
     >
       <Tag name="signature-canvas-container" className={css.canvasContainer}>
         <canvas ref={canvasRef} className={css.canvas} />

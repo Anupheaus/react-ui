@@ -85,7 +85,7 @@ export const List = createComponent('List', function <T = void, V extends string
 }: ListProps<T, V>) {
   const { css: listCss } = useListStyles();
   const { css, join } = useStyles();
-  const { validate } = useValidation(`list-${label}`);
+  const { validate } = useValidation({ id: `list-${label}` });
   const [hasItems, setHasItems] = useState(false);
   const [hasSelectedItems, setHasSelectedItems] = useState(false);
   const value = 'value' in props ? props.value : undefined;

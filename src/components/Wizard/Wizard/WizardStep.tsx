@@ -4,7 +4,7 @@ import { createComponent } from '../../Component';
 import { WizardRegistrationContext, WizardStepIdContext } from '../WizardContexts';
 import type { WizardStepProps } from '../WizardModels';
 
-export const WizardStep = createComponent('WizardStep', ({ id: providedId, children }: WizardStepProps) => {
+export const WizardStep = createComponent('WizardStep', ({ id: providedId, label, onStep, children }: WizardStepProps) => {
   const { id: contextId } = useContext(WizardStepIdContext);
   const generatedId = useId();
   const id = providedId ?? (contextId || generatedId);
@@ -13,8 +13,8 @@ export const WizardStep = createComponent('WizardStep', ({ id: providedId, child
   if (!isValid) throw new Error('WizardStep must be a child of Wizard');
 
   useLayoutEffect(() => {
-    upsertStep({ id, children });
-  }, [id, children, upsertStep]);
+    upsertStep({ id, label, onStep, children });
+  }, [id, label, onStep, children, upsertStep]);
 
   useEffect(() => () => { removeStep(id); }, [id, removeStep]);
 

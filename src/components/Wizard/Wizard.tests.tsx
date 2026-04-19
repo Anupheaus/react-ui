@@ -6,9 +6,9 @@ import { WizardStepContent } from './Wizard/WizardStepContent';
 import { WizardActions } from './Wizard/WizardActions';
 import { Wizard } from './Wizard/Wizard';
 import { createWizardStep } from './createWizardStep';
-import { WizardContext } from './WizardContexts';
+import { WizardContext, WizardEnabledContext } from './WizardContexts';
 import { useDistributedState } from '../../hooks';
-import type { WizardContextProps, WizardNavigationUtils } from './WizardModels';
+import type { WizardContextProps, WizardEnabledContextProps, WizardNavigationUtils } from './WizardModels';
 import { WindowRenderContext } from '../Windows/WindowsContexts';
 import { WindowsManager } from '../Windows/WindowsManager';
 import type { DistributedState } from '../../hooks';
@@ -66,12 +66,13 @@ function WizardStepContentHarness({ initialStepId, stepIds, targetStepId, childr
   const contextValue: WizardContextProps = {
     state,
     steps: stepIds.map(id => ({ id, children: null })),
-    isNextEnabled: true,
-    isBackEnabled: true,
     moveNext: () => void 0,
     moveBack: () => void 0,
+    navigateTo: () => void 0,
     setNextIsEnabled: () => void 0,
     setBackIsEnabled: () => void 0,
+    registerStepValidator: () => () => void 0,
+    checkStepIsValid: () => true,
   };
 
   return (
@@ -138,21 +139,26 @@ function renderWizardActions({ activeStepId, stepIds, moveNext = () => void 0, m
   const contextValue: WizardContextProps = {
     state: capturedState!,
     steps: stepIds.map(id => ({ id, children: null })),
-    isNextEnabled,
-    isBackEnabled,
     moveNext,
     moveBack,
+    navigateTo: () => void 0,
     setNextIsEnabled: () => void 0,
     setBackIsEnabled: () => void 0,
+    registerStepValidator: () => () => void 0,
+    checkStepIsValid: () => true,
   };
+
+  const enabledContextValue: WizardEnabledContextProps = { isNextEnabled, isBackEnabled };
 
   const renderContext = { id: 'w1', managerId: TEST_MANAGER_ID };
 
   return render(
     <WizardContext.Provider value={contextValue}>
-      <WindowRenderContext.Provider value={renderContext}>
-        <WizardActions />
-      </WindowRenderContext.Provider>
+      <WizardEnabledContext.Provider value={enabledContextValue}>
+        <WindowRenderContext.Provider value={renderContext}>
+          <WizardActions />
+        </WindowRenderContext.Provider>
+      </WizardEnabledContext.Provider>
     </WizardContext.Provider>
   );
 }
@@ -173,11 +179,11 @@ describe('WizardActions', () => {
     expect(queryByText('Save')).not.toBeNull();
   });
 
-  it('shows Next and Save (no Back) on the first of multiple steps', () => {
+  it('shows Next (no Back, no Save) on the first of multiple steps', () => {
     const { queryByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'] });
     expect(queryByText('Back')).toBeNull();
     expect(queryByText('Next')).not.toBeNull();
-    expect(queryByText('Save')).not.toBeNull();
+    expect(queryByText('Save')).toBeNull();
   });
 
   it('shows Back and Save (no Next) on the last step', () => {
@@ -187,11 +193,11 @@ describe('WizardActions', () => {
     expect(queryByText('Save')).not.toBeNull();
   });
 
-  it('shows Back, Next, and Save on a middle step', () => {
+  it('shows Back and Next (no Save) on a middle step', () => {
     const { queryByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2', 's3'] });
     expect(queryByText('Back')).not.toBeNull();
     expect(queryByText('Next')).not.toBeNull();
-    expect(queryByText('Save')).not.toBeNull();
+    expect(queryByText('Save')).toBeNull();
   });
 
   it('calls moveNext when Next button is clicked', () => {
@@ -288,6 +294,57 @@ describe('Wizard', () => {
     act(() => navRef.current.moveNext());
     expect(onStepChange).toHaveBeenCalledWith('s2');
   });
+
+  it('renders the progress indicator panel when showProgress is set', async () => {
+    const { findByText } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" showProgress>
+          <WizardStep id="s1" label="Step Label One">Step One</WizardStep>
+          <WizardStep id="s2" label="Step Label Two">Step Two</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+    expect(await findByText('Step Label One')).toBeTruthy();
+    expect(await findByText('Step Label Two')).toBeTruthy();
+  });
+
+  it('does not render step labels when showProgress is not set', async () => {
+    const { queryByText } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test">
+          <WizardStep id="s1" label="Hidden Label">Step One</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+    await waitFor(() => {
+      expect(queryByText('Hidden Label')).toBeNull();
+    });
+  });
+
+  it('navigateTo jumps to the specified step', async () => {
+    const navRef = { current: null as unknown as WizardNavigationUtils };
+
+    render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Test" navigationRef={navRef}>
+          <WizardStep id="s1">Step One</WizardStep>
+          <WizardStep id="s2">Step Two</WizardStep>
+          <WizardStep id="s3">Step Three</WizardStep>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+
+    await waitFor(() => expect(navRef.current).not.toBeNull());
+    act(() => navRef.current.moveNext());
+    act(() => navRef.current.moveNext());
+
+    await waitFor(() => {
+      const visible = document.querySelector('.is-visible');
+      expect(visible?.textContent).toContain('Step Three');
+    });
+  });
+
+
 });
 
 // ─── createWizardStep ─────────────────────────────────────────────────────────
@@ -380,12 +437,13 @@ describe('useWizardStep', () => {
     const contextValue: WizardContextProps = {
       state: {} as any, // non-null signals "inside a wizard"
       steps: [],
-      isNextEnabled: true,
-      isBackEnabled: true,
       moveNext: vi.fn(),
       moveBack: vi.fn(),
+      navigateTo: vi.fn(),
       setNextIsEnabled: vi.fn(),
       setBackIsEnabled: vi.fn(),
+      registerStepValidator: () => () => void 0,
+      checkStepIsValid: () => true,
     };
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (

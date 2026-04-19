@@ -90,3 +90,42 @@ describe('useValidation — getErrors', () => {
     expect(errors).toHaveLength(0);
   });
 });
+
+describe('useValidation — string id shorthand', () => {
+  it('accepts a plain string as the id (no errors)', () => {
+    function StringIdComponent({ onErrors }: { onErrors: (e: unknown[]) => void }) {
+      const { getErrors } = useValidation('my-form');
+      onErrors(getErrors());
+      return null;
+    }
+    let errors: unknown[] | undefined;
+    render(<StringIdComponent onErrors={e => { errors = e; }} />);
+    expect(errors).toHaveLength(0);
+  });
+
+  it('string id behaves the same as object id for validation', () => {
+    let resultString: any;
+    let resultObject: any;
+
+    function StringIdForm({ onResult }: { onResult: (r: any) => void }) {
+      const { validate } = useValidation('form-a');
+      const result = validate(({ validateRequired }) => validateRequired(undefined, true));
+      onResult(result);
+      return null;
+    }
+
+    function ObjectIdForm({ onResult }: { onResult: (r: any) => void }) {
+      const { validate } = useValidation({ id: 'form-a' });
+      const result = validate(({ validateRequired }) => validateRequired(undefined, true));
+      onResult(result);
+      return null;
+    }
+
+    render(<StringIdForm onResult={r => { resultString = r; }} />);
+    render(<ObjectIdForm onResult={r => { resultObject = r; }} />);
+
+    // Both should start with no displayed error (not yet highlighted)
+    expect(resultString.error).toBeNull();
+    expect(resultObject.error).toBeNull();
+  });
+});

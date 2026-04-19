@@ -66,7 +66,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
 }: Props<T>) {
   const { css, join, useInlineStyle } = useInputStyles();
   const { isReadOnly } = useUIState();
-  const { validate } = useValidation(`${tagName}-${props.label}`);
+  const { validate } = useValidation({ id: `${tagName}-${props.label}` });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const ref = useDOMRef([innerRef, textareaRef as any]);
   const isMultiline = (multiline ?? 0) > 1;

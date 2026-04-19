@@ -2,9 +2,12 @@
 import type { ComponentType, MutableRefObject, ReactNode } from 'react';
 import type { DistributedState } from '../../hooks';
 import type { WindowAction, WindowOkAction } from '../Windows/Window';
+import type { WizardActions } from './Wizard/WizardActions';
 
 export interface StepRecord {
   id: string;
+  label?: ReactNode;
+  onStep?: (isActive: boolean) => void;
   children: ReactNode;
 }
 
@@ -18,6 +21,12 @@ export interface WizardNavigationUtils {
 export interface WizardContextProps extends WizardNavigationUtils {
   state: DistributedState<string>;
   steps: StepRecord[];
+  navigateTo(stepId: string): void;
+  registerStepValidator(stepId: string, isValid: () => boolean, highlight: () => void): () => void;
+  checkStepIsValid(stepId: string): boolean;
+}
+
+export interface WizardEnabledContextProps {
   isNextEnabled: boolean;
   isBackEnabled: boolean;
 }
@@ -34,10 +43,13 @@ export interface WizardStepIdContextProps {
 
 export interface WizardStepDefinitionUtils extends WizardNavigationUtils {
   id: string;
+  onStep(callback: (isActive: boolean) => void): void;
 }
 
 export interface WizardStepProps {
   id?: string;
+  label?: ReactNode;
+  onStep?: (isActive: boolean) => void;
   children: ReactNode;
 }
 
@@ -46,9 +58,10 @@ export interface WizardProps {
   title?: ReactNode;
   icon?: ReactNode;
   step?: string;
+  showProgress?: boolean;
   onStepChange?(id: string): void;
   hideCloseButton?: boolean;
-  hideMaximizeButton?: boolean;
+  allowMaximizeButton?: boolean;
   disableDrag?: boolean;
   disableResize?: boolean;
   width?: string | number;
@@ -66,7 +79,7 @@ export interface WizardProps {
 export interface WizardDefinitionUtils<CloseResponseType = string | undefined> extends WizardNavigationUtils {
   Wizard: ComponentType<WizardProps>;
   Step: ComponentType<WizardStepProps>;
-  Actions: ComponentType<{ children?: ReactNode }>;
+  Actions: typeof WizardActions;
   Action: typeof WindowAction;
   OkButton: typeof WindowOkAction;
   id: string;

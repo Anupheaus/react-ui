@@ -21,12 +21,19 @@ function createTools(): ValidationTools {
   };
 }
 
-export function useValidation(id?: string) {
+interface UseValidationProps {
+  id?: string;
+  forceEnable?: boolean;
+}
+
+export function useValidation(props?: UseValidationProps | string) {
+  const { id, forceEnable = false } = (typeof props === 'string' ? { id: props } : props) ?? {};
   const errors = useRef(new Records<ValidationRecord>()).current;
   const invalidSections = useRef(new Collection<string>()).current;
   const highlightErrorsCallbacks = useCallbacks<(shouldHighlight: boolean) => void>();
   const errorsAreHighlightedRef = useRef(false);
   const { isReadOnly } = useUIState();
+  const effectivelyReadOnly = isReadOnly && !forceEnable;
 
   subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
 
@@ -48,7 +55,7 @@ export function useValidation(id?: string) {
     const update = useForceUpdate();
     highlightErrorsCallbacks.register(setHighlight);
 
-    if (isReadOnly && errors.has(validateId)) {
+    if (effectivelyReadOnly && errors.has(validateId)) {
       errors.remove(validateId);
     }
 
@@ -60,7 +67,7 @@ export function useValidation(id?: string) {
       }
     };
 
-    const error = (isReadOnly ? [] : delegates).findMap(delegate => {
+    const error = (effectivelyReadOnly ? [] : delegates).findMap(delegate => {
       const result = delegate(createTools());
       if (is.promise(result)) {
         const setErrorAndUpdate = (response: void | ReactNode | undefined) => { setError(response); update(); };

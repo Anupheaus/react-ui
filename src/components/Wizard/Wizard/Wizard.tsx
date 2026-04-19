@@ -4,13 +4,26 @@ import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import { Tag } from '../../Tag';
 import { Window } from '../../Windows/Window/Window';
-import { WizardContext, WizardRegistrationContext, WizardStepIdContext } from '../WizardContexts';
+import { WizardContext, WizardEnabledContext, WizardRegistrationContext, WizardStepIdContext } from '../WizardContexts';
 import type { StepRecord, WizardProps } from '../WizardModels';
 import { WizardStepContent } from './WizardStepContent';
+import { WizardStepIndicator } from './WizardStepIndicator';
 
 const useStyles = createStyles({
   hidden: {
     display: 'none',
+  },
+  wizardLayout: {
+    display: 'flex',
+    flexDirection: 'row',
+    flexGrow: 1,
+    overflow: 'hidden',
+  },
+  wizardRight: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    overflow: 'hidden',
   },
   wizardSteps: {
     display: 'grid',
@@ -29,8 +42,9 @@ export const Wizard = createComponent('Wizard', ({
   icon,
   step: providedStep,
   onStepChange,
+  showProgress,
   hideCloseButton,
-  hideMaximizeButton,
+  allowMaximizeButton = false,
   disableDrag,
   disableResize,
   width,
@@ -86,6 +100,11 @@ export const Wizard = createComponent('Wizard', ({
     }
   });
 
+  const navigateTo = useBound((stepId: string) => {
+    set(stepId);
+    onStepChangeRef.current?.(stepId);
+  });
+
   const handleSetNextIsEnabled = useBound((enabled: boolean) => setIsNextEnabled(enabled));
   const handleSetBackIsEnabled = useBound((enabled: boolean) => setIsBackEnabled(enabled));
 
@@ -110,12 +129,34 @@ export const Wizard = createComponent('Wizard', ({
 
   const registrationContext = useMemo(() => ({ isValid: true, upsertStep, removeStep }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  type StepValidator = { isValid: () => boolean; highlight: () => void };
+  const stepValidatorsRef = useRef(new Map<string, StepValidator>());
+
+  const registerStepValidator = useBound((stepId: string, isValid: () => boolean, highlight: () => void) => {
+    stepValidatorsRef.current.set(stepId, { isValid, highlight });
+    return () => { stepValidatorsRef.current.delete(stepId); };
+  });
+
+  const checkStepIsValid = useBound((stepId: string) => {
+    const v = stepValidatorsRef.current.get(stepId);
+    if (v == null) return true;
+    v.highlight();
+    return v.isValid();
+  });
+
   const wizardContext = useMemo(() => ({
-    state, steps, isNextEnabled, isBackEnabled,
-    moveNext, moveBack,
+    state, steps,
+    moveNext, moveBack, navigateTo,
     setNextIsEnabled: handleSetNextIsEnabled,
     setBackIsEnabled: handleSetBackIsEnabled,
-  }), [state, steps, isNextEnabled, isBackEnabled]); // eslint-disable-line react-hooks/exhaustive-deps
+    registerStepValidator,
+    checkStepIsValid,
+  }), [state, steps]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const wizardEnabledContext = useMemo(() => ({
+    isNextEnabled,
+    isBackEnabled,
+  }), [isNextEnabled, isBackEnabled]);
 
   const slotIds = useRef<string[]>([]);
 
@@ -140,7 +181,7 @@ export const Wizard = createComponent('Wizard', ({
   }, [children]);
 
   const renderedSteps = useMemo(() => steps.map(step => (
-    <WizardStepContent key={step.id} stepId={step.id}>
+    <WizardStepContent key={step.id} stepId={step.id} onStep={step.onStep}>
       {step.children}
     </WizardStepContent>
   )), [steps]);
@@ -151,7 +192,7 @@ export const Wizard = createComponent('Wizard', ({
       icon={icon}
       className={className}
       hideCloseButton={hideCloseButton}
-      hideMaximizeButton={hideMaximizeButton}
+      hideMaximizeButton={!allowMaximizeButton}
       disableDrag={disableDrag}
       disableResize={disableResize}
       disableScrolling
@@ -166,15 +207,22 @@ export const Wizard = createComponent('Wizard', ({
       onFocus={onFocus}
     >
       <WizardContext.Provider value={wizardContext}>
-        <WizardRegistrationContext.Provider value={registrationContext}>
-          <Tag name="hidden" className={css.hidden}>
-            {wrappedStepChildren}
-          </Tag>
-          <Tag name="wizard-steps" className={css.wizardSteps}>
-            {renderedSteps}
-          </Tag>
-        </WizardRegistrationContext.Provider>
-        {otherChildren}
+        <WizardEnabledContext.Provider value={wizardEnabledContext}>
+          <WizardRegistrationContext.Provider value={registrationContext}>
+            <Tag name="hidden" className={css.hidden}>
+              {wrappedStepChildren}
+            </Tag>
+            <div className={css.wizardLayout}>
+              {showProgress && <WizardStepIndicator />}
+              <div className={css.wizardRight}>
+                <Tag name="wizard-steps" className={css.wizardSteps}>
+                  {renderedSteps}
+                </Tag>
+                {otherChildren}
+              </div>
+            </div>
+          </WizardRegistrationContext.Provider>
+        </WizardEnabledContext.Provider>
       </WizardContext.Provider>
     </Window>
   );

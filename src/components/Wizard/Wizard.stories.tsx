@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { expect } from 'storybook/test';
 import { useLayoutEffect, useState } from 'react';
 import { Windows } from '../Windows/Windows';
 import { StorybookComponent } from '../../Storybook/StorybookComponent2';
@@ -156,3 +157,61 @@ export const ControlledMode: Story = {
     );
   },
 };
+
+// ── Progress indicator ────────────────────────────────────────────────────────
+
+const ProgressWizard = createWizard('ProgressWizard', ({ Wizard, Step, Actions }) => () => (
+  <Wizard title="Setup Wizard" width={620} height={420} showProgress>
+    <Step id="account" label="Account details">
+      <p>Enter your account information here.</p>
+    </Step>
+    <Step id="prefs" label="Preferences">
+      <p>Customise your preferences.</p>
+    </Step>
+    <Step id="review" label="Review">
+      <p>Review and confirm your submission.</p>
+    </Step>
+    <Actions />
+  </Wizard>
+));
+
+const ProgressStory = createComponent('ProgressStory', () => {
+  const { openProgressWizard } = useWizard(ProgressWizard, 'progress-1');
+  useLayoutEffect(() => { openProgressWizard(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return <Windows />;
+});
+
+export const WithProgress: Story = {
+  render() {
+    return (
+      <StorybookComponent width={900} height={600} title="Progress Indicator">
+        <ProgressStory />
+      </StorybookComponent>
+    );
+  },
+  play: async ({ canvas, userEvent }) => {
+    // Step labels are visible in the indicator panel
+    await expect(canvas.getByText('Account details')).toBeInTheDocument();
+    await expect(canvas.getByText('Preferences')).toBeInTheDocument();
+    await expect(canvas.getByText('Review')).toBeInTheDocument();
+
+    // On step 1 — only Next is shown, no Back
+    const nextButton = canvas.getByRole('button', { name: 'Next' });
+    await expect(nextButton).toBeInTheDocument();
+    await expect(canvas.queryByRole('button', { name: 'Back' })).toBeNull();
+
+    // Advance to step 2
+    await userEvent.click(nextButton);
+
+    // Back is now visible; Next is still visible (middle step)
+    await expect(canvas.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+    await expect(canvas.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+
+    // Click the completed step label to navigate back to step 1
+    await userEvent.click(canvas.getByText('Account details'));
+
+    // Back should be gone again (we're back on step 1)
+    await expect(canvas.queryByRole('button', { name: 'Back' })).toBeNull();
+  },
+};
+WithProgress.name = 'With Progress Indicator';

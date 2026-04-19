@@ -6,7 +6,9 @@ import { useBound } from '../../../hooks';
 import { useWindowValidation } from './WindowValidationContext';
 import { useNotifications } from '../../Notifications';
 
-interface Props extends ActionsToolbarProps { }
+interface Props extends ActionsToolbarProps {
+  onCheckIsValid?(): boolean;
+}
 
 const useStyles = createStyles(({ windows: { content } }) => ({
   windowActions: {
@@ -21,6 +23,7 @@ const useStyles = createStyles(({ windows: { content } }) => ({
 
 export const WindowActions = createComponent('WindowActions', ({
   onSave,
+  onCheckIsValid,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
@@ -28,7 +31,8 @@ export const WindowActions = createComponent('WindowActions', ({
   const { showError } = useNotifications();
 
   const save = useBound(() => {
-    if (!isValid()) {
+    const checkIsValid = onCheckIsValid ?? isValid;
+    if (!checkIsValid()) {
       showError('There are validation errors in this window that must be fixed before saving.');
       return;
     }

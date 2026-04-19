@@ -53,6 +53,35 @@ function NestedComponent() {
 }
 ```
 
+## Progress Indicator
+
+When `showProgress` is set on the `Wizard`, a panel is rendered to the left of the step content (and behind the action bar, full-height). Each step is represented by a circle:
+
+| State | Appearance |
+|-------|-----------|
+| Current | Filled blue circle |
+| Completed | Filled pastel-green circle |
+| Future | Grey outline circle |
+
+Completed-step circles are clickable — clicking one navigates directly back to that step (steps after it revert to future). Future steps are not clickable.
+
+Assign a `label` prop to each `Step` (or `createWizardStep` instance) to show a text label alongside the circle.
+
+```tsx
+const MyWizard = createWizard('MyWizard', ({ Wizard, Step, Actions }) => () => (
+  <Wizard title="Setup" width={620} height={420} showProgress>
+    <Step id="account" label="Account details"><p>...</p></Step>
+    <Step id="prefs" label="Preferences"><p>...</p></Step>
+    <Step id="review" label="Review"><p>...</p></Step>
+    <Actions />
+  </Wizard>
+));
+```
+
+## Actions Props
+
+`Actions` accepts all [`ActionsToolbar`](../ActionsToolbar/README.md) props except `isSaveReadOnly` (controlled by the wizard). `onSave` and `saveLabel` apply only on the **last step** — on earlier steps the wizard always uses Next internally. Use the remaining props to add a Delete button, confirmation dialogs, loading state, etc.
+
 ## Actions behaviour
 
 The `Actions` toolbar uses a single primary button that doubles as Next or Save depending on step position. Clicking it runs form validation before advancing or closing.
@@ -71,6 +100,8 @@ The `Actions` toolbar uses a single primary button that doubles as Next or Save 
 | `title` | `ReactNode` | Window title |
 | `step` | `string` | Uncontrolled: default active step id. Controlled: active step id (requires `onStepChange`). |
 | `onStepChange` | `(id: string) => void` | When provided with `step`, enables externally controlled navigation. |
+| `showProgress` | `boolean` | Shows a step-progress panel on the left listing all steps with coloured circles and connecting lines. |
+| `allowMaximizeButton` | `boolean` | Show the maximise button (hidden by default). |
 | `children` | `ReactNode` | `Step`/`createWizardStep` children plus `Actions`. |
 | All standard `Window` props | — | `className`, `icon`, `hideCloseButton`, `disableDrag`, `disableResize`, `width`, `height`, etc. |
 
@@ -91,7 +122,7 @@ The function passed to `createWizardStep` receives:
 | Util | Description |
 |------|-------------|
 | `Wizard` | The window-like container component |
-| `Step` | Inline step — takes `id?` and `children` |
+| `Step` | Inline step — takes `id?`, `label?`, and `children`. `label` is shown in the progress panel when `showProgress` is set. |
 | `Actions` | Auto Back/Next/Save toolbar — accepts `children` to prepend custom buttons |
 | `Action` | Custom action button (closes window with a value) |
 | `OkButton` | Save/OK button |

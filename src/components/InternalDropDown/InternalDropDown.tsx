@@ -81,7 +81,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
   const innerRef = useDOMRef([props.ref, anchorRef, resizeTarget]);
   const [isOpen, setIsOpen, setIsClosed] = useBooleanState(false);
-  const { validate } = useValidation(`${props.tagName}-${props.label}`);
+  const { validate } = useValidation({ id: `${props.tagName}-${props.label}` });
 
   const click = useBound((event: ListItemEvent<T>) => {
     const item = values.findById(event.id);

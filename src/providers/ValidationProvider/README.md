@@ -8,6 +8,14 @@ Provides a form-level validation system via `useValidation()`: tracks field-leve
 
 ## Consuming
 
+`useValidation` accepts an optional `id` in two equivalent forms:
+
+```ts
+useValidation()                        // no id
+useValidation('my-form')               // string shorthand — id only
+useValidation({ id: 'my-form', forceEnable: true })  // full options object
+```
+
 ```tsx
 import { useValidation } from '@anupheaus/react-ui';
 
@@ -19,7 +27,7 @@ function MyForm() {
     highlightValidationErrors,
     getErrors,
     getInvalidSections,
-  } = useValidation();
+  } = useValidation('my-form');
 
   const handleSubmit = () => {
     if (!isValid()) return; // highlights all errors automatically
