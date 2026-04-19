@@ -22,13 +22,7 @@
     "lint": "eslint src --ext .ts,.tsx",
     "findDeclarationErrors": "tsc --declaration --declarationDir ./dist --emitDeclarationOnly",
     "build-storybook": "storybook build",
-    "test-storybook": "test-storybook",
-    "test-storybook:coverage": "test-storybook --coverage",
-    "test-storybook:play": "test-storybook --includeTags=play-fn",
-    "test-storybook:ci": "pnpm exec playwright install chromium && pnpm run build-storybook --quiet && npx concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"npx http-server storybook-static --port 6006 --silent\" \"npx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook -- --ci\"",
-    "test-storybook:update-snapshots": "pnpm run build-storybook --quiet && npx concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"npx http-server storybook-static --port 6006 --silent\" \"npx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook -- -u\"",
-    "test-storybook:ci:play": "pnpm exec playwright install chromium && pnpm run build-storybook --quiet && npx concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"npx http-server storybook-static --port 6006 --silent\" \"npx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook -- --ci --includeTags=play-fn\"",
-    "test-storybook:docker": "node scripts/test-storybook-docker.mjs",
+    "test-storybook:ci": "pnpm exec playwright install chromium && pnpm run build-storybook --quiet && npx concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"npx http-server storybook-static --port 6006 --silent\" \"npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci\"",
     "test-storybook:docker:update": "node scripts/test-storybook-docker.mjs --update-snapshots"
   },
   "files": [
