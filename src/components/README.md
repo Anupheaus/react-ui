@@ -38,6 +38,7 @@ All UI components in this library, grouped by category. Each component name link
 | [Text](Text/README.md) | Text input |
 | [Password](Password/README.md) | Password input with show/hide toggle |
 | [Number](Number/README.md) | Numeric input with formatting |
+| [Slider](Slider/README.md) | Numeric slider with single-value and range modes |
 | [Email](Email/README.md) | Email address input |
 | [PhoneNumber](PhoneNumber/README.md) | Phone number input with formatting |
 | [PIN](PIN/README.md) | PIN / OTP digit-by-digit input |
