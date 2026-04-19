@@ -188,8 +188,8 @@ interface QRCodeTheme {
   foregroundColor?: string;
   backgroundColor?: string;
   dotStyle?: 'square' | 'dots' | 'rounded' | 'classy' | 'classy-rounded' | 'extra-rounded';
-  cornerSquareStyle?: 'square' | 'dot' | 'extra-rounded';
-  cornerDotStyle?: 'square' | 'dot';
+  cornerSquareStyle?: 'none' | 'square' | 'dot' | 'extra-rounded';
+  cornerDotStyle?: 'none' | 'square' | 'dot';
 }
 
 interface SliderTheme {

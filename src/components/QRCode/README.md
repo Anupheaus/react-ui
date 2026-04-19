@@ -52,6 +52,16 @@ qrCode: {
 }
 ```
 
+### Style options
+
+| Property | Options | Default |
+|----------|---------|---------|
+| `dotStyle` | `'square'` `'dots'` `'rounded'` `'classy'` `'classy-rounded'` `'extra-rounded'` | `'square'` |
+| `cornerSquareStyle` | `'none'` `'square'` `'dot'` `'extra-rounded'` | `'none'` |
+| `cornerDotStyle` | `'none'` `'square'` `'dot'` | `'none'` |
+
+`'none'` leaves the corner styling at the library default (unset).
+
 ## Example
 
 ```tsx

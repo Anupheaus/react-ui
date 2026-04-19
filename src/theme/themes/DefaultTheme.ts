@@ -482,7 +482,7 @@ export const DefaultTheme: Theme = {
     foregroundColor: '#000000',
     backgroundColor: '#ffffff',
     dotStyle: 'square',
-    cornerSquareStyle: 'square',
-    cornerDotStyle: 'square',
+    cornerSquareStyle: 'none',
+    cornerDotStyle: 'none',
   },
 };

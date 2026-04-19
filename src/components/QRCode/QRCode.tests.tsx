@@ -178,3 +178,27 @@ describe('QRCode component', () => {
     expect(container.querySelector('[data-icon-type]')).toBeNull();
   });
 });
+
+describe('none corner style mapping', () => {
+  const resolveCornerSquare = (style: 'none' | 'square' | 'dot' | 'extra-rounded' | undefined) =>
+    style === 'none' ? undefined : (style ?? 'square');
+
+  const resolveCornerDot = (style: 'none' | 'square' | 'dot' | undefined) =>
+    style === 'none' ? undefined : (style ?? 'square');
+
+  it('maps cornerSquareStyle none to undefined', () => {
+    expect(resolveCornerSquare('none')).toBeUndefined();
+  });
+
+  it('maps cornerDotStyle none to undefined', () => {
+    expect(resolveCornerDot('none')).toBeUndefined();
+  });
+
+  it('passes cornerSquareStyle extra-rounded through unchanged', () => {
+    expect(resolveCornerSquare('extra-rounded')).toBe('extra-rounded');
+  });
+
+  it('passes cornerDotStyle dot through unchanged', () => {
+    expect(resolveCornerDot('dot')).toBe('dot');
+  });
+});

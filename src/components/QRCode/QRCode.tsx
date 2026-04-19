@@ -68,10 +68,10 @@ export const QRCode = createComponent('QRCode', ({
         type: qrTheme.dotStyle ?? 'square',
       },
       cornersSquareOptions: {
-        type: qrTheme.cornerSquareStyle ?? 'square',
+        type: qrTheme.cornerSquareStyle === 'none' ? undefined : (qrTheme.cornerSquareStyle ?? 'square'),
       },
       cornersDotOptions: {
-        type: qrTheme.cornerDotStyle ?? 'square',
+        type: qrTheme.cornerDotStyle === 'none' ? undefined : (qrTheme.cornerDotStyle ?? 'square'),
       },
       backgroundOptions: {
         color: qrTheme.backgroundColor ?? '#ffffff',
@@ -94,10 +94,10 @@ export const QRCode = createComponent('QRCode', ({
         type: qrTheme.dotStyle ?? 'square',
       },
       cornersSquareOptions: {
-        type: qrTheme.cornerSquareStyle ?? 'square',
+        type: qrTheme.cornerSquareStyle === 'none' ? undefined : (qrTheme.cornerSquareStyle ?? 'square'),
       },
       cornersDotOptions: {
-        type: qrTheme.cornerDotStyle ?? 'square',
+        type: qrTheme.cornerDotStyle === 'none' ? undefined : (qrTheme.cornerDotStyle ?? 'square'),
       },
       backgroundOptions: {
         color: qrTheme.backgroundColor ?? '#ffffff',
