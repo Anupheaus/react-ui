@@ -15,6 +15,8 @@ A numeric input rendered as a draggable track. Supports a single value or a min/
 | `showValue` | `'tooltip' \| 'inline' \| 'none'` | `'none'` | Where to display the current value |
 | `showMarks` | `boolean` | `false` | Show tick marks at each step |
 | `orientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Track direction |
+| `clampMin` | `number` | — | Minimum value the thumb is allowed to reach (must be ≥ `min`) |
+| `clampMax` | `number` | — | Maximum value the thumb is allowed to reach (must be ≤ `max`) |
 | `label` | `ReactNode` | — | Label above the slider |
 | `isOptional` | `boolean` | — | Marks the field as optional |
 | `help` | `ReactNode` | — | Help tooltip content |
@@ -60,6 +62,25 @@ function PriceFilter() {
 }
 ```
 
+### Clamped range
+
+When the allowed range is a sub-set of the displayed scale, use `clampMin` / `clampMax`.
+The track still renders the full `min`–`max` range but the thumb cannot enter the forbidden zone,
+which is shown in a dimmed colour.
+
+```tsx
+<Slider
+  type="single"
+  label="Deposit %"
+  value={deposit}
+  onChange={setDeposit}
+  min={0}
+  max={100}
+  clampMin={50}
+  showValue="tooltip"
+/>
+```
+
 ## Theming
 
 Add a `slider` block to your theme to override the default colours:
@@ -72,6 +93,7 @@ slider: {
     thumbColor: '#1976d2',
     valueLabelBackgroundColor: '#1976d2',
     valueLabelTextColor: '#fff',
+    forbiddenRailColor: 'rgba(0 0 0 / 12%)',
   },
   active: { trackColor: '#1565c0', thumbColor: '#1565c0' },
   readOnly: { trackColor: 'rgba(0 0 0 / 25%)', thumbColor: 'rgba(0 0 0 / 25%)' },
