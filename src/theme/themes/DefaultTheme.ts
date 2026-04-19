@@ -318,6 +318,7 @@ export const DefaultTheme: Theme = {
       markColor: 'rgba(0 0 0 / 25%)',
       valueLabelBackgroundColor: 'rgba(0 0 0 / 75%)',
       valueLabelTextColor: '#fff',
+      forbiddenRailColor: 'rgba(0 0 0 / 12%)',
     },
     active: {
       trackColor: 'rgba(0 0 0 / 70%)',

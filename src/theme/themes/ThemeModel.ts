@@ -200,6 +200,7 @@ interface SliderTheme {
   markColor?: string;
   valueLabelBackgroundColor?: string;
   valueLabelTextColor?: string;
+  forbiddenRailColor?: string;
 }
 
 export interface Theme {
