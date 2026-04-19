@@ -48,7 +48,7 @@ describe('updateStateWithSkeletons', () => {
     const state = makeState([]);
     const next = updateStateWithSkeletons(state, { offset: 0, limit: 3 });
     expect(next.items).toHaveLength(3);
-    expect(next.items[0]._tempItem).toBe(true);
+    expect((next.items[0] as any)._tempItem).toBe(true);
     expect(next.isLoading).toBe(true);
   });
 
@@ -57,7 +57,7 @@ describe('updateStateWithSkeletons', () => {
     const state = makeState(existing);
     const next = updateStateWithSkeletons(state, { offset: 0, limit: 2 });
     expect(next.items[0].id).toBe('x');
-    expect(next.items[1]._tempItem).toBe(true);
+    expect((next.items[1] as any)._tempItem).toBe(true);
   });
 });
 

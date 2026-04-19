@@ -1,5 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
-import { useRef } from 'react';
+import { act, render } from '@testing-library/react';
 import { useValidation } from './useValidation';
 
 // Test component that calls useValidation and exposes results via validate
@@ -12,7 +11,7 @@ function ValidationTestComponent({
   isRequired: boolean;
   onResult: (result: { error: unknown; enableErrors: () => void }) => void;
 }) {
-  const { validate, isValid, getErrors } = useValidation();
+  const { validate, isValid } = useValidation();
   const result = validate(({ validateRequired }) => validateRequired(value, isRequired));
   onResult(result);
   return <div data-testid="valid">{String(isValid())}</div>;

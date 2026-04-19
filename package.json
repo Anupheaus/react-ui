@@ -18,7 +18,7 @@
     "build": "webpack --mode production",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
-    "typecheck": "tsc -p tsconfig.prod.json --noEmit",
+    "typecheck": "tsc -p tsconfig.check.json",
     "lint": "eslint src --ext .ts,.tsx",
     "findDeclarationErrors": "tsc --declaration --declarationDir ./dist --emitDeclarationOnly",
     "storybook:build": "storybook build",

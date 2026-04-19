@@ -2,7 +2,7 @@ import { Record } from '@anupheaus/common';
 import { ReactNode, useRef, useState } from 'react';
 import { useBinder } from '../../hooks';
 import { createStyles } from '../../theme';
-import { ComponentStylesConfig, createComponent } from '../Component';
+import { createComponent } from '../Component';
 import { Tag } from '../Tag';
 import { DragAndDropData } from './DragAndDropData';
 import { DraggedItem } from './DragAndDropModels';
@@ -41,7 +41,7 @@ const useStyles = createStyles(({ dragAndDrop }, { applyTransition }) => ({
     backgroundColor: dragAndDrop.invalidOverlayColor,
     opacity: 1,
   },
-}) satisfies ComponentStylesConfig);
+}));
 
 export const DropArea = createComponent('DropArea', function <T extends Record>({
   overlayClassName,

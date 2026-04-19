@@ -39,7 +39,7 @@ describe('useAsync', () => {
       useAsync(function() { throw new Error('boom'); }, [], { manuallyTriggered: true })
     );
     // Access error getter first to enable error capture
-    const _unused = result.current.error;
+    void result.current.error;
     act(() => { result.current.trigger(); });
     // Now error should be captured
     expect(result.current.error?.message).toBe('boom');

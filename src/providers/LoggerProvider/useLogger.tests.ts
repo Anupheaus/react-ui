@@ -3,10 +3,10 @@ import type { ReactNode } from 'react';
 import { createElement } from 'react';
 import { LoggerProvider } from './LoggerProvider';
 import { useLogger } from './useLogger';
-import { Logger, InternalError } from '@anupheaus/common';
+import { Logger } from '@anupheaus/common';
 
 function wrapper({ children }: { children: ReactNode }) {
-  return createElement(LoggerProvider, { loggerName: 'test' }, children);
+  return createElement(LoggerProvider, { loggerName: 'test', logger: undefined, children });
 }
 
 describe('useLogger', () => {

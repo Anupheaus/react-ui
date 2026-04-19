@@ -32,7 +32,7 @@ describe('hoistMediaQueriesInStyles', () => {
     const root = result.styleA as Record<string, unknown>;
     expect(root['&.foo']).toEqual({ padding: 4 });
     expect(root['@media (pointer: coarse)']).toEqual({
-      '&.foo': { padding: 4, padding: 8 },
+      '&.foo': { padding: 8 },
     });
   });
 
@@ -84,7 +84,7 @@ describe('hoistMediaQueriesInStyles', () => {
     };
     const result = hoistMediaQueriesInStyles(input);
     expect((result.button as Record<string, unknown>)['@media X']).toEqual({ color: 'red', fontSize: 14 });
-    expect((result.label as Record<string, unknown>)['@media Y']).toEqual({ padding: 4, padding: 8 });
+    expect((result.label as Record<string, unknown>)['@media Y']).toEqual({ padding: 8 });
   });
 
   it('merges multiple occurrences of the same media query into one hoisted block', () => {
@@ -103,7 +103,7 @@ describe('hoistMediaQueriesInStyles', () => {
     expect(root['@media X']).toEqual({
       color: 'red',
       fontSize: 12,
-      '&.foo': { padding: 4, padding: 8 },
+      '&.foo': { padding: 8 },
     });
   });
 });

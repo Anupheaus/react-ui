@@ -25,7 +25,7 @@ const config = {
     label: 'Label',
   },
   render: (props: React.ComponentProps<typeof DropDown>) => {
-    const [value, setValue] = useState('');
+    const [value, setValue] = useState<string | undefined>('');
     return (
       <DropDown {...props} value={value} onChange={setValue} values={options} />
     );

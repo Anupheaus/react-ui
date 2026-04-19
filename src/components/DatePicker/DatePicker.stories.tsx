@@ -28,6 +28,6 @@ const waitForStoryReady = async () => {
   await new Promise(r => setTimeout(r, 200));
 };
 
-export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
+export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true }) as Story;
 UIStates.name = 'UI States';
 UIStates.play = waitForStoryReady;

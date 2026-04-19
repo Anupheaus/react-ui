@@ -22,7 +22,7 @@ const items: SelectorItem[] = [
     ],
   },
   {
-    id: '2', text: 'Item 2', maxSelectableItems: true, subItems: [
+    id: '2', text: 'Item 2', maxSelectableItems: 1, subItems: [
       { id: '2-1', text: 'Sub Item 1' },
       { id: '2-2', text: 'Sub Item 2' },
       { id: '2-3', text: 'Sub Item 3' },

@@ -1,4 +1,4 @@
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { useDOMRef } from './useDOMRef';
 
 describe('useDOMRef', () => {
