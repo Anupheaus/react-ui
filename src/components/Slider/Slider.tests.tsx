@@ -41,7 +41,7 @@ describe('Slider', () => {
 
   it('does not render marks when showMarks is false', () => {
     const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} />);
-    expect(container.querySelector('.MuiSlider-markActive')).toBeNull();
+    expect(container.querySelector('.MuiSlider-mark')).toBeNull();
   });
 
   it('clamps onChange value to clampMin for type single', () => {
@@ -68,11 +68,12 @@ describe('Slider', () => {
     const { container } = render(
       <Slider type="single" value={60} min={0} max={100} clampMin={50} />
     );
-    expect(container.querySelector('[data-testid="forbidden-overlay"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="forbidden-overlay-min"]')).not.toBeNull();
   });
 
   it('does not render a forbidden overlay when neither clampMin nor clampMax is set', () => {
     const { container } = render(<Slider type="single" value={50} min={0} max={100} />);
-    expect(container.querySelector('[data-testid="forbidden-overlay"]')).toBeNull();
+    expect(container.querySelector('[data-testid="forbidden-overlay-min"]')).toBeNull();
+    expect(container.querySelector('[data-testid="forbidden-overlay-max"]')).toBeNull();
   });
 });

@@ -172,16 +172,16 @@ export const Slider = createComponent('Slider', (props: Props) => {
     >
       <div className={css.sliderContainer}>
         {clampMin != null && orientation === 'horizontal' && (
-          <div data-testid="forbidden-overlay" className={css.forbiddenOverlay} style={leftOverlayStyle} />
+          <div data-testid="forbidden-overlay-min" className={css.forbiddenOverlay} style={leftOverlayStyle} />
         )}
         {clampMax != null && orientation === 'horizontal' && (
-          <div data-testid="forbidden-overlay" className={css.forbiddenOverlay} style={rightOverlayStyle} />
+          <div data-testid="forbidden-overlay-max" className={css.forbiddenOverlay} style={rightOverlayStyle} />
         )}
         {clampMin != null && orientation === 'vertical' && (
-          <div data-testid="forbidden-overlay" className={css.forbiddenOverlayVertical} style={bottomOverlayStyle} />
+          <div data-testid="forbidden-overlay-min" className={css.forbiddenOverlayVertical} style={bottomOverlayStyle} />
         )}
         {clampMax != null && orientation === 'vertical' && (
-          <div data-testid="forbidden-overlay" className={css.forbiddenOverlayVertical} style={topOverlayStyle} />
+          <div data-testid="forbidden-overlay-max" className={css.forbiddenOverlayVertical} style={topOverlayStyle} />
         )}
         <MuiSlider
           className={css.slider}
