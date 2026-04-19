@@ -117,8 +117,8 @@ jobs:
         continue-on-error: true
 
 # ─── TEST ─────────────────────────────────────────────────────────────────────
-  Test-Jest:
-    name: Jest Tests
+  Test-Vitest:
+    name: Vitest Tests
     needs: [Prepare]
     runs-on: ubuntu-latest
     permissions:
@@ -158,8 +158,8 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Jest tests
-        run: pnpm run test-ci
+      - name: Run Vitest tests
+        run: pnpm run test:ci
 
   Test-Storybook:
     name: Storybook Tests
@@ -206,12 +206,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Storybook tests
-        run: pnpm run build-storybook --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook -- --ci --includeTags=play-fn"
+        run: pnpm run storybook:build --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci"
 
 # ─── PUBLISH ──────────────────────────────────────────────────────────────────
   Publish:
     name: Publish
-    needs: [Validate, Test-Jest, Test-Storybook]
+    needs: [Validate, Test-Vitest, Test-Storybook]
     runs-on: ubuntu-latest
     if: github.repository_owner == 'Anupheaus'
     permissions:
