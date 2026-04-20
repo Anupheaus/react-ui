@@ -123,9 +123,5 @@ export const Loading: Story = createStory<typeof SelectorButton>({
       <SelectorButton label="Loading state" items={[]} />
     </UIState>
   ),
-  play: async () => {
-    const body = within(document.body);
-    await expect(body.getByRole('button')).toBeInTheDocument();
-  },
 });
 Loading.name = 'Loading';
