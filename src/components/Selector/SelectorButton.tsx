@@ -28,6 +28,7 @@ export const SelectorButton = createComponent('SelectorButton', ({
   items,
   selectionConfiguration,
   onSelect,
+  label: fieldLabel,
   ...props
 }: Props) => {
   const { css } = useStyles();
@@ -51,9 +52,9 @@ export const SelectorButton = createComponent('SelectorButton', ({
 
   return (
     <>
-      <Field tagName="selector-button" noContainer {...props}>
+      <Field tagName="selector-button" noContainer label={fieldLabel} {...props}>
         <Flex disableGrow className={css.buttonWrapper}>
-          <Button ref={buttonRef} onClick={openPopover} align="left">
+          <Button ref={buttonRef} onClick={openPopover} align="left" aria-label={typeof fieldLabel === 'string' ? fieldLabel : undefined}>
             {label}
           </Button>
         </Flex>

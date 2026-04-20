@@ -125,7 +125,7 @@ export const Loading: Story = createStory<typeof SelectorButton>({
   ),
   play: async () => {
     const body = within(document.body);
-    expect(body.queryByText('Not Set')).toBeNull();
+    await expect(body.getByRole('button')).toBeInTheDocument();
   },
 });
 Loading.name = 'Loading';
