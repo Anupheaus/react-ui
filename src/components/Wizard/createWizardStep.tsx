@@ -1,4 +1,5 @@
-import React, { useContext, useLayoutEffect, useRef } from 'react';
+import { useContext, useLayoutEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { useId } from '../../hooks';
 import { createComponent } from '../Component';
 import { WizardContext, WizardStepIdContext } from './WizardContexts';
@@ -11,7 +12,7 @@ export function createWizardStep(
   name: string,
   definition: StepDefinition,
 ) {
-  const component = createComponent(name, ({ id: providedId, label }: { id?: string; label?: React.ReactNode }) => {
+  const component = createComponent(name, ({ id: providedId, label }: { id?: string; label?: ReactNode }) => {
     const { id: contextId } = useContext(WizardStepIdContext);
     const generatedId = useId();
     const id = providedId ?? (contextId || generatedId);

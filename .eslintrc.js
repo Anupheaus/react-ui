@@ -1,4 +1,5 @@
 module.exports = {
+  root: true,
   settings: {
     'import/resolver': {
       node: {
@@ -16,9 +17,10 @@ module.exports = {
   },
   plugins: [
     '@typescript-eslint/eslint-plugin',
-    'eslint-plugin-react'
+    'eslint-plugin-react',
+    'react-hooks'
   ],
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:storybook/recommended'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:react/jsx-runtime', 'plugin:react-hooks/recommended', 'plugin:storybook/recommended'],
   env: {
     browser: true,
     node: true,
@@ -67,6 +69,9 @@ module.exports = {
     'react/display-name': 'off',
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
+    'react/no-children-prop': 'off',
+    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/rules-of-hooks': 'warn',
     '@typescript-eslint/member-ordering': [
       'warn',
       {

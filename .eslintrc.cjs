@@ -25,6 +25,7 @@ module.exports = {
     '@typescript-eslint/no-require-imports': 'off',
     'react/prop-types': 'off',
     'react-hooks/exhaustive-deps': 'warn',
+    'react/no-children-prop': 'off',
   },
   ignorePatterns: ['dist/', 'node_modules/', 'storybook-static/'],
 };

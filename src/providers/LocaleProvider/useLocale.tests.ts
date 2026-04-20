@@ -11,7 +11,7 @@ const defaultSettings = {
 };
 
 function wrapper({ children }: { children: ReactNode }) {
-  return createElement(LocaleProvider, { settings: defaultSettings }, children);
+  return createElement(LocaleProvider, { settings: defaultSettings, children });
 }
 
 describe('useLocale — isValidISODate', () => {
@@ -80,7 +80,7 @@ describe('useLocale — formatDate', () => {
 
   it('uses shortDateFormat from settings when type is short', () => {
     function wrapperWithShort({ children }: { children: ReactNode }) {
-      return createElement(LocaleProvider, { settings: { ...defaultSettings, shortDateFormat: 'dd-MM-yyyy' } }, children);
+      return createElement(LocaleProvider, { settings: { ...defaultSettings, shortDateFormat: 'dd-MM-yyyy' }, children });
     }
     const { result } = renderHook(() => useLocale(), { wrapper: wrapperWithShort });
     const formatted = result.current.formatDate('2024-06-15T00:00:00Z', { type: 'short' });
@@ -89,7 +89,7 @@ describe('useLocale — formatDate', () => {
 
   it('uses longDateFormat from settings when type is long', () => {
     function wrapperWithLong({ children }: { children: ReactNode }) {
-      return createElement(LocaleProvider, { settings: { ...defaultSettings, longDateFormat: 'dd MMMM yyyy' } }, children);
+      return createElement(LocaleProvider, { settings: { ...defaultSettings, longDateFormat: 'dd MMMM yyyy' }, children });
     }
     const { result } = renderHook(() => useLocale(), { wrapper: wrapperWithLong });
     const formatted = result.current.formatDate('2024-06-15T00:00:00Z');
