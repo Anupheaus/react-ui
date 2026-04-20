@@ -22,6 +22,7 @@ export interface ButtonProps {
   iconOnly?: boolean;
   children?: ReactNode;
   testId?: string;
+  'aria-label'?: string;
   onClick?(event: MouseEvent): PromiseMaybe<unknown>;
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
@@ -189,6 +190,7 @@ export const Button = createComponent('Button', ({
   iconOnly: providedIconOnly,
   style,
   testId,
+  'aria-label': ariaLabel,
   onClick,
   onSelect,
 }: ButtonProps) => {
@@ -232,6 +234,7 @@ export const Button = createComponent('Button', ({
       style={style}
       onClick={handleClick}
       testId={testId}
+      aria-label={ariaLabel}
     >
       <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />
       <NoSkeletons>
