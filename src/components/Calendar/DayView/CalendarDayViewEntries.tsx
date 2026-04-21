@@ -105,7 +105,7 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
             <Flex
               tagName="calendar-day-view-entry-content"
               className={css.entryContent}
-              style={{ backgroundColor: linedUpEntry.entry.color ?? theme.dataPaletteColors[index % theme.dataPaletteColors.length] }}
+              style={{ backgroundColor: linedUpEntry.entry.color ?? theme.paletteColours[index % theme.paletteColours.length] }}
               testId={`calendar-day-view-entry-${index}`}
               onClickCapture={event => {
                 event.stopPropagation();
