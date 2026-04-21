@@ -7,12 +7,12 @@ import { useSet } from '../useSet';
 
 type CallbackFunction = (...args: any[]) => PromiseMaybe<void>;
 
-interface CallbackState {
+export interface CallbackState {
   isDuringRenderPhase: boolean;
   waitOnRenderPhaseComplete: Promise<void>;
 }
 
-interface RegisterOutOfRenderPhaseProps {
+export interface RegisterOutOfRenderPhaseProps {
   timeout?: number;
   updateAfterTimeout?: number;
 }
