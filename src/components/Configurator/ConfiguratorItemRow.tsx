@@ -47,7 +47,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
   configuratorItemRow: {},
   configuratorSubItemRows: {
     height: 0,
-    overflow: 'hidden',
+    contain: 'paint',
     ...applyTransition('height'),
 
     '&.is-expanded': {
@@ -133,20 +133,26 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
   onAddSubItem,
   onAddSlice,
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, theme } = useStyles();
   const hasSubItems = item.subItems.length > 0 || onAddSubItem != null;
+  const { paletteColours } = theme;
   const target = useOnDOMChange({ isEnabled: hasSubItems, onChange: () => updateHeightRef.current() });
   const updateHeightRef = useRef(() => void 0);
 
+  const slicePaletteColours = useMemo(() =>
+    slices.map((slice, index) => slice.doNotApplySliceStyles ? undefined : paletteColours[index % paletteColours.length]),
+  [slices, paletteColours]
+  );
+
   const cells = useMemo(() => slices.map((slice, index) => (
     <ConfiguratorCell key={slice.id} columnIndex={index + 1} item={item} slice={slice} isHeader={isHeader} isFooter={isFooter}
-      isOddItem={isOdd} isOddSlice={index % 2 === 0}
+      isOddItem={isOdd} isOddSlice={index % 2 === 0} paletteColour={slicePaletteColours[index]}
     />
-  )), [slices, item, isHeader, isFooter, isOdd, onExpandItem]);
+  )), [slices, item, isHeader, isFooter, isOdd, onExpandItem, slicePaletteColours]);
 
   const subItemRows = useMemo(() => item.subItems.map((subItem, index) => (
-    <ConfiguratorSubItemRow key={subItem.id} item={subItem} slices={slices} isOdd={index % 2 === 0} />
-  )), [item, slices]);
+    <ConfiguratorSubItemRow key={subItem.id} item={subItem} slices={slices} isOdd={index % 2 === 0} paletteColours={slicePaletteColours} visibleShadows={visibleShadows} />
+  )), [item, slices, slicePaletteColours, visibleShadows]);
 
   const saveElement = useBound((element: HTMLDivElement) => {
     target(element);

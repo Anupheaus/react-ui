@@ -10,11 +10,11 @@ describe('is.reactElement', () => {
   ];
   const invalidValues = [null, undefined, 'hello', 42, {}, { type: 'div' }, [], true];
 
-  test.each(validElements)('returns true for a valid React element %#', (el) => {
+  test.each(validElements)('returns true for a valid React element %#', el => {
     expect(is.reactElement(el)).toBe(true);
   });
 
-  test.each(invalidValues)('returns false for %p', (value) => {
+  test.each(invalidValues)('returns false for %p', value => {
     expect(is.reactElement(value)).toBe(false);
   });
 });
@@ -33,7 +33,7 @@ describe('is.reactRef', () => {
   });
 
   const invalidValues = [null, undefined, 'ref', 42, [], () => { }, { value: null }, {}];
-  test.each(invalidValues)('returns false for %p', (value) => {
+  test.each(invalidValues)('returns false for %p', value => {
     expect(is.reactRef(value)).toBe(false);
   });
 });
@@ -43,11 +43,11 @@ describe('is.fixedCSSDimension', () => {
   // '2rem'.endsWith('em') is true, so the implementation considers rem valid — excluded here
   const invalidDimensions = ['50%', '100vh', '1vw', '', '10', '10pt', undefined];
 
-  test.each(validDimensions)('returns true for valid dimension: %p', (value) => {
+  test.each(validDimensions)('returns true for valid dimension: %p', value => {
     expect(is.fixedCSSDimension(value as any)).toBe(true);
   });
 
-  test.each(invalidDimensions)('returns false for invalid dimension: %p', (value) => {
+  test.each(invalidDimensions)('returns false for invalid dimension: %p', value => {
     expect(is.fixedCSSDimension(value as any)).toBe(false);
   });
 });
