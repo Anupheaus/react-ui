@@ -20,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: pnpm/action-setup@v3
@@ -103,11 +103,11 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Type check
-        run: pnpm run typecheck
-
       - name: Lint
         run: pnpm run lint
+
+      - name: Type check
+        run: pnpm run typecheck
 
       - name: Security audit
         run: pnpm audit --audit-level=critical
@@ -201,7 +201,7 @@ jobs:
           restore-keys: pnpm-store-container-
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --no-frozen-lockfile --prefer-offline
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -256,8 +256,6 @@ jobs:
 
       - name: Build
         run: pnpm run build
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
 
       - name: Bump version
         uses: "phips28/gh-action-bump-version@master"
