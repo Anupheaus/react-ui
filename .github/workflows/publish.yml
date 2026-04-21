@@ -161,6 +161,12 @@ jobs:
       - name: Run Vitest tests
         run: pnpm run test:ci
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/vitest/lcov.info
+          fail_ci_if_error: false
+
   Test-Storybook:
     name: Storybook Tests
     needs: [Prepare]

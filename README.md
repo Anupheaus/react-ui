@@ -1,6 +1,7 @@
 # @anupheaus/react-ui
 
 [![Publish Package](https://github.com/Anupheaus/react-ui/actions/workflows/publish.yml/badge.svg)](https://github.com/Anupheaus/react-ui/actions/workflows/publish.yml)
+[![Coverage](https://codecov.io/gh/Anupheaus/react-ui/branch/master/graph/badge.svg)](https://codecov.io/gh/Anupheaus/react-ui)
 [![Version](https://img.shields.io/github/v/tag/Anupheaus/react-ui?label=version)](https://github.com/Anupheaus/react-ui/releases)
 [![License](https://img.shields.io/github/license/Anupheaus/react-ui)](LICENSE.md)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
