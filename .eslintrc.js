@@ -18,7 +18,8 @@ module.exports = {
   plugins: [
     '@typescript-eslint/eslint-plugin',
     'eslint-plugin-react',
-    'react-hooks'
+    'react-hooks',
+    'import'
   ],
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/eslint-recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:react/jsx-runtime', 'plugin:react-hooks/recommended', 'plugin:storybook/recommended'],
   env: {
@@ -65,6 +66,7 @@ module.exports = {
     'max-classes-per-file': 'error',
     'no-inner-declarations': 'off',
     'no-console': 'warn',
+    'import/no-cycle': ['warn', { maxDepth: 5 }],
     'no-alert': 'warn',
     'react/display-name': 'off',
     'react/prop-types': 'off',
