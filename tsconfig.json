@@ -13,9 +13,9 @@
     "skipLibCheck": true,
     "lib": [
       "DOM",
-      "ES2020"
+      "ES2022"
     ],
-    "target": "es6",
+    "target": "ES2022",
     "sourceMap": true,
     "jsx": "react-jsx",
     "paths": {
