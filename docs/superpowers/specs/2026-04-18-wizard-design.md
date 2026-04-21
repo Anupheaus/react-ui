@@ -191,7 +191,7 @@ src/components/Wizard/
     WizardStepContent.tsx   ← renders step content in stacked grid (mirrors TabContent)
     WizardActions.tsx       ← reads step list + active id; renders Back/Next/Save
   index.ts
-  README.md
+  AGENTS.md
 ```
 
 ---

@@ -21,9 +21,9 @@
 | Create | `src/providers/EmailProvider/useEmail.tsx` | `useEmail` hook |
 | Create | `src/providers/EmailProvider/EmailProvider.tests.tsx` | All tests |
 | Create | `src/providers/EmailProvider/index.ts` | Public barrel exports |
-| Create | `src/providers/EmailProvider/README.md` | Usage documentation |
+| Create | `src/providers/EmailProvider/AGENTS.md` | Usage documentation |
 | Modify | `src/providers/index.ts` | Add `EmailProvider` to providers barrel |
-| Modify | `src/providers/README.md` | Add `EmailProvider` row to table |
+| Modify | `src/providers/AGENTS.md` | Add `EmailProvider` row to table |
 
 ---
 
@@ -497,19 +497,19 @@ git commit -m "feat(email): export EmailProvider from providers barrel"
 ## Task 7: Documentation
 
 **Files:**
-- Create: `src/providers/EmailProvider/README.md`
-- Modify: `src/providers/README.md`
+- Create: `src/providers/EmailProvider/AGENTS.md`
+- Modify: `src/providers/AGENTS.md`
 
 - [ ] **Step 1: Create the EmailProvider README**
 
-Create `src/providers/EmailProvider/README.md`:
+Create `src/providers/EmailProvider/AGENTS.md`:
 
 ```markdown
 # EmailProvider
 
 Provides a type-safe system for defining React email templates, triggering sends from anywhere in the component tree, and receiving rendered HTML + metadata in a custom callback.
 
-[← Back to Providers](../README.md)
+[← Back to Providers](../AGENTS.md)
 
 ---
 
@@ -608,10 +608,10 @@ The `onSend` callback is responsible for applying its own defaults for any omitt
 
 - [ ] **Step 2: Add EmailProvider to the providers README table**
 
-Edit `src/providers/README.md`. Add a new row for `EmailProvider` (in alphabetical order, between the existing `ApiProvider` and `LocaleProvider` rows):
+Edit `src/providers/AGENTS.md`. Add a new row for `EmailProvider` (in alphabetical order, between the existing `ApiProvider` and `LocaleProvider` rows):
 
 ```markdown
-| [EmailProvider](EmailProvider/README.md) | Defines typed React email templates with `createEmail`, triggers sends via `useEmail`, and delivers rendered HTML + metadata to a custom `onSend` callback. |
+| [EmailProvider](EmailProvider/AGENTS.md) | Defines typed React email templates with `createEmail`, triggers sends via `useEmail`, and delivers rendered HTML + metadata to a custom `onSend` callback. |
 ```
 
 Full table after edit:
@@ -619,19 +619,19 @@ Full table after edit:
 ```markdown
 | Provider | Description |
 |----------|-------------|
-| [ApiProvider](ApiProvider/README.md) | Supplies `get`, `post`, `remove`, and `query` fetch helpers to the tree, managing auth tokens (persisted to `localStorage`), shared headers, and status-code handlers. |
-| [EmailProvider](EmailProvider/README.md) | Defines typed React email templates with `createEmail`, triggers sends via `useEmail`, and delivers rendered HTML + metadata to a custom `onSend` callback. |
-| [LocaleProvider](LocaleProvider/README.md) | Sets the application locale/date-format settings (via Luxon) and makes them available to child components through context. |
-| [LoggerProvider](LoggerProvider/README.md) | Injects a `Logger` instance (or creates a named sub-logger from a parent) into context so descendants can call `useLogger()` without prop-drilling. |
-| [RecordsProvider](RecordsProvider/README.md) | Maintains a typed, keyed record map in context — supports inheritance from parent providers, merge callbacks, upsert, and change notifications. |
-| [SubscriptionProvider](SubscriptionProvider/README.md) | Wires up a publish/subscribe channel defined by `createSubscription`, returning an `invoke` function and a `<Provider>` component that routes callbacks to registered subscribers. |
-| [UIStateProvider](UIStateProvider/README.md) | Propagates UI state flags (`isLoading`, `isReadOnly`, `isCompact`) through the tree so child components can adapt their appearance and behaviour accordingly. |
-| [ValidationProvider](ValidationProvider/README.md) | Manages form validation state — collects field errors via `validate()`, groups them into sections via `<ValidateSection>`, and exposes `isValid()` and `highlightValidationErrors()`. |
+| [ApiProvider](ApiProvider/AGENTS.md) | Supplies `get`, `post`, `remove`, and `query` fetch helpers to the tree, managing auth tokens (persisted to `localStorage`), shared headers, and status-code handlers. |
+| [EmailProvider](EmailProvider/AGENTS.md) | Defines typed React email templates with `createEmail`, triggers sends via `useEmail`, and delivers rendered HTML + metadata to a custom `onSend` callback. |
+| [LocaleProvider](LocaleProvider/AGENTS.md) | Sets the application locale/date-format settings (via Luxon) and makes them available to child components through context. |
+| [LoggerProvider](LoggerProvider/AGENTS.md) | Injects a `Logger` instance (or creates a named sub-logger from a parent) into context so descendants can call `useLogger()` without prop-drilling. |
+| [RecordsProvider](RecordsProvider/AGENTS.md) | Maintains a typed, keyed record map in context — supports inheritance from parent providers, merge callbacks, upsert, and change notifications. |
+| [SubscriptionProvider](SubscriptionProvider/AGENTS.md) | Wires up a publish/subscribe channel defined by `createSubscription`, returning an `invoke` function and a `<Provider>` component that routes callbacks to registered subscribers. |
+| [UIStateProvider](UIStateProvider/AGENTS.md) | Propagates UI state flags (`isLoading`, `isReadOnly`, `isCompact`) through the tree so child components can adapt their appearance and behaviour accordingly. |
+| [ValidationProvider](ValidationProvider/AGENTS.md) | Manages form validation state — collects field errors via `validate()`, groups them into sections via `<ValidateSection>`, and exposes `isValid()` and `highlightValidationErrors()`. |
 ```
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add src/providers/EmailProvider/README.md src/providers/README.md
+git add src/providers/EmailProvider/AGENTS.md src/providers/AGENTS.md
 git commit -m "docs(email): add EmailProvider README and update providers index"
 ```

@@ -172,3 +172,68 @@ export const WithNoSlices: Story = createStory<typeof Configurator>({
   height: 300,
   render: () => <StandardConfigurator slices={[]} />,
 });
+
+const manyRooms: ConfiguratorItem<Room, Window, Quote>[] = [
+  'Lounge', 'Kitchen', 'Master Bedroom', 'Bedroom 2', 'Bedroom 3', 'Bathroom', 'Ensuite', 'Study',
+].map((roomName, roomIndex) => {
+  const windowCount = [3, 4, 5, 3, 4, 2, 2, 3][roomIndex];
+  const windowOffset = [0, 3, 7, 12, 15, 19, 21, 23][roomIndex];
+  return {
+    id: `big-room-${roomIndex + 1}`,
+    text: roomName,
+    data: { name: roomName },
+    renderCell: (item, slice) => roomTotalForQuote(item.subItems.map(s => s.id), slice.data),
+    subItems: Array.from({ length: windowCount }, (_, wi) => {
+      const wid = `big-window-${windowOffset + wi + 1}`;
+      return {
+        id: wid,
+        text: `Window ${windowOffset + wi + 1}`,
+        data: { name: `Window ${windowOffset + wi + 1}` },
+        renderCell: (subItem, slice) =>
+          slice.data.items.find(i => i.windowId === subItem.id)?.price ?? null,
+      };
+    }),
+  };
+});
+
+const manySlices: ConfiguratorSlice<Quote>[] = [
+  'Alpha Glazing', 'Beta Windows', 'Clear Choice', 'Diamond Panes', 'Elite Glass', 'First Light', 'Glaze Co', 'Horizon View',
+].map((name, qi) => {
+  const allWindowIds = manyRooms.flatMap(r => r.subItems.map(s => s.id));
+  const seed = (qi + 1) * 137;
+  return {
+    id: `big-quote-${qi + 1}`,
+    text: name,
+    data: {
+      name,
+      items: allWindowIds.map((wid, wi) => ({
+        windowId: wid,
+        price: Math.round(((seed * (wi + 1) * 23) % 800) + 150),
+      })),
+    },
+    isResizable: true,
+    aggregation: 'sum' as const,
+  };
+});
+
+const manyFooter: ConfiguratorItem<Room, Window, Quote> = {
+  id: 'big-footer',
+  text: 'Total',
+  data: { name: 'Total' },
+  renderCell: (_item, slice) => slice.data.items.sum(i => i.price),
+  subItems: [],
+};
+
+export const WithLotsOfData: Story = createStory<typeof Configurator>({
+  args: {},
+  width: 700,
+  height: 350,
+  render: () => (
+    <Configurator
+      firstCell={{ label: 'Room', minWidth: 140 }}
+      items={manyRooms}
+      slices={manySlices}
+      footer={manyFooter}
+    />
+  ),
+});

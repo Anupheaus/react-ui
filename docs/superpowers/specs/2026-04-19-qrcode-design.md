@@ -20,10 +20,10 @@ src/components/QRCode/
   QRCode.stories.tsx    — Storybook stories
   QRCode.tests.tsx      — Vitest tests
   index.ts              — public exports
-  README.md             — component documentation
+  AGENTS.md             — component documentation
 ```
 
-The component is added to `src/components/README.md` under a "Media & Display" group alongside `Image` and `Avatar`.
+The component is added to `src/components/AGENTS.md` under a "Media & Display" group alongside `Image` and `Avatar`.
 
 ---
 

@@ -38,7 +38,7 @@ src/providers/EmailProvider/
   useEmail.tsx          — hook returning the typed send function
   EmailProvider.tsx     — provider component with onSend callback
   index.ts              — public exports
-  README.md             — usage documentation
+  AGENTS.md             — usage documentation
 ```
 
 ---

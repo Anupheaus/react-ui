@@ -117,7 +117,7 @@ Where `effectiveClampMin = clampMin ?? min` and `effectiveClampMax = clampMax ??
 | `src/theme/themes/DefaultTheme.ts` | Add `forbiddenRailColor: 'rgba(0 0 0 / 12%)'` to `slider.normal` |
 | `src/components/Slider/Slider.tsx` | Add `clampMin`/`clampMax` props, overlay rendering, onChange clamping |
 | `src/components/Slider/Slider.tests.tsx` | Add tests for clamping and forbidden zone rendering |
-| `src/components/Slider/README.md` | Document new props and theming key |
+| `src/components/Slider/AGENTS.md` | Document new props and theming key |
 
 ---
 

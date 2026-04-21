@@ -19,9 +19,9 @@
 | Create | `src/components/Signature/Signature.tsx` | Main component |
 | Create | `src/components/Signature/index.ts` | Re-export |
 | Create | `src/components/Signature/Signature.stories.tsx` | Storybook stories |
-| Create | `src/components/Signature/README.md` | Component documentation |
+| Create | `src/components/Signature/AGENTS.md` | Component documentation |
 | Modify | `src/components/index.ts` | Export `Signature` |
-| Modify | `src/components/README.md` | Add Signature entry to Forms & Inputs table |
+| Modify | `src/components/AGENTS.md` | Add Signature entry to Forms & Inputs table |
 
 ---
 
@@ -369,17 +369,17 @@ git commit -m "feat(signature): add Storybook stories"
 ### Task 6: Write the README
 
 **Files:**
-- Create: `src/components/Signature/README.md`
-- Modify: `src/components/README.md`
+- Create: `src/components/Signature/AGENTS.md`
+- Modify: `src/components/AGENTS.md`
 
 - [ ] **Step 1: Create the component README**
 
-Create `src/components/Signature/README.md`:
+Create `src/components/Signature/AGENTS.md`:
 
 ````markdown
 # Signature
 
-[← Back to Components](../README.md)
+[← Back to Components](../AGENTS.md)
 
 A form field that lets the user draw their signature on a canvas and captures it as a base64 PNG data URL. Wraps the standard `Field` component for consistent label, error, and assistive-text chrome.
 
@@ -443,12 +443,12 @@ If either token is omitted the component falls back to `fields.content.normal.ba
 - Setting `value` externally renders the image onto the canvas; setting it to `undefined` clears the canvas.
 ````
 
-- [ ] **Step 2: Add entry to `src/components/README.md`**
+- [ ] **Step 2: Add entry to `src/components/AGENTS.md`**
 
-Open `src/components/README.md`. In the **Forms & Inputs** table, add a row for Signature. Insert it alphabetically (between `Radio` and `Switch`, or at the end of the table):
+Open `src/components/AGENTS.md`. In the **Forms & Inputs** table, add a row for Signature. Insert it alphabetically (between `Radio` and `Switch`, or at the end of the table):
 
 ```markdown
-| [Signature](Signature/README.md) | Freehand signature capture — saves as a base64 PNG data URL |
+| [Signature](Signature/AGENTS.md) | Freehand signature capture — saves as a base64 PNG data URL |
 ```
 
 - [ ] **Step 3: Verify no type errors**
@@ -461,7 +461,7 @@ Expected: no errors.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/components/Signature/README.md src/components/README.md
+git add src/components/Signature/AGENTS.md src/components/AGENTS.md
 git commit -m "docs(signature): add README and update components index"
 ```
 

@@ -18,9 +18,9 @@ src/components/Signature/
   Signature.tsx           — main component
   Signature.stories.tsx   — Storybook stories
   index.ts                — re-exports
-  README.md               — documentation
+  AGENTS.md               — documentation
 src/theme/themes/ThemeModel.ts  — add signature section (modified)
-src/components/README.md        — add Signature entry (modified)
+src/components/AGENTS.md        — add Signature entry (modified)
 ```
 
 No separate `SignatureTheme.ts` file. All theme consumption is done inside `Signature.tsx` via `createStyles`.
@@ -116,13 +116,13 @@ Two stories in `Signature.stories.tsx` using `createStory`:
 
 ## README
 
-A `README.md` in `src/components/Signature/` documenting:
+A `AGENTS.md` in `src/components/Signature/` documenting:
 - Purpose
 - Props table (including inherited `FieldProps`)
 - Theme tokens
 - Usage example
 
-`src/components/README.md` gains a `Signature` entry in the **Forms & Inputs** table.
+`src/components/AGENTS.md` gains a `Signature` entry in the **Forms & Inputs** table.
 
 ---
 
