@@ -441,7 +441,7 @@ export interface Theme {
     track: ThemeStateConfig;
   };
   gaps: GapsTheme;
-  dataPaletteColors: string[];
+  paletteColours: string[];
   skeleton: CSSProperties;
   wizard: {
     progress: {

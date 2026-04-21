@@ -465,8 +465,22 @@ export const DefaultTheme: Theme = {
       disabled: {},
     },
   },
-  dataPaletteColors: ['#6929c4', '#1192e8', '#005d5d', '#9f1853', '#fa4d56', '#570408', '#198038', '#002d9c', '#ee538b', '#b28600', '#009d9a', '#012749', '#8a3800', '#a56eff']
-    .map(color => Color(color).lighten(0.85).hexa()),
+  paletteColours: [
+    '#c4a8e0', // soft violet
+    '#a8c4e0', // dusty blue
+    '#a8d4bc', // sage green
+    '#e0c4a8', // warm sand
+    '#e0a8b4', // dusty rose
+    '#a8d4d0', // muted teal
+    '#d4c4a8', // warm wheat
+    '#c4b8e0', // lavender
+    '#a8c4b0', // soft sage
+    '#e0b8a8', // terracotta
+    '#b8d4e0', // steel blue
+    '#d4a8c4', // mauve
+    '#c4d4a8', // moss
+    '#e0d0a8', // soft amber
+  ],
   wizard: {
     progress: {
       currentColor: '#1e88e5',

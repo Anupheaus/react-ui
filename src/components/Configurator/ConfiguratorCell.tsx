@@ -2,8 +2,9 @@ import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { ConfiguratorItem, ConfiguratorSlice, ConfiguratorSubItem } from './configurator-models';
 import { createStyles } from '../../theme';
-import type { MouseEvent } from 'react';
+import type { CSSProperties, MouseEvent } from 'react';
 import { useLayoutEffect, useMemo } from 'react';
+import Color from 'color';
 import { useBound } from '../../hooks';
 import { useConfiguratorColumnWidths } from './column-widths';
 import { is } from '@anupheaus/common';
@@ -11,15 +12,7 @@ import { Icon } from '../Icon';
 import { Tag } from '../Tag';
 import { ReactListItem } from '../../models';
 
-const useStyles = createStyles(({ configurator: { header, item, subItem, slice }, shadows: { scroll: shadow }, pseudoClasses }, { modifyColor, applyTransition }) => {
-
-  const mixColours = (colour1: string, colour2: string | undefined, isOddItem: boolean, isOddSlice: boolean) => {
-    let actualColour1 = modifyColor(colour1);
-    if (isOddItem) actualColour1 = actualColour1.darken(0.03); else actualColour1 = actualColour1.lighten(0.03);
-    if (colour2 == null) return actualColour1.hexa();
-    const actualColour2 = modifyColor(colour2);
-    return actualColour1.mix(actualColour2, isOddSlice ? 0.4 : 0.5).hexa();
-  };
+const useStyles = createStyles(({ configurator: { header, item, subItem }, shadows: { scroll: shadow }, pseudoClasses }, { applyTransition }) => {
 
   return {
     configuratorCell: {
@@ -34,19 +27,10 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
       },
 
       '&.is-header, &.is-footer': {
-        backgroundColor: header.backgroundColor,
         color: header.textColor,
         cursor: 'default',
         position: 'sticky',
         zIndex: 1,
-
-        '&.is-odd-slice': {
-          backgroundColor: mixColours(header.backgroundColor, slice?.backgroundColor, false, true),
-        },
-
-        '&.is-even-slice': {
-          backgroundColor: mixColours(header.backgroundColor, slice?.backgroundColor, false, false),
-        },
       },
 
       '&.is-pinned': {
@@ -64,7 +48,11 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
       },
 
       '&.is-sub-item.is-first-column': {
-        paddingLeft: 16,
+        paddingLeft: 28,
+
+        [pseudoClasses.tablet]: {
+          paddingLeft: 36,
+        },
       },
     },
 
@@ -73,29 +61,6 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
       '&.is-item': {
         color: item.textColor,
         cursor: 'default',
-
-        '&.is-odd-item': {
-          backgroundColor: mixColours(item.backgroundColor, undefined, true, false),
-          '&.is-odd-slice': {
-            backgroundColor: mixColours(item.backgroundColor, slice?.backgroundColor, true, true),
-          },
-
-          '&.is-even-slice': {
-            backgroundColor: mixColours(item.backgroundColor, slice?.backgroundColor, true, false),
-          },
-        },
-
-        '&.is-even-item': {
-          backgroundColor: mixColours(item.backgroundColor, undefined, false, false),
-
-          '&.is-odd-slice': {
-            backgroundColor: mixColours(item.backgroundColor, slice?.backgroundColor, false, true),
-          },
-
-          '&.is-even-slice': {
-            backgroundColor: mixColours(item.backgroundColor, slice?.backgroundColor, false, false),
-          },
-        },
       },
 
       '&.is-sub-item': {
@@ -103,30 +68,6 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
         color: subItem?.textColor ?? item.textColor,
         cursor: 'default',
         overflow: 'hidden',
-
-        '&.is-odd-item': {
-          backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, undefined, true, false),
-
-          '&.is-odd-slice': {
-            backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, slice?.backgroundColor, true, true),
-          },
-
-          '&.is-even-slice': {
-            backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, slice?.backgroundColor, true, false),
-          },
-        },
-
-        '&.is-even-item': {
-          backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, undefined, false, false),
-
-          '&.is-odd-slice': {
-            backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, slice?.backgroundColor, false, true),
-          },
-
-          '&.is-even-slice': {
-            backgroundColor: mixColours(subItem?.backgroundColor ?? item.backgroundColor, slice?.backgroundColor, false, false),
-          },
-        },
       },
 
       '&.is-clickable': {
@@ -156,6 +97,13 @@ const useStyles = createStyles(({ configurator: { header, item, subItem, slice }
       [pseudoClasses.tablet]: {
         padding: 16,
       },
+    },
+    configuratorCellPaletteBar: {
+      height: 4,
+      backgroundColor: 'var(--palette-colour)',
+      filter: 'brightness(0.7)',
+      pointerEvents: 'none',
+      flexShrink: 0,
     },
     configuratorCellRightShadow: {
       position: 'absolute',
@@ -195,6 +143,7 @@ interface Props {
   isOddSlice?: boolean;
   isSubItem?: boolean;
   addShadowToRight?: boolean;
+  paletteColour?: string;
   onExpandItem?(item: ConfiguratorItem<any, any>): void;
   onSelect?(): void;
 }
@@ -209,12 +158,34 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
   isOddSlice = false,
   isSubItem = false,
   addShadowToRight,
+  paletteColour,
   onExpandItem,
   onSelect,
 }: Props) => {
-  const { css, join } = useStyles();
+  const { css, join, useInlineStyle, theme } = useStyles();
   const { elementRef, target, style } = useConfiguratorColumnWidths({ columnIndex, isHeader });
   const isFirstColumn = columnIndex === 0;
+
+  const rendererBackground = useMemo(() => {
+    const base = Color(isFirstColumn ? theme.configurator.item.backgroundColor : (paletteColour ?? theme.configurator.item.backgroundColor));
+    if (isHeader || isFooter) return base.hexa();
+    if (isSubItem) return base.mix(Color('#ffffff'), 0.5).hexa();
+    return base.mix(Color('#ffffff'), 0.25).hexa();
+  }, [paletteColour, isFirstColumn, isHeader, isFooter, isSubItem, theme]);
+
+  const cellBackground = useMemo(() => {
+    const base = Color(isFirstColumn ? theme.configurator.item.backgroundColor : (paletteColour ?? theme.configurator.item.backgroundColor));
+    if (isHeader || isFooter) return base.hexa();
+    return base.mix(Color('#ffffff'), 0.25).hexa();
+  }, [paletteColour, isFirstColumn, isHeader, isFooter, theme]);
+
+  const cellStyle = useMemo((): CSSProperties => ({
+    ...style,
+    backgroundColor: cellBackground,
+    ...(paletteColour != null ? { '--palette-colour': paletteColour } as CSSProperties : {}),
+  }), [style, paletteColour, cellBackground]);
+
+  const rendererStyle = useInlineStyle(() => ({ backgroundColor: rendererBackground }), [rendererBackground]);
 
   const expandCell = useBound((event: MouseEvent) => {
     event.stopPropagation();
@@ -274,16 +245,21 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
         css.configuratorCell,
         ...classes,
       )}
-      style={style}
+      style={cellStyle}
       onClick={clickCell}
       disableGrow
+      isVertical
     >
+      {isHeader && !isFirstColumn && paletteColour != null && (
+        <Tag name="configurator-cell-palette-bar" className={css.configuratorCellPaletteBar} />
+      )}
       <Flex
         tagName="configurator-cell-renderer"
         className={join(
           css.configuratorCellRenderer,
           ...classes,
         )}
+        style={rendererStyle}
         valign="center"
       >
         {value}
