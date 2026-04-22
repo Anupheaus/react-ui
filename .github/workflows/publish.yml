@@ -213,7 +213,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Storybook tests
-        run: pnpm run storybook:build --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci"
+        env:
+          STORYBOOK_COVERAGE: 1
+        run: pnpm run storybook:build --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci --coverage"
+
+      - name: Upload Storybook coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/storybook/lcov.info
+          fail_ci_if_error: false
 
 # ─── PUBLISH ──────────────────────────────────────────────────────────────────
   Publish:
