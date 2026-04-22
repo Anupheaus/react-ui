@@ -30,7 +30,7 @@ describe('useCallbacks', () => {
       </>
     );
     await act(async () => { await getCallbacks().invoke(42); });
-    expect(received).toContain(42);
+    expect(received).toEqual([42]);
     unmountConsumer();
   });
 

@@ -31,7 +31,7 @@ describe('useActions', () => {
       actions.setActions(impl);
       return actions;
     });
-    expect((result.current as any).greet('World')).toBe('Hello World');
+    expect(result.current.greet('World')).toBe('Hello World');
   });
 
   it('waitOnActions resolves immediately when actions are already set', async () => {

@@ -5,12 +5,12 @@ import { Slider } from './Slider';
 describe('Slider', () => {
   it('renders without crashing for type single', () => {
     const { container } = render(<Slider type="single" value={50} />);
-    expect(container.firstChild).not.toBeNull();
+    expect(container.querySelector('input[type="range"]')).not.toBeNull();
   });
 
   it('renders without crashing for type range', () => {
     const { container } = render(<Slider type="range" value={{ min: 20, max: 80 }} />);
-    expect(container.firstChild).not.toBeNull();
+    expect(container.querySelector('input[type="range"]')).not.toBeNull();
   });
 
   it('renders a label when provided', () => {
@@ -36,12 +36,12 @@ describe('Slider', () => {
 
   it('renders marks when showMarks is true', () => {
     const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} showMarks />);
-    expect(container.querySelector('.MuiSlider-mark')).not.toBeNull();
+    expect(container.querySelector('[class*="Slider-mark"]')).not.toBeNull();
   });
 
   it('does not render marks when showMarks is false', () => {
     const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} />);
-    expect(container.querySelector('.MuiSlider-mark')).toBeNull();
+    expect(container.querySelector('[class*="Slider-mark"]')).toBeNull();
   });
 
   it('clamps onChange value to clampMin for type single', () => {

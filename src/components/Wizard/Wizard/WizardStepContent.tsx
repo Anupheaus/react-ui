@@ -85,7 +85,7 @@ export const WizardStepContent = createComponent('WizardStepContent', ({ stepId,
   }));
 
   return (
-    <Flex tagName="wizard-step" className={join(css.step, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
+    <Flex tagName="wizard-step" aria-hidden={!isFocused} className={join(css.step, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
       <Scroller fullHeight>
         <Flex tagName="wizard-step-content" isVertical className={css.stepContent}>
           <ValidateSection>

@@ -106,7 +106,6 @@ describe('useLocale — formatCurrency', () => {
   it('formats a number as currency and contains currency symbol', () => {
     const { result } = renderHook(() => useLocale(), { wrapper });
     const formatted = result.current.formatCurrency(1234.56);
-    expect(formatted).toBeDefined();
     expect(formatted).toMatch(/£|GBP/);
   });
 });

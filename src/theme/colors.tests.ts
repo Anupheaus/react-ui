@@ -5,10 +5,16 @@ describe('colors.lighten', () => {
     expect(colors.lighten('#336699', 20)).toMatch(/^#[0-9A-Fa-f]{6}$/);
   });
 
-  it('a higher percentage produces a different (lighter) result than a lower percentage', () => {
+  it('a higher percentage produces a lighter result than a lower percentage', () => {
     const lessLight = colors.lighten('#336699', 10);
     const moreLight = colors.lighten('#336699', 80);
-    expect(moreLight).not.toBe(lessLight);
+    const toBrightness = (hex: string) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return r + g + b;
+    };
+    expect(toBrightness(moreLight)).toBeGreaterThan(toBrightness(lessLight));
   });
 
   it('returns a different value from the input color', () => {
@@ -32,7 +38,13 @@ describe('colors.darken', () => {
   it('a higher percentage produces a darker result than a lower percentage', () => {
     const lessDark = colors.darken('#9999CC', 10);
     const moreDark = colors.darken('#9999CC', 80);
-    expect(moreDark).not.toBe(lessDark);
+    const toBrightness = (hex: string) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return r + g + b;
+    };
+    expect(toBrightness(moreDark)).toBeLessThan(toBrightness(lessDark));
   });
 
   it('returns a different value from the input color when percentage > 0', () => {

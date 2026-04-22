@@ -40,7 +40,7 @@ describe('useDistributedState', () => {
     });
     const before = renderCount;
     await act(async () => { result.current.set(1); });
-    expect(renderCount).toBeGreaterThan(before);
+    expect(renderCount).toBe(before + 1);
   });
 
   it('does not update when same value is set', async () => {

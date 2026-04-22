@@ -12,14 +12,17 @@ function makeRequest(items: ReactListItem<Item>[]) {
 }
 
 describe('useItems', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+
   it('populates items from the onRequest response', async () => {
     const items: ReactListItem<Item>[] = [{ id: '1', text: 'Alice', data: { name: 'Alice' } }];
     const { result } = renderHook(() =>
       useItems<Item>({ onRequest: makeRequest(items) })
     );
-    // Wait for the async request and debounced updates (default debounce is 25-150ms)
+    // Advance all fake timers to flush the async request and debounced updates
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await vi.runAllTimersAsync();
     });
     expect(result.current.items).toHaveLength(1);
     expect(result.current.items[0].id).toBe('1');
@@ -35,7 +38,7 @@ describe('useItems', () => {
 
     // After response and processing, items should be populated
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await vi.runAllTimersAsync();
     });
     expect(result.current.items).toHaveLength(1);
   });
@@ -57,6 +60,6 @@ describe('useItems', () => {
     await act(async () => {});
     const callsBefore = requestFn.mock.calls.length;
     await act(async () => { result.current.request({ offset: 0, limit: 20 }); });
-    expect(requestFn.mock.calls.length).toBeGreaterThan(callsBefore);
+    expect(requestFn).toHaveBeenCalledTimes(callsBefore + 1);
   });
 });

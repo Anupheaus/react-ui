@@ -48,7 +48,7 @@ describe('useValidation — validateRequired', () => {
         onResult={r => { result = r; }}
       />
     );
-    expect(result.error).toBeTruthy();
+    expect(result.error).toBe('This field is required');
   });
 
   it('returns no error when isRequired is false regardless of value', () => {

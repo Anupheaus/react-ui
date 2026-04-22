@@ -89,14 +89,14 @@ describe('WizardStepContent', () => {
     const { container } = render(
       <WizardStepContentHarness initialStepId="step-1" stepIds={['step-1', 'step-2']} targetStepId="step-1" />
     );
-    expect(container.querySelector('.is-visible')).not.toBeNull();
+    expect(container.querySelector('[aria-hidden="false"]')).not.toBeNull();
   });
 
   it('is hidden when it does not match the active step id', () => {
     const { container } = render(
       <WizardStepContentHarness initialStepId="step-2" stepIds={['step-1', 'step-2']} targetStepId="step-1" />
     );
-    expect(container.querySelector('.is-visible')).toBeNull();
+    expect(container.querySelector('[aria-hidden="false"]')).toBeNull();
   });
 
   it('becomes visible when state changes to its step id', () => {
@@ -105,9 +105,9 @@ describe('WizardStepContent', () => {
     const { container } = render(
       <WizardStepContentHarness initialStepId="step-2" stepIds={['step-1', 'step-2']} targetStepId="step-1" setRef={setRef} />
     );
-    expect(container.querySelector('.is-visible')).toBeNull();
+    expect(container.querySelector('[aria-hidden="false"]')).toBeNull();
     act(() => setRef.current('step-1'));
-    expect(container.querySelector('.is-visible')).not.toBeNull();
+    expect(container.querySelector('[aria-hidden="false"]')).not.toBeNull();
   });
 });
 
@@ -214,14 +214,18 @@ describe('WizardActions', () => {
     expect(moveBack).toHaveBeenCalled();
   });
 
-  it('Next button is read-only when isNextEnabled is false', () => {
-    const { getByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'], isNextEnabled: false });
-    expect(getByText('Next').closest('button')!.classList.contains('is-read-only')).toBe(true);
+  it('Next button does not trigger moveNext when isNextEnabled is false', () => {
+    const moveNext = vi.fn();
+    const { getByText } = renderWizardActions({ activeStepId: 's1', stepIds: ['s1', 's2'], isNextEnabled: false, moveNext });
+    fireEvent.click(getByText('Next').closest('button')!);
+    expect(moveNext).not.toHaveBeenCalled();
   });
 
-  it('Back button is read-only when isBackEnabled is false', () => {
-    const { getByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'], isBackEnabled: false });
-    expect(getByText('Back').closest('button')!.classList.contains('is-read-only')).toBe(true);
+  it('Back button does not trigger moveBack when isBackEnabled is false', () => {
+    const moveBack = vi.fn();
+    const { getByText } = renderWizardActions({ activeStepId: 's2', stepIds: ['s1', 's2'], isBackEnabled: false, moveBack });
+    fireEvent.click(getByText('Back').closest('button')!);
+    expect(moveBack).not.toHaveBeenCalled();
   });
 });
 
@@ -238,7 +242,7 @@ describe('Wizard', () => {
         </Wizard>
       </WindowRenderContext.Provider>
     );
-    expect(await findByText('Step One')).toBeTruthy();
+    expect(await findByText('Step One')).toBeInTheDocument();
   });
 
   it('navigates to the next step on moveNext', async () => {
@@ -257,7 +261,7 @@ describe('Wizard', () => {
     act(() => navRef.current.moveNext());
 
     await waitFor(() => {
-      const visible = document.querySelector('.is-visible');
+      const visible = document.querySelector('[aria-hidden="false"]');
       expect(visible?.textContent).toContain('Step Two');
     });
   });
@@ -272,7 +276,7 @@ describe('Wizard', () => {
       </WindowRenderContext.Provider>
     );
     await waitFor(() => {
-      const visible = container.querySelector('.is-visible');
+      const visible = container.querySelector('[aria-hidden="false"]');
       expect(visible?.textContent).toContain('Step Two');
     });
   });
@@ -304,8 +308,8 @@ describe('Wizard', () => {
         </Wizard>
       </WindowRenderContext.Provider>
     );
-    expect(await findByText('Step Label One')).toBeTruthy();
-    expect(await findByText('Step Label Two')).toBeTruthy();
+    expect(await findByText('Step Label One')).toBeInTheDocument();
+    expect(await findByText('Step Label Two')).toBeInTheDocument();
   });
 
   it('does not render step labels when showProgress is not set', async () => {
@@ -339,7 +343,7 @@ describe('Wizard', () => {
     act(() => navRef.current.moveNext());
 
     await waitFor(() => {
-      const visible = document.querySelector('.is-visible');
+      const visible = document.querySelector('[aria-hidden="false"]');
       expect(visible?.textContent).toContain('Step Three');
     });
   });
@@ -367,7 +371,7 @@ describe('createWizardStep', () => {
       </WindowRenderContext.Provider>
     );
 
-    expect(await findByText('step-id-my-step')).toBeTruthy();
+    expect(await findByText('step-id-my-step')).toBeInTheDocument();
   });
 
   it('receives navigation utils in the definition', async () => {
