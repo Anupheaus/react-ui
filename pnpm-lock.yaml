@@ -24,7 +24,7 @@ importers:
   .:
     dependencies:
       '@anupheaus/common':
-        specifier: ^0.1.34
+        specifier: ^0.1.29
         version: 0.1.34
       '@emotion/react':
         specifier: ^11.11.1
