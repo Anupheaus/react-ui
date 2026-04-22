@@ -1,5 +1,5 @@
 import '@anupheaus/common';
-import { DeferredPromise } from '@anupheaus/common';
+import type { DeferredPromise } from '@anupheaus/common';
 import { saveItems } from './saveItems';
 import type { ListItemType } from '../../models';
 

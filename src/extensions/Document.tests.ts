@@ -17,7 +17,7 @@ describe('Document.simulateEvent', () => {
       'mouseout',
     ];
 
-    it.each(supportedMouseEvents)('dispatches a MouseEvent for "%s"', (eventName) => {
+    it.each(supportedMouseEvents)('dispatches a MouseEvent for "%s"', eventName => {
       const handler = vi.fn();
       document.addEventListener(eventName, handler);
       document.simulateEvent(eventName, { bubbles: true });
@@ -25,7 +25,7 @@ describe('Document.simulateEvent', () => {
       document.removeEventListener(eventName, handler);
     });
 
-    it.each(supportedMouseEvents)('event received by listener has the correct type property for "%s"', (eventName) => {
+    it.each(supportedMouseEvents)('event received by listener has the correct type property for "%s"', eventName => {
       const handler = vi.fn();
       document.addEventListener(eventName, handler);
       document.simulateEvent(eventName, { bubbles: true });
@@ -33,7 +33,7 @@ describe('Document.simulateEvent', () => {
       document.removeEventListener(eventName, handler);
     });
 
-    it.each(supportedMouseEvents)('event received is an instance of MouseEvent for "%s"', (eventName) => {
+    it.each(supportedMouseEvents)('event received is an instance of MouseEvent for "%s"', eventName => {
       let receivedEvent: Event | undefined;
       const handler = (e: Event) => { receivedEvent = e; };
       document.addEventListener(eventName, handler);
@@ -75,7 +75,7 @@ describe('Document.simulateEvent', () => {
       'pointerdown',
     ];
 
-    it.each(unsupportedEventNames)('does not dispatch any event for unsupported name "%s"', (eventName) => {
+    it.each(unsupportedEventNames)('does not dispatch any event for unsupported name "%s"', eventName => {
       const handler = vi.fn();
       document.addEventListener(eventName, handler);
       document.simulateEvent(eventName, { bubbles: true });

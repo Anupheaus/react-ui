@@ -216,7 +216,7 @@ describe('useSubscriptionProvider + useSubscription', () => {
 
     // Set first callback and invoke
     act(() => {
-      capturedOnCallback!((n) => { firstReceived.push(n); });
+      capturedOnCallback!(n => { firstReceived.push(n); });
     });
 
     await act(async () => {
@@ -228,7 +228,7 @@ describe('useSubscriptionProvider + useSubscription', () => {
 
     // Switch callback and invoke again
     act(() => {
-      capturedOnCallback!((n) => { secondReceived.push(n); });
+      capturedOnCallback!(n => { secondReceived.push(n); });
     });
 
     await act(async () => {
