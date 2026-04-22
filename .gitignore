@@ -28,3 +28,9 @@ replaceCode.js
 
 # git worktrees
 .worktrees
+
+# Claude tool
+.superpowers
+
+# Ignore coverage
+/coverage
