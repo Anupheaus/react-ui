@@ -1,7 +1,7 @@
 import type { PromiseMaybe } from '@anupheaus/common';
 import type { ReactNode } from 'react';
 import { useContext, useLayoutEffect, useRef, useState } from 'react';
-import useResizeObserver from 'use-resize-observer/polyfilled';
+import useResizeObserver from 'use-resize-observer/polyfilled.js';
 import { useBound, useDOMRef } from '../../../hooks';
 import { createStyles } from '../../../theme';
 import { Button } from '../../Button';

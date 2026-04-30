@@ -7,7 +7,7 @@ import type { Error } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { Flex } from '../../../components/Flex';
 import { Button } from '../../../components/Button';
-import { FiXCircle } from 'react-icons/fi';
+import { FiXCircle } from 'react-icons/fi/index.js';
 import { Icon } from '../../../components/Icon';
 import { useErrorDialog } from './ErrorDialog';
 

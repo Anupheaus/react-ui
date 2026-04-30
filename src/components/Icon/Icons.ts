@@ -1,11 +1,13 @@
-import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa';
+// Use explicit entry-point paths to avoid Node ESM directory-import errors
+// (react-icons sub-packages lack "exports" fields, so bare dir specifiers fail in ESM).
+import { FaBaby, FaUmbrellaBeach } from 'react-icons/fa/index.js';
 import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
   FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser, FiCopy, FiArrowUp, FiArrowDown,
   FiSliders, FiMail, FiPhone, FiTrash2, FiAlertTriangle,
   FiChevronLeft
-} from 'react-icons/fi';
-import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md';
+} from 'react-icons/fi/index.js';
+import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md/index.js';
 import type { IconType } from '../../theme';
 
 export interface IconDefinitions {

@@ -2,7 +2,7 @@
 import type { ComponentProps, ReactNode} from 'react';
 import { useMemo } from 'react';
 import { DatePicker as MuiDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon/index.js';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import type { FieldProps } from '../Field';
