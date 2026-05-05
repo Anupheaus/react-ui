@@ -7,7 +7,6 @@ import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
 import { ConfiguratorSubItemRow } from './ConfiguratorSubItemRow';
 import { useBound, useOnDOMChange } from '../../hooks';
-import { ConfiguratorAddItem } from './ConfiguratorAddItem';
 import { ConfiguratorAddSlice } from './ConfiguratorAddSlice';
 import type { OnShadowVisibleChangeEvent } from '../Scroller';
 import { Tag } from '../Tag';
@@ -112,10 +111,12 @@ interface Props {
   isHeader?: boolean;
   isFooter?: boolean;
   isOdd?: boolean;
-  addSubItemLabel?: ReactNode;
-  addSliceLabel?: ReactNode;
+  addItemTooltip?: ReactNode;
+  addSubItemTooltip?: ReactNode;
+  addSliceTooltip?: ReactNode;
   visibleShadows?: OnShadowVisibleChangeEvent;
   onExpandItem?(item: ConfiguratorItem<any, any>): void;
+  onAddItem?(): void;
   onAddSubItem?(item: ConfiguratorItem<any, any>): void;
   onAddSlice?(): void;
 }
@@ -126,10 +127,12 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
   isHeader = false,
   isFooter = false,
   isOdd = false,
-  addSubItemLabel,
-  addSliceLabel,
+  addItemTooltip,
+  addSubItemTooltip,
+  addSliceTooltip,
   visibleShadows,
   onExpandItem,
+  onAddItem,
   onAddSubItem,
   onAddSlice,
 }: Props) => {
@@ -168,16 +171,17 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
     <Flex tagName="configurator-row" className={join(css.configuratorRow, isHeader && 'is-header', isFooter && 'is-footer')} isVertical disableGrow data-whitelist-functions={whitelistFunctions}>
       <Flex tagName="configurator-item-row" className={css.configuratorItemRow}>
         <ConfiguratorCell columnIndex={0} item={item} isHeader={isHeader} isFooter={isFooter} isOddItem={isOdd} isOddSlice={false}
-          addShadowToRight={visibleShadows?.left} onExpandItem={hasSubItems ? onExpandItem : undefined} />
+          addShadowToRight={visibleShadows?.left} onExpandItem={hasSubItems ? onExpandItem : undefined}
+          onAdd={isHeader ? onAddItem : (onAddSubItem != null ? handleAddItem : undefined)}
+          addTooltip={isHeader ? addItemTooltip : addSubItemTooltip} />
         {cells}
         {(onAddSlice != null && isHeader) && (
-          <ConfiguratorAddSlice columnIndex={cells.length + 1} addSliceLabel={addSliceLabel} onAddSlice={onAddSlice} />
+          <ConfiguratorAddSlice addSliceTooltip={addSliceTooltip} onAddSlice={onAddSlice} />
         )}
       </Flex>
       {hasSubItems && (
         <Flex ref={saveElement} tagName="configurator-sub-item-rows" className={join(css.configuratorSubItemRows, item.isExpanded && 'is-expanded')} isVertical>
           {subItemRows}
-          <ConfiguratorAddItem isOdd={subItemRows.length % 2 === 0} isSubItem onAddItem={onAddSubItem != null ? handleAddItem : undefined}>{addSubItemLabel}</ConfiguratorAddItem>
         </Flex>
       )}
       {isHeader && (<Tag name="configurator-row-top-shadow" className={join(css.configuratorRowTopShadow, visibleShadows?.top && 'is-visible')} />)}

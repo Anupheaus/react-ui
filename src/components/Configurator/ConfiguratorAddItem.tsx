@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
-import type { ConfiguratorItem } from './configurator-models';
+import type { ConfiguratorItem, ConfiguratorSlice } from './configurator-models';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
 import { ConfiguratorCell } from './ConfiguratorCell';
@@ -17,6 +17,8 @@ const useStyles = createStyles({
 interface Props {
   isOdd: boolean;
   isSubItem?: boolean;
+  slices?: ConfiguratorSlice<any>[];
+  paletteColours?: (string | undefined)[];
   visibleShadows?: OnShadowVisibleChangeEvent;
   onAddItem?(): void;
   children?: ReactNode;
@@ -25,6 +27,8 @@ interface Props {
 export const ConfiguratorAddItem = createComponent('ConfiguratorAddItem', ({
   isOdd,
   isSubItem = false,
+  slices = [],
+  paletteColours,
   visibleShadows,
   onAddItem,
   children = 'Add Item',
@@ -47,7 +51,15 @@ export const ConfiguratorAddItem = createComponent('ConfiguratorAddItem', ({
 
   if (onAddItem == null) return null;
 
+  const sliceCells = slices.map((slice, index) => (
+    <ConfiguratorCell key={slice.id} columnIndex={index + 1} item={item} slice={slice} isOddItem={isOdd} isSubItem={isSubItem}
+      isOddSlice={index % 2 === 0} paletteColour={paletteColours?.[index]} />
+  ));
+
   return (
-    <ConfiguratorCell columnIndex={0} item={item} isOddItem={isOdd} isSubItem={isSubItem} isOddSlice={false} addShadowToRight={visibleShadows?.left} onSelect={onAddItem} />
+    <Flex tagName="configurator-add-item-row" disableGrow>
+      <ConfiguratorCell columnIndex={0} item={item} isOddItem={isOdd} isSubItem={isSubItem} isOddSlice={false} addShadowToRight={visibleShadows?.left} onSelect={onAddItem} />
+      {sliceCells}
+    </Flex>
   );
 });

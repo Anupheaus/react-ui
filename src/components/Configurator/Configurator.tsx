@@ -6,7 +6,6 @@ import { Flex } from '../Flex';
 import type { ConfiguratorFirstCell, ConfiguratorItem, ConfiguratorSlice, ConfiguratorSubItem } from './configurator-models';
 import { useBound } from '../../hooks';
 import { ConfiguratorItemRow } from './ConfiguratorItemRow';
-import { ConfiguratorAddItem } from './ConfiguratorAddItem';
 import { convertFirstCellIntoConfiguratorItem } from './configurator-column-utils';
 import { ConfiguratorColumnWidthsProvider } from './column-widths';
 import type { OnShadowVisibleChangeEvent } from '../Scroller';
@@ -57,9 +56,9 @@ interface Props {
   items: ConfiguratorItem[];
   slices: ConfiguratorSlice[];
   footer?: ConfiguratorItem;
-  addItemLabel?: ReactNode;
-  addSubItemLabel?: ReactNode;
-  addSliceLabel?: ReactNode;
+  addItemTooltip?: ReactNode;
+  addSubItemTooltip?: ReactNode;
+  addSliceTooltip?: ReactNode;
   onAddItem?(): void;
   onAddSubItem?(item: ConfiguratorItem): void;
   onAddSlice?(): void;
@@ -70,9 +69,9 @@ export const Configurator = createComponent('Configurator', ({
   items: providedItems,
   slices,
   footer,
-  addItemLabel,
-  addSubItemLabel,
-  addSliceLabel,
+  addItemTooltip,
+  addSubItemTooltip,
+  addSliceTooltip,
   onAddItem,
   onAddSubItem,
   onAddSlice,
@@ -89,8 +88,10 @@ export const Configurator = createComponent('Configurator', ({
   });
 
   const headerRow = useMemo(() => (
-    <ConfiguratorItemRow item={convertFirstCellIntoConfiguratorItem(firstCell, renderFirstCell)} slices={slices} isHeader addSliceLabel={addSliceLabel} visibleShadows={visibleShadows} onAddSlice={onAddSlice} />
-  ), [firstCell, slices, addItemLabel, visibleShadows, onAddSlice]);
+    <ConfiguratorItemRow item={convertFirstCellIntoConfiguratorItem(firstCell, renderFirstCell)} slices={slices} isHeader
+      addItemTooltip={addItemTooltip} addSliceTooltip={addSliceTooltip} visibleShadows={visibleShadows}
+      onAddItem={onAddItem} onAddSlice={onAddSlice} />
+  ), [firstCell, slices, addItemTooltip, addSliceTooltip, visibleShadows, onAddItem, onAddSlice]);
 
   const footerRow = useMemo(() => footer == null ? null : (
     <ConfiguratorItemRow item={footer} slices={slices} isFooter visibleShadows={visibleShadows} />
@@ -106,13 +107,9 @@ export const Configurator = createComponent('Configurator', ({
   });
 
   const renderedItems = useMemo(() => items.map((item, itemIndex) => (
-    <ConfiguratorItemRow key={item.id} item={item} slices={slices} isOdd={itemIndex % 2 === 0} addSubItemLabel={addSubItemLabel}
+    <ConfiguratorItemRow key={item.id} item={item} slices={slices} isOdd={itemIndex % 2 === 0} addSubItemTooltip={addSubItemTooltip}
       visibleShadows={visibleShadows} onExpandItem={expandItem} onAddSubItem={onAddSubItem} />
-  )), [items, slices, addSubItemLabel, visibleShadows, onAddSubItem, expandItem]);
-
-  const addItemRow = useMemo(() => (
-    <ConfiguratorAddItem isOdd={items.length % 2 === 0} visibleShadows={visibleShadows} onAddItem={onAddItem}>{addItemLabel}</ConfiguratorAddItem>
-  ), [items, addItemLabel, visibleShadows, onAddItem]);
+  )), [items, slices, addSubItemTooltip, visibleShadows, onAddSubItem, expandItem]);
 
   return (
     <Field
@@ -133,7 +130,6 @@ export const Configurator = createComponent('Configurator', ({
           <ConfiguratorColumnWidthsProvider itemMinWidth={firstCell?.minWidth} itemMaxWidth={firstCell?.maxWidth} slices={slices}>
             {headerRow}
             {renderedItems}
-            {addItemRow}
             {footerRow}
           </ConfiguratorColumnWidthsProvider>
         </Scroller>

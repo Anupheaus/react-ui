@@ -2,7 +2,7 @@ import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { ConfiguratorItem, ConfiguratorSlice, ConfiguratorSubItem } from './configurator-models';
 import { createStyles } from '../../theme';
-import type { CSSProperties, MouseEvent } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import { useLayoutEffect, useMemo } from 'react';
 import Color from 'color';
 import { useBound } from '../../hooks';
@@ -11,6 +11,8 @@ import { is } from '@anupheaus/common';
 import { Icon } from '../Icon';
 import { Tag } from '../Tag';
 import { ReactListItem } from '../../models';
+import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 
 const useStyles = createStyles(({ configurator: { header, item, subItem }, shadows: { scroll: shadow }, pseudoClasses }, { applyTransition }) => {
 
@@ -47,13 +49,6 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
         zIndex: 3,
       },
 
-      '&.is-sub-item.is-first-column': {
-        paddingLeft: 28,
-
-        [pseudoClasses.tablet]: {
-          paddingLeft: 36,
-        },
-      },
     },
 
     configuratorCellRenderer: {
@@ -74,11 +69,18 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
         cursor: 'pointer',
       },
     },
+    configuratorAddButton: {
+      marginRight: 8,
+    },
     configuratorCellContent: {
       padding: 8,
 
       '&.has-expand-button': {
         paddingLeft: 0,
+      },
+
+      '&.is-sub-item': {
+        paddingLeft: 28,
       },
 
       [pseudoClasses.tablet]: {
@@ -87,6 +89,10 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
         '&.has-expand-button': {
           paddingLeft: 0,
           marginLeft: -8,
+        },
+
+        '&.is-sub-item': {
+          paddingLeft: 44,
         },
       },
     },
@@ -144,6 +150,8 @@ interface Props {
   isSubItem?: boolean;
   addShadowToRight?: boolean;
   paletteColour?: string;
+  addTooltip?: ReactNode;
+  onAdd?(): void;
   onExpandItem?(item: ConfiguratorItem<any, any>): void;
   onSelect?(): void;
 }
@@ -159,6 +167,8 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
   isSubItem = false,
   addShadowToRight,
   paletteColour,
+  addTooltip,
+  onAdd,
   onExpandItem,
   onSelect,
 }: Props) => {
@@ -173,17 +183,11 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
     return base.mix(Color('#ffffff'), 0.25).hexa();
   }, [paletteColour, isFirstColumn, isHeader, isFooter, isSubItem, theme]);
 
-  const cellBackground = useMemo(() => {
-    const base = Color(isFirstColumn ? theme.configurator.item.backgroundColor : (paletteColour ?? theme.configurator.item.backgroundColor));
-    if (isHeader || isFooter) return base.hexa();
-    return base.mix(Color('#ffffff'), 0.25).hexa();
-  }, [paletteColour, isFirstColumn, isHeader, isFooter, theme]);
-
   const cellStyle = useMemo((): CSSProperties => ({
     ...style,
-    backgroundColor: cellBackground,
+    backgroundColor: rendererBackground,
     ...(paletteColour != null ? { '--palette-colour': paletteColour } as CSSProperties : {}),
-  }), [style, paletteColour, cellBackground]);
+  }), [style, paletteColour, rendererBackground]);
 
   const rendererStyle = useInlineStyle(() => ({ backgroundColor: rendererBackground }), [rendererBackground]);
 
@@ -213,12 +217,19 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
         {onExpandItem != null && (
           <Icon name="dropdown" rotate={item.isExpanded ? 180 : 0} className={css.expandButton} onClick={expandCell} />
         )}
-        <Flex tagName="configurator-cell-content" className={join(css.configuratorCellContent, onExpandItem != null && 'has-expand-button')} gap={'fields'} valign="center">
+        <Flex tagName="configurator-cell-content" className={join(css.configuratorCellContent, onExpandItem != null && 'has-expand-button', isSubItem && isFirstColumn && 'is-sub-item')} gap={'fields'} valign="center">
           {content}
         </Flex>
+        {isFirstColumn && onAdd != null && !isFooter && (
+          <Tooltip content={addTooltip}>
+            <Button iconOnly className={css.configuratorAddButton} onClick={onAdd}>
+              <Icon name="add" />
+            </Button>
+          </Tooltip>
+        )}
       </>
     );
-  }, [slice, item, onExpandItem]);
+  }, [slice, item, onExpandItem, onAdd, addTooltip, isFirstColumn, isFooter]);
 
   useLayoutEffect(() => {
     if (elementRef.current == null || slice?.isPinned !== true) return;

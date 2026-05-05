@@ -24,11 +24,13 @@ export function useConfiguratorColumnWidths({ columnIndex, isHeader = false }: P
     element.style.maxWidth = element.style.minWidth = element.style.width = `${newWidth}px`;
   });
 
+  const sliceWidths = columnIndex > 0 ? sliceMinAndMaxWidths[columnIndex - 1] : undefined;
+
   const style = useMemo<CSSProperties>(() => ({
-    maxWidth: !isHeader ? sliceMinAndMaxWidths[columnIndex - 1]?.maxWidth : itemMaxWidth,
-    minWidth: !isHeader ? sliceMinAndMaxWidths[columnIndex - 1]?.minWidth : itemMinWidth,
+    maxWidth: columnIndex === 0 ? itemMaxWidth : (sliceWidths?.maxWidth ?? itemMaxWidth),
+    minWidth: columnIndex === 0 ? itemMinWidth : (sliceWidths?.minWidth ?? itemMinWidth),
     width: isHeader ? 'auto' : 0,
-  }), [itemMinWidth, itemMaxWidth, sliceMinAndMaxWidths[columnIndex - 1], columnIndex, isHeader]);
+  }), [itemMinWidth, itemMaxWidth, sliceWidths, columnIndex, isHeader]);
 
   return {
     elementRef,

@@ -1,48 +1,37 @@
 import type { ReactNode } from 'react';
-import { useMemo } from 'react';
 import { createComponent } from '../Component';
-import { ConfiguratorCell } from './ConfiguratorCell';
-import type { ConfiguratorItem } from './configurator-models';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
 import { Icon } from '../Icon';
+import { Button } from '../Button';
+import { Tooltip } from '../Tooltip';
 
 const useStyles = createStyles({
   configuratorAddSlice: {
-    opacity: 0.5,
+    padding: '0 8px',
   },
 });
 
 interface Props {
-  columnIndex: number;
-  addSliceLabel?: ReactNode;
+  addSliceTooltip?: ReactNode;
   onAddSlice(): void;
 }
 
 export const ConfiguratorAddSlice = createComponent('ConfiguratorAddSlice', ({
-  columnIndex,
-  addSliceLabel = 'Add Slice',
+  addSliceTooltip,
   onAddSlice,
 }: Props) => {
   const { css } = useStyles();
 
-  const item = useMemo<ConfiguratorItem>(() => ({
-    id: 'add-slice',
-    text: 'Add Slice',
-    data: {},
-    subItems: [],
-    label: (
-      <Flex className={css.configuratorAddSlice} valign="center" gap="fields">
-        <Icon name="add" />
-        <span>{addSliceLabel}</span>
-      </Flex>
-    ),
-    renderCell: () => null,
-  }), []);
-
   if (onAddSlice == null) return null;
 
   return (
-    <ConfiguratorCell columnIndex={columnIndex} isHeader item={item} isOddItem={false} isSubItem={false} isOddSlice={columnIndex % 2 === 0} onSelect={onAddSlice} />
+    <Flex tagName="configurator-add-slice" className={css.configuratorAddSlice} disableGrow valign="center">
+      <Tooltip content={addSliceTooltip}>
+        <Button iconOnly onClick={onAddSlice}>
+          <Icon name="add" />
+        </Button>
+      </Tooltip>
+    </Flex>
   );
 });

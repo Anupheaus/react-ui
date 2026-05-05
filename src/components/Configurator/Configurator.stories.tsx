@@ -31,7 +31,7 @@ function roomTotalForQuote(windowIds: string[], quote: Quote): number {
 
 const firstColumn: ConfiguratorFirstCell = {
   label: 'Room',
-  minWidth: 130,
+  minWidth: 220,
 };
 
 const items: ConfiguratorItem<Room, Window, Quote>[] = [
@@ -144,6 +144,12 @@ const StandardConfigurator = (props: Partial<ComponentProps<typeof Configurator>
     items={items}
     slices={slices}
     footer={footer}
+    addItemTooltip="Add Room"
+    addSubItemTooltip="Add Window"
+    addSliceTooltip="Add Quote"
+    onAddItem={() => void 0}
+    onAddSubItem={() => void 0}
+    onAddSlice={() => void 0}
     {...props}
   />
 );
@@ -230,7 +236,7 @@ export const WithLotsOfData: Story = createStory<typeof Configurator>({
   height: 350,
   render: () => (
     <Configurator
-      firstCell={{ label: 'Room', minWidth: 140 }}
+      firstCell={{ label: 'Room', minWidth: 220 }}
       items={manyRooms}
       slices={manySlices}
       footer={manyFooter}

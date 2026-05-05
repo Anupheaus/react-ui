@@ -52,7 +52,7 @@ export const ConfiguratorColumnWidthsProvider = createComponent('ConfiguratorCol
     sliceMinAndMaxWidths,
     setColumnWidth,
     onColumnWidthChange,
-  }), [itemMinWidth, itemMaxWidth, setColumnWidth, onColumnWidthChange]);
+  }), [itemMinWidth, itemMaxWidth, sliceMinAndMaxWidths, setColumnWidth, onColumnWidthChange]);
 
   return (
     <ConfiguratorColumnWidthsContext.Provider value={context}>
