@@ -8,8 +8,9 @@ import { Flex } from '../Flex';
 import { Icon } from '../Icon';
 import { Typography } from '../Typography';
 import { useRipple } from '../Ripple';
+import { useUIState } from '../../providers';
 
-const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, borderColor } } }, buttons: { default: { normal: button } }, pseudoClasses }, { applyTransition }) => ({
+const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, borderColor } } }, buttons: { default: { normal: button, readOnly: buttonReadOnly } }, pseudoClasses }, { applyTransition }) => ({
   item: {
     borderRadius,
     border: `1px solid ${borderColor}`,
@@ -22,6 +23,12 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderRadius, b
     '&.is-selected': {
       borderColor: button.borderColor,
       backgroundColor: button.backgroundColor,
+    },
+
+    [pseudoClasses.readOnly]: {
+      cursor: 'default',
+      backgroundColor: buttonReadOnly.backgroundColor ?? button.backgroundColor,
+      borderColor: buttonReadOnly.borderColor ?? button.borderColor,
     },
 
     [pseudoClasses.tablet]: {
@@ -52,6 +59,7 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
   onSelect,
 }: Props) => {
   const { css, join, useInlineStyle } = useStyles();
+  const { isReadOnly } = useUIState();
   const lastItemRef = useRef(item);
   const { Ripple, rippleTarget } = useRipple();
 
@@ -62,6 +70,7 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
   });
 
   const selectItem = useBound((event: ReactMouseEvent<HTMLDivElement>) => {
+    if (isReadOnly) return;
     onSelect(item);
     item.onClick?.(ReactListItem.createClickEvent(event, item));
   });
@@ -75,9 +84,9 @@ export const SelectorSectionItem = createComponent('SelectorSectionItem', ({
   }, [item]);
 
   return (
-    <Flex ref={saveElement} tagName="selector-section-item" className={join(css.item, isSelected && 'is-selected')} style={style} allowFocus disableGrow={!fullWidthItems}
+    <Flex ref={saveElement} tagName="selector-section-item" className={join(css.item, isSelected && 'is-selected', isReadOnly && 'is-read-only')} style={style} allowFocus disableGrow={!fullWidthItems}
       wide={fullWidthItems} valign="center" onClick={selectItem}>
-      <Ripple stayWithinContainer />
+      <Ripple stayWithinContainer isDisabled={isReadOnly} />
       {fullWidthItems && item.label != null ? item.label : (
         <Flex tagName="selector-section-item-content" gap={6} isVertical align="center" className={css.content}>
           {item.iconName != null && (

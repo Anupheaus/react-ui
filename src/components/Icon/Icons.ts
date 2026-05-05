@@ -34,6 +34,7 @@ export const LocalIconDefinitions = {
   'password-hide': FiEyeOff,
   'dropdown': FiChevronDown,
   'sign-in-dialog': FiLock,
+  'lock': FiLock,
   'calendar-holiday': FaUmbrellaBeach,
   'calendar-business': MdBusinessCenter,
   'calendar-sick': MdOutlineSick,

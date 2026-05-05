@@ -17,8 +17,10 @@ export const UIState = createComponent('UIState', ({
   children = null,
 }: Props) => {
   const isParentLoading = useContext(UIStateContexts.isLoadingContext);
+  const isParentReadOnly = useContext(UIStateContexts.isReadOnlyContext);
 
   const newIsLoading = isLoading === true || isParentLoading;
+  const newIsReadOnly = isReadOnly === true || isParentReadOnly;
 
   let content = <>{children}</>;
 
@@ -29,7 +31,7 @@ export const UIState = createComponent('UIState', ({
   );
 
   if (isReadOnly != null) content = (
-    <UIStateContexts.isReadOnlyContext.Provider value={isReadOnly}>
+    <UIStateContexts.isReadOnlyContext.Provider value={newIsReadOnly}>
       {content}
     </UIStateContexts.isReadOnlyContext.Provider>
   );

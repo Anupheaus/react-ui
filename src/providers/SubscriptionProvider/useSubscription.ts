@@ -21,7 +21,9 @@ export function useSubscription<SubscribePayload, InvokePayload>(subscription: S
   });
   const subscribe = useBound((payload: SubscribePayload, groupId?: string) => internalSubscribe(subscriberId, payload, handler, groupId));
   const unsubscribe = useBound(() => internalUnsubscribe(subscriberId));
-  const onCallback = useBound((fn: (payload: InvokePayload) => void) => { callbackRef.current = fn; });
+  const onCallback = useBound((fn: (payload: InvokePayload) => void) => {
+    callbackRef.current = fn;
+  });
 
   useOnUnmount(unsubscribe);
 

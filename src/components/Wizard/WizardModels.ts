@@ -8,6 +8,8 @@ export interface StepRecord {
   id: string;
   label?: ReactNode;
   onStep?: (isActive: boolean) => void;
+  hideNext?: boolean;
+  hideBack?: boolean;
   children: ReactNode;
 }
 
@@ -50,6 +52,8 @@ export interface WizardStepProps {
   id?: string;
   label?: ReactNode;
   onStep?: (isActive: boolean) => void;
+  hideNext?: boolean;
+  hideBack?: boolean;
   children: ReactNode;
 }
 

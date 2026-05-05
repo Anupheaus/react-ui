@@ -30,7 +30,7 @@ const useStyles = createStyles({
 
 export interface ActionsToolbarProps {
   className?: string;
-  saveLabel?: string;
+  saveLabel?: ReactNode;
   saveClassName?: string;
   cancelLabel?: string;
   cancelDialogTitle?: string;
