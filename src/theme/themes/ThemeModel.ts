@@ -451,9 +451,11 @@ export interface Theme {
       lineCompletedColor: string;
       lineColor: string;
       labelColor: string;
-      panelBackgroundColor: string;
+      panelBackgroundColor?: string;
       panelBorderColor: string;
     };
+    contentBackgroundColor?: string;
+    actionsBackgroundColor?: string;
   };
   qrCode?: QRCodeTheme;
 }
