@@ -9,7 +9,7 @@ import type { StepRecord, WizardProps } from '../WizardModels';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardStepIndicator } from './WizardStepIndicator';
 
-const useStyles = createStyles({
+const useStyles = createStyles(({ wizard, windows: { content } }) => ({
   hidden: {
     display: 'none',
   },
@@ -24,6 +24,7 @@ const useStyles = createStyles({
     flexDirection: 'column',
     flexGrow: 1,
     overflow: 'hidden',
+    backgroundColor: wizard.contentBackgroundColor ?? content.active.backgroundColor,
   },
   wizardSteps: {
     display: 'grid',
@@ -32,7 +33,7 @@ const useStyles = createStyles({
     flexGrow: 1,
     overflow: 'hidden',
   },
-});
+}));
 
 const isStep = (child: React.ReactElement) => !!(child.type as any).__isWizardStep;
 
