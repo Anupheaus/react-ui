@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import { createComponent } from '../../Component';
+import { createStyles } from '../../../theme';
 import { useDistributedState } from '../../../hooks';
 import { useBound } from '../../../hooks/useBound';
 import { Button } from '../../Button';
@@ -12,12 +13,20 @@ import { WizardContext, WizardEnabledContext } from '../WizardContexts';
 
 type Props = ActionsToolbarProps;
 
-export const WizardActions = createComponent('WizardActions', ({ children, onSave, saveLabel, isSaveReadOnly, ...rest }: Props) => {
+const useStyles = createStyles(({ wizard, windows: { content } }) => ({
+  wizardActions: {
+    borderTop: `1px solid ${wizard.progress.panelBorderColor}`,
+    backgroundColor: wizard.actionsBackgroundColor ?? content.active.backgroundColor,
+  },
+}));
+
+export const WizardActions = createComponent('WizardActions', ({ children, onSave, saveLabel, isSaveReadOnly, className, ...rest }: Props) => {
   const { state, steps, moveNext, moveBack, checkStepIsValid } = useContext(WizardContext);
   const { isNextEnabled, isBackEnabled } = useContext(WizardEnabledContext);
   const { getAndObserve } = useDistributedState(state);
   const { close } = useContext(WindowRenderContext);
   const { isValid: isWindowValid } = useWindowValidation();
+  const { css, join } = useStyles();
 
   const activeStepId = getAndObserve();
   const activeIndex = steps.findIndex(s => s.id === activeStepId);
@@ -33,6 +42,7 @@ export const WizardActions = createComponent('WizardActions', ({ children, onSav
   return (
     <WindowActions
       {...rest}
+      className={join(css.wizardActions, className)}
       onSave={stepHidesNext ? undefined : handleSave}
       onCheckIsValid={handleCheckIsValid}
       saveLabel={isLast ? (saveLabel ?? 'Save') : 'Next'}
