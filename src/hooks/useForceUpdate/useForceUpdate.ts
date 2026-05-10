@@ -7,6 +7,7 @@ export function useForceUpdate() {
   const isUnmounted = useOnUnmount();
   const isRenderingRef = useRef(true);
   const shouldUpdateStateRef = useRef(false);
+  const hasMountedRef = useRef(false);
   isRenderingRef.current = true;
 
   const update = useBound(() => {
@@ -14,21 +15,25 @@ export function useForceUpdate() {
     if (isRenderingRef.current) {
       // Mark that a re-render is needed after this render commits.
       // The useLayoutEffect below will pick this up and trigger the follow-up render.
-      // We also schedule a setTimeout as a fallback in case the render is a concurrent
-      // render chunk that doesn't commit (e.g. React yields mid-tree and the subscription
-      // update fires during the yield window, not during the component function itself).
       shouldUpdateStateRef.current = true;
-      setTimeout(() => {
-        if (isUnmounted() || !shouldUpdateStateRef.current) return;
-        shouldUpdateStateRef.current = false;
-        setValue({});
-      }, 0);
+      // Only schedule a setTimeout fallback after the component has mounted. Before
+      // mount, useLayoutEffect hasn't run yet and will pick up shouldUpdateStateRef on
+      // commit — scheduling a setTimeout here would fire before that commit and trigger
+      // React's "Can't perform a state update on a component that hasn't mounted" warning.
+      if (hasMountedRef.current) {
+        setTimeout(() => {
+          if (isUnmounted() || !shouldUpdateStateRef.current || !hasMountedRef.current) return;
+          shouldUpdateStateRef.current = false;
+          setValue({});
+        }, 0);
+      }
     } else {
       setValue({});
     }
   });
 
   useLayoutEffect(() => {
+    hasMountedRef.current = true;
     isRenderingRef.current = false;
     if (!shouldUpdateStateRef.current) return;
     shouldUpdateStateRef.current = false;
