@@ -492,6 +492,8 @@ export const DefaultTheme: Theme = {
       panelBackgroundColor: '#f8f8f8',
       panelBorderColor: 'rgba(0 0 0 / 10%)',
     },
+    contentBackgroundColor: undefined,
+    actionsBackgroundColor: undefined,
   },
   qrCode: {
     foregroundColor: '#000000',

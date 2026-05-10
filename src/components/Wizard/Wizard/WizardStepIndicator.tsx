@@ -15,7 +15,7 @@ const useStyles = createStyles(({ wizard: { progress } }) => ({
     flexShrink: 0,
     width: 200,
     padding: '24px 16px 24px 20px',
-    backgroundColor: progress.panelBackgroundColor,
+    backgroundColor: progress.panelBackgroundColor, // undefined = transparent (inherits parent background)
     borderRight: `1px solid ${progress.panelBorderColor}`,
     overflowY: 'auto',
   },
