@@ -466,8 +466,8 @@ export const DefaultTheme: Theme = {
     },
   },
   paletteColours: [
-    '#c4a8e0', // soft violet
     '#a8c4e0', // dusty blue
+    '#c4a8e0', // soft violet
     '#a8d4bc', // sage green
     '#e0c4a8', // warm sand
     '#e0a8b4', // dusty rose
