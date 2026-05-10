@@ -63,7 +63,7 @@ export const Signature = createComponent('Signature', ({
   onChangeRef.current = onChange;
   const [strokeCount, setStrokeCount] = useState(0);
   const strokeCountRef = useRef(0);
-  const [maxStrokeLength, setMaxStrokeLength] = useState(0);
+  const [totalStrokeLength, setTotalStrokeLength] = useState(0);
   // Tracks whether the latest value change came from the user drawing (true) or an external prop update (false).
   // When true we skip fromDataURL — the canvas already has the correct content and calling fromDataURL would
   // re-draw the captured PNG at a scaled size (÷ devicePixelRatio), producing smaller ghost copies.
@@ -92,17 +92,17 @@ export const Signature = createComponent('Signature', ({
       const data = pad.toData();
       strokeCountRef.current = data.length;
       setStrokeCount(strokeCountRef.current);
-      // Find the longest individual stroke — any stroke meeting the threshold counts as a valid signature
-      const longestStroke = data.reduce((best, stroke) => {
+      // Sum all stroke lengths — the combined path must meet the threshold for a valid signature
+      const combinedLength = data.reduce((total, stroke) => {
         const len = stroke.points.reduce((sum, pt, i) => {
           if (i === 0) return sum;
           const dx = pt.x - stroke.points[i - 1].x;
           const dy = pt.y - stroke.points[i - 1].y;
           return sum + Math.sqrt(dx * dx + dy * dy);
         }, 0);
-        return Math.max(best, len);
+        return total + len;
       }, 0);
-      setMaxStrokeLength(longestStroke);
+      setTotalStrokeLength(combinedLength);
       enableErrorsRef.current();
       onChangeRef.current?.(canvas.toDataURL('image/png'));
     };
@@ -150,7 +150,7 @@ export const Signature = createComponent('Signature', ({
   const { isOptional } = fieldProps;
   const { error, enableErrors } = validate(() => {
     // When the field is required, validate that the user has drawn at least one stroke of meaningful length
-    if (!isOptional && maxStrokeLength < MIN_REQUIRED_STROKE_LENGTH) {
+    if (!isOptional && totalStrokeLength < MIN_REQUIRED_STROKE_LENGTH) {
       return 'Your signature doesn\'t look complete yet — please add a bit more so it can be verified.';
     }
     if (minStrokes != null && strokeCount < minStrokes) {
@@ -164,7 +164,7 @@ export const Signature = createComponent('Signature', ({
     padRef.current?.clear();
     strokeCountRef.current = 0;
     setStrokeCount(0);
-    setMaxStrokeLength(0);
+    setTotalStrokeLength(0);
     onChangeRef.current?.(undefined);
   });
 
