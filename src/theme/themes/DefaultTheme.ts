@@ -466,20 +466,20 @@ export const DefaultTheme: Theme = {
     },
   },
   paletteColours: [
-    '#a8c4e0', // dusty blue
-    '#c4a8e0', // soft violet
-    '#a8d4bc', // sage green
-    '#e0c4a8', // warm sand
-    '#e0a8b4', // dusty rose
-    '#a8d4d0', // muted teal
-    '#d4c4a8', // warm wheat
-    '#c4b8e0', // lavender
-    '#a8c4b0', // soft sage
-    '#e0b8a8', // terracotta
-    '#b8d4e0', // steel blue
-    '#d4a8c4', // mauve
-    '#c4d4a8', // moss
-    '#e0d0a8', // soft amber
+    '#bcd8f4', // dusty blue
+    '#d8bcf4', // soft violet
+    '#bce8d0', // sage green
+    '#f4d8bc', // warm sand
+    '#f4bcc8', // dusty rose
+    '#bce8e4', // muted teal
+    '#e8d8bc', // warm wheat
+    '#d8ccf4', // lavender
+    '#bcd8c4', // soft sage
+    '#f4ccbc', // terracotta
+    '#cce8f4', // steel blue
+    '#e8bcd8', // mauve
+    '#d8e8bc', // moss
+    '#f4e4bc', // soft amber
   ],
   wizard: {
     progress: {
