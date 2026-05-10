@@ -151,7 +151,7 @@ export const Signature = createComponent('Signature', ({
   const { error, enableErrors } = validate(() => {
     // When the field is required, validate that the user has drawn at least one stroke of meaningful length
     if (!isOptional && totalStrokeLength < MIN_REQUIRED_STROKE_LENGTH) {
-      return 'Your signature doesn\'t look complete yet — please add a bit more so it can be verified.';
+      return 'Thank you, however your signature appears incomplete. Please provide a little more to proceed.';
     }
     if (minStrokes != null && strokeCount < minStrokes) {
       return minStrokesMessage ?? `Please provide at least ${minStrokes} stroke${minStrokes === 1 ? '' : 's'}`;
