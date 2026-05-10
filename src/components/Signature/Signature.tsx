@@ -20,7 +20,7 @@ export interface SignatureProps extends FieldProps {
 }
 
 const DELIBERATE_TAP_THRESHOLD_PX = 10;
-const MIN_REQUIRED_STROKE_LENGTH = 80;
+const MIN_REQUIRED_STROKE_LENGTH = 150;
 
 const useStyles = createStyles(({ fields, signature }) => ({
   canvasContainer: {
