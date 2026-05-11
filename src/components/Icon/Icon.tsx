@@ -27,8 +27,6 @@ const useStyles = createStyles(({ icons: { normal, active, readOnly }, pseudoCla
   icon: {
     display: 'flex',
     opacity: normal.opacity ?? 1,
-    minWidth: 16,
-    minHeight: 16,
     width: 'min-content',
     height: 'min-content',
     maxWidth: '100%',
@@ -106,8 +104,10 @@ const IconComponent = createComponent('Icon', function ({
   }, [name, color, sizeAmount, propsRotate]);
 
   const style = useInlineStyle(() => ({
+    minWidth: sizeAmount,
+    minHeight: sizeAmount,
     transform: rotate != null ? `rotate(${rotate}deg)` : flip === 'horizontal' ? 'scaleX(-1)' : flip === 'vertical' ? 'scaleY(-1)' : undefined,
-  }), [rotate, flip]);
+  }), [sizeAmount, rotate, flip]);
 
   return (
     <Tag name="icon" ref={ref} className={join(css.icon, dropShadow && 'drop-shadow', onClick != null && css.clickable, className)} data-icon-type={name} onClick={onClick} style={style}>
