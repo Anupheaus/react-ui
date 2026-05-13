@@ -10,6 +10,7 @@ import { NoSkeletons, Skeleton } from '../Skeleton';
 import { useBooleanState, useBound, useDOMRef, useOnUnmount } from '../../hooks';
 import { createStyles } from '../../theme';
 import { Toolbar } from '../Toolbar';
+import { Tooltip } from '../Tooltip';
 
 export interface FieldProps {
   className?: string;
@@ -23,6 +24,7 @@ export interface FieldProps {
   error?: ReactNode;
   ref?: Ref<HTMLInputElement>;
   wide?: boolean;
+  containerTooltip?: ReactNode;
 }
 
 function validateAdornments(adornments: ReactNode | ReactNode[]): boolean {
@@ -169,6 +171,7 @@ export const Field = createComponent('Field', ({
   fullHeight,
   skeleton,
   disableOverflow = false,
+  containerTooltip,
   onBlur,
   onContainerSelect,
   ...props
@@ -212,6 +215,7 @@ export const Field = createComponent('Field', ({
   const wrapContent = (content: ReactNode) => {
     if (noContainer) return content;
     return (
+      <Tooltip content={containerTooltip}>
       <Tag
         name={`${tagName}-container`}
         ref={containerRef}
@@ -250,6 +254,7 @@ export const Field = createComponent('Field', ({
           )}
         </>)}
       </Tag>
+      </Tooltip>
     );
   };
 
