@@ -45,7 +45,7 @@ export const WizardActions = createComponent('WizardActions', ({ children, onSav
       className={join(css.wizardActions, className)}
       onSave={stepHidesNext ? undefined : handleSave}
       onCheckIsValid={handleCheckIsValid}
-      saveLabel={isLast ? (saveLabel ?? 'Save') : 'Next'}
+      saveLabel={isLast ? (saveLabel ?? 'Save') : (activeStep?.nextLabel ?? 'Next')}
       isSaveReadOnly={isSaveReadOnly === true || (!isNextEnabled && !isLast)}
     >
       {children}

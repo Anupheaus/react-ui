@@ -12,7 +12,7 @@ export function createWizardStep(
   name: string,
   definition: StepDefinition,
 ) {
-  const component = createComponent(name, ({ id: providedId, label, hideNext, hideBack }: { id?: string; label?: ReactNode; hideNext?: boolean; hideBack?: boolean }) => {
+  const component = createComponent(name, ({ id: providedId, label, hideNext, hideBack, nextLabel }: { id?: string; label?: ReactNode; hideNext?: boolean; hideBack?: boolean; nextLabel?: string }) => {
     const { id: contextId } = useContext(WizardStepIdContext);
     const generatedId = useId();
     const id = providedId ?? (contextId || generatedId);
@@ -59,7 +59,7 @@ export function createWizardStep(
 
     const content = definition({ id, moveNext, moveBack, setNextIsEnabled: captureSetNext, setBackIsEnabled: captureSetBack, onStep });
 
-    return <WizardStep id={id} label={label} onStep={onStepCallback} hideNext={hideNext} hideBack={hideBack}>{content}</WizardStep>;
+    return <WizardStep id={id} label={label} onStep={onStepCallback} hideNext={hideNext} hideBack={hideBack} nextLabel={nextLabel}>{content}</WizardStep>;
   });
 
   (component as any).__isWizardStep = true;
