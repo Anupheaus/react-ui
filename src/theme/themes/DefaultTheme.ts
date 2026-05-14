@@ -277,15 +277,12 @@ export const DefaultTheme: Theme = {
   configurator: {
     header: {
       backgroundColor: '#efefef',
-      textColor: primaryTextColor,
     },
     item: {
       backgroundColor: '#d2d2d2',
-      textColor: primaryTextColor,
     },
     subItem: {
       backgroundColor: '#bcbcbc',
-      textColor: primaryTextColor,
     },
     slice: {
       backgroundColor: '#ada7fd',

@@ -376,11 +376,11 @@ export interface Theme {
   configurator: {
     header: {
       backgroundColor: string;
-      textColor: string;
+      textColor?: string;
     };
     item: {
       backgroundColor: string;
-      textColor: string;
+      textColor?: string;
     };
     subItem?: {
       backgroundColor?: string;

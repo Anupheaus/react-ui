@@ -144,7 +144,7 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
 
   const slicePaletteColours = useMemo(() =>
     slices.map((slice, index) => slice.doNotApplySliceStyles ? undefined : paletteColours[index % paletteColours.length]),
-  [slices, paletteColours]
+    [slices, paletteColours]
   );
 
   const cells = useMemo(() => slices.map((slice, index) => (
@@ -188,4 +188,4 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
       {isFooter && (<Tag name="configurator-row-bottom-shadow" className={join(css.configuratorRowBottomShadow, visibleShadows?.bottom && 'is-visible')} />)}
     </Flex>
   );
-});
+}, { whitelistFunctions: ['renderCell'] });

@@ -28,7 +28,7 @@ export const ConfiguratorAddSlice = createComponent('ConfiguratorAddSlice', ({
   return (
     <Flex tagName="configurator-add-slice" className={css.configuratorAddSlice} disableGrow valign="center">
       <Tooltip content={addSliceTooltip}>
-        <Button iconOnly onClick={onAddSlice}>
+        <Button variant="hover" iconOnly onClick={onAddSlice}>
           <Icon name="add" />
         </Button>
       </Tooltip>

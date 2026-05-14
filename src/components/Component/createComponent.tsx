@@ -1,8 +1,9 @@
 import '../../extensions/is';
-import { Error, is, to } from '@anupheaus/common';
+import { Error, is } from '@anupheaus/common';
 import type { FunctionComponent, NamedExoticComponent, ReactNode, Ref } from 'react';
-import { forwardRef, isValidElement, memo } from 'react';
+import { forwardRef, memo } from 'react';
 import { createComponentOverrides } from './createComponentOverrides';
+import { defaultCompareProps } from './defaultCompareProps';
 
 interface Config<TFunc extends (props: any) => JSX.Element | null> {
   disableMemoisation?: boolean;
@@ -10,58 +11,6 @@ interface Config<TFunc extends (props: any) => JSX.Element | null> {
   whitelistFunctions?: PropertyKey[];
   onCompareProps?(prevProps: Parameters<TFunc>[0], newProps: Parameters<TFunc>[0], key: PropertyKey, whitelistFunctions?: PropertyKey[]): boolean;
   onError?(error: Error, props: Parameters<TFunc>[0]): JSX.Element | null;
-}
-
-function defaultCompareProps(debug: boolean, name: string, topLevelProps: any, whitelistFunctions: PropertyKey[]) {
-  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey): boolean => {
-    if (prevProps === newProps) return true;
-    if (prevProps == null || newProps == null) return false;
-    if (is.proxy(prevProps) || is.proxy(newProps)) {
-      const actualPrevProps = is.proxy(prevProps) ? to.proxyApi(prevProps)?.value : prevProps;
-      const actualNewProps = is.proxy(newProps) ? to.proxyApi(newProps)?.value : newProps;
-      return defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(actualPrevProps, actualNewProps, propertyName);
-    }
-    if (typeof (prevProps) !== typeof (newProps)) return false;
-    if (['number', 'string', 'boolean'].includes(typeof (prevProps))) return prevProps === newProps;
-    if (is.function(prevProps)) {
-      if (is.function(newProps)) {
-        if (prevProps === newProps) return true;
-        if (whitelistFunctions.includes(propertyName)) return false;
-        // eslint-disable-next-line no-console
-        console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
-          `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component ` +
-          'or by setting it in the configuration of the component.', { topLevelProps, newProps, whitelistFunctions });
-      }
-      return false;
-    }
-    if (prevProps instanceof Date) return newProps instanceof Date ? prevProps.getTime() === newProps.getTime() : false;
-    if (prevProps instanceof Array) {
-      if (!(newProps instanceof Array) || prevProps.length !== newProps.length) return false;
-      return prevProps.every((value, index) => defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(value, newProps[index], index));
-    }
-    if (isValidElement(prevProps)) {
-      if (prevProps.type !== newProps.type) return false;
-      if (prevProps.key !== newProps.key) return false;
-      return defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(prevProps.props, newProps.props, propertyName);
-    }
-    if (is.plainObject(prevProps)) {
-      if (Object.keys(prevProps).length !== Object.keys(newProps).length) return false;
-      return Object.keys(prevProps).every(key => defaultCompareProps(debug, name, topLevelProps, whitelistFunctions)(prevProps[key], newProps[key], key));
-    }
-    // eslint-disable-next-line no-console
-    // console.warn('Assuming these props are not equal', { prevProps, newProps });
-    return false;
-  };
-  if (debug) {
-    return (prevProps: any, newProps: any) => {
-      const result = doCompare(prevProps, newProps, 'props');
-      // eslint-disable-next-line no-console
-      console.log(`${name} - debug`, { prevProps, newProps, result });
-      return result;
-    };
-  } else {
-    return doCompare;
-  }
 }
 
 function setName(func: FunctionComponent<{}>, name: string) {
@@ -79,7 +28,7 @@ export function createComponent<TFunc extends (props: any) => JSX.Element | null
   const compareProps = (prevProps: any, newProps: any): boolean => {
     const allWhitelistFunctions = (whitelistFunctions ?? []).concat(newProps['data-whitelist-functions'] ?? []).distinct();
     if (onCompareProps != null) return onCompareProps(prevProps, newProps, 'props', allWhitelistFunctions);
-    return defaultCompareProps(debug, name, newProps, allWhitelistFunctions)(prevProps, newProps, 'props');
+    return defaultCompareProps({ debug, name, topLevelProps: newProps, whitelistFunctions: allWhitelistFunctions })(prevProps, newProps, 'props');
   };
 
   let componentFunc = forwardRef<any, any>((props: {}, providedRef: Ref<HTMLElement>) => {
@@ -102,29 +51,3 @@ export function createComponent<TFunc extends (props: any) => JSX.Element | null
   componentFunc.Overrides = Overrides;
   return componentFunc;
 }
-
-// interface MyComponentProps<T> {
-//   records: T[];
-//   onChange?(records: T[]): void;
-// }
-
-// const MyComponent = createComponent2(function render<T>(props: MyComponentProps<T>) {
-//   return (<></>);
-// });
-
-// interface MyRecord {
-//   id: number;
-//   name: string;
-// }
-
-// const myRecords: MyRecord[] = [
-//   { id: 1, name: 'one' },
-// ];
-
-// const handleOnChange = (record: MyRecord[]) => {
-//   // do something
-// };
-
-// const result = (<>
-//   <MyComponent records={myRecords} onChange={handleOnChange} />
-// </>);

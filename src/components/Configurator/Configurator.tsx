@@ -91,7 +91,7 @@ export const Configurator = createComponent('Configurator', ({
     <ConfiguratorItemRow item={convertFirstCellIntoConfiguratorItem(firstCell, renderFirstCell)} slices={slices} isHeader
       addItemTooltip={addItemTooltip} addSliceTooltip={addSliceTooltip} visibleShadows={visibleShadows}
       onAddItem={onAddItem} onAddSlice={onAddSlice} />
-  ), [firstCell, slices, addItemTooltip, addSliceTooltip, visibleShadows, onAddItem, onAddSlice]);
+  ), [firstCell, slices, addItemTooltip, addSliceTooltip, visibleShadows, onAddItem, onAddSlice, renderFirstCell]);
 
   const footerRow = useMemo(() => footer == null ? null : (
     <ConfiguratorItemRow item={footer} slices={slices} isFooter visibleShadows={visibleShadows} />
@@ -136,4 +136,4 @@ export const Configurator = createComponent('Configurator', ({
       </Flex>
     </Field>
   );
-});
+}, { whitelistFunctions: ['onAddItem', 'onAddSubItem', 'onAddSlice', 'renderFirstCell', 'renderCell'] });

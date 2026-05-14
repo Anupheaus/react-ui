@@ -37,4 +37,4 @@ export const ConfiguratorSubItemRow = createComponent('ConfiguratorSubItemRow', 
       {cells}
     </Flex>
   );
-});
+}, { whitelistFunctions: ['renderCell', 'onExpandItem'] });

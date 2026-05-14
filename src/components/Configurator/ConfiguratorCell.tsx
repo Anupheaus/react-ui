@@ -11,11 +11,9 @@ import { is } from '@anupheaus/common';
 import { Icon } from '../Icon';
 import { Tag } from '../Tag';
 import { ReactListItem } from '../../models';
-import { Button } from '../Button';
-import { Tooltip } from '../Tooltip';
+import { ConfiguratorAddButton } from './ConfiguratorAddButton';
 
-const useStyles = createStyles(({ configurator: { header, item, subItem }, shadows: { scroll: shadow }, pseudoClasses }, { applyTransition }) => {
-
+const useStyles = createStyles(({ configurator: { header, item, subItem }, shadows: { scroll: shadow }, text: { color: textColour }, pseudoClasses }, { applyTransition }) => {
   return {
     configuratorCell: {
       minHeight: 'fit-content',
@@ -29,7 +27,7 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
       },
 
       '&.is-header, &.is-footer': {
-        color: header.textColor,
+        color: header.textColor ?? textColour,
         cursor: 'default',
         position: 'sticky',
         zIndex: 1,
@@ -54,13 +52,13 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
     configuratorCellRenderer: {
 
       '&.is-item': {
-        color: item.textColor,
+        color: item.textColor ?? textColour,
         cursor: 'default',
       },
 
       '&.is-sub-item': {
         padding: 0,
-        color: subItem?.textColor ?? item.textColor,
+        color: subItem?.textColor ?? item.textColor ?? textColour,
         cursor: 'default',
         overflow: 'hidden',
       },
@@ -68,9 +66,6 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
       '&.is-clickable': {
         cursor: 'pointer',
       },
-    },
-    configuratorAddButton: {
-      marginRight: 8,
     },
     configuratorCellContent: {
       padding: 8,
@@ -84,7 +79,7 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
       },
 
       [pseudoClasses.tablet]: {
-        padding: 16,
+        padding: 12,
 
         '&.has-expand-button': {
           paddingLeft: 0,
@@ -217,23 +212,23 @@ export const ConfiguratorCell = createComponent('ConfiguratorCell', ({
         {onExpandItem != null && (
           <Icon name="dropdown" rotate={item.isExpanded ? 180 : 0} className={css.expandButton} onClick={expandCell} />
         )}
-        <Flex tagName="configurator-cell-content" className={join(css.configuratorCellContent, onExpandItem != null && 'has-expand-button', isSubItem && isFirstColumn && 'is-sub-item')} gap={'fields'} valign="center">
+        <Flex
+          tagName="configurator-cell-content"
+          className={join(css.configuratorCellContent, onExpandItem != null && 'has-expand-button', isSubItem && isFirstColumn && 'is-sub-item')}
+          gap={'fields'}
+          valign="center"
+        >
           {content}
         </Flex>
-        {isFirstColumn && onAdd != null && !isFooter && (
-          <Tooltip content={addTooltip}>
-            <Button iconOnly className={css.configuratorAddButton} onClick={onAdd}>
-              <Icon name="add" />
-            </Button>
-          </Tooltip>
-        )}
+        {isFirstColumn && onAdd != null && !isFooter && (<ConfiguratorAddButton addTooltip={addTooltip} onAdd={onAdd} />)}
       </>
     );
-  }, [slice, item, onExpandItem, onAdd, addTooltip, isFirstColumn, isFooter]);
+  }, [slice, item, onExpandItem, onAdd, addTooltip, isFirstColumn, isFooter, isSubItem, join, css, expandCell]);
 
   useLayoutEffect(() => {
     if (elementRef.current == null || slice?.isPinned !== true) return;
     elementRef.current.style.left = `${elementRef.current.offsetLeft}px`;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elementRef.current != null && slice?.isPinned === true]);
 
   const itemTypeClass = `is-${isHeader ? 'header' : isFooter ? 'footer' : isSubItem ? 'sub-item' : 'item'}`;

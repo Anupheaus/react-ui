@@ -29,13 +29,25 @@ export interface ButtonProps {
 
 const useStyles = createStyles(({ text, buttons: { default: defaultButton, bordered, hover }, pseudoClasses }, { applyTransition }) => {
 
+  const iconOnly = {
+    '&.is-icon-only': {
+      overflow: 'hidden',
+      borderRadius: '50%',
+    },
+  };
+
+  const notReadOnlyAndIconOnly = {
+    '&:not(.is-read-only)': {
+      [pseudoClasses.active]: iconOnly,
+    },
+  };
+
   const defineVariant = (variant: typeof defaultButton) => ({
     backgroundColor: variant.normal.backgroundColor,
     color: variant.normal.textColor,
     fontSize: variant.normal.textSize,
     boxShadow: variant.normal.borderColor == null ? 'none' : `inset 0 0 0 1px ${variant.normal.borderColor}`,
     borderRadius: variant.normal.borderRadius,
-
 
     [pseudoClasses.active]: {
       backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
@@ -50,20 +62,11 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
       boxShadow: (variant.readOnly.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.readOnly.borderColor ?? variant.normal.borderColor}`,
       borderRadius: variant.readOnly.borderRadius ?? variant.normal.borderRadius,
     },
+
+    ...notReadOnlyAndIconOnly,
+
+    ...iconOnly
   });
-
-  const iconOnly = {
-    '&.is-icon-only': {
-      overflow: 'hidden',
-      borderRadius: '50%',
-    },
-  };
-
-  const notReadOnlyAndIconOnly = {
-    '&:not(.is-read-only)': {
-      [pseudoClasses.active]: iconOnly,
-    },
-  };
 
   return {
     button: {
@@ -85,10 +88,6 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
       fontWeight: text.weight,
       color: text.color,
       ...applyTransition('background-color, color'),
-
-      ...notReadOnlyAndIconOnly,
-
-      ...iconOnly,
 
       [pseudoClasses.readOnly]: {
         cursor: 'default',
@@ -162,7 +161,17 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
     },
     variant_default: defineVariant(defaultButton),
     variant_bordered: defineVariant(bordered),
-    variant_hover: defineVariant(hover),
+    variant_hover: {
+      ...defineVariant(hover),
+
+      [pseudoClasses.tablet]: {
+        '&.is-icon-only': {
+          borderStyle: 'dashed',
+          borderWidth: 2,
+          borderColor: defaultButton.normal.backgroundColor,
+        },
+      },
+    },
 
     ripple: {
       '&.variant-default': {

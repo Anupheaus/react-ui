@@ -11,6 +11,7 @@ export function createComponentOverrides() {
   const Context = createContext<AnyObject>({});
 
   const overrideProps = (props: AnyObject) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const overridingProps = useContext(Context);
     return {
       ...props,
