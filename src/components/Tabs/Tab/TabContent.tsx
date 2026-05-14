@@ -7,6 +7,8 @@ import { createStyles } from '../../../theme';
 import { Flex, type FlexProps } from '../../Flex';
 import { Scroller } from '../../Scroller';
 
+const SLIDE_OFFSET_PX = 50;
+
 const useStyles = createStyles(({ windows: { content: { active: contentActive } } }) => ({
   tab: {
     gridRow: '1 / 1',
@@ -25,23 +27,23 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
     },
 
     '&.slide-left': {
-      marginLeft: -50,
-      marginRight: 50,
+      marginLeft: -SLIDE_OFFSET_PX,
+      marginRight: SLIDE_OFFSET_PX,
     },
 
     '&.slide-right': {
-      marginLeft: 50,
-      marginRight: -50,
+      marginLeft: SLIDE_OFFSET_PX,
+      marginRight: -SLIDE_OFFSET_PX,
     },
 
     '&.slide-up': {
-      marginTop: -50,
-      marginBottom: 50,
+      marginTop: -SLIDE_OFFSET_PX,
+      marginBottom: SLIDE_OFFSET_PX,
     },
 
     '&.slide-down': {
-      marginTop: 50,
-      marginBottom: -50,
+      marginTop: SLIDE_OFFSET_PX,
+      marginBottom: -SLIDE_OFFSET_PX,
     },
   },
   tabHorizontal: {
