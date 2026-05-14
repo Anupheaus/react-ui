@@ -62,8 +62,8 @@ The system uses a context-based registration pattern:
 
 - **`Tabs.tsx`** — renders a hidden `TabsContext.Provider` that collects `Tab` registrations, then renders the tab button bar and content panels from the collected data.
 - **`Tab/Tab.tsx`** — registers itself with `TabsContext` via `useLayoutEffect` and returns `null`; its content is lifted into the parent.
-- **`Tab/TabButton.tsx`** — renders the clickable tab button in the button bar.
-- **`Tab/TabContent.tsx`** — renders the tab content panel (hidden when not active).
+- **`Tab/TabButton.tsx`** — renders the clickable tab button in the button bar; accepts `orientation` to apply horizontal (bottom-strip) or vertical (right-strip) active indicator styles.
+- **`Tab/TabContent.tsx`** — renders the tab content panel (hidden when not active); accepts `orientation` to switch between left/right and up/down slide transitions.
 - **`TabsContext.ts`** — React context that carries `upsertTab` / `removeTab` callbacks.
 - **`useTabs.tsx`** — creates a shared `DistributedState<number>` and binds it to both `Tabs` and `Tab` components, exposing `selectTab` and `selectedTabIndex`.
 
