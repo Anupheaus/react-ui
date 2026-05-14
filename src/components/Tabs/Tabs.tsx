@@ -12,6 +12,8 @@ import { TabButton, TabContent } from './Tab';
 import { UIState } from '../../providers';
 
 const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { normal: { backgroundColor: activeButtonBackgroundColor } } } }) => {
+  const stripColor = buttons?.stripColor ?? activeButtonBackgroundColor ?? 'rgba(0 0 0 / 5%)';
+  const stripWidth = buttons?.stripWidth ?? 1;
 
   return {
     hidden: {
@@ -20,8 +22,8 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
     tabsButtons: {
       position: 'relative',
       borderBottomStyle: 'solid',
-      borderBottomWidth: buttons?.stripWidth ?? 1,
-      borderBottomColor: buttons?.stripColor ?? activeButtonBackgroundColor ?? 'rgba(0 0 0 / 5%)',
+      borderBottomWidth: stripWidth,
+      borderBottomColor: stripColor,
 
       '&::before': {
         content: '""',
@@ -32,7 +34,22 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
       '&.is-hidden': {
         display: 'none',
       },
+    },
+    tabsButtonsVertical: {
+      position: 'relative',
+      borderRightStyle: 'solid',
+      borderRightWidth: stripWidth,
+      borderRightColor: stripColor,
 
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+      },
+
+      '&.is-hidden': {
+        display: 'none',
+      },
     },
     tabsContent: {
       display: 'grid',
@@ -48,6 +65,7 @@ export interface TabsProps {
   className?: string;
   children: ReactNode;
   alwaysShowTabs?: boolean;
+  orientation?: 'horizontal' | 'vertical';
   onChange?(index: number): void;
 }
 
@@ -59,6 +77,7 @@ export const TabsComponent = createComponent('Tabs', ({
   className,
   state,
   alwaysShowTabs = false,
+  orientation = 'horizontal',
   children,
   onChange: providedOnChange,
 }: Props) => {
@@ -90,8 +109,8 @@ export const TabsComponent = createComponent('Tabs', ({
   }), []);
 
   const renderedTabButtons = useMemo(() => tabs.map(({ id, label, testId }, index) => (
-    <TabButton key={id} tabIndex={index} state={state} label={label} testId={testId} />
-  )), [tabs]);
+    <TabButton key={id} tabIndex={index} state={state} label={label} testId={testId} orientation={orientation} />
+  )), [tabs, orientation]);
 
   const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, contentProps }, index) => (
     <TabContent
@@ -101,17 +120,18 @@ export const TabsComponent = createComponent('Tabs', ({
       state={state}
       noPadding={noPadding}
       contentProps={contentProps}
+      orientation={orientation}
     >{tabContent}</TabContent>
-  )), [tabs]);
+  )), [tabs, orientation]);
 
   return (
-    <Flex tagName="tabs" isVertical className={className} maxHeight>
+    <Flex tagName="tabs" isVertical={orientation !== 'vertical'} className={className} maxHeight>
       <Tag name="hidden" className={css.hidden}>
         <TabsContext.Provider value={context}>
           {children}
         </TabsContext.Provider>
       </Tag>
-      <Flex tagName="tabs-buttons" disableGrow className={join(css.tabsButtons, isTabsHidden && 'is-hidden')}>
+      <Flex tagName="tabs-buttons" isVertical={orientation === 'vertical'} disableGrow className={join(orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtons, isTabsHidden && 'is-hidden')}>
         <UIState isReadOnly={false}>
           {renderedTabButtons}
         </UIState>
