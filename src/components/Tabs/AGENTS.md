@@ -27,6 +27,7 @@ function MyComponent() {
 | `children` | `ReactNode` | Yes | `Tab` components to render |
 | `className` | `string` | No | Additional CSS class for the container |
 | `alwaysShowTabs` | `boolean` | No | Show the tab button bar even when there is only one tab or all tabs lack labels (default: `false`) |
+| `orientation` | `'horizontal' \| 'vertical'` | No | Layout direction: `'horizontal'` places tabs above content (default); `'vertical'` places tabs on the left with up/down slide animation |
 | `onChange` | `(index: number) => void` | No | Called when the active tab changes |
 
 ## Tab Props
