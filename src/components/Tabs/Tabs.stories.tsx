@@ -6,7 +6,8 @@ import { Button } from '../Button';
 import { useBound } from '../../hooks';
 
 const meta: Meta = {
-  title: 'Navigation/Tabs',
+  component: null as never,
+  title: 'Components/Tabs',
 };
 export default meta;
 
