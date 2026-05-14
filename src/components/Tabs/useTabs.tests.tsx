@@ -135,6 +135,7 @@ describe('useTabs', () => {
         const tabEls = container.querySelectorAll('tab');
         expect(tabEls[0].className).toContain('slide-left');
         expect(tabEls[0].className).not.toContain('slide-up');
+        expect(tabEls[1].className).toContain('is-visible');
       });
     });
   });
