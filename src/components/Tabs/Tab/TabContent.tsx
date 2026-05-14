@@ -12,7 +12,6 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
     gridRow: '1 / 1',
     gridColumn: '1 / 1',
     opacity: 0,
-    transitionProperty: 'opacity, margin-left, margin-right',
     transitionDuration: '400ms',
     transitionTimingFunction: 'ease',
     overflow: 'hidden',
@@ -34,6 +33,22 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
       marginLeft: 50,
       marginRight: -50,
     },
+
+    '&.slide-up': {
+      marginTop: -50,
+      marginBottom: 50,
+    },
+
+    '&.slide-down': {
+      marginTop: 50,
+      marginBottom: -50,
+    },
+  },
+  tabHorizontal: {
+    transitionProperty: 'opacity, margin-left, margin-right',
+  },
+  tabVertical: {
+    transitionProperty: 'opacity, margin-top, margin-bottom',
   },
   tabContent: {
     padding: contentActive.padding,
@@ -51,6 +66,7 @@ interface Props {
   children: ReactNode;
   noPadding?: boolean;
   contentProps?: FlexProps;
+  orientation: 'horizontal' | 'vertical';
 }
 
 export const TabContent = createComponent('Tab', ({
@@ -60,20 +76,25 @@ export const TabContent = createComponent('Tab', ({
   children,
   noPadding = false,
   contentProps,
+  orientation,
 }: Props) => {
   const { onChange, get } = useDistributedState(state);
   const { css, join } = useStyles();
   const [isFocused, setIsFocused] = useState(get() === tabIndex);
-  const [direction, setDirection] = useState('right');
+  const [direction, setDirection] = useState(orientation === 'vertical' ? 'down' : 'right');
   const batchUpdate = useBatchUpdates();
 
   onChange(newIndex => batchUpdate(() => {
-    setDirection(newIndex > tabIndex ? 'left' : 'right');
+    if (orientation === 'vertical') {
+      setDirection(newIndex > tabIndex ? 'up' : 'down');
+    } else {
+      setDirection(newIndex > tabIndex ? 'left' : 'right');
+    }
     setIsFocused(newIndex === tabIndex);
   }));
 
   return (
-    <Flex tagName="tab" className={join(css.tab, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
+    <Flex tagName="tab" className={join(css.tab, orientation === 'vertical' ? css.tabVertical : css.tabHorizontal, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
       <Scroller fullHeight>
         <Flex tagName="tab-content-inner" isVertical className={join(css.tabContent, noPadding && 'no-padding', className)} {...contentProps}>
           {children}
