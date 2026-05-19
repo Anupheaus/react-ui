@@ -6,7 +6,7 @@ const useLocalCommon = existsSync(resolve(__dirname, '../common/src'));
 
 export default defineConfig({
   entry: ['src/index.ts'],
-  format: ['cjs', 'esm'],
+  format: ['esm'],
   dts: true,
   sourcemap: true,
   clean: true,
