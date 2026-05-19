@@ -167,6 +167,7 @@ Only windows whose args are JSON-serializable and whose definition does not set 
 
 ## Related
 
+- [Window/AGENTS.md](./Window/AGENTS.md) — internal rendering layer: `Window.tsx`, `WindowContent`, `WindowAction/Actions/OkAction`, the preparation-phase sizing hooks (`useWindowDimensions`, `useWindowEvents`, `useWindowState`), and `WindowValidationContext`
 - [../Dialog/AGENTS.md](../Dialog/AGENTS.md) — `Dialog` is built on top of `InternalWindows` with `managerType="dialogs"`; it shares `createWindow` definitions but uses `useDialog` rather than `useWindow`
 - [../../providers/UIStateProvider/AGENTS.md](../../providers/UIStateProvider/AGENTS.md) — `UIStateProvider` with a `storageKey` is an alternative persistence mechanism used elsewhere in the library; the Windows `localStorageKey` prop is its own direct localStorage integration independent of that provider
 

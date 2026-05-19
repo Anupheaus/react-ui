@@ -82,6 +82,23 @@ function MyDayCalendar() {
 
 `Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. The actual rendering is delegated to `CalendarMonthView` or `CalendarDayView` depending on the `view` prop.
 
+## Decision rationale
+
+**Two separate context providers for selection and highlight**
+
+`CalendarEntrySelectionProvider` tracks which entry is selected (a persistent click-based state), while `CalendarEntryHighlightProvider` tracks which entry is hovered (transient pointer-based state). Keeping them separate prevents a hover on one entry from re-rendering every component subscribed to selection state. In the month view, each cell subscribes to highlight state for its own entries — if selection and highlight shared one context, hovering any entry would re-render every cell.
+
+## Ambiguities and gotchas
+
+- **`view` defaults to `'month'`** — omitting the `view` prop renders the month grid. Pass `view="day"` explicitly to get the hour-schedule view.
+- **`viewingDate` defaults to today** — both views use `viewingDate` to determine which month/day to show. Updating `viewingDate` is the only way to navigate; there are no built-in prev/next controls.
+- **Day-view-only props are silently ignored in month view** — `startHour`, `endHour`, and `hourHeight` are only read by `CalendarDayView`. Passing them when `view="month"` does nothing and produces no warning.
+
+## Related
+
+- [MonthView/AGENTS.md](./MonthView/AGENTS.md) — month grid view: 35-cell layout, `findFirstDateFor`, `createMonthEntries`, and the Monday-start/5-week-only caveats
+- [DayView/AGENTS.md](./DayView/AGENTS.md) — day schedule view: hour grid, `getOffset`/`getHeight` pixel helpers, auto-expanding `startHour`/`endHour` range, and initial `scrollTo` behaviour
+
 ---
 
 [← Back to Components](../AGENTS.md)

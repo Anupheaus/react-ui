@@ -8,6 +8,7 @@ A compact user profile button that displays an `Avatar` and the user's display n
 |------|------|----------|-------------|
 | `displayName` | `string` | Yes | Full name of the current user, shown next to the avatar and used to generate avatar initials |
 | `items` | `ReactListItem[]` | Yes | Menu items to display in the popup (e.g. Profile, Sign out) |
+| `iconOnly` | `boolean` | No | When `true`, renders only the Avatar without the display name text — useful for compact or mobile layouts |
 | `onClick` | `(event: ListItemClickEvent) => void` | No | Called when a menu item is clicked |
 | `...avatarProps` | `Omit<AvatarProps, 'initials'>` | No | Any additional `Avatar` props (e.g. `src` for a profile photo) |
 

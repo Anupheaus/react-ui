@@ -103,6 +103,7 @@ When a drag starts, `Draggable` snapshots `element.outerHTML` and sets it as `da
 
 ## Related
 
+- [InteractionEvents/AGENTS.md](./InteractionEvents/AGENTS.md) — the event coordination layer between nested `Draggable` items and their parent `DropArea`; provides typed mouse event interfaces, `InteractionContext`/`InteractionProvider`, and `captureMouseMoveEvents`/`captureMouseClickEvents` DOM listener utilities
 - [../../extensions/AGENTS.md](../../extensions/AGENTS.md) — `useDOMRef`, `screenCoordinates()`, and `dimensions()` are extension methods on `HTMLElement` from the extensions module; `Draggable` uses these to snapshot position and size at drag-start for the clone's initial placement
 
 ---

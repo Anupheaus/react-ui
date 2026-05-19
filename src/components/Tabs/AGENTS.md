@@ -67,6 +67,27 @@ The system uses a context-based registration pattern:
 - **`TabsContext.ts`** — React context that carries `upsertTab` / `removeTab` callbacks.
 - **`useTabs.tsx`** — creates a shared `DistributedState<number>` and binds it to both `Tabs` and `Tab` components, exposing `selectTab` and `selectedTabIndex`.
 
+## Decision rationale
+
+**Why `useTabs` returns bound components rather than accepting them as props**
+
+`Tabs` and `Tab` must share a `DistributedState<number>` instance to coordinate which tab is active. Returning both components from a single hook call is the cleanest way to guarantee they share the same state instance — no context lookup, no prop-threading, no possibility of accidentally mixing components from different `useTabs` calls.
+
+**Why `Tab` renders null**
+
+`Tab` exists solely as a declarative way to register content with `Tabs`. If `Tab` rendered its own button and panel, `Tabs` would have no way to own the tab bar layout (animated indicator, orientation, `alwaysShowTabs` logic) without complex ref-based coordination. Having `Tab` register data via context and `Tabs` render everything centralises the rendering logic in one place and makes `ordinalPosition` sorting trivially implementable.
+
+## Ambiguities and gotchas
+
+- **`<Tab>` produces no DOM output** — if you inspect the rendered DOM, you will not find an element corresponding to `<Tab>`. The rendered output (button + content panel) comes from `<Tabs>`, not from `<Tab>`.
+- **`Tab` must be a direct child of `Tabs`** — `Tab` reads `TabsContext` and throws `'Tab must be a child of Tabs'` if the context is absent. Wrapping `Tab` in an intermediate element that does not forward context will cause this error.
+- **`alwaysShowTabs` defaults to `false`** — if there is only one tab, or all tabs have no `label`, the tab bar is hidden by default. Pass `alwaysShowTabs` to override.
+- **`ordinalPosition` overrides JSX order** — tabs are sorted by `ordinalPosition` before rendering. A tab declared third in JSX with `ordinalPosition={0}` renders first. Tabs without `ordinalPosition` keep their insertion order.
+
+## Related
+
+- [Tab/AGENTS.md](./Tab/AGENTS.md) — internal registration components: `Tab` (null-render, registers via `TabsContext`), `TabButton` (clickable tab in the button bar), `TabContent` (content panel with slide transitions)
+
 ---
 
 [← Back to Components](../AGENTS.md)
