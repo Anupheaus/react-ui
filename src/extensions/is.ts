@@ -5,7 +5,7 @@ import type { LegacyTheme } from '../theme/themeModels';
 
 declare module '@anupheaus/common' {
   export interface Is {
-    reactElement(value: unknown): value is ReactElement<unknown, string | React.JSXElementConstructor<unknown>>;
+    reactElement(value: unknown): value is ReactElement<unknown>;
     reactComponent(value: unknown): value is Component;
     reactRef<T = any>(value: unknown): value is RefObject<T>;
     theme<TTheme extends LegacyTheme>(value: TTheme | unknown): value is TTheme;

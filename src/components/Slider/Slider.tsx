@@ -156,7 +156,7 @@ export const Slider = createComponent('Slider', (props: Props) => {
       const clamped = Math.max(effectiveClampMin, Math.min(effectiveClampMax, newValue as number));
       props.onChange?.(clamped);
     } else {
-      const [newMin, newMax] = newValue as number[];
+      const [newMin, newMax] = newValue as [number, number];
       props.onChange?.({
         min: Math.max(effectiveClampMin, newMin),
         max: Math.min(effectiveClampMax, newMax),

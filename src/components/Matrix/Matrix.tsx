@@ -87,7 +87,7 @@ export const Matrix = createComponent('Matrix', function <T = unknown>({
   onAddYCategoryAt,
 }: Props<T>) {
   const { css, useInlineStyle } = useStyles();
-  const isSingleDimension = yCategories.length === 1 && yCategories[0].value === null;
+  const isSingleDimension = yCategories.length === 1 && yCategories[0]!.value === null;
 
   // const onChangeWidthDimension = useDelegatedBound((oldWidth?: number) => (newWidth?: number) => {
   //   // onChange(value.map(cell => cell.width === oldWidth ? { ...cell, width } : cell));

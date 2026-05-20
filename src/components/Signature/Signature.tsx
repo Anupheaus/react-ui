@@ -96,8 +96,8 @@ export const Signature = createComponent('Signature', ({
       const combinedLength = data.reduce((total, stroke) => {
         const len = stroke.points.reduce((sum, pt, i) => {
           if (i === 0) return sum;
-          const dx = pt.x - stroke.points[i - 1].x;
-          const dy = pt.y - stroke.points[i - 1].y;
+          const dx = pt.x - stroke.points[i - 1]!.x;
+          const dy = pt.y - stroke.points[i - 1]!.y;
           return sum + Math.sqrt(dx * dx + dy * dy);
         }, 0);
         return total + len;

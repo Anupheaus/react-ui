@@ -30,7 +30,7 @@ const createSkeletonItem = <T = void>(index: number): ReactListItem<T> => ({ id:
 
 export function updateWithResponse<T = void>(currentState: State<T>, pagination: DataPagination, response: ReactListItem<T>[], total?: number, isLoading = false) {
   const partialState = updateItems(currentState.items, pagination, total,
-    (_existingItem, _index, paginatedIndex) => response[paginatedIndex]);
+    (_existingItem, _index, paginatedIndex) => response[paginatedIndex]!);
   return { ...currentState, ...partialState, total, isLoading };
 }
 

@@ -12,7 +12,7 @@ function useInternalBatchUpdates() {
   const complete = (id: string) => {
     const index = currentBatches.findIndex(batch => batch.id === id);
     if (index === -1) return;
-    const batch = currentBatches.splice(index, 1)[0];
+    const batch = currentBatches.splice(index, 1)[0]!;
     batch.callbacks.forEach(callback => callback());
   };
   return <T>(delegate: () => T): T => {

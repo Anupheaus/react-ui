@@ -78,14 +78,14 @@ export const Wizard = createComponent('Wizard', ({
 
   // When steps first register, set initial active step if none is set
   useLayoutEffect(() => {
-    if (steps.length > 0 && !get()) set(steps[0].id);
+    if (steps.length > 0 && !get()) set(steps[0]!.id);
   }, [steps]); // intentional: stable refs/bound fns excluded
 
   const moveNext = useBound(() => {
     const currentId = get();
     const currentIndex = stepsRef.current.findIndex(s => s.id === currentId);
     if (currentIndex < stepsRef.current.length - 1) {
-      const nextId = stepsRef.current[currentIndex + 1].id;
+      const nextId = stepsRef.current[currentIndex + 1]!.id;
       set(nextId);
       onStepChangeRef.current?.(nextId);
     }
@@ -95,7 +95,7 @@ export const Wizard = createComponent('Wizard', ({
     const currentId = get();
     const currentIndex = stepsRef.current.findIndex(s => s.id === currentId);
     if (currentIndex > 0) {
-      const prevId = stepsRef.current[currentIndex - 1].id;
+      const prevId = stepsRef.current[currentIndex - 1]!.id;
       set(prevId);
       onStepChangeRef.current?.(prevId);
     }
@@ -124,7 +124,7 @@ export const Wizard = createComponent('Wizard', ({
 
   const removeStep = useBound((id: string) => setSteps(prev => {
     const filtered = prev.filter(s => s.id !== id);
-    if (get() === id && filtered.length > 0) set(filtered[0].id);
+    if (get() === id && filtered.length > 0) set(filtered[0]!.id);
     return filtered;
   }));
 

@@ -113,7 +113,7 @@ export const ModalLoader = createComponent('ModalLoader', ({
     hideLoadingOf: (id: string) => {
       setTimeout(() => {
         if (isUnmounted()) return;
-        setStatuses(prev => ({ ...prev, [id]: { ...prev[id], status: 'success' } }));
+        setStatuses(prev => ({ ...prev, [id]: { ...prev[id]!, status: 'success' } }));
       }, hidingDelay);
     },
   }), []);

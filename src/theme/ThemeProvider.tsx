@@ -41,8 +41,9 @@ export const ThemeProvider = createComponent('ThemeProvider', <ThemeType extends
     }));
   }, [fonts]);
 
+  const AnyMuiThemeProvider = MuiThemeProvider as unknown as (props: { theme: unknown; children?: ReactNode }) => ReactNode;
   return (
-    <MuiThemeProvider theme={muiTheme}>
+    <AnyMuiThemeProvider theme={muiTheme}>
       <GlobalStyles styles={{
         'body, html, root': {
           display: 'flex',
@@ -69,6 +70,6 @@ export const ThemeProvider = createComponent('ThemeProvider', <ThemeType extends
       <ThemeContext.Provider value={context}>
         {children}
       </ThemeContext.Provider>
-    </MuiThemeProvider>
+    </AnyMuiThemeProvider>
   );
 });

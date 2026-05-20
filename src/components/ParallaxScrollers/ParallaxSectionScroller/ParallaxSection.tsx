@@ -14,7 +14,7 @@ interface Props {
   title?: ReactNode;
   className?: string;
   titleClassName?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }
 
 export const ParallaxSection = createComponent('ParallaxSection', ({
