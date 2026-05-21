@@ -1,7 +1,7 @@
 
 import type { ComponentProps, ReactNode} from 'react';
 import { useMemo } from 'react';
-import { DatePicker as MuiDatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker as MuiDatePicker, TimePicker as MuiTimePicker, DateTimePicker as MuiDateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon/index.js';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -114,6 +114,7 @@ export const DatePicker = createComponent('DateTime', ({
   maxDate,
   onChange,
   format,
+  mode = 'date',
   ...props
 }: Props) => {
   const { css } = useStyles();
@@ -128,33 +129,18 @@ export const DatePicker = createComponent('DateTime', ({
         : undefined)), [rawValue]);
   const handleChange = useBound((newValue: DateTime | null) => onChange?.(newValue as DateTime));
 
-  const slotProps = useMemo<ComponentProps<typeof MuiDatePicker>['slotProps']>(() => ({
-    openPickerButton: {
-      classes: {
-        root: css.muiDatePickerButton,
-      }
-    },
-    inputAdornment: {
-      classes: {
-        root: css.muiInputAdornment,
-      },
-    },
-    desktopPaper: {
-      classes: {
-        root: css.muiDatePickerDialog,
-      }
-    },
-    calendarHeader: {
-      classes: {
-        root: css.muiDatePickerDialogHeader,
-      },
-    },
-    day: {
-      classes: {
-        root: css.MuiDatePickerDialogDay,
-        selected: css.muiDatePickerDialogSelectedDay,
-      },
-    },
+  const dateSlotProps = useMemo<ComponentProps<typeof MuiDatePicker>['slotProps']>(() => ({
+    openPickerButton: { classes: { root: css.muiDatePickerButton } },
+    inputAdornment: { classes: { root: css.muiInputAdornment } },
+    desktopPaper: { classes: { root: css.muiDatePickerDialog } },
+    calendarHeader: { classes: { root: css.muiDatePickerDialogHeader } },
+    day: { classes: { root: css.MuiDatePickerDialogDay, selected: css.muiDatePickerDialogSelectedDay } },
+  }), []);
+
+  const timeSlotProps = useMemo<ComponentProps<typeof MuiTimePicker>['slotProps']>(() => ({
+    openPickerButton: { classes: { root: css.muiDatePickerButton } },
+    inputAdornment: { classes: { root: css.muiInputAdornment } },
+    desktopPaper: { classes: { root: css.muiDatePickerDialog } },
   }), []);
 
   return (
@@ -169,18 +155,43 @@ export const DatePicker = createComponent('DateTime', ({
       )}
     >
       <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale={'en-gb'}>
-        <MuiDatePicker
-          value={value}
-          onChange={handleChange}
-          className={css.muiDatePicker}
-          format={format}
-          slotProps={slotProps}
-          open={isPickerOpen}
-          minDate={minDate}
-          maxDate={maxDate}
-          onClose={closePicker}
-        />
-        {/* <Icon name='calendar' /> */}
+        {mode === 'time' && (
+          <MuiTimePicker
+            value={value}
+            onChange={handleChange}
+            className={css.muiDatePicker}
+            format={format}
+            slotProps={timeSlotProps}
+            open={isPickerOpen}
+            onClose={closePicker}
+          />
+        )}
+        {mode === 'datetime' && (
+          <MuiDateTimePicker
+            value={value}
+            onChange={handleChange}
+            className={css.muiDatePicker}
+            format={format}
+            slotProps={dateSlotProps as ComponentProps<typeof MuiDateTimePicker>['slotProps']}
+            open={isPickerOpen}
+            minDate={minDate}
+            maxDate={maxDate}
+            onClose={closePicker}
+          />
+        )}
+        {(mode === 'date' || mode == null) && (
+          <MuiDatePicker
+            value={value}
+            onChange={handleChange}
+            className={css.muiDatePicker}
+            format={format}
+            slotProps={dateSlotProps}
+            open={isPickerOpen}
+            minDate={minDate}
+            maxDate={maxDate}
+            onClose={closePicker}
+          />
+        )}
       </LocalizationProvider>
     </Field>
   );
