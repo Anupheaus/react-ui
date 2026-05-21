@@ -1,16 +1,20 @@
 
 import type { ComponentProps, ReactNode} from 'react';
-import { useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { DatePicker as MuiDatePicker, TimePicker as MuiTimePicker, DateTimePicker as MuiDateTimePicker, LocalizationProvider, renderTimeViewClock } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon/index.js';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import type { FieldProps } from '../Field';
 import { Field } from '../Field';
-import { useBooleanState, useBound } from '../../hooks';
+import { useBound } from '../../hooks';
 import { DateTime } from 'luxon';
 import { Icon } from '../Icon';
 import { Button } from '../Button';
+
+// Module-level singleton: holds the close function of whichever picker is currently open.
+// When a new picker opens it calls this first, ensuring only one is ever visible.
+let closeActivePicker: (() => void) | undefined;
 
 const useStyles = createStyles(({ datePicker, windows: { window: { active: activeWindow }, content: { active: activeWindowContent } },
   buttons: { default: { active: activeButton } }, pseudoClasses,
@@ -118,7 +122,27 @@ export const DatePicker = createComponent('DateTime', ({
   ...props
 }: Props) => {
   const { css } = useStyles();
-  const [isPickerOpen, openPicker, closePicker] = useBooleanState();
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  // Stable ref so the close callback registered in the singleton is always current.
+  const closeRef = useRef<() => void>(() => setIsPickerOpen(false));
+  closeRef.current = () => setIsPickerOpen(false);
+
+  // Deregister from the singleton when this instance unmounts while open.
+  useEffect(() => () => {
+    if (closeActivePicker === closeRef.current) closeActivePicker = undefined;
+  }, []);
+
+  const openPicker = useBound(() => {
+    // Close whichever picker is currently open (may be a different instance).
+    if (closeActivePicker && closeActivePicker !== closeRef.current) closeActivePicker();
+    closeActivePicker = closeRef.current;
+    setIsPickerOpen(true);
+  });
+
+  const closePicker = useBound(() => {
+    if (closeActivePicker === closeRef.current) closeActivePicker = undefined;
+    setIsPickerOpen(false);
+  });
 
   const value = useMemo(() => typeof (rawValue) === 'string'
     ? DateTime.fromISO(rawValue)
