@@ -1,7 +1,7 @@
 
 import type { ComponentProps, ReactNode} from 'react';
 import { useMemo } from 'react';
-import { DatePicker as MuiDatePicker, TimePicker as MuiTimePicker, DateTimePicker as MuiDateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { DatePicker as MuiDatePicker, TimePicker as MuiTimePicker, DateTimePicker as MuiDateTimePicker, LocalizationProvider, renderTimeViewClock } from '@mui/x-date-pickers';
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon/index.js';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
@@ -164,6 +164,7 @@ export const DatePicker = createComponent('DateTime', ({
             slotProps={timeSlotProps}
             open={isPickerOpen}
             onClose={closePicker}
+            viewRenderers={{ hours: renderTimeViewClock, minutes: renderTimeViewClock, seconds: renderTimeViewClock }}
           />
         )}
         {mode === 'datetime' && (
