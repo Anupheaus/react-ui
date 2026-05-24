@@ -23,11 +23,55 @@ A data table component that supports **request-based (lazy) loading**, configura
 | `unitName` | `string` | Optional. Singular name for the row entity (e.g. `"record"`, `"person"`). Used in footer and remove confirmation. Default `"record"`. |
 | `removeLabel` | `string` | Optional. Label for the remove action (e.g. `"Delete"`). |
 | `onAdd` | `() => PromiseMaybe<void>` | Optional. If provided, footer shows an Add button. |
+| `addLabel` | `string` | Optional. Label shown beside the Add icon in the footer. Icon-only when omitted. |
 | `onEdit` | `(record, index) => PromiseMaybe<void>` | Optional. If provided, each row gets an edit action in the actions column. |
 | `onRemove` | `(record, index) => PromiseMaybe<void>` | Optional. If provided, each row gets a remove action (with confirmation dialog). |
 | `delayRenderingRows` | `boolean` | Optional. Defers rendering rows (e.g. for virtualization). Default `false`. |
 | `actions` | `UseActions<TableActions>` | Optional. Exposes table actions to the parent. |
 | `className` | `string` | Optional. Root class. |
+| `persistenceKey` | `string` | Optional. When provided, table settings (e.g. column widths) are persisted to `localStorage` under this key. Omit to disable persistence. |
+
+### Persistence
+
+Persistence is **disabled by default**. Pass `persistenceKey` to enable:
+
+```tsx
+<Table persistenceKey="my-app-users-table" columns={columns} onRequest={onRequest} />
+```
+
+Settings are stored as a `TableSettings` object in `localStorage`. Column widths are keyed by column `id` so they survive column reordering. Sorting and filtering preferences will be added to `TableSettings` in a future update.
+
+```ts
+interface TableSettings {
+  columnWidths?: Record<string, number>;
+}
+```
+
+## Theme
+
+Optional `table.normal` background tokens. When omitted, the component keeps its existing appearance.
+
+| Token | Description | Default |
+|-------|-------------|---------|
+| `table.normal.headerBackgroundColor` | Header bar background | `toolbar.normal.backgroundColor` |
+| `table.normal.rowBackgroundColor` | Row/content area background | `surface.asAContainer.normal.backgroundColor` |
+| `table.normal.footerBackgroundColor` | Footer bar background | `toolbar.normal.backgroundColor` |
+
+The row area also uses `fields.content.normal` border colour and radius so it matches a **List** field container. **Scroller** edge shadows are enabled on the body (same opacity transitions as **List**).
+
+The sticky row-actions column uses `rowBackgroundColor` so it stays aligned with the content area.
+
+```tsx
+mergeThemes(DefaultTheme, {
+  table: {
+    normal: {
+      headerBackgroundColor: '#e2caa5',
+      rowBackgroundColor: '#fff',
+      footerBackgroundColor: '#e2caa5',
+    },
+  },
+});
+```
 
 ### `TableColumn<RecordType>`
 
@@ -41,6 +85,7 @@ Defined in **TableModels.ts**.
 | `type` | `DataFilterValueTypes` | Optional. Drives default formatting in `TableCellValue`: `'string'`, `'number'`, `'boolean'`, `'date'`, `'currency'`, etc. |
 | `alignment` | `'left' \| 'center' \| 'right'` | Optional. Cell and header alignment. |
 | `width` | `string \| number` | Optional. Column width (e.g. `150`, `"10%"`). Header cells can also report measured width to sync with body. |
+| `isResizable` | `boolean` | Optional. When `true`, the column can be resized by dragging the header edge. Default treated as not resizable. |
 | `isVisible` | `boolean` | Optional. If `false`, column is omitted. Default treated as visible. |
 | `className` | `string` | Optional. Applied to the cell. |
 | `renderValue` | `(props: TableRenderValueProps<T>) => ReactNode` | Optional. Custom cell renderer. Receives `record`, `rowIndex`, `columnIndex`, `CellValue` (default value component), etc. |
@@ -56,7 +101,7 @@ Defined in **TableModels.ts**.
 Table
 ├── TableColumnWidthProvider     (context: column widths)
 │   ├── TableHeader               (header row, syncs scroll left)
-│   │   └── TableHeaderCell       (per column: label, resize/width report)
+│   │   └── TableHeaderCell       (per column: label, optional resize handle, width report)
 │   ├── TableRows                 (adapts records → ReactListItems, provides columns via context)
 │   │   └── InternalList          (request-based list; no children)
 │   │       └── InternalListItem  (per item; resolves item.data via useAsync, calls item.renderItem(item, index, resolvedData))
@@ -66,7 +111,7 @@ Table
 │   └── TableFooter               (Add button, error, total count)
 ```
 
-- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. **TableCell** and **TableRowActionColumn** use **useGetTableColumnWidth** so body columns align with the header. The actions column is sticky on the right and reports its width from the first row.
+- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. **TableCell** and **TableRowActionColumn** use **useGetTableColumnWidth** so body columns align with the header. The actions column is sticky on the right and reports its width from the first row.
 - **Rows:** **TableRows** converts each `record` from **onRequest** into a **ReactListItem** with `data: record` (or `data: Promise<record>` for async) and **renderItem(item, index, resolvedData)** that returns **TableRow** with `record={resolvedData}`, `index`, and `columns`. **InternalListItem** resolves `item.data` (sync or Promise) via **useAsync** and passes the resolved value as **resolvedData** to **renderItem**. **TableRow** shows a loading state when `record` is undefined (e.g. while the Promise is resolving).
 - **Row actions:** If `onEdit` or `onRemove` are passed to **Table**, **useColumns** appends a synthetic column with `id: 'table-actions'` and `renderValue` rendering **TableRowActionColumn**, which contains **TableRowEditAction** and/or **TableRowMenuAction** (ellipsis menu with remove + confirmation).
 
@@ -79,7 +124,9 @@ Table
 | **Table.tsx** | Root. Uses **useColumns**, wires **onRequest** (and loading/error/total state), **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **TableFooter**. |
 | **TableModels.ts** | Types: **TableColumn**, **TableColumnCommonProps**, **TableRenderValueProps**, **TableOnRequest**. |
 | **TableHeader.tsx** | Renders header row; exposes **onScrollLeft** via actions so horizontal scroll can be synced. |
-| **TableHeaderCell.tsx** | Single header cell: label, width from props or measured, reports width to context. |
+| **TableHeaderCell.tsx** | Single header cell: label, optional resize handle when `isResizable`, width from props or measured, reports width to context. |
+| **TableHeaderCellResizeHandle.tsx** | Drag handle rendered on resizable header cells. |
+| **useTableSettings.ts** | Reads/writes **TableSettings** to `localStorage` via **useStorage** when `persistenceKey` is provided. |
 | **TableRows.tsx** | Adapts **onRequest** so the table’s `records` are converted to **ReactListItem**s with `data: record` and **renderItem(item, index, resolvedData)** that renders **TableRow** with `record={resolvedData}`. Provides **TableColumnsContext**. Wraps **InternalList** (no children); **onScroll** → **onScrollLeft**. |
 | **TableRow.tsx** | One row: receives **record** (resolved from ReactListItem’s `data`), **index**, **columns**. Shows loading state when **record** is undefined. Maps columns to **TableCell**. |
 | **TableCell.tsx** | One cell: uses **useGetTableColumnWidth**, calls column **renderValue** or **TableCellValue** with `record[column.field]`. |

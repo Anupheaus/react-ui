@@ -1,6 +1,6 @@
 import { createComponent } from '../Component';
 import type { ComponentProps } from 'react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
 import type { TableColumn, TableOnRequest } from './TableModels';
@@ -15,13 +15,14 @@ import type { UseActions } from '../../hooks';
 import { useActions, useBatchUpdates, useBound, useOnUnmount } from '../../hooks';
 import { UIState } from '../../providers';
 import { useColumns } from './useColumns';
+import { useTableSettings } from './useTableSettings';
 import type { ListActions } from '../List';
 
 export interface TableActions extends ListActions {
 
 }
 
-const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
+const useStyles = createStyles(() => ({
   table: {
     display: 'flex',
     flex: 'auto',
@@ -36,27 +37,11 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal: container }
       boxSizing: 'border-box',
     },
   },
-  rows: {
-    flex: 'auto',
-    overflow: 'hidden',
-    ...container,
-
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      boxShadow: 'inset 0 0 6px rgba(0 0 0 / 24%)',
-      pointerEvents: 'none',
-    },
-  },
-  rowScroller: {
-
-  },
 }));
 
 type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
 type FooterProps = ComponentProps<typeof TableFooter>;
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd' | 'summary' | 'hideRecordCount'> {
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel'> {
   className?: string;
   records?: RecordType[];
   columns: TableColumn<RecordType>[];
@@ -64,6 +49,7 @@ interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordTy
   unitName?: string;
   actions?: UseActions<TableActions>;
   onRequest: TableRowsProps<RecordType>['onRequest'];
+  persistenceKey?: string;
 }
 
 export const Table = createComponent('Table', function <RecordType extends Record>({
@@ -79,9 +65,12 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   onRemove,
   summary,
   hideRecordCount,
+  addLabel,
+  persistenceKey,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
   const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
+  const { settings, persistColumnWidth } = useTableSettings(persistenceKey);
   const tableElementRef = useRef<HTMLDivElement | null>(null);
   const [totalRecords, setTotalRecords] = useState<number>();
   const [recordsLoading, setRecordsLoading] = useState(false);
@@ -108,14 +97,33 @@ export const Table = createComponent('Table', function <RecordType extends Recor
     setTotalRecords(0);
   }));
 
+  const initialColumnWidths = useMemo(() => {
+    const savedWidths = settings?.columnWidths;
+    if (savedWidths == null) return undefined;
+    const widths = new Map<number, number>();
+    columns.forEach((column, columnIndex) => {
+      const savedWidth = savedWidths[column.id];
+      if (savedWidth != null) widths.set(columnIndex, savedWidth);
+    });
+    return widths.size > 0 ? widths : undefined;
+  }, [columns, settings?.columnWidths]);
+
+  const handleColumnWidthPersist = useBound((columnId: string, width: number) => {
+    persistColumnWidth(columnId, width);
+  });
+
   return (
     <Tag
       ref={tableElementRef}
       name="react-table" // called react-table instead of table to ignore errors about table-rows not being a valid descendent of table.
       className={join(css.table, className)}
     >
-      <TableColumnWidthProvider>
-        <TableHeader columns={columns} actions={setActions} />
+      <TableColumnWidthProvider initialWidths={initialColumnWidths}>
+        <TableHeader
+          columns={columns}
+          actions={setActions}
+          onColumnWidthPersist={persistenceKey == null ? undefined : handleColumnWidthPersist}
+        />
         <TableRows
           columns={columns}
           actions={actions}
@@ -125,7 +133,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
           delayRendering={delayRenderingRows}
         />
         <UIState isLoading={recordsLoading}>
-          <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} />
+          <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} addLabel={addLabel} />
         </UIState>
       </TableColumnWidthProvider>
     </Tag>

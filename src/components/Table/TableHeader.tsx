@@ -5,16 +5,24 @@ import type { TableColumn } from './TableModels';
 import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
 import type { UseActions } from '../../hooks';
+import { resolveTableTheme } from './resolveTableTheme';
 
-const useStyles = createStyles(({ toolbar: { normal: toolbar } }) => ({
-  header: {
-    flex: 'none',
-    zIndex: 1,
-    ...toolbar,
-    gap: 0,
-    padding: 0,
-  },
-}));
+const useStyles = createStyles((theme) => {
+  const { toolbar: { normal: toolbar } } = theme;
+  const { headerBackgroundColor } = resolveTableTheme(theme);
+
+  return {
+    header: {
+      flex: 'none',
+      zIndex: 1,
+      ...toolbar,
+      backgroundColor: headerBackgroundColor,
+      boxShadow: 'none',
+      gap: 0,
+      padding: 0,
+    },
+  };
+});
 
 export interface TableHeaderActions {
   onScrollLeft(value: number): void;
@@ -23,25 +31,25 @@ export interface TableHeaderActions {
 interface Props {
   columns: TableColumn[];
   actions: UseActions<TableHeaderActions>;
+  onColumnWidthPersist?(columnId: string, width: number): void;
 }
 
 export const TableHeader = createComponent('TableHeader', ({
   columns,
   actions,
+  onColumnWidthPersist,
 }: Props) => {
   const { css } = useStyles();
   const tableHeaderCellsRef = useRef<HTMLDivElement | null>(null);
 
-  const headerCells = useMemo(() => {
-    return columns
-      .map((column, index) => (
-        <TableHeaderCell
-          key={column.id}
-          column={column}
-          columnIndex={index}
-        />
-      ));
-  }, [columns]);
+  const headerCells = useMemo(() => columns.map((column, columnIndex) => (
+    <TableHeaderCell
+      key={column.id}
+      column={column}
+      columnIndex={columnIndex}
+      onColumnWidthPersist={onColumnWidthPersist == null ? undefined : (width) => onColumnWidthPersist(column.id, width)}
+    />
+  )), [columns, onColumnWidthPersist]);
 
   actions({
     onScrollLeft: value => {
@@ -50,12 +58,8 @@ export const TableHeader = createComponent('TableHeader', ({
     },
   });
 
-  // const style = useInlineStyle(() => ({
-  //   transform: `translateX(${-scrollLeft}px)`,
-  // }), [scrollLeft]);
-
   return (
-    <Flex tagName="table-header" className={css.header}>
+    <Flex tagName="table-header" className={css.header} wide>
       <Flex tagName="table-header-cells" ref={tableHeaderCellsRef} valign="center" maxWidthAndHeight>
         {headerCells}
       </Flex>

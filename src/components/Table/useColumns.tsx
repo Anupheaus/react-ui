@@ -5,20 +5,25 @@ import type { TableColumn } from './TableModels';
 import { TableRowActionColumn } from './TableRowActionColumn';
 import { createStyles } from '../../theme';
 import Color from 'color';
+import { resolveTableTheme } from './resolveTableTheme';
 
-const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
-  tableActionsCell: {
-    display: 'inline-flex',
-    position: 'sticky',
-    right: 0,
-    backgroundColor: Color(container.backgroundColor).opaquer(1).hex(),
-    overflow: 'unset',
-    height: 'auto',
-    textAlign: 'center',
-    alignItems: 'center',
-    padding: 0,
-  },
-}));
+const useStyles = createStyles((theme) => {
+  const { rowBackgroundColor } = resolveTableTheme(theme);
+
+  return {
+    tableActionsCell: {
+      display: 'inline-flex',
+      position: 'sticky',
+      right: 0,
+      backgroundColor: Color(rowBackgroundColor).opaquer(1).hex(),
+      overflow: 'unset',
+      height: 'auto',
+      textAlign: 'center',
+      alignItems: 'center',
+      padding: 0,
+    },
+  };
+});
 
 interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof TableRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel'> {
   css: ReturnType<typeof useStyles>['css'];

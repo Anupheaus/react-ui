@@ -12,8 +12,14 @@ export interface TableColumnCommonProps {
   label: ReactNode;
   alignment?: 'left' | 'center' | 'right';
   width?: string | number;
+  isResizable?: boolean;
   isVisible?: boolean;
   className?: string;
+}
+
+/** Persisted table preferences. Sorting and filtering will be added here later. */
+export interface TableSettings {
+  columnWidths?: { [columnId: string]: number };
 }
 
 export interface TableRenderValueProps<T extends Record = Record> extends TableColumnCommonProps {

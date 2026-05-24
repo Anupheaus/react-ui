@@ -11,22 +11,30 @@ import type { ListActions, ListOnRequest } from '../List';
 import type { ReactListItem } from '../../models';
 import { TableColumnsContext } from './TableColumnsContext';
 import { TableRow } from './TableRow';
+import { resolveTableTheme } from './resolveTableTheme';
 
-const useStyles = createStyles(({ surface: { asAContainer: { normal: container } } }) => ({
-  rows: {
-    flex: 'auto',
-    overflow: 'hidden',
-    ...container,
+const useStyles = createStyles((theme, { applyTransition }) => {
+  const { fields: { content: { normal } } } = theme;
+  const { rowBackgroundColor } = resolveTableTheme(theme);
 
-    '&::after': {
-      content: '""',
-      position: 'absolute',
-      inset: 0,
-      boxShadow: 'inset 0 0 6px rgba(0 0 0 / 24%)',
-      pointerEvents: 'none',
+  return {
+    rows: {
+      flex: 'auto',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: rowBackgroundColor,
+      borderColor: normal.borderColor,
+      borderRadius: normal.borderRadius,
+      borderWidth: 1,
+      borderStyle: 'solid',
+      boxSizing: 'border-box',
+      minHeight: 0,
+      position: 'relative',
+      ...applyTransition('border-color, background-color'),
     },
-  },
-}));
+  };
+});
 
 export interface TableRowsProps<RecordType extends Record> {
   columns: TableColumn<RecordType>[];
@@ -50,15 +58,25 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
 
   const handleOnRequest = useBound<ListOnRequest<RecordType>>((request, response) => {
     return onRequest(request, ({ requestId, records, total }) => {
+      const lastOrdinalInBatch = (request.pagination.offset ?? 0) + records.length - 1;
       const items = records.map((record): ReactListItem<Record> => ({
         id: record.id,
         text: record.id,
         data: record,
         renderLoading: event => (
-          <TableRow<RecordType> index={event.ordinal ?? 0} columns={columns} />
+          <TableRow<RecordType>
+            index={event.ordinal ?? 0}
+            columns={columns}
+            isLastRow={(event.ordinal ?? 0) === lastOrdinalInBatch}
+          />
         ),
         renderItem: event => (
-          <TableRow<RecordType> record={event.data as RecordType} index={event.ordinal ?? 0} columns={columns} />
+          <TableRow<RecordType>
+            record={event.data as RecordType}
+            index={event.ordinal ?? 0}
+            columns={columns}
+            isLastRow={(event.ordinal ?? 0) === lastOrdinalInBatch}
+          />
         ),
       })) as ReactListItem<RecordType>[];
       response({ requestId, items, total });
@@ -76,7 +94,6 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
       <InternalList<RecordType>
         tagName="table-rows"
         onRequest={handleOnRequest}
-        disableShadowsOnScroller
         onScroll={handleHorizontalScroll}
         actions={actions}
         className={css.rows}

@@ -24,21 +24,23 @@ interface Props<RecordType extends Record> {
   record?: RecordType;
   index: number;
   columns: TableColumn[];
+  isLastRow?: boolean;
 }
 
 export const TableRow = createComponent('TableRow', <RecordType extends Record>({
   record,
   index,
   columns,
+  isLastRow = false,
 }: Props<RecordType>) => {
-  const { css } = useStyles();
+  const { css, join } = useStyles();
 
   const content = useMemo(() => columns.map((column, columnIndex) => (
     <TableCell key={`${column.id}${record == null ? '' : `${record.id}`}`} column={column} columnIndex={columnIndex} record={record} rowIndex={index} />
   )), [columns, record, index]);
 
   const row = (
-    <Flex tagName="table-row" className={css.row} disableGrow>
+    <Flex tagName="table-row" className={join(css.row, isLastRow && 'is-last-item')} disableGrow>
       {content}
     </Flex>
   );

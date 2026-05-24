@@ -9,17 +9,26 @@ import { Skeleton } from '../Skeleton';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { useBound } from '../../hooks';
+import { resolveTableTheme } from './resolveTableTheme';
 
-const useStyles = createStyles(({ toolbar: { normal: toolbar }, error }) => ({
-  footer: {
-    flex: 'none',
-    userSelect: 'none',
-    ...toolbar,
-  },
-  error: {
-    color: error.color,
-  },
-}));
+const useStyles = createStyles((theme) => {
+  const { error } = theme;
+  const { toolbar: { normal: toolbar } } = theme;
+  const { footerBackgroundColor } = resolveTableTheme(theme);
+
+  return {
+    footer: {
+      flex: 'none',
+      userSelect: 'none',
+      ...toolbar,
+      backgroundColor: footerBackgroundColor,
+      boxShadow: 'none',
+    },
+    error: {
+      color: error.color,
+    },
+  };
+});
 
 interface Props {
   totalRecords?: number;
@@ -28,6 +37,7 @@ interface Props {
   summary?: ReactNode;
   hideRecordCount?: boolean;
   onAdd?(): PromiseMaybe<void>;
+  addLabel?: string;
 }
 
 export const TableFooter = createComponent('TableFooter', ({
@@ -37,6 +47,7 @@ export const TableFooter = createComponent('TableFooter', ({
   summary,
   hideRecordCount = false,
   onAdd,
+  addLabel,
 }: Props) => {
   const { css } = useStyles();
   const { formatNumber } = useLocale();
@@ -44,12 +55,13 @@ export const TableFooter = createComponent('TableFooter', ({
   const handleAdd = useBound(() => onAdd?.());
 
   return (
-    <Flex tagName="table-footer" className={css.footer} valign="center">
+    <Flex tagName="table-footer" className={css.footer} valign="center" wide>
 
       {/* add button */}
       {onAdd != null && (
-        <Button variant="hover" onSelect={handleAdd} size="small">
+        <Button variant="hover" onSelect={handleAdd} size="small" aria-label={addLabel ?? 'Add'}>
           <Icon name="add" size="small" />
+          {addLabel}
         </Button>
       )}
 

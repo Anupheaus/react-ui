@@ -125,6 +125,48 @@ export const RequestedMinimumRecords: Story = createStory({
   },
 });
 
+const resizableColumns: TableColumn<DemoRecord>[] = [
+  { id: '1', field: 'name', label: 'Name', type: 'string', width: 150, isResizable: true },
+  { id: '2', field: 'age', label: 'Age', type: 'number', width: 60, alignment: 'right', isResizable: true },
+  { id: '3', field: 'salary', label: 'Salary', type: 'currency', width: 100, alignment: 'right', isResizable: true },
+  { id: '4', field: 'email', label: 'Email', type: 'string', width: 200, isResizable: true },
+  { id: '5', field: 'phone', label: 'Phone', type: 'string', width: 150, isResizable: true },
+  { id: '6', field: 'address', label: 'Address', type: 'string', width: 200, isResizable: true },
+];
+
+export const ResizableColumns: Story = createStory({
+  width: 900,
+  height: 500,
+  render: () => {
+    const [localColumns] = useState(resizableColumns);
+    const generatedRecords = useMemo(() => generateRecords(200), []);
+
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      const newRecords = generatedRecords.slice(offset, offset + limit);
+      response({
+        requestId,
+        records: newRecords,
+        total: generatedRecords.length,
+      });
+    });
+
+    const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
+      console.log('Edit record:', record);
+    });
+
+    return (
+      <Table
+        columns={localColumns}
+        unitName="people"
+        onRequest={handleRequest}
+        onEdit={handleOnEdit}
+        persistenceKey="storybook-table-resizable-columns"
+      />
+    );
+  },
+});
+
 export const TableUsingRecordIds: Story = createStory({
   width: 700,
   height: 500,

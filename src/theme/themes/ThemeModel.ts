@@ -172,6 +172,24 @@ interface SwitchTheme {
   thumbColor: string;
 }
 
+interface RadioOptionTheme {
+  outerCircleBackgroundColor?: string;
+  outerCircleBorderColor?: string;
+  innerDotBackgroundColor?: string;
+}
+
+interface CheckboxBoxTheme {
+  outerBoxBackgroundColor?: string;
+  outerBoxBorderColor?: string;
+  checkedBackgroundColor?: string;
+}
+
+interface TableTheme {
+  headerBackgroundColor?: string;
+  rowBackgroundColor?: string;
+  footerBackgroundColor?: string;
+}
+
 interface MarkdownTheme {
   scrollPromptColor: string;
 }
@@ -396,6 +414,22 @@ export interface Theme {
     active: Partial<SwitchTheme>;
     checked: Partial<SwitchTheme>;
     readOnly: Partial<SwitchTheme>;
+  };
+  radio?: {
+    option?: {
+      normal?: RadioOptionTheme;
+      active?: Partial<RadioOptionTheme>;
+      readOnly?: Partial<RadioOptionTheme>;
+    };
+  };
+  checkbox?: {
+    box?: {
+      normal?: CheckboxBoxTheme;
+      readOnly?: Partial<CheckboxBoxTheme>;
+    };
+  };
+  table?: {
+    normal?: TableTheme;
   };
   slider: {
     normal: SliderTheme;
