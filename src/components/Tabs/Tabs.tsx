@@ -112,13 +112,14 @@ export const TabsComponent = createComponent('Tabs', ({
     <TabButton key={id} tabIndex={index} state={state} label={label} testId={testId} orientation={orientation} />
   )), [tabs, orientation]);
 
-  const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, contentProps }, index) => (
+  const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, disableScroller, contentProps }, index) => (
     <TabContent
       key={id}
       className={tabContentClassName}
       tabIndex={index}
       state={state}
       noPadding={noPadding}
+      disableScroller={disableScroller}
       contentProps={contentProps}
       orientation={orientation}
     >{tabContent}</TabContent>

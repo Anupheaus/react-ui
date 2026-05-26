@@ -19,6 +19,29 @@ A radio button group that renders a list of mutually exclusive options. Supports
 | `wide` | `boolean` | No | Grow to fill available width |
 | `onChange` | `(value: string) => void` | No | Called with the `id` of the newly selected option |
 
+## Theme
+
+Optional `radio.option` tokens in the theme. When omitted, the component keeps its existing appearance (`fields.content.normal.borderColor` for the outer circle border and inner dot; transparent circle fill).
+
+| Token | Description |
+|-------|-------------|
+| `radio.option.normal.outerCircleBackgroundColor` | Fill colour inside the outer circle ring |
+| `radio.option.normal.outerCircleBorderColor` | Border colour of the outer circle |
+| `radio.option.normal.innerDotBackgroundColor` | Fill colour of the selected inner dot |
+| `radio.option.readOnly.*` | Partial overrides applied when the field is read-only |
+
+```tsx
+mergeThemes(DefaultTheme, {
+  radio: {
+    option: {
+      normal: {
+        outerCircleBackgroundColor: '#fff',
+      },
+    },
+  },
+});
+```
+
 ## Usage
 
 ```tsx

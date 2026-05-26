@@ -271,7 +271,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     <Flex
       tagName={tagName}
       className={join(css.internalList, className)}
-      minWidth={minWidth}
+      minWidth={minWidth ?? 0}
       minHeight={minHeight}
       isVertical
       maxWidth

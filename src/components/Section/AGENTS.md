@@ -7,11 +7,12 @@ A labelled content section with a decorative border that frames its children. Wh
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
 | `label` | `ReactNode` | No | Label displayed in the top-left of the border. Omitting it renders an unclipped border. |
+| `help` | `ReactNode` | No | Help text shown via a `HelpInfo` icon next to the label (wraps `label` in `Label` when set). |
 | `className` | `string` | No | Additional CSS class names applied to the inner content `Flex` |
 | `children` | `ReactNode` | No | Content rendered inside the section |
 | `gap` | `number \| 'fields'` | No | Gap between children (forwarded to the inner `Flex`) |
 | `isVertical` | `boolean` | No | Lay children out vertically (forwarded to the inner `Flex`) |
-| `disableGrow` | `boolean` | No | Prevent the section from growing (forwarded to the inner `Flex`) |
+| `disableGrow` | `boolean` | No | Prevent the section from growing in its parent flex layout (applied to the outer `section` element and inner contents) |
 | `wide` | `boolean` | No | Set `width: 100%` on the inner `Flex` |
 | `maxHeight` | `number \| string \| boolean` | No | Max height; when `true` also enables `overflow: hidden` |
 
@@ -26,8 +27,8 @@ import { Section } from '@anupheaus/react-ui';
   <TextField label="Last name" />
 </Section>
 
-// Labelled section
-<Section label="Personal details" isVertical gap="fields">
+// Labelled section with help
+<Section label="Personal details" help="Shown on invoices and customer emails." isVertical gap="fields">
   <TextField label="First name" />
   <TextField label="Last name" />
 </Section>

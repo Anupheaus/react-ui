@@ -6,13 +6,14 @@ import { createComponent } from '../../Component';
 import { TabsContext } from '../TabsContext';
 import type { FlexProps } from '../../Flex';
 
-export interface TabProps extends Pick<FlexProps, 'isVertical' | 'alignCentrally' | 'align' | 'valign' | 'gap' | 'padding' | 'testId'> {
+export interface TabProps extends Pick<FlexProps, 'isVertical' | 'alignCentrally' | 'align' | 'valign' | 'gap' | 'padding' | 'maxHeight' | 'disableOverflow' | 'minWidth' | 'testId'> {
   className?: string;
   label?: ReactNode;
   ordinalPosition?: number;
   children: ReactNode;
   testId?: string;
   noPadding?: boolean;
+  disableScroller?: boolean;
 }
 
 export interface TabButtonProps {
@@ -34,6 +35,7 @@ export const TabComponent = createComponent('Tab', ({
   children,
   testId,
   noPadding,
+  disableScroller,
   ...contentProps
 }: Props) => {
   const id = useId();
@@ -50,9 +52,10 @@ export const TabComponent = createComponent('Tab', ({
       testId,
       children,
       noPadding,
+      disableScroller,
       contentProps,
     });
-  }, [children, label, className]);
+  }, [children, label, className, disableScroller]);
 
   useEffect(() => () => {
     removeTab(id);

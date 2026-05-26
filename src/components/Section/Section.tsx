@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { createComponent } from '../Component';
 import type { FlexProps } from '../Flex';
 import { Flex } from '../Flex';
+import { Label } from '../Label';
 import { createStyles } from '../../theme';
 
 const useStyles = createStyles(({ fields: { content: { normal: { borderColor } } } }) => ({
@@ -43,25 +44,47 @@ const useStyles = createStyles(({ fields: { content: { normal: { borderColor } }
 
 interface Props extends Pick<FlexProps, 'className' | 'children' | 'gap' | 'disableGrow' | 'isVertical' | 'wide' | 'maxHeight'> {
   label?: ReactNode;
+  help?: ReactNode;
 }
 
 export const Section = createComponent('Section', ({
   label,
+  help,
   maxHeight,
-  ...props
+  disableGrow,
+  ...contentProps
 }: Props) => {
   const { css, join } = useStyles();
+  const hasLabel = label != null;
+  const labelContent = hasLabel && help != null
+    ? <Label help={help}>{label}</Label>
+    : label;
 
   return (
-    <Flex tagName="section" className={css.section} maxHeight={maxHeight} disableOverflow={maxHeight === true}>
-      <Flex tagName="section-border" className={join(css.sectionBorder, label == null && 'no-clip')} />
-      {label != null && (
+    <Flex
+      tagName="section"
+      className={css.section}
+      maxHeight={maxHeight}
+      wide={maxHeight === true}
+      minWidth={maxHeight === true ? 0 : undefined}
+      disableOverflow={maxHeight === true}
+      disableGrow={disableGrow && maxHeight !== true}
+    >
+      <Flex tagName="section-border" className={join(css.sectionBorder, !hasLabel && 'no-clip')} />
+      {hasLabel && (
         <Flex tagName="section-label" className={css.sectionLabel} gap={8}>
-          {label}
+          {labelContent}
           <Flex tagName="section-label-border" className={css.sectionLabelBorder} />
         </Flex>
       )}
-      <Flex tagName="section-contents" {...props} />
+      <Flex
+        tagName="section-contents"
+        disableGrow={disableGrow}
+        wide={maxHeight === true}
+        minWidth={maxHeight === true ? 0 : undefined}
+        disableOverflow={maxHeight === true}
+        {...contentProps}
+      />
     </Flex>
   );
 });

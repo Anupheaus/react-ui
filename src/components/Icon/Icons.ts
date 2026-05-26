@@ -7,7 +7,7 @@ import {
   FiSliders, FiMail, FiPhone, FiTrash2, FiAlertTriangle,
   FiChevronLeft
 } from 'react-icons/fi/index.js';
-import { MdBusinessCenter, MdOutlineSick } from 'react-icons/md/index.js';
+import { MdBusinessCenter, MdOutlineCopyAll, MdOutlineSick } from 'react-icons/md/index.js';
 import type { IconType } from '../../theme';
 
 export interface IconDefinitions {
@@ -48,6 +48,7 @@ export const LocalIconDefinitions = {
   'chip-delete': FiX,
   'user': FiUser,
   'copy': FiCopy,
+  'copy-to-all': MdOutlineCopyAll,
   'arrow-up': FiArrowUp,
   'arrow-down': FiArrowDown,
   'filters': FiSliders,

@@ -67,6 +67,7 @@ interface Props {
   state: DistributedState<number>;
   children: ReactNode;
   noPadding?: boolean;
+  disableScroller?: boolean;
   contentProps?: FlexProps;
   orientation: 'horizontal' | 'vertical';
 }
@@ -77,6 +78,7 @@ export const TabContent = createComponent('Tab', ({
   state,
   children,
   noPadding = false,
+  disableScroller = false,
   contentProps,
   orientation,
 }: Props) => {
@@ -95,13 +97,15 @@ export const TabContent = createComponent('Tab', ({
     setIsFocused(newIndex === tabIndex);
   }));
 
+  const content = (
+    <Flex tagName="tab-content-inner" isVertical className={join(css.tabContent, noPadding && 'no-padding', className)} {...contentProps}>
+      {children}
+    </Flex>
+  );
+
   return (
     <Flex tagName="tab" className={join(css.tab, orientation === 'vertical' ? css.tabVertical : css.tabHorizontal, !isFocused && `slide-${direction}`, isFocused && 'is-visible')}>
-      <Scroller fullHeight>
-        <Flex tagName="tab-content-inner" isVertical className={join(css.tabContent, noPadding && 'no-padding', className)} {...contentProps}>
-          {children}
-        </Flex>
-      </Scroller>
+      {disableScroller ? content : <Scroller fullHeight>{content}</Scroller>}
     </Flex>
   );
 });

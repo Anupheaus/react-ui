@@ -7,6 +7,7 @@ import { useBound } from '../../hooks';
 import { Skeleton } from '../Skeleton';
 import { AssistiveLabel } from '../AssistiveLabel';
 import { createStyles } from '../../theme';
+import type { Theme } from '../../theme/themes';
 import { useUIState } from '../../providers';
 
 interface Props extends ComponentProps<typeof Label> {
@@ -21,7 +22,21 @@ interface Props extends ComponentProps<typeof Label> {
   onChange?(value: boolean): void;
 }
 
-const useStyles = createStyles(({ fields: { content: { normal: fieldContent } }, buttons: { default: { normal: defaultButton } }, transitions, pseudoClasses }) => ({
+function mergeCheckboxBoxTheme(
+  checkbox: Theme['checkbox'],
+  state: 'normal' | 'readOnly',
+) {
+  const { normal, readOnly } = checkbox?.box ?? {};
+  return { ...normal, ...(state === 'readOnly' ? readOnly : {}) };
+}
+
+const useStyles = createStyles(({ fields: { content: { normal: fieldContent } }, buttons: { default: { normal: defaultButton } }, checkbox, transitions, pseudoClasses }) => {
+  const defaultOuterBoxBorderColor = fieldContent.borderColor;
+  const defaultCheckedBackgroundColor = defaultButton.backgroundColor;
+  const normalBoxTheme = mergeCheckboxBoxTheme(checkbox, 'normal');
+  const readOnlyBoxTheme = mergeCheckboxBoxTheme(checkbox, 'readOnly');
+
+  return {
   checkbox: {
     display: 'flex',
     flexGrow: 0,
@@ -31,11 +46,6 @@ const useStyles = createStyles(({ fields: { content: { normal: fieldContent } },
     alignItems: 'flex-start',
     flexDirection: 'column',
     '--checkbox-cursor': 'pointer',
-    // '--checkbox-color': 'transparent',
-
-    // [activePseudoClasses]: {
-    //   '--checkbox-color': actionNormal.backgroundColor,
-    // },
 
     '&.full-width': {
       flexGrow: 1,
@@ -46,7 +56,6 @@ const useStyles = createStyles(({ fields: { content: { normal: fieldContent } },
     },
   },
   checkboxIsChecked: {
-    // '--checkbox-color': checkedColor,    
   },
   checkboxContainer: {
     display: 'flex',
@@ -63,13 +72,26 @@ const useStyles = createStyles(({ fields: { content: { normal: fieldContent } },
     borderStyle: 'solid',
     borderWidth: 2,
     borderRadius: fieldContent.borderRadius,
-    borderColor: fieldContent.borderColor,
+    borderColor: normalBoxTheme.outerBoxBorderColor ?? defaultOuterBoxBorderColor,
+    ...(normalBoxTheme.outerBoxBackgroundColor != null
+      ? { backgroundColor: normalBoxTheme.outerBoxBackgroundColor }
+      : {}),
     transitionProperty: 'border-color',
     transitionDuration: `${transitions.duration}ms`,
     transitionTimingFunction: transitions.function,
     cursor: 'var(--checkbox-cursor)',
     position: 'relative',
     width: 'min-content',
+  },
+  checkboxAreaReadOnly: {
+    borderColor: readOnlyBoxTheme.outerBoxBorderColor
+      ?? normalBoxTheme.outerBoxBorderColor
+      ?? defaultOuterBoxBorderColor,
+    ...(readOnlyBoxTheme.outerBoxBackgroundColor != null
+      ? { backgroundColor: readOnlyBoxTheme.outerBoxBackgroundColor }
+      : normalBoxTheme.outerBoxBackgroundColor != null
+        ? { backgroundColor: normalBoxTheme.outerBoxBackgroundColor }
+        : {}),
   },
   assistiveText: {
     alignSelf: 'flex-start',
@@ -90,12 +112,17 @@ const useStyles = createStyles(({ fields: { content: { normal: fieldContent } },
     transitionProperty: 'opacity, background-color',
     transitionDuration: `${transitions.duration}ms`,
     transitionTimingFunction: transitions.function,
-    backgroundColor: defaultButton.backgroundColor,
+    backgroundColor: normalBoxTheme.checkedBackgroundColor ?? defaultCheckedBackgroundColor,
     borderRadius: 2,
 
     '&.is-checked': {
       opacity: 1,
     },
+  },
+  checkboxAreaCheckedReadOnly: {
+    backgroundColor: readOnlyBoxTheme.checkedBackgroundColor
+      ?? normalBoxTheme.checkedBackgroundColor
+      ?? defaultCheckedBackgroundColor,
   },
   skeleton: {
     borderRadius: 4,
@@ -122,7 +149,8 @@ const useStyles = createStyles(({ fields: { content: { normal: fieldContent } },
     flexDirection: 'column',
     alignItems: 'center',
   },
-}));
+};
+});
 
 export const Checkbox = createComponent('Checkbox', ({
   className,
@@ -158,9 +186,9 @@ export const Checkbox = createComponent('Checkbox', ({
     <Tag name="checkbox" className={join(css.checkbox, value === true, css[`label_position_${labelPosition}`], isReadOnly && 'is-read-only', wide && 'full-width', className)} style={style}>
       <Tag name="checkbox-container" onMouseDown={preventPropagation} className={join(css.checkboxContainer, css[`label_position_container_${labelPosition}`], wide && 'full-width')}>
         <Skeleton className={css.skeleton}>
-          <Tag name="checkbox-area" className={join(css.checkboxArea, className)}>
+          <Tag name="checkbox-area" className={join(css.checkboxArea, isReadOnly && css.checkboxAreaReadOnly, className)}>
             <input type="checkbox" className={css.inputCheckbox} checked={value ?? false} onChange={handleValueChanged} disabled={isReadOnly} />
-            <Tag name="checkbox-area-checked" className={join(css.checkboxAreaChecked, value === true && 'is-checked')} />
+            <Tag name="checkbox-area-checked" className={join(css.checkboxAreaChecked, isReadOnly && css.checkboxAreaCheckedReadOnly, value === true && 'is-checked')} />
           </Tag>
         </Skeleton>
         <Label help={help} isOptional={isOptional} onClick={toggleValue} wide={wide}>{label ?? children}</Label>
