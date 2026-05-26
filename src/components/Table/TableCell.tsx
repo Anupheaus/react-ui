@@ -7,6 +7,8 @@ import { createStyles } from '../../theme';
 import type { AnyObject, Record } from '@anupheaus/common';
 import { TableCellValue } from './TableCellValue';
 import { useGetTableColumnWidth } from './TableColumnWidths';
+import { useTableActionsColumnWidth } from './TableActionsColumnWidthContext';
+import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 
 interface Props {
   column: TableColumn;
@@ -34,7 +36,10 @@ export const TableCell = createComponent('TableCell', ({
   record,
 }: Props) => {
   const { css, join, useInlineStyle } = useStyles();
-  const width = useGetTableColumnWidth(columnIndex);
+  const columnWidth = useGetTableColumnWidth(columnIndex);
+  const actionsColumnWidth = useTableActionsColumnWidth();
+  const isActionsColumn = column.id === TABLE_ACTIONS_COLUMN_ID;
+  const width = isActionsColumn ? actionsColumnWidth : columnWidth ?? column.width;
 
   const content = useMemo(() => {
     if (column.renderValue) {
@@ -64,9 +69,15 @@ export const TableCell = createComponent('TableCell', ({
     width,
     maxWidth: width,
     minWidth: width,
-    textAlign: column.alignment,
-    justifyContent: column.alignment === 'right' ? 'flex-end' : column.alignment === 'center' ? 'center' : 'flex-start',
-  }), [width, column.alignment]);
+    textAlign: isActionsColumn ? 'left' : column.alignment,
+    justifyContent: isActionsColumn
+      ? 'flex-start'
+      : column.alignment === 'right'
+        ? 'flex-end'
+        : column.alignment === 'center'
+          ? 'center'
+          : 'flex-start',
+  }), [width, column.alignment, isActionsColumn]);
 
   return (
     <Tag name="table-cell" className={join(css.tableCell, column.className)} style={style}>

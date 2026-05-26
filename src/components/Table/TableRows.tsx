@@ -20,7 +20,6 @@ const useStyles = createStyles((theme, { applyTransition }) => {
   return {
     rows: {
       flex: 'auto',
-      overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       backgroundColor: rowBackgroundColor,
@@ -30,6 +29,7 @@ const useStyles = createStyles((theme, { applyTransition }) => {
       borderStyle: 'solid',
       boxSizing: 'border-box',
       minHeight: 0,
+      minWidth: 0,
       position: 'relative',
       ...applyTransition('border-color, background-color'),
     },
@@ -99,6 +99,9 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
         className={css.rows}
         delayRenderingItems={delayRendering}
         gap={0}
+        fullHeight
+        minWidth={0}
+        minHeight={0}
         onError={onError}
       />
     </TableColumnsContext.Provider>

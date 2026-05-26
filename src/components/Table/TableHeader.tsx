@@ -6,6 +6,7 @@ import { Flex } from '../Flex';
 import { createStyles } from '../../theme';
 import type { UseActions } from '../../hooks';
 import { resolveTableTheme } from './resolveTableTheme';
+import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 
 const useStyles = createStyles((theme) => {
   const { toolbar: { normal: toolbar } } = theme;
@@ -20,6 +21,15 @@ const useStyles = createStyles((theme) => {
       boxShadow: 'none',
       gap: 0,
       padding: 0,
+    },
+    headerScroll: {
+      flex: 'auto',
+      overflow: 'hidden',
+      minWidth: 0,
+    },
+    headerCells: {
+      flex: 'none',
+      width: 'max-content',
     },
   };
 });
@@ -42,14 +52,26 @@ export const TableHeader = createComponent('TableHeader', ({
   const { css } = useStyles();
   const tableHeaderCellsRef = useRef<HTMLDivElement | null>(null);
 
-  const headerCells = useMemo(() => columns.map((column, columnIndex) => (
-    <TableHeaderCell
-      key={column.id}
-      column={column}
-      columnIndex={columnIndex}
-      onColumnWidthPersist={onColumnWidthPersist == null ? undefined : (width) => onColumnWidthPersist(column.id, width)}
-    />
-  )), [columns, onColumnWidthPersist]);
+  const { dataColumns, actionsColumn, actionsColumnIndex } = useMemo(() => {
+    const actionsIndex = columns.findIndex(column => column.id === TABLE_ACTIONS_COLUMN_ID);
+    return {
+      dataColumns: columns.filter(column => column.id !== TABLE_ACTIONS_COLUMN_ID),
+      actionsColumn: actionsIndex === -1 ? undefined : columns[actionsIndex],
+      actionsColumnIndex: actionsIndex,
+    };
+  }, [columns]);
+
+  const dataHeaderCells = useMemo(() => dataColumns.map((column) => {
+    const columnIndex = columns.findIndex(({ id }) => id === column.id);
+    return (
+      <TableHeaderCell
+        key={column.id}
+        column={column}
+        columnIndex={columnIndex}
+        onColumnWidthPersist={onColumnWidthPersist == null ? undefined : (width) => onColumnWidthPersist(column.id, width)}
+      />
+    );
+  }), [columns, dataColumns, onColumnWidthPersist]);
 
   actions({
     onScrollLeft: value => {
@@ -59,10 +81,19 @@ export const TableHeader = createComponent('TableHeader', ({
   });
 
   return (
-    <Flex tagName="table-header" className={css.header} wide>
-      <Flex tagName="table-header-cells" ref={tableHeaderCellsRef} valign="center" maxWidthAndHeight>
-        {headerCells}
+    <Flex tagName="table-header" className={css.header} wide disableOverflow minWidth={0}>
+      <Flex tagName="table-header-scroll" className={css.headerScroll} minWidth={0} wide disableOverflow>
+        <Flex tagName="table-header-cells" ref={tableHeaderCellsRef} valign="center" className={css.headerCells}>
+          {dataHeaderCells}
+        </Flex>
       </Flex>
+      {actionsColumn != null && actionsColumnIndex !== -1 && (
+        <TableHeaderCell
+          key={actionsColumn.id}
+          column={actionsColumn}
+          columnIndex={actionsColumnIndex}
+        />
+      )}
     </Flex>
   );
 });

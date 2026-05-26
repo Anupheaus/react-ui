@@ -6,6 +6,9 @@ import { TableRowActionColumn } from './TableRowActionColumn';
 import { createStyles } from '../../theme';
 import Color from 'color';
 import { resolveTableTheme } from './resolveTableTheme';
+import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
+
+const mergeClassNames = (...classNames: (string | undefined)[]) => classNames.filter(Boolean).join(' ');
 
 const useStyles = createStyles((theme) => {
   const { rowBackgroundColor } = resolveTableTheme(theme);
@@ -15,12 +18,15 @@ const useStyles = createStyles((theme) => {
       display: 'inline-flex',
       position: 'sticky',
       right: 0,
+      flexShrink: 0,
+      zIndex: 2,
       backgroundColor: Color(rowBackgroundColor).opaquer(1).hex(),
       overflow: 'unset',
       height: 'auto',
-      textAlign: 'center',
+      textAlign: 'left',
       alignItems: 'center',
       padding: 0,
+      alignSelf: 'stretch',
     },
   };
 });
@@ -35,7 +41,7 @@ function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel
     id: 'table-actions',
     label: '',
     field: '__actions',
-    alignment: 'center',
+    alignment: 'left',
     isVisible: true,
     className: css.tableActionsCell,
     renderValue: props => (
@@ -54,6 +60,15 @@ interface Props<RecordType extends Record> extends Omit<AddActionColumnProps<Rec
   providedColumns: TableColumn<RecordType>[];
 }
 
+function withTableActionsColumnStyles<RecordType extends Record>(
+  columns: TableColumn<RecordType>[],
+  tableActionsCellClassName: string,
+): TableColumn<RecordType>[] {
+  return columns.map(column => column.id === TABLE_ACTIONS_COLUMN_ID
+    ? { ...column, alignment: 'left', className: mergeClassNames(column.className, tableActionsCellClassName) }
+    : column);
+}
+
 export function useColumns<RecordType extends Record>({
   providedColumns,
   unitName,
@@ -63,9 +78,13 @@ export function useColumns<RecordType extends Record>({
 }: Props<RecordType>) {
   const { css } = useStyles();
 
-  const columns = useMemo(() => providedColumns
-    .filter(({ isVisible }) => isVisible !== false)
-    .concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove })), [providedColumns, onEdit != null]);
+  const columns = useMemo(() => {
+    const visibleColumns = providedColumns.filter(({ isVisible }) => isVisible !== false);
+    const enhancedColumns = withTableActionsColumnStyles(visibleColumns, css.tableActionsCell);
+    const hasActionsColumn = visibleColumns.some(column => column.id === TABLE_ACTIONS_COLUMN_ID);
+    if (hasActionsColumn) return enhancedColumns;
+    return enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove }));
+  }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove]);
 
   return {
     columns,

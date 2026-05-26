@@ -13,6 +13,8 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
     borderBottomWidth: 1,
     borderBottomStyle: 'solid',
     height: 'fit-content',
+    width: 'max-content',
+    minWidth: '100%',
 
     '&.is-last-item': {
       borderBottomWidth: 0,

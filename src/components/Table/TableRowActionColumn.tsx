@@ -1,21 +1,22 @@
+import { useLayoutEffect, useRef } from 'react';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { TableRenderValueProps } from './TableModels';
 import { TableRowEditAction } from './TableRowEditAction';
 import { TableRowMenuAction } from './TableRowMenuAction';
 import { createStyles } from '../../theme';
-import { useSetTableColumnWidth } from './TableColumnWidths';
+import type { ReactNode } from 'react';
+import type { PromiseMaybe, Record } from '@anupheaus/common';
 import { useOnResize } from '../../hooks';
-import type { ComponentProps } from 'react';
-import { useLayoutEffect, useRef } from 'react';
-import type { Record } from '@anupheaus/common';
+import { useReportTableActionsColumnWidth } from './TableActionsColumnWidthContext';
 
 const useStyles = createStyles(({ surface: { shadows: { light } } }) => ({
   tableRowActions: {
     height: '100%',
-    padding: '0 8px',
-    width: 'min-content',
-    maxWidth: 'min-content',
+    width: 'max-content',
+    boxSizing: 'border-box',
+    padding: '4px 12px',
+    position: 'relative',
   },
   tableActionsShadow: {
     position: 'absolute',
@@ -38,33 +39,44 @@ const useStyles = createStyles(({ surface: { shadows: { light } } }) => ({
   },
 }));
 
-interface Props<RecordType extends Record> extends TableRenderValueProps<RecordType>,
-  Pick<ComponentProps<typeof TableRowEditAction<RecordType>>, 'onEdit'>, Pick<ComponentProps<typeof TableRowMenuAction<RecordType>>, 'onRemove' | 'unitName' | 'removeLabel'> { }
+interface Props<RecordType extends Record> extends TableRenderValueProps<RecordType> {
+  children?: ReactNode;
+  onEdit?(record: RecordType, index: number): PromiseMaybe<void>;
+  onRemove?(record: RecordType, index: number): PromiseMaybe<void>;
+  unitName?: string;
+  removeLabel?: string;
+}
 
 export const TableRowActionColumn = createComponent('TableRowActionColumn', <RecordType extends Record>({
   record,
-  columnIndex,
   rowIndex,
   onEdit,
   onRemove,
   unitName,
   removeLabel,
+  children,
 }: Props<RecordType>) => {
   const { css } = useStyles();
-  const { width, target } = useOnResize({ observeWidthOnly: true });
-  const setWidth = useSetTableColumnWidth(columnIndex);
-  const minWidthRef = useRef<number>();
+  const reportWidth = useReportTableActionsColumnWidth();
+  const { width, target, elementRef } = useOnResize({ observeWidthOnly: true });
+  const lastReportedWidthRef = useRef<number>();
 
   useLayoutEffect(() => {
-    if (width == null || rowIndex != 0 || (minWidthRef.current ?? 0) >= width) return;
-    minWidthRef.current = width;
-    setWidth(width);
-  }, [width, rowIndex]);
+    const element = elementRef.current;
+    if (element == null || width == null) return;
+    const normalizedWidth = Math.ceil(element.scrollWidth);
+    if (normalizedWidth <= 0) return;
+    if (lastReportedWidthRef.current === normalizedWidth) return;
+    lastReportedWidthRef.current = normalizedWidth;
+    reportWidth(normalizedWidth);
+  }, [width, reportWidth, elementRef]);
 
   return (
-    <Flex tagName="table-row-actions" ref={target} gap={4} alignCentrally className={css.tableRowActions}>
-      {onEdit != null && <TableRowEditAction onEdit={onEdit} record={record} rowIndex={rowIndex} />}
-      {onRemove != null && <TableRowMenuAction unitName={unitName} removeLabel={removeLabel} onRemove={onRemove} record={record} rowIndex={rowIndex} />}
+    <Flex tagName="table-row-actions" ref={target} gap={4} align="left" valign="center" className={css.tableRowActions}>
+      {children ?? <>
+        {onEdit != null && <TableRowEditAction onEdit={onEdit} record={record} rowIndex={rowIndex} />}
+        {onRemove != null && <TableRowMenuAction unitName={unitName ?? 'record'} removeLabel={removeLabel} onRemove={onRemove} record={record} rowIndex={rowIndex} />}
+      </>}
       <Flex tagName="table-row-actions-shadow" className={css.tableActionsShadow} />
     </Flex>
   );

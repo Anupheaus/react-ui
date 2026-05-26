@@ -11,11 +11,14 @@ import { TableFooter } from './TableFooter';
 import type { TableRowsProps } from './TableRows';
 import { TableRows } from './TableRows';
 import { TableColumnWidthProvider } from './TableColumnWidths';
+import { TableActionsColumnWidthProvider } from './TableActionsColumnWidthContext';
+import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 import type { UseActions } from '../../hooks';
-import { useActions, useBatchUpdates, useBound, useOnUnmount } from '../../hooks';
+import { useActions, useBatchUpdates, useBooleanState, useBound, useOnUnmount } from '../../hooks';
 import { UIState } from '../../providers';
 import { useColumns } from './useColumns';
 import { useTableSettings } from './useTableSettings';
+import { TableHoverContext } from './TableHoverContext';
 import type { ListActions } from '../List';
 
 export interface TableActions extends ListActions {
@@ -28,6 +31,8 @@ const useStyles = createStyles(() => ({
     flex: 'auto',
     position: 'relative',
     width: '100%',
+    maxWidth: '100%',
+    minWidth: 0,
     borderRadius: 4,
     overflow: 'hidden',
     flexDirection: 'column',
@@ -78,6 +83,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   const hasUnmounted = useOnUnmount();
   const batchUpdates = useBatchUpdates();
   const [error, setError] = useState<Error>();
+  const [isHovered, handleMouseEnter, handleMouseLeave] = useBooleanState();
 
   const wrapRequest = useBound<TableOnRequest<RecordType>>(async (request, response) => {
     setRecordsLoading(totalRecords == null);
@@ -112,30 +118,45 @@ export const Table = createComponent('Table', function <RecordType extends Recor
     persistColumnWidth(columnId, width);
   });
 
+  const actionsColumnIndex = useMemo(
+    () => columns.findIndex(column => column.id === TABLE_ACTIONS_COLUMN_ID),
+    [columns],
+  );
+
+  const initialActionsColumnWidth = actionsColumnIndex === -1
+    ? undefined
+    : initialColumnWidths?.get(actionsColumnIndex);
+
   return (
     <Tag
       ref={tableElementRef}
       name="react-table" // called react-table instead of table to ignore errors about table-rows not being a valid descendent of table.
       className={join(css.table, className)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      <TableColumnWidthProvider initialWidths={initialColumnWidths}>
-        <TableHeader
-          columns={columns}
-          actions={setActions}
-          onColumnWidthPersist={persistenceKey == null ? undefined : handleColumnWidthPersist}
-        />
-        <TableRows
-          columns={columns}
-          actions={actions}
-          onRequest={wrapRequest}
-          onError={handleError}
-          onScrollLeft={handleScrollLeft}
-          delayRendering={delayRenderingRows}
-        />
-        <UIState isLoading={recordsLoading}>
-          <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} addLabel={addLabel} />
-        </UIState>
-      </TableColumnWidthProvider>
+      <TableHoverContext.Provider value={isHovered}>
+        <TableColumnWidthProvider initialWidths={initialColumnWidths}>
+          <TableActionsColumnWidthProvider columnIndex={actionsColumnIndex} initialWidth={initialActionsColumnWidth}>
+            <TableHeader
+              columns={columns}
+              actions={setActions}
+              onColumnWidthPersist={persistenceKey == null ? undefined : handleColumnWidthPersist}
+            />
+            <TableRows
+              columns={columns}
+              actions={actions}
+              onRequest={wrapRequest}
+              onError={handleError}
+              onScrollLeft={handleScrollLeft}
+              delayRendering={delayRenderingRows}
+            />
+            <UIState isLoading={recordsLoading}>
+              <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} addLabel={addLabel} />
+            </UIState>
+          </TableActionsColumnWidthProvider>
+        </TableColumnWidthProvider>
+      </TableHoverContext.Provider>
     </Tag>
   );
 });

@@ -111,9 +111,11 @@ Table
 │   └── TableFooter               (Add button, error, total count)
 ```
 
-- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. **TableCell** and **TableRowActionColumn** use **useGetTableColumnWidth** so body columns align with the header. The actions column is sticky on the right and reports its width from the first row.
+- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell with twin vertical line indicators that fade in when the cursor is over the table; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. The actions column uses **TableActionsColumnWidthProvider**: each **TableRowActionColumn** measures its content (including custom `children`) and reports the width; the context keeps the maximum so every actions cell and the pinned header cell share the same width. The actions column is pinned on the right: the header cell sits outside the horizontally scrolled header strip, and body cells use `position: sticky` so they stay visible while data columns scroll.
 - **Rows:** **TableRows** converts each `record` from **onRequest** into a **ReactListItem** with `data: record` (or `data: Promise<record>` for async) and **renderItem(item, index, resolvedData)** that returns **TableRow** with `record={resolvedData}`, `index`, and `columns`. **InternalListItem** resolves `item.data` (sync or Promise) via **useAsync** and passes the resolved value as **resolvedData** to **renderItem**. **TableRow** shows a loading state when `record` is undefined (e.g. while the Promise is resolving).
 - **Row actions:** If `onEdit` or `onRemove` are passed to **Table**, **useColumns** appends a synthetic column with `id: 'table-actions'` and `renderValue` rendering **TableRowActionColumn**, which contains **TableRowEditAction** and/or **TableRowMenuAction** (ellipsis menu with remove + confirmation).
+
+**Custom row actions:** Add your own column with `id: 'table-actions'` and a `renderValue` that wraps custom buttons in **TableRowActionColumn** (pass `{...props}` from `renderValue`, then your buttons as `children`). **useColumns** applies the sticky cell class automatically; the header is pinned on the right by **TableHeader**. Do not pass `onEdit`/`onRemove` when supplying your own actions column.
 
 ---
 
@@ -123,9 +125,10 @@ Table
 |------|------|
 | **Table.tsx** | Root. Uses **useColumns**, wires **onRequest** (and loading/error/total state), **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **TableFooter**. |
 | **TableModels.ts** | Types: **TableColumn**, **TableColumnCommonProps**, **TableRenderValueProps**, **TableOnRequest**. |
-| **TableHeader.tsx** | Renders header row; exposes **onScrollLeft** via actions so horizontal scroll can be synced. |
+| **TableHeader.tsx** | Renders header row; data columns scroll in sync with the body via `translateX`, actions column stays fixed on the right. Exposes **onScrollLeft** via actions. |
 | **TableHeaderCell.tsx** | Single header cell: label, optional resize handle when `isResizable`, width from props or measured, reports width to context. |
-| **TableHeaderCellResizeHandle.tsx** | Drag handle rendered on resizable header cells. |
+| **TableHeaderCellResizeHandle.tsx** | Drag handle with twin line indicators (fade in on table hover) rendered on resizable header cells. |
+| **TableHoverContext.ts** | Context tracking whether the cursor is over the table; used to show/hide resize indicators. |
 | **useTableSettings.ts** | Reads/writes **TableSettings** to `localStorage` via **useStorage** when `persistenceKey` is provided. |
 | **TableRows.tsx** | Adapts **onRequest** so the table’s `records` are converted to **ReactListItem**s with `data: record` and **renderItem(item, index, resolvedData)** that renders **TableRow** with `record={resolvedData}`. Provides **TableColumnsContext**. Wraps **InternalList** (no children); **onScroll** → **onScrollLeft**. |
 | **TableRow.tsx** | One row: receives **record** (resolved from ReactListItem’s `data`), **index**, **columns**. Shows loading state when **record** is undefined. Maps columns to **TableCell**. |
@@ -135,7 +138,8 @@ Table
 | **TableColumnsContext.ts** | React context holding the current **TableColumn[]**. |
 | **useColumns.tsx** | **useColumns** hook: filters visible columns, appends actions column when **onEdit** / **onRemove** provided. |
 | **TableFooter.tsx** | Add button (if **onAdd**), error message, total record count (locale-formatted, with skeleton). |
-| **TableRowActionColumn.tsx** | Sticky actions cell: edit button, remove menu, shadow; reports width from first row. |
+| **TableActionsColumnWidthContext.tsx** | Shared max-width context for the actions column; each **TableRowActionColumn** reports its measured width and all cells adopt the largest value. |
+| **TableRowActionColumn.tsx** | Sticky actions cell: edit button, remove menu, custom children, shadow; measures and reports width to **TableActionsColumnWidthProvider**. |
 | **TableRowEditAction.tsx** | Edit button; calls **onEdit(record, rowIndex)**. |
 | **TableRowMenuAction.tsx** | Ellipsis menu with remove item; opens confirmation dialog then calls **onRemove(record, rowIndex)**. |
 
