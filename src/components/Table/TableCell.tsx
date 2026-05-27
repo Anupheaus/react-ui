@@ -18,15 +18,33 @@ interface Props {
 }
 
 const useStyles = createStyles({
-  tableCell: {
-    display: 'inline-block', // needed for ellipsis to work
+  dataCell: {
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    boxSizing: 'border-box',
+    flexShrink: 0,
     borderWidth: 0,
     padding: '4px 8px',
     cursor: 'default',
     overflow: 'hidden',
+    minWidth: 0,
+  },
+  dataCellContent: {
+    display: 'block',
+    width: '100%',
+    minWidth: 0,
+    overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    height: 'fit-content',
+  },
+  actionsCellShell: {
+    display: 'block',
+    height: '100%',
+    boxSizing: 'border-box',
+    borderWidth: 0,
+    cursor: 'default',
+    overflow: 'unset',
   },
 });
 
@@ -70,19 +88,24 @@ export const TableCell = createComponent('TableCell', ({
     width,
     maxWidth: width,
     minWidth: width,
-    textAlign: isActionsColumn ? 'left' : column.alignment,
-    justifyContent: isActionsColumn
-      ? 'flex-start'
-      : column.alignment === 'right'
-        ? 'flex-end'
-        : column.alignment === 'center'
-          ? 'center'
-          : 'flex-start',
-  }), [width, column.alignment, isActionsColumn]);
+    padding: isActionsColumn ? 0 : undefined,
+  }), [width, isActionsColumn]);
+
+  const contentStyle = useInlineStyle(() => ({
+    textAlign: isActionsColumn ? undefined : column.alignment,
+  }), [column.alignment, isActionsColumn]);
 
   return (
-    <Tag name="table-cell" className={join(css.tableCell, column.className)} style={style}>
-      {content}
+    <Tag
+      name="table-cell"
+      className={join(isActionsColumn ? css.actionsCellShell : css.dataCell, column.className)}
+      style={style}
+    >
+      {isActionsColumn ? content : (
+        <Tag name="table-cell-content" className={css.dataCellContent} style={contentStyle}>
+          {content}
+        </Tag>
+      )}
     </Tag>
   );
 });

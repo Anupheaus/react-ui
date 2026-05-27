@@ -177,6 +177,56 @@ describe('Table', () => {
 
     expectBodyScrollerScrollbarGutterAuto(container);
   });
+
+  it('stretches data cells to the row height with ellipsis on the inner content', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('table-row').length).toBeGreaterThan(0);
+    });
+
+    const dataCellClassName = Array.from(container.querySelector('table-cell')!.classList)
+      .find(className => className.includes('dataCell'));
+    expect(dataCellClassName).toBeDefined();
+
+    const dataCellContentClassName = Array.from(container.querySelector('table-cell-content')!.classList)
+      .find(className => className.includes('dataCellContent'));
+    expect(dataCellContentClassName).toBeDefined();
+
+    expect(findCssPropertyMatchingSelector(dataCellClassName!, 'align-self')).toBe('stretch');
+    expect(findCssPropertyMatchingSelector(dataCellClassName!, 'height')).not.toBe('fit-content');
+    expect(findCssPropertyMatchingSelector(dataCellContentClassName!, 'text-overflow')).toBe('ellipsis');
+  });
+
+  it('pins row actions on a sticky host outside the data cell flex layout', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} onEdit={() => void 0} />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('table-row').length).toBeGreaterThan(0);
+    });
+
+    const actionsPin = container.querySelector('table-row-actions-pin');
+    expect(actionsPin).not.toBeNull();
+
+    const actionsPinClassName = Array.from(actionsPin!.classList)
+      .find(className => className.includes('actionsPin'));
+    expect(actionsPinClassName).toBeDefined();
+    expect(findCssPropertyMatchingSelector(actionsPinClassName!, 'position')).toBe('sticky');
+
+    const actionsCell = actionsPin!.querySelector('table-cell');
+    expect(actionsCell).not.toBeNull();
+
+    const actionsCellClassName = Array.from(actionsCell!.classList)
+      .find(className => className.includes('tableActionsCell'));
+    expect(actionsCellClassName).toBeDefined();
+    expect(Array.from(actionsCell!.classList).some(className => className.includes('dataCell'))).toBe(false);
+    expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'position')).not.toBe('sticky');
+    expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'overflow')).toBe('unset');
+  });
 });
 
 describe('TableRows', () => {

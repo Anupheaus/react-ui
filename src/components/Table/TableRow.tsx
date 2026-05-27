@@ -7,24 +7,39 @@ import { TableCell } from './TableCell';
 import { useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { UIState } from '../../providers';
+import { resolveOpaqueTableBackground, resolveTableTheme } from './resolveTableTheme';
 import { splitTableColumns } from './splitTableColumns';
 
-const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
-  row: {
-    borderBottomColor: normal.borderColor,
-    borderBottomWidth: 1,
-    borderBottomStyle: 'solid',
-    height: 'fit-content',
-    width: '100%',
-    minWidth: 'max-content',
-    alignSelf: 'stretch',
-  },
-  rowFill: {
-    flex: '1 1 auto',
-    minWidth: 0,
-    alignSelf: 'stretch',
-  },
-}));
+const useStyles = createStyles((theme) => {
+  const { fields: { content: { normal } } } = theme;
+  const { rowBackgroundColor } = resolveTableTheme(theme);
+  const surfaceBackgroundColor = theme.surface.asAContainer.normal.backgroundColor ?? '#ffffff';
+
+  return {
+    row: {
+      borderBottomColor: normal.borderColor,
+      borderBottomWidth: 1,
+      borderBottomStyle: 'solid',
+      height: 'fit-content',
+      width: '100%',
+      minWidth: 'max-content',
+      alignSelf: 'stretch',
+    },
+    rowFill: {
+      flex: '1 1 auto',
+      minWidth: 0,
+      alignSelf: 'stretch',
+    },
+    actionsPin: {
+      position: 'sticky',
+      right: 0,
+      flexShrink: 0,
+      alignSelf: 'stretch',
+      zIndex: 2,
+      backgroundColor: resolveOpaqueTableBackground(rowBackgroundColor, surfaceBackgroundColor),
+    },
+  };
+});
 
 interface Props<RecordType extends Record> {
   record?: RecordType;
@@ -78,7 +93,9 @@ export const TableRow = createComponent('TableRow', <RecordType extends Record>(
       {dataCells}
       {actionsCell != null && (<>
         <Tag name="table-row-fill" className={css.rowFill} />
-        {actionsCell}
+        <Tag name="table-row-actions-pin" className={css.actionsPin}>
+          {actionsCell}
+        </Tag>
       </>)}
     </Flex>
   );

@@ -15,18 +15,14 @@ const useStyles = createStyles((theme) => {
 
   return {
     tableActionsCell: {
-      display: 'inline-flex',
-      position: 'sticky',
-      right: 0,
-      flexShrink: 0,
-      zIndex: 2,
+      display: 'block',
+      width: '100%',
+      height: '100%',
+      boxSizing: 'border-box',
       backgroundColor: resolveOpaqueTableBackground(rowBackgroundColor, surfaceBackgroundColor),
       overflow: 'unset',
-      height: 'auto',
       textAlign: 'left',
-      alignItems: 'center',
       padding: 0,
-      alignSelf: 'stretch',
     },
   };
 });
