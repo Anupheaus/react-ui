@@ -167,6 +167,39 @@ export const ResizableColumns: Story = createStory({
   },
 });
 
+export const ResizableColumnsThreeRecords: Story = createStory({
+  width: 900,
+  height: 500,
+  render: () => {
+    const [localColumns] = useState(resizableColumns);
+    const generatedRecords = useMemo(() => generateRecords(3), []);
+
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      const newRecords = generatedRecords.slice(offset, offset + limit);
+      response({
+        requestId,
+        records: newRecords,
+        total: generatedRecords.length,
+      });
+    });
+
+    const handleOnEdit = useBound((record: DemoRecord) => {
+      // eslint-disable-next-line no-console
+      console.log('Edit record:', record);
+    });
+
+    return (
+      <Table
+        columns={localColumns}
+        unitName="people"
+        onRequest={handleRequest}
+        onEdit={handleOnEdit}
+        persistenceKey="storybook-table-resizable-columns-three-records"
+      />
+    );
+  },
+});
+
 export const TableUsingRecordIds: Story = createStory({
   width: 700,
   height: 500,

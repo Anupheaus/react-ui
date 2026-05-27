@@ -12,7 +12,7 @@ import type { TableRowsProps } from './TableRows';
 import { TableRows } from './TableRows';
 import { TableColumnWidthProvider } from './TableColumnWidths';
 import { TableActionsColumnWidthProvider } from './TableActionsColumnWidthContext';
-import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
+import { estimateTableActionsColumnWidth, canPersistTableColumnWidth, TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 import type { UseActions } from '../../hooks';
 import { useActions, useBatchUpdates, useBooleanState, useBound, useOnUnmount } from '../../hooks';
 import { UIState } from '../../providers';
@@ -83,6 +83,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   const hasUnmounted = useOnUnmount();
   const batchUpdates = useBatchUpdates();
   const [error, setError] = useState<Error>();
+  const [verticalScrollbarWidth, setVerticalScrollbarWidth] = useState(0);
   const [isHovered, handleMouseEnter, handleMouseLeave] = useBooleanState();
 
   const wrapRequest = useBound<TableOnRequest<RecordType>>(async (request, response) => {
@@ -108,6 +109,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
     if (savedWidths == null) return undefined;
     const widths = new Map<number, number>();
     columns.forEach((column, columnIndex) => {
+      if (!canPersistTableColumnWidth(column)) return;
       const savedWidth = savedWidths[column.id];
       if (savedWidth != null) widths.set(columnIndex, savedWidth);
     });
@@ -115,7 +117,9 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   }, [columns, settings?.columnWidths]);
 
   const handleColumnWidthPersist = useBound((columnId: string, width: number) => {
-    persistColumnWidth(columnId, width);
+    const column = columns.find(({ id }) => id === columnId);
+    if (column == null) return;
+    persistColumnWidth(columnId, width, column.isResizable === true);
   });
 
   const actionsColumnIndex = useMemo(
@@ -123,9 +127,9 @@ export const Table = createComponent('Table', function <RecordType extends Recor
     [columns],
   );
 
-  const initialActionsColumnWidth = actionsColumnIndex === -1
-    ? undefined
-    : initialColumnWidths?.get(actionsColumnIndex);
+  const estimatedActionsColumnWidth = estimateTableActionsColumnWidth(
+    (onEdit != null ? 1 : 0) + (onRemove != null ? 1 : 0),
+  );
 
   return (
     <Tag
@@ -137,19 +141,27 @@ export const Table = createComponent('Table', function <RecordType extends Recor
     >
       <TableHoverContext.Provider value={isHovered}>
         <TableColumnWidthProvider initialWidths={initialColumnWidths}>
-          <TableActionsColumnWidthProvider columnIndex={actionsColumnIndex} initialWidth={initialActionsColumnWidth}>
-            <TableHeader
-              columns={columns}
-              actions={setActions}
-              onColumnWidthPersist={persistenceKey == null ? undefined : handleColumnWidthPersist}
-            />
+          <TableActionsColumnWidthProvider
+            columnIndex={actionsColumnIndex}
+            initialWidth={actionsColumnIndex === -1 ? undefined : estimatedActionsColumnWidth}
+          >
+            <UIState isLoading={recordsLoading}>
+              <TableHeader
+                columns={columns}
+                actions={setActions}
+                scrollbarWidth={verticalScrollbarWidth}
+                onColumnWidthPersist={persistenceKey == null ? undefined : handleColumnWidthPersist}
+              />
+            </UIState>
             <TableRows
               columns={columns}
+              onVerticalScrollbarWidthChange={setVerticalScrollbarWidth}
               actions={actions}
               onRequest={wrapRequest}
               onError={handleError}
               onScrollLeft={handleScrollLeft}
               delayRendering={delayRenderingRows}
+              isInitialLoading={totalRecords == null}
             />
             <UIState isLoading={recordsLoading}>
               <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} addLabel={addLabel} />

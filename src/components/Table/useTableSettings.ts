@@ -1,10 +1,11 @@
 import { useBound } from '../../hooks';
 import { useStorage } from '../../hooks/useStorage';
 import type { TableSettings } from './TableModels';
+import { canPersistTableColumnWidth } from './tableConstants';
 
 interface UseTableSettingsResult {
   settings: TableSettings | undefined;
-  persistColumnWidth(columnId: string, width: number): void;
+  persistColumnWidth(columnId: string, width: number, isResizable: boolean): void;
 }
 
 export function useTableSettings(persistenceKey?: string): UseTableSettingsResult {
@@ -14,8 +15,8 @@ export function useTableSettings(persistenceKey?: string): UseTableSettingsResul
     defaultValue: () => ({}),
   });
 
-  const persistColumnWidth = useBound((columnId: string, width: number) => {
-    if (persistenceKey == null) return;
+  const persistColumnWidth = useBound((columnId: string, width: number, isResizable: boolean) => {
+    if (persistenceKey == null || !canPersistTableColumnWidth({ id: columnId, isResizable })) return;
     setSettings(previousSettings => ({
       ...previousSettings,
       columnWidths: {

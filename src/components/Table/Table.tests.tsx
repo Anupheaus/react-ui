@@ -1,0 +1,240 @@
+import type { ReactNode } from 'react';
+import { act, render, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeAll } from 'vitest';
+import { DefaultTheme, ThemeProvider } from '../../theme';
+import type { TableColumn, TableOnRequest } from './TableModels';
+import { Table } from './Table';
+import { TableRows } from './TableRows';
+import { TABLE_BODY_SCROLLER_SCROLLBAR_GUTTER } from './tableBodyScrollerLayout';
+
+interface TestRecord {
+  id: string;
+  name: string;
+}
+
+const columns: TableColumn<TestRecord>[] = [
+  { id: 'name', field: 'name', label: 'Name', type: 'string', width: 150 },
+];
+
+const records: TestRecord[] = [
+  { id: 'record-1', name: 'Alpha' },
+  { id: 'record-2', name: 'Beta' },
+];
+
+class MockIntersectionObserver {
+  observe() { return undefined; }
+  unobserve() { return undefined; }
+  disconnect() { return undefined; }
+}
+
+class MockResizeObserver {
+  observe() { return undefined; }
+  unobserve() { return undefined; }
+  disconnect() { return undefined; }
+}
+
+beforeAll(() => {
+  Object.defineProperty(globalThis, 'IntersectionObserver', {
+    writable: true,
+    configurable: true,
+    value: MockIntersectionObserver,
+  });
+  Object.defineProperty(globalThis, 'ResizeObserver', {
+    writable: true,
+    configurable: true,
+    value: MockResizeObserver,
+  });
+});
+
+function renderTable(children: ReactNode) {
+  return render(
+    <ThemeProvider theme={DefaultTheme}>
+      <div style={{ width: 900, height: 400, display: 'flex' }}>
+        {children}
+      </div>
+    </ThemeProvider>,
+  );
+}
+
+function createTableRequest(sourceRecords: TestRecord[]): TableOnRequest<TestRecord> {
+  return async ({ requestId, pagination }, response) => {
+    const offset = pagination.offset ?? 0;
+    const limit = pagination.limit;
+    response({
+      requestId,
+      records: sourceRecords.slice(offset, offset + limit),
+      total: sourceRecords.length,
+    });
+  };
+}
+
+function findCssPropertyMatchingSelector(selectorIncludes: string, property: string): string | undefined {
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+
+    for (const rule of Array.from(rules)) {
+      if (!(rule instanceof CSSStyleRule)) continue;
+      if (!rule.selectorText.includes(selectorIncludes)) continue;
+      const value = rule.style.getPropertyValue(property).trim();
+      if (value) return value;
+    }
+  }
+  return undefined;
+}
+
+function getBodyScroller(container: HTMLElement): Element | null {
+  return container.querySelector('table-rows scroller-container');
+}
+
+function getRowsClassName(container: HTMLElement): string {
+  const tableRows = container.querySelector('table-rows');
+  expect(tableRows).not.toBeNull();
+  const rowsClassName = Array.from(tableRows!.classList).find(className => className.includes('rows'));
+  expect(rowsClassName).toBeDefined();
+  return rowsClassName!;
+}
+
+function expectBodyScrollerScrollbarGutterAuto(container: HTMLElement) {
+  const rowsClassName = getRowsClassName(container);
+  const gutter = findCssPropertyMatchingSelector(`${rowsClassName} scroller-container`, 'scrollbar-gutter');
+  expect(gutter).toBe(TABLE_BODY_SCROLLER_SCROLLBAR_GUTTER);
+}
+
+describe('Table', () => {
+  it('renders header, body scroller, and footer', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} />,
+    );
+
+    expect(container.querySelector('react-table')).not.toBeNull();
+    expect(container.querySelector('table-header')).not.toBeNull();
+    expect(container.querySelector('table-rows')).not.toBeNull();
+    expect(getBodyScroller(container)).not.toBeNull();
+    expect(container.querySelector('table-footer')).not.toBeNull();
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('table-row').length).toBeGreaterThan(0);
+    });
+  });
+
+  it('loads row data from onRequest', async () => {
+    const { container, getByText } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('Alpha')).not.toBeNull();
+      expect(getByText('Beta')).not.toBeNull();
+    });
+
+    expect(container.querySelectorAll('table-row')).toHaveLength(2);
+  });
+
+  it('shows the record count in the footer after data loads', async () => {
+    const { getByText } = renderTable(
+      <Table columns={columns} unitName="person" onRequest={createTableRequest(records)} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText(/2/)).not.toBeNull();
+      expect(getByText(/people|person/i)).not.toBeNull();
+    });
+  });
+
+  it('renders header and row fill spacers when row actions are enabled', async () => {
+    const { container } = renderTable(
+      <Table
+        columns={columns}
+        onRequest={createTableRequest(records)}
+        onEdit={() => void 0}
+        onRemove={() => void 0}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('table-row').length).toBeGreaterThan(0);
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('table-header-fill')).not.toBeNull();
+      expect(container.querySelector('table-row-fill')).not.toBeNull();
+    });
+  });
+
+  it('applies scrollbar-gutter auto on the body scroller-container', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} onEdit={() => void 0} />,
+    );
+
+    await waitFor(() => {
+      expect(getBodyScroller(container)).not.toBeNull();
+    });
+
+    expectBodyScrollerScrollbarGutterAuto(container);
+  });
+});
+
+describe('TableRows', () => {
+  it('renders rows inside the body scroller after onRequest resolves', async () => {
+    const scrollLeftCalls: number[] = [];
+    const { container, getByText } = renderTable(
+      <TableRows
+        columns={columns}
+        onRequest={createTableRequest(records)}
+        onScrollLeft={value => scrollLeftCalls.push(value)}
+      />,
+    );
+
+    expect(container.querySelector('table-rows')).not.toBeNull();
+    expect(getBodyScroller(container)).not.toBeNull();
+
+    await waitFor(() => {
+      expect(getByText('Alpha')).not.toBeNull();
+      expect(getByText('Beta')).not.toBeNull();
+    });
+  });
+
+  it('applies scrollbar-gutter auto on the body scroller-container', async () => {
+    const { container } = renderTable(
+      <TableRows
+        columns={columns}
+        onRequest={createTableRequest(records)}
+        onScrollLeft={() => void 0}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(getBodyScroller(container)).not.toBeNull();
+    });
+
+    expectBodyScrollerScrollbarGutterAuto(container);
+  });
+
+  it('reports vertical scrollbar width changes to the parent', async () => {
+    const reportedWidths: number[] = [];
+    const { container } = renderTable(
+      <TableRows
+        columns={columns}
+        onRequest={createTableRequest(records)}
+        onScrollLeft={() => void 0}
+        onVerticalScrollbarWidthChange={width => reportedWidths.push(width)}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(getBodyScroller(container)).not.toBeNull();
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(reportedWidths.length).toBeGreaterThan(0);
+    expect(reportedWidths.at(-1)).toBe(0);
+  });
+});

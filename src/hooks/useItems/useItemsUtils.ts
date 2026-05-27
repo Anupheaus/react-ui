@@ -26,7 +26,14 @@ function updateItems<T = void>(items: ReactListItem<T>[], pagination: DataPagina
   return { items: newItems, ...pagination };
 }
 
-const createSkeletonItem = <T = void>(index: number): ReactListItem<T> => ({ id: `${index}`, text: 'Loading...', data: Promise.createDeferred<T>(), _tempItem: true } as unknown as ReactListItem<T>);
+export interface CreateSkeletonItemContext {
+  index: number;
+  offset: number;
+  limit: number;
+  total?: number;
+}
+
+const defaultCreateSkeletonItem = <T = void>(index: number): ReactListItem<T> => ({ id: `${index}`, text: 'Loading...', data: Promise.createDeferred<T>(), _tempItem: true } as unknown as ReactListItem<T>);
 
 export function updateWithResponse<T = void>(currentState: State<T>, pagination: DataPagination, response: ReactListItem<T>[], total?: number, isLoading = false) {
   const partialState = updateItems(currentState.items, pagination, total,
@@ -34,12 +41,20 @@ export function updateWithResponse<T = void>(currentState: State<T>, pagination:
   return { ...currentState, ...partialState, total, isLoading };
 }
 
-export function updateStateWithSkeletons<T = void>(currentState: State<T>, pagination: DataPagination): State<T> {
+export function updateStateWithSkeletons<T = void>(
+  currentState: State<T>,
+  pagination: DataPagination,
+  createSkeletonItem?: (context: CreateSkeletonItemContext) => ReactListItem<T>,
+): State<T> {
+  const { offset = 0, limit } = pagination;
   const partialState = updateItems(
     currentState.items,
     pagination,
     undefined,
-    (existingItem, index) => existingItem != null ? existingItem : createSkeletonItem(index),
+    (existingItem, index) => existingItem != null ? existingItem : (
+      createSkeletonItem?.({ index, offset, limit, total: currentState.total })
+      ?? defaultCreateSkeletonItem(index)
+    ),
   );
   return { ...currentState, ...partialState, isLoading: true };
 }

@@ -39,7 +39,7 @@ Persistence is **disabled by default**. Pass `persistenceKey` to enable:
 <Table persistenceKey="my-app-users-table" columns={columns} onRequest={onRequest} />
 ```
 
-Settings are stored as a `TableSettings` object in `localStorage`. Column widths are keyed by column `id` so they survive column reordering. Sorting and filtering preferences will be added to `TableSettings` in a future update.
+Settings are stored as a `TableSettings` object in `localStorage`. Only columns with `isResizable: true` are saved in `columnWidths` (keyed by column `id`). The actions column and fixed-width columns are measured at runtime and are not persisted. Sorting and filtering preferences will be added to `TableSettings` in a future update.
 
 ```ts
 interface TableSettings {
@@ -57,7 +57,7 @@ Optional `table.normal` background tokens. When omitted, the component keeps its
 | `table.normal.rowBackgroundColor` | Row/content area background | `surface.asAContainer.normal.backgroundColor` |
 | `table.normal.footerBackgroundColor` | Footer bar background | `toolbar.normal.backgroundColor` |
 
-The row area also uses `fields.content.normal` border colour and radius so it matches a **List** field container. **Scroller** edge shadows are enabled on the body (same opacity transitions as **List**).
+The row area also uses `fields.content.normal` border colour and radius so it matches a **List** field container. The body scroller shows edge shadows when content overflows vertically or horizontally (including after column resize).
 
 The sticky row-actions column uses `rowBackgroundColor` so it stays aligned with the content area.
 
@@ -100,19 +100,16 @@ Defined in **TableModels.ts**.
 ```
 Table
 ├── TableColumnWidthProvider     (context: column widths)
-│   ├── TableHeader               (header row, syncs scroll left)
-│   │   └── TableHeaderCell       (per column: label, optional resize handle, width report)
-│   ├── TableRows                 (adapts records → ReactListItems, provides columns via context)
-│   │   └── InternalList          (request-based list; no children)
-│   │       └── InternalListItem  (per item; resolves item.data via useAsync, calls item.renderItem(item, index, resolvedData))
-│   │           └── TableRow      (rendered by renderItem; receives record = resolvedData, index, columns)
-│   │               └── TableCell (per column: renderValue or TableCellValue)
-│   │                   └── TableCellValue  (format by type: date, currency, boolean, etc.)
-│   └── TableFooter               (Add button, error, total count)
+│   ├── TableHeader               (header row; padding-right matches body vertical scrollbar)
+│   │   └── TableHeaderCell
+│   ├── TableRows                 (reports vertical scrollbar width; adapts records → ReactListItems)
+│   │   └── InternalList → Scroller → TableRow → TableCell
+│   └── TableFooter
 ```
 
-- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell with twin vertical line indicators that fade in when the cursor is over the table; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. The actions column uses **TableActionsColumnWidthProvider**: each **TableRowActionColumn** measures its content (including custom `children`) and reports the width; the context keeps the maximum so every actions cell and the pinned header cell share the same width. The actions column is pinned on the right: the header cell sits outside the horizontally scrolled header strip, and body cells use `position: sticky` so they stay visible while data columns scroll.
-- **Rows:** **TableRows** converts each `record` from **onRequest** into a **ReactListItem** with `data: record` (or `data: Promise<record>` for async) and **renderItem(item, index, resolvedData)** that returns **TableRow** with `record={resolvedData}`, `index`, and `columns`. **InternalListItem** resolves `item.data` (sync or Promise) via **useAsync** and passes the resolved value as **resolvedData** to **renderItem**. **TableRow** shows a loading state when `record` is undefined (e.g. while the Promise is resolving).
+- **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell with twin vertical line indicators that fade in when the cursor is over the table; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. The actions column uses **TableActionsColumnWidthProvider**: each **TableRowActionColumn** measures its content (including custom `children`) and reports the width; the context keeps the maximum so every actions cell and the pinned header cell share the same width. The actions column is pinned on the right: the header cell sits outside the horizontally scrolled header strip; body rows stretch to the full table width (`width: 100%`, `min-width: max-content`) with a flex fill spacer (`table-row-fill` / `table-header-fill`) before the actions cell so actions align with the header even when data columns are narrower than the table, and body cells use `position: sticky` so they stay visible while data columns scroll horizontally.
+- **Rows:** **TableRows** converts each `record` from **onRequest** into a **ReactListItem** and renders **TableRow** inside **InternalList**. **TableRows** applies **tableBodyScrollerLayout** so the body scroller uses `scrollbar-gutter: auto` instead of the shared Scroller default (`stable`) — see **Layout gotchas** below.
+- **Loading:** While the first **onRequest** is in flight, **Table** sets `recordsLoading` and wraps **TableHeader** and **TableFooter** in **UIState** `isLoading`. **TableRows** wraps the body in **UIState** and passes `showSkeletons` with a `createSkeletonItem` factory that builds placeholder **records** from column definitions (`createPlaceholderRecord`).
 - **Row actions:** If `onEdit` or `onRemove` are passed to **Table**, **useColumns** appends a synthetic column with `id: 'table-actions'` and `renderValue` rendering **TableRowActionColumn**, which contains **TableRowEditAction** and/or **TableRowMenuAction** (ellipsis menu with remove + confirmation).
 
 **Custom row actions:** Add your own column with `id: 'table-actions'` and a `renderValue` that wraps custom buttons in **TableRowActionColumn** (pass `{...props}` from `renderValue`, then your buttons as `children`). **useColumns** applies the sticky cell class automatically; the header is pinned on the right by **TableHeader**. Do not pass `onEdit`/`onRemove` when supplying your own actions column.
@@ -123,17 +120,18 @@ Table
 
 | File | Role |
 |------|------|
-| **Table.tsx** | Root. Uses **useColumns**, wires **onRequest** (and loading/error/total state), **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **TableFooter**. |
+| **Table.tsx** | Root. Uses **useColumns**, wires **onRequest**, **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **TableFooter**. Syncs header `padding-right` to body vertical scrollbar width. |
 | **TableModels.ts** | Types: **TableColumn**, **TableColumnCommonProps**, **TableRenderValueProps**, **TableOnRequest**. |
-| **TableHeader.tsx** | Renders header row; data columns scroll in sync with the body via `translateX`, actions column stays fixed on the right. Exposes **onScrollLeft** via actions. |
-| **TableHeaderCell.tsx** | Single header cell: label, optional resize handle when `isResizable`, width from props or measured, reports width to context. |
+| **TableHeader.tsx** | Header row above the body scroller; `padding-right` offsets the actions column when the body shows a vertical scrollbar. Data columns sync with horizontal scroll via `translateX`; a `table-header-fill` spacer before the actions header cell mirrors **TableRow** layout when data columns are narrower than the table. |
+| **TableHeaderCell.tsx** | Single header cell: label in **Skeleton** (shows placeholder while loading), optional resize handle when `isResizable`, width from props or measured, reports width to context. |
 | **TableHeaderCellResizeHandle.tsx** | Drag handle with twin line indicators (fade in on table hover) rendered on resizable header cells. |
 | **TableHoverContext.ts** | Context tracking whether the cursor is over the table; used to show/hide resize indicators. |
 | **useTableSettings.ts** | Reads/writes **TableSettings** to `localStorage` via **useStorage** when `persistenceKey` is provided. |
-| **TableRows.tsx** | Adapts **onRequest** so the table’s `records` are converted to **ReactListItem**s with `data: record` and **renderItem(item, index, resolvedData)** that renders **TableRow** with `record={resolvedData}`. Provides **TableColumnsContext**. Wraps **InternalList** (no children); **onScroll** → **onScrollLeft**. |
-| **TableRow.tsx** | One row: receives **record** (resolved from ReactListItem’s `data`), **index**, **columns**. Shows loading state when **record** is undefined. Maps columns to **TableCell**. |
+| **TableRows.tsx** | Wraps **InternalList**, reports vertical scrollbar width via **onVerticalScrollbarWidthChange**, adapts **onRequest** to **ReactListItem**s; **onScrollHorizontal** → **onScrollLeft**. Applies **tableBodyScrollerLayout** gutter override on the body scroller. |
+| **tableBodyScrollerLayout.ts** | Named constant and style override for table body `scrollbar-gutter: auto` (regression-tested). |
+| **TableRow.tsx** | One row: receives **record** (resolved from ReactListItem’s `data`), **index**, **columns**. Shows loading state when **record** is undefined. Splits data and actions columns; row stretches to full table width with a flex fill spacer so actions stay on the right (aligned with the header). Maps columns to **TableCell**. |
 | **TableCell.tsx** | One cell: uses **useGetTableColumnWidth**, calls column **renderValue** or **TableCellValue** with `record[column.field]`. |
-| **TableCellValue.tsx** | Default value formatter: by **type** renders date (locale), currency (locale), boolean (tick/cross icon), or raw value; shows skeleton when loading. |
+| **TableCellValue.tsx** | Default value formatter: by **type** renders date (locale), currency (locale), boolean (tick/cross icon), or raw value; shows a full-width **Skeleton** in each cell while loading. |
 | **TableColumnWidths.tsx** | **TableColumnWidthProvider** (context), **useSetTableColumnWidth**, **useGetTableColumnWidth**. |
 | **TableColumnsContext.ts** | React context holding the current **TableColumn[]**. |
 | **useColumns.tsx** | **useColumns** hook: filters visible columns, appends actions column when **onEdit** / **onRemove** provided. |
@@ -153,6 +151,49 @@ Table
 4. **onRequest** should return **records** (or items with **data** as the record or **Promise\<record\>**); **InternalList** resolves **data** and passes it to **renderItem** as the third argument so **TableRow** receives the resolved record.
 
 See **Table.stories.tsx** for examples: loading state, requested records with pagination, edit/remove, and minimum records.
+
+---
+
+## Layout gotchas
+
+### Body scroller `scrollbar-gutter` override
+
+Shared **Scroller** styles (`ScrollbarStyles.ts`) set `scrollbar-gutter: stable` on every scroll container. That reserves space for a vertical scrollbar even when content does not overflow vertically — a “phantom” gutter that keeps layout from jumping when a thumb later appears.
+
+Tables pin the actions column with `position: sticky; right: 0` on the scrollport edge. Row layout uses `width: 100%` and `min-width: max-content`, so as resizable columns widen:
+
+1. With **no vertical overflow**, the phantom gutter shrinks the scrollport’s `clientWidth`.
+2. The row grows into that gutter; sticky actions appear to **drift left** by roughly `gutterWidth − horizontalOverflow` until horizontal overflow is large enough to consume the gutter.
+3. Once a horizontal scrollbar appears, the stable gutter behaviour changes and the drift stops — which makes resize feel broken even though column widths are correct.
+
+**Fix:** **TableRows** applies `TABLE_BODY_SCROLLER_GUTTER_OVERRIDE` from **tableBodyScrollerLayout.ts**, setting `scrollbar-gutter: auto` on the body `scroller-container` only. Do not revert this to `stable` without re-testing resizable columns with pinned actions and no vertical scrollbar.
+
+When the body **does** show a vertical scrollbar, **Table** still offsets the header with `padding-right` from **measureVerticalScrollbarWidth** — that path is unchanged.
+
+### Header vs body alignment when columns underflow the table
+
+When the sum of column widths is less than the table width, **TableHeader** inserts a `table-header-fill` flex spacer and **TableRow** inserts `table-row-fill` before the actions cell so the pinned actions column lines up on the right. Header data cells use `flexGrow: 0` so measured widths are not stretched away from body cells.
+
+### Actions column width
+
+**TableActionsColumnWidthProvider** keeps the maximum measured width across all row action cells (including custom `children`) so every row and the header share one width. Each **TableRowActionColumn** reports its measured width under a row key and clears it on unmount; a **ResizeObserver** remeasures when action content changes so the column can grow or shrink. Actions column width is never persisted to `localStorage`.
+
+---
+
+## Tests
+
+Pure layout and data helpers are covered under `src/components/Table/*.tests.ts`:
+
+| File | What it guards |
+|------|----------------|
+| **tableBodyScrollerLayout.tests.ts** | Body scroller must stay on `scrollbar-gutter: auto` (row-actions drift regression). |
+| **Table.tests.tsx** | Renders **Table** / **TableRows**, loads data via `onRequest`, fill spacers with actions, and verifies the body scroller gutter override in injected styles. |
+| **measureVerticalScrollbarWidth.tests.ts** | Header padding only when vertical overflow exists. |
+| **splitTableColumns.tests.ts** | Actions column split for header/row layout. |
+| **tableConstants.tests.ts** | Actions column id and width estimation. |
+| **createPlaceholderRecord.tests.ts** | Skeleton row placeholders match column types and skip actions. |
+| **TableActionsColumnWidthContext.tests.ts** | Actions column width maxes across rows and recalculates when rows change. |
+| **useTableSettings.tests.ts** | Actions column widths are not written to `localStorage`. |
 
 ---
 

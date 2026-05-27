@@ -16,6 +16,7 @@ interface Props {
   rowIndex: number;
   record?: Record;
 }
+
 const useStyles = createStyles({
   tableCell: {
     display: 'inline-block', // needed for ellipsis to work

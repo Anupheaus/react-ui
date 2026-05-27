@@ -10,6 +10,7 @@ A scrollable content container that hides the scrollbar until the user hovers an
 | `className` | `string` | No | Class applied to the inner `scroller-content` element |
 | `containerClassName` | `string` | No | Class applied to the scrolling container element |
 | `disableShadows` | `boolean` | No | Disable the edge-shadow overflow indicators (default: `false`) |
+| `horizontalShadows` | `boolean` | No | When `false`, left/right edge shadows are omitted; vertical shadows still show (default: `true`) |
 | `scrollTo` | `number \| 'bottom'` | No | Imperatively scroll to a pixel offset or `'bottom'` when the value changes |
 | `headerContent` | `ReactNode` | No | Content rendered inside the scroll container above the scrollable area (e.g. a sticky header). Scrollbar runs alongside it. |
 | `footerContent` | `ReactNode` | No | Content rendered after the scroll container (e.g. a custom footer) |
@@ -26,6 +27,7 @@ A scrollable content container that hides the scrollbar until the user hovers an
 | Method | Description |
 |--------|-------------|
 | `scrollTo(value: number \| 'bottom')` | Smoothly scroll to a pixel offset or the bottom of the content |
+| `refreshShadowVisibility()` | Re-evaluate edge shadows from current scroll metrics (e.g. after content width changes) |
 
 ### `OnScrollEventData`
 
@@ -78,8 +80,8 @@ actions?.scrollTo('bottom');
 `Scroller` renders three layers inside a fixed-size outer `<scroller>` element:
 
 1. **`scroller-container`** — the actual scrolling element (overflow auto). Fires scroll events and updates `ScrollContext`.
-2. **`scroller-content`** — a flex wrapper for children that also contains four 1 px sentinel elements (top/left/bottom/right). An `IntersectionObserver` watches these sentinels against the outer element to detect which edges are scrolled past, triggering the shadow overlays.
-3. **Shadow overlays** — four absolutely-positioned elements that fade in/out via CSS transitions when the corresponding sentinel goes out of view.
+2. **`scroller-content`** — a flex wrapper for children. Edge shadow visibility is derived from scroll offsets and content dimensions on scroll, resize, and content/style mutations (not from layout-affecting toggles).
+3. **Shadow overlays** — four absolutely-positioned elements that fade in/out via CSS transitions when the corresponding edge has overflow.
 
 When `useParentContext` is `true`, the component skips creating a new `ScrollContext.Provider` and instead reports scroll data upward to the nearest parent context (useful for nested scrollers sharing a single context).
 

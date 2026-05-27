@@ -8,6 +8,7 @@ import { useDebounce } from '../useDebounce';
 import type { UseActions } from '../useActions';
 import { makeOnRequest } from './makeOnRequest';
 import type { ReactListItem } from '../../models';
+import type { CreateSkeletonItemContext } from './useItemsUtils';
 import { clearResponse, ensureSelectedItemsPersist, updateStateWithSkeletons, updateWithResponse } from './useItemsUtils';
 
 export interface UseItemsActions {
@@ -28,12 +29,15 @@ interface Props<T = void> {
   items?: ReactListItem<T>[];
   selectedItemIds?: string[];
   useSkeletons?: boolean;
+  createSkeletonItem?(context: CreateSkeletonItemContext): ReactListItem<T>;
   actions?: UseActions<UseItemsActions>;
   onRequest?(request: UseDataRequest, response: (response: UseDataResponse<ReactListItem<T>>) => void): Promise<void>;
   onItemsChange?(items: ReactListItem<T>[]): void;
 }
 
-export function useItems<T = void>({ initialLimit = 20, items, actions, onRequest, onItemsChange, selectedItemIds, useSkeletons = false }: Props<T>) {
+export function useItems<T = void>({ initialLimit = 20, items, actions, onRequest, onItemsChange, selectedItemIds, useSkeletons = false, createSkeletonItem }: Props<T>) {
+  const createSkeletonItemRef = useRef(createSkeletonItem);
+  createSkeletonItemRef.current = createSkeletonItem;
   const refresh = async () => {
     stateRef.current.total = undefined;
     await makeRequest(lastPaginationRequestRef.current);
@@ -58,7 +62,7 @@ export function useItems<T = void>({ initialLimit = 20, items, actions, onReques
     isLoading = true;
     try {
       if (useSkeletons) {
-        stateRef.current = updateStateWithSkeletons(stateRef.current, fullPagination);
+        stateRef.current = updateStateWithSkeletons(stateRef.current, fullPagination, createSkeletonItemRef.current);
         doDebouncedUpdate();
       }
       await request({ requestId, pagination: fullPagination }, ({ requestId: responseRequestId, items: responseItems, total }) => {

@@ -16,16 +16,20 @@ The core virtualised list engine used by both `List` and `Table`. It implements 
 | `selectedItemIds` | `string[]` | No | Controlled selection state — array of selected item IDs. |
 | `fullHeight` | `boolean` | No | When `true`, the scroller fills its parent's height. |
 | `showSkeletons` | `boolean` | No | Show skeleton placeholders while items are loading. |
+| `createSkeletonItem` | `(context: CreateSkeletonItemContext) => ReactListItem<T>` | No | Custom skeleton item factory when `showSkeletons` is true. |
 | `addTooltip` | `ReactNode` | No | Tooltip text for the built-in Add button. |
 | `deleteTooltip` | `ReactNode` | No | Tooltip text shown on each item's delete control. |
 | `stickyHeader` | `ReactNode` | No | Content rendered in a `StickyHideHeader` above the scrollable area. Hides on scroll down, reappears on scroll up. |
+| `onVerticalScrollbarWidthChange` | `(width: number) => void` | No | Called when the measured vertical scrollbar width of the scroll container changes (0 when no vertical overflow). |
 | `delayRenderingItems` | `boolean` | No | When `true`, item rendering is deferred by ~100 ms after mount (useful to avoid flash during animation). |
 | `className` | `string` | No | Class applied to the root `Flex` container. |
 | `contentClassName` | `string` | No | Class applied to the inner scroller content area. |
 | `disableShadowsOnScroller` | `boolean` | No | Disable scroll-shadow decorations on the scroller. |
+| `horizontalScrollShadows` | `boolean` | No | When `false`, the body scroller omits left/right edge shadows (vertical shadows remain). Default: `true`. |
 | `useParentScrollContext` | `boolean` | No | When `true`, the scroller consumes the nearest parent `ScrollContext` and reports scroll events to it (used by `Table` for sticky headers). |
 | `actions` | `UseActions<InternalListActions>` | No | Ref-style callback to receive an `InternalListActions` handle. |
 | `onScroll` | `(values: OnScrollEventData) => void` | No | Called on every scroll event. |
+| `onScrollHorizontal` | `(values: Pick<OnScrollEventData, 'left' \| 'element'>) => void` | No | Called when horizontal scroll position changes (without firing on vertical-only scroll). |
 | `onScrollTopChange` | `(scrollTop: number) => void` | No | Called when the vertical scroll position changes (used for virtualisation bookkeeping). |
 | `onItemsChange` | `(items: ReactListItem<T>[]) => void` | No | Called whenever the current item array changes. |
 | `onSelectedItemsChange` | `(ids: string[]) => void` | No | Called whenever the set of selected item IDs changes. |
@@ -109,11 +113,14 @@ InternalList
 └── (useItems hook)            — owns request lifecycle, skeleton generation
 ```
 
+**Item rendering:** `renderItem` and `renderLoading` skip the default `list-item` wrapper (`doNotWrap`) so consumers such as **Table** can render full-width row layouts during load and after data arrives.
+
 **Virtualisation algorithm:**
-1. On each scroll event the component reads `containerElement.scrollHeight` and derives an average item height.
-2. It calculates `requestOffset` and `requestLimit` based on the viewport height, average item height, and current scroll position.
-3. It calls `request(...)` which ultimately invokes `onRequest`.
-4. Header/footer spacers are sized to `offset * itemHeight` and `(total - offset - limit) * itemHeight` respectively, so the scroll bar reflects the full dataset even though only a slice is in the DOM.
+1. When the first rendered row is measured, its height is locked and reused for all spacer math (no `scrollHeight / total` recalculation during scroll).
+2. Virtual paging requests are deferred until row height is locked; the initial `useItems` request loads the first page.
+3. It calculates `requestOffset` and `requestLimit` from the viewport height, locked row height, and current scroll position.
+4. It calls `request(...)` which ultimately invokes `onRequest`.
+5. Header/footer spacers are sized to `offset * itemHeight` and `(total - offset - limit) * itemHeight` respectively, so the scroll bar reflects the full dataset even though only a slice is in the DOM.
 
 ---
 

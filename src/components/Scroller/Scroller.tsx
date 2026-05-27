@@ -41,6 +41,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     minWidth: '100%',
     flexDirection: 'inherit',
     gap: 'var(--gap)',
+    overflowAnchor: 'none',
 
     '&.min-full-height': {
       minHeight: '100%',
@@ -115,6 +116,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
 
 export interface ScrollerActions {
   scrollTo(scrollTo: number | 'bottom'): void;
+  refreshShadowVisibility(): void;
 }
 
 export interface OnScrollEventData {
@@ -135,6 +137,8 @@ interface Props {
   containerClassName?: string;
   borderless?: boolean;
   disableShadows?: boolean;
+  /** When false, left/right edge shadows are not rendered (vertical shadows still show). */
+  horizontalShadows?: boolean;
   offsetTop?: number;
   scrollTo?: number | 'bottom';
   children: ReactNode;
@@ -156,6 +160,7 @@ export const Scroller = createComponent('Scroller', ({
   className,
   containerClassName,
   disableShadows = false,
+  horizontalShadows = true,
   scrollTo,
   children,
   headerContent,
@@ -185,6 +190,12 @@ export const Scroller = createComponent('Scroller', ({
   const [shadowOnLeft, setShadowOnLeft] = useState(false);
   const [shadowAtBottom, setShadowAtBottom] = useState(false);
   const [shadowOnRight, setShadowOnRight] = useState(false);
+  const lastShadowVisibilityRef = useRef<OnShadowVisibleChangeEvent>({
+    top: false,
+    left: false,
+    bottom: false,
+    right: false,
+  });
   const isRenderingRef = useRef(true);
   isRenderingRef.current = true;
 
@@ -198,16 +209,52 @@ export const Scroller = createComponent('Scroller', ({
     element.scrollTo({ top: value === 'bottom' ? element.scrollHeight + 500 : value, behavior: 'smooth' });
   };
 
+  const updateShadowVisibility = useBound((element: HTMLDivElement) => {
+    if (disableShadows) return;
+    const epsilon = 1;
+    const next: OnShadowVisibleChangeEvent = {
+      top: element.scrollTop > epsilon,
+      bottom: element.scrollTop + element.clientHeight < element.scrollHeight - epsilon,
+      left: horizontalShadows && element.scrollLeft > epsilon,
+      right: horizontalShadows && element.scrollLeft + element.clientWidth < element.scrollWidth - epsilon,
+    };
+    const last = lastShadowVisibilityRef.current;
+    if (last.top !== next.top) setShadowAtTop(next.top);
+    if (last.left !== next.left) setShadowOnLeft(next.left);
+    if (last.bottom !== next.bottom) setShadowAtBottom(next.bottom);
+    if (last.right !== next.right) setShadowOnRight(next.right);
+    lastShadowVisibilityRef.current = next;
+  });
+
+  const shadowVisibilityFrameRef = useRef<number>();
+
+  const scheduleShadowVisibilityUpdate = useBound((element: HTMLDivElement) => {
+    if (shadowVisibilityFrameRef.current != null) cancelAnimationFrame(shadowVisibilityFrameRef.current);
+    shadowVisibilityFrameRef.current = requestAnimationFrame(() => {
+      shadowVisibilityFrameRef.current = undefined;
+      updateShadowVisibility(element);
+    });
+  });
+
   actions?.({
     scrollTo: scrollToFunc,
+    refreshShadowVisibility: () => {
+      const element = scrollerContainerElementRef.current;
+      if (element != null) scheduleShadowVisibilityUpdate(element);
+    },
   });
 
   const saveScrollerContainerElement = useBound((element: HTMLDivElement | null) => {
     if (ref != null) { if (is.function(ref)) ref(element); else (ref as any).current = element; }
     scrollerContainerElementRef.current = element;
     unsubscribeRef.current?.();
+    if (shadowVisibilityFrameRef.current != null) {
+      cancelAnimationFrame(shadowVisibilityFrameRef.current);
+      shadowVisibilityFrameRef.current = undefined;
+    }
     if (element != null) {
       const notifyScroll = () => {
+        scheduleShadowVisibilityUpdate(element);
         const left = element.scrollLeft;
         const top = element.scrollTop;
         if (lastScrollValuesRef.current.left === left && lastScrollValuesRef.current.top === top) return;
@@ -224,38 +271,66 @@ export const Scroller = createComponent('Scroller', ({
 
         onScroll?.({ left, top, element });
       };
-      if (is.function(onScroll) || !useParentContext || parentScrollContext?.reportScroll) {
+      const resizeObserver = new ResizeObserver(() => {
+        scheduleShadowVisibilityUpdate(element);
+      });
+      resizeObserver.observe(element);
+      const contentElement = element.querySelector('scroller-content');
+      const observedRows = new Set<Element>();
+      const observeContentRows = () => {
+        if (contentElement == null) return;
+        contentElement.querySelectorAll('table-row, list-item, list-item-with-sub-items').forEach(row => {
+          if (observedRows.has(row)) return;
+          observedRows.add(row);
+          resizeObserver.observe(row);
+        });
+      };
+      if (contentElement != null) {
+        resizeObserver.observe(contentElement);
+        observeContentRows();
+        const mutationObserver = new MutationObserver(() => {
+          observeContentRows();
+          scheduleShadowVisibilityUpdate(element);
+        });
+        mutationObserver.observe(contentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
+        if (is.function(onScroll) || !useParentContext || parentScrollContext?.reportScroll) {
+          element.addEventListener('scroll', notifyScroll);
+          unsubscribeRef.current = () => {
+            element.removeEventListener('scroll', notifyScroll);
+            resizeObserver.disconnect();
+            mutationObserver.disconnect();
+          };
+          notifyScroll();
+        } else {
+          unsubscribeRef.current = () => {
+            resizeObserver.disconnect();
+            mutationObserver.disconnect();
+          };
+          scheduleShadowVisibilityUpdate(element);
+        }
+      } else if (is.function(onScroll) || !useParentContext || parentScrollContext?.reportScroll) {
         element.addEventListener('scroll', notifyScroll);
-        unsubscribeRef.current = () => element.removeEventListener('scroll', notifyScroll);
+        unsubscribeRef.current = () => {
+          element.removeEventListener('scroll', notifyScroll);
+          resizeObserver.disconnect();
+        };
         notifyScroll();
+      } else {
+        unsubscribeRef.current = () => resizeObserver.disconnect();
+        scheduleShadowVisibilityUpdate(element);
       }
     }
   });
 
   useEffect(() => {
-    if (scrollerElementRef.current == null) return;
-    const intersectionObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.target === topElementRef.current) setShadowAtTop(!entry.isIntersecting);
-        if (entry.target === leftElementRef.current) setShadowOnLeft(!entry.isIntersecting);
-        if (entry.target === bottomElementRef.current) setShadowAtBottom(!entry.isIntersecting);
-        if (entry.target === rightElementRef.current) setShadowOnRight(!entry.isIntersecting);
-      });
-    }, {
-      root: scrollerElementRef.current,
-      threshold: 0,
-    });
-    if (topElementRef.current != null) intersectionObserver.observe(topElementRef.current);
-    if (leftElementRef.current != null) intersectionObserver.observe(leftElementRef.current);
-    if (rightElementRef.current != null) intersectionObserver.observe(rightElementRef.current);
-    if (bottomElementRef.current != null) intersectionObserver.observe(bottomElementRef.current);
-
-    return () => intersectionObserver.disconnect();
-  }, []);
-
-  useEffect(() => {
     scrollToFunc(scrollTo);
   }, [scrollTo, scrollerContainerElementRef.current]);
+
+  useLayoutEffect(() => {
+    const element = scrollerContainerElementRef.current;
+    if (element == null) return;
+    updateShadowVisibility(element);
+  }, [disableShadows, horizontalShadows, updateShadowVisibility]);
 
   useLayoutEffect(() => onShadowVisibilityChange?.({ top: shadowAtTop, left: shadowOnLeft, bottom: shadowAtBottom, right: shadowOnRight }),
     [shadowAtTop, shadowOnLeft, shadowAtBottom, shadowOnRight, onShadowVisibilityChange]);
@@ -284,8 +359,8 @@ export const Scroller = createComponent('Scroller', ({
       </Tag>
       {!disableShadows && (<>
         <Tag name="scroller-shadow-top" className={join(css.scrollerShadow, css.scrollerShadowTop, shadowAtTop && 'is-visible')} />
-        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, shadowOnLeft && 'is-visible')} />
-        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, shadowOnRight && 'is-visible')} />
+        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, horizontalShadows && shadowOnLeft && 'is-visible')} />
+        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, horizontalShadows && shadowOnRight && 'is-visible')} />
         <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, shadowAtBottom && 'is-visible')} />
       </>)}
       {footerContent}

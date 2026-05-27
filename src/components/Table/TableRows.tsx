@@ -4,14 +4,18 @@ import type { TableColumn, TableOnRequest } from './TableModels';
 import type { Record } from '@anupheaus/common';
 import type { UseActions } from '../../hooks';
 import { useBound } from '../../hooks';
+import type { CreateSkeletonItemContext } from '../../hooks/useItems';
 import type { OnScrollEventData } from '../Scroller';
 import { useRef } from 'react';
 import { InternalList } from '../InternalList';
 import type { ListActions, ListOnRequest } from '../List';
 import type { ReactListItem } from '../../models';
+import { UIState } from '../../providers';
 import { TableColumnsContext } from './TableColumnsContext';
-import { TableRow } from './TableRow';
 import { resolveTableTheme } from './resolveTableTheme';
+import { createPlaceholderRecord } from './createPlaceholderRecord';
+import { createTableRowListItem } from './createTableRowListItem';
+import { TABLE_BODY_SCROLLER_GUTTER_OVERRIDE } from './tableBodyScrollerLayout';
 
 const useStyles = createStyles((theme, { applyTransition }) => {
   const { fields: { content: { normal } } } = theme;
@@ -32,6 +36,13 @@ const useStyles = createStyles((theme, { applyTransition }) => {
       minWidth: 0,
       position: 'relative',
       ...applyTransition('border-color, background-color'),
+
+      ...TABLE_BODY_SCROLLER_GUTTER_OVERRIDE,
+    },
+    rowsScrollerContent: {
+      '& table-row:last-of-type': {
+        borderBottomWidth: 0,
+      },
     },
   };
 });
@@ -39,6 +50,8 @@ const useStyles = createStyles((theme, { applyTransition }) => {
 export interface TableRowsProps<RecordType extends Record> {
   columns: TableColumn<RecordType>[];
   delayRendering?: boolean;
+  isInitialLoading?: boolean;
+  onVerticalScrollbarWidthChange?(width: number): void;
   actions?: UseActions<ListActions>;
   onRequest: TableOnRequest<RecordType>;
   onScrollLeft(value: number): void;
@@ -48,6 +61,8 @@ export interface TableRowsProps<RecordType extends Record> {
 export const TableRows = createComponent('TableRows', function <RecordType extends Record>({
   columns,
   delayRendering = false,
+  isInitialLoading = false,
+  onVerticalScrollbarWidthChange,
   actions,
   onRequest,
   onScrollLeft,
@@ -58,28 +73,21 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
 
   const handleOnRequest = useBound<ListOnRequest<RecordType>>((request, response) => {
     return onRequest(request, ({ requestId, records, total }) => {
-      const lastOrdinalInBatch = (request.pagination.offset ?? 0) + records.length - 1;
-      const items = records.map((record): ReactListItem<Record> => ({
-        id: record.id,
-        text: record.id,
-        data: record,
-        renderLoading: event => (
-          <TableRow<RecordType>
-            index={event.ordinal ?? 0}
-            columns={columns}
-            isLastRow={(event.ordinal ?? 0) === lastOrdinalInBatch}
-          />
-        ),
-        renderItem: event => (
-          <TableRow<RecordType>
-            record={event.data as RecordType}
-            index={event.ordinal ?? 0}
-            columns={columns}
-            isLastRow={(event.ordinal ?? 0) === lastOrdinalInBatch}
-          />
-        ),
+      const offset = request.pagination.offset ?? 0;
+      const items = records.map((record, recordIndex) => createTableRowListItem({
+        record,
+        ordinal: offset + recordIndex,
+        columns,
       })) as ReactListItem<RecordType>[];
       response({ requestId, items, total });
+    });
+  });
+
+  const createSkeletonItem = useBound(({ index }: CreateSkeletonItemContext): ReactListItem<RecordType> => {
+    return createTableRowListItem({
+      record: createPlaceholderRecord(columns, index),
+      ordinal: index,
+      columns,
     });
   });
 
@@ -91,19 +99,25 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
 
   return (
     <TableColumnsContext.Provider value={columns}>
-      <InternalList<RecordType>
-        tagName="table-rows"
-        onRequest={handleOnRequest}
-        onScroll={handleHorizontalScroll}
-        actions={actions}
-        className={css.rows}
-        delayRenderingItems={delayRendering}
-        gap={0}
-        fullHeight
-        minWidth={0}
-        minHeight={0}
-        onError={onError}
-      />
+      <UIState isLoading={isInitialLoading}>
+        <InternalList<RecordType>
+          tagName="table-rows"
+          onRequest={handleOnRequest}
+          onScrollHorizontal={handleHorizontalScroll}
+          onVerticalScrollbarWidthChange={onVerticalScrollbarWidthChange}
+          actions={actions}
+          className={css.rows}
+          contentClassName={css.rowsScrollerContent}
+          delayRenderingItems={delayRendering}
+          showSkeletons={isInitialLoading}
+          createSkeletonItem={createSkeletonItem}
+          gap={0}
+          fullHeight
+          minWidth={0}
+          minHeight={0}
+          onError={onError}
+        />
+      </UIState>
     </TableColumnsContext.Provider>
   );
 });

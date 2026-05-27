@@ -9,6 +9,7 @@ if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
 export const useScrollbarStyles = createStyles(({ scrollbars: { thumb, track } }, { applyTransition }) => ({
   scrollbars: {
     overflow: 'overlay',
+    scrollbarGutter: 'stable',
     '--scrollbar-thumb-color': 'transparent' as unknown as undefined,
     ...applyTransition('--scrollbar-thumb-color'),
 

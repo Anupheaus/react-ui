@@ -11,6 +11,7 @@ import type { UseActions } from '../../hooks';
 import { useActions, useOnChange, useOnUnmount, useUpdatableState } from '../../hooks';
 import type { UseDataRequest, UseDataResponse } from '../../extensions';
 import type { UseItemsActions } from '../../hooks/useItems';
+import type { CreateSkeletonItemContext } from '../../hooks/useItems';
 import { useItems } from '../../hooks/useItems';
 import { createStyles } from '../../theme';
 import { InternalListContextProvider } from './InternalListContext';
@@ -21,6 +22,18 @@ import { StickyHideHeader } from '../StickyHideHeader';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { Tooltip } from '../Tooltip';
+import { measureVerticalScrollbarWidth } from '../Scroller/measureVerticalScrollbarWidth';
+
+const VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK = 18;
+
+function measureVirtualListItemHeight(scrollerContainer: HTMLDivElement): number | undefined {
+  const scrollerContent = scrollerContainer.querySelector('scroller-content');
+  if (scrollerContent == null) return undefined;
+  const row = scrollerContent.querySelector('table-row, list-item, list-item-with-sub-items');
+  if (row == null) return undefined;
+  const height = Math.ceil(row.getBoundingClientRect().height);
+  return height > 0 ? height : undefined;
+}
 
 const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }) => ({
   internalList: {
@@ -70,10 +83,16 @@ export interface InternalListProps<T = void> {
   onClick?(event: ListItemClickEvent<T>): PromiseMaybe<void>;
   /** Header that slides up with scroll. Renders above the scrollable content. Use useScroller() in children for scroll position. */
   stickyHeader?: ReactNode;
+  /** Called when the measured vertical scrollbar width of the scroll container changes. */
+  onVerticalScrollbarWidthChange?(width: number): void;
   /** Called when vertical scroll position changes (e.g. for virtualisation). */
   onScrollTopChange?(scrollTop: number): void;
-  /** When true, Scroller consumes parent ScrollContext and reports scroll to it (e.g. Table with sticky header). */
+  /** When true, Scroller consumes parent ScrollContext and reports scroll to it (e.g. Table with sticky headers). */
   useParentScrollContext?: boolean;
+  /** When false, the body scroller omits left/right edge shadows (vertical shadows remain). */
+  horizontalScrollShadows?: boolean;
+  /** Custom skeleton item factory used while `showSkeletons` is active (e.g. table rows during initial load). */
+  createSkeletonItem?(context: CreateSkeletonItemContext): ReactListItem<T>;
 }
 
 interface Props<T = void> extends InternalListProps<T> {
@@ -81,12 +100,15 @@ interface Props<T = void> extends InternalListProps<T> {
   className?: string;
   contentClassName?: string;
   disableShadowsOnScroller?: boolean;
+  horizontalScrollShadows?: boolean;
   delayRenderingItems?: boolean;
   selectedItemIds?: string[];
   showSkeletons?: boolean;
+  createSkeletonItem?: InternalListProps<T>['createSkeletonItem'];
   addTooltip?: ReactNode;
   deleteTooltip?: ReactNode;
   onScroll?(values: OnScrollEventData): void;
+  onScrollHorizontal?(values: Pick<OnScrollEventData, 'left' | 'element'>): void;
   onItemsChange?(items: ReactListItem<T>[]): void;
   onMouseEnter?(event: MouseEvent): void;
   onAdd?(event: MouseEvent<HTMLElement>): PromiseMaybe<T | void>;
@@ -98,6 +120,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   gap = 4,
   contentClassName,
   disableShadowsOnScroller = false,
+  horizontalScrollShadows = true,
   items: providedItems,
   delayRenderingItems = false,
   maxSelectableItems,
@@ -106,10 +129,12 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   minWidth,
   minHeight,
   showSkeletons,
+  createSkeletonItem,
   addTooltip,
   deleteTooltip,
   actions,
   onScroll,
+  onScrollHorizontal,
   onRequest,
   onError,
   onDelete,
@@ -119,18 +144,30 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   onClick,
   onAdd,
   stickyHeader,
+  onVerticalScrollbarWidthChange,
   onScrollTopChange,
   useParentScrollContext = false,
 }: Props<T>) {
   const { css, join } = useStyles();
-  const heightRef = useRef<number>();
+  const [itemHeight, setItemHeight] = useState(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK);
+  const itemHeightLockedRef = useRef(false);
+  const lastScrollLeftRef = useRef<number>(0);
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null);
   const lastScrollTopRef = useRef<number>(0);
   const hasUnmounted = useOnUnmount();
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
-  const { setActions: scrollerActions, scrollTo } = useActions<ScrollerActions>();
+  const { setActions: scrollerActions, scrollTo, refreshShadowVisibility } = useActions<ScrollerActions>();
   const [selectedItemIds, updateSelectedItemIds] = useUpdatableState<string[]>(prevValues => (providedSelectedItemIds ?? prevValues ?? []).removeNull(), [providedSelectedItemIds]);
-  const { items, total, request, offset, limit, error } = useItems({ initialLimit: 50, onRequest, actions: useItemsActions, selectedItemIds, items: providedItems, useSkeletons: showSkeletons, onItemsChange });
+  const { items, total, request, offset, limit, error } = useItems({
+    initialLimit: 50,
+    onRequest,
+    actions: useItemsActions,
+    selectedItemIds,
+    items: providedItems,
+    useSkeletons: showSkeletons,
+    createSkeletonItem,
+    onItemsChange,
+  });
   const [allowedToRenderItems, setAllowedToRenderItems] = useState(!delayRenderingItems);
   const [stickyHeaderHeight, setStickyHeaderHeight] = useState<number>();
 
@@ -139,17 +176,18 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     scrollTo,
   });
 
-  const requestItems = () => {
+  const requestItems = useBound(() => {
     if (hasUnmounted()) return;
     if (containerElement == null) return;
+    if (!itemHeightLockedRef.current) return;
     const scrollAmount = containerElement.scrollTop;
     const listHeight = containerElement.getBoundingClientRect().height;
-    const itemHeight = heightRef.current ?? 1;
+    const rowHeight = itemHeight;
     const innerTotal = total ?? 500;
-    if (listHeight === 0) return;
-    let visibleCount = itemHeight <= 0 ? 10 : Math.ceil(listHeight / 18) + 2;
+    if (listHeight === 0 || rowHeight <= 0) return;
+    let visibleCount = Math.ceil(listHeight / rowHeight) + 2;
     if (visibleCount < 0) visibleCount = 0;
-    let requestOffset = itemHeight <= 0 ? 0 : (Math.ceil((scrollAmount / itemHeight) - 1) - visibleCount);
+    let requestOffset = Math.ceil((scrollAmount / rowHeight) - 1) - visibleCount;
     if (requestOffset < 0) requestOffset = 0;
     let requestLimit = visibleCount * 2;
     if (requestOffset + requestLimit > innerTotal) {
@@ -162,19 +200,18 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     }
     if (requestOffset < 0) requestOffset = 0;
     request({ offset: requestOffset + 0, limit: requestLimit });
-  };
+  });
 
   const [header, footer] = useMemo(() => {
-    const itemHeight = heightRef.current ?? 0;
     const innerTotal = total ?? limit;
     if (innerTotal === 0 || itemHeight === 0) return [null, null];
     const headerStyle = { height: `${offset * itemHeight}px` };
-    const footerStyle = { height: `${(innerTotal - offset - limit) * itemHeight}px` };
+    const footerStyle = { height: `${Math.max(0, innerTotal - offset - limit) * itemHeight}px` };
     return [
       <Flex key="header" tagName="lazy-load-header" style={headerStyle} disableGrow />,
       <Flex key="footer" tagName="lazy-load-footer" style={footerStyle} disableGrow />
     ];
-  }, [heightRef.current, total, offset, limit]);
+  }, [itemHeight, total, offset, limit]);
 
   const renderedItems = useMemo(() => {
     return (allowedToRenderItems ? items : []).slice(offset, offset + limit)
@@ -194,10 +231,15 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   }, [allowedToRenderItems, items, offset, limit, maxSelectableItems, onClick, providedSelectedItemIds, onSelectedItemsChange]);
 
   const handleOnScroll = useBound((values: OnScrollEventData) => {
-    if (containerElement == null) setContainerElement(values.element);
-    if (lastScrollTopRef.current !== values.top) {
+    const isNewContainer = containerElement == null;
+    if (isNewContainer) setContainerElement(values.element);
+    if (isNewContainer || lastScrollTopRef.current !== values.top) {
       lastScrollTopRef.current = values.top;
       requestItems();
+    }
+    if (lastScrollLeftRef.current !== values.left) {
+      lastScrollLeftRef.current = values.left;
+      onScrollHorizontal?.({ left: values.left, element: values.element });
     }
     onScrollTopChange?.(values.top);
     onScroll?.(values);
@@ -220,7 +262,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         )}
       </StickyHideHeader>
     );
-  }, [stickyHeader, onAdd, handleAdd, setStickyHeaderHeight]);
+  }, [stickyHeader, onAdd, handleAdd, addTooltip, setStickyHeaderHeight, css.internalListStickyHeaderContent]);
 
   const handleActiveChange = useBound((event: ListItemEvent<T>, isActive: boolean) => {
     onActive?.(event, isActive);
@@ -248,11 +290,52 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   });
 
   useLayoutEffect(() => {
-    if (containerElement == null || total == null) return;
-    const scrollHeight = containerElement.scrollHeight;
-    const itemHeight = Math.ceil(scrollHeight / total);
-    heightRef.current = Math.max(18, itemHeight);
-  }, [containerElement?.scrollHeight, total]);
+    if (containerElement == null || itemHeightLockedRef.current || items.length === 0) return;
+    const measuredRowHeight = measureVirtualListItemHeight(containerElement);
+    if (measuredRowHeight == null) return;
+
+    const normalizedItemHeight = Math.max(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK, measuredRowHeight);
+    itemHeightLockedRef.current = true;
+
+    if (normalizedItemHeight !== itemHeight && containerElement.scrollTop > 0 && itemHeight > 0) {
+      const adjustedScrollTop = Math.round(containerElement.scrollTop * (normalizedItemHeight / itemHeight));
+      lastScrollTopRef.current = adjustedScrollTop;
+      containerElement.scrollTop = adjustedScrollTop;
+    }
+
+    if (normalizedItemHeight !== itemHeight) {
+      setItemHeight(normalizedItemHeight);
+    }
+  }, [containerElement, itemHeight, items.length]);
+
+  useLayoutEffect(() => {
+    if (!itemHeightLockedRef.current || containerElement == null) return;
+    requestItems();
+  }, [itemHeight, containerElement, requestItems]);
+
+  useLayoutEffect(() => {
+    refreshShadowVisibility?.();
+  }, [renderedItems, refreshShadowVisibility]);
+
+  useLayoutEffect(() => {
+    if (onVerticalScrollbarWidthChange == null) return;
+    if (containerElement == null) {
+      onVerticalScrollbarWidthChange(0);
+      return;
+    }
+
+    const report = () => {
+      onVerticalScrollbarWidthChange(measureVerticalScrollbarWidth(containerElement));
+    };
+
+    report();
+    const resizeObserver = new ResizeObserver(report);
+    resizeObserver.observe(containerElement);
+    const contentElement = containerElement.querySelector('scroller-content');
+    if (contentElement != null) resizeObserver.observe(contentElement);
+
+    return () => resizeObserver.disconnect();
+  }, [containerElement, onVerticalScrollbarWidthChange, renderedItems, items.length, total]);
 
   useEffect(() => {
     if (allowedToRenderItems) return;
@@ -281,6 +364,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         onScroll={handleOnScroll}
         actions={scrollerActions}
         disableShadows={disableShadowsOnScroller}
+        horizontalShadows={horizontalScrollShadows}
         className={join(css.internalListScrollerContent, contentClassName)}
         fullHeight={fullHeight}
         useParentContext={useParentScrollContext}

@@ -1,4 +1,3 @@
-import Color from 'color';
 import { useEffect } from 'react';
 import { useBound, useDOMRef, useDrag, useOnResize } from '../../hooks';
 import type { UseDragEvent } from '../../hooks';
@@ -10,41 +9,40 @@ import { createStyles } from '../../theme';
 import { useGetTableColumnWidth, useIsManualTableColumnWidth, useSetTableColumnWidth } from './TableColumnWidths';
 import { useTableActionsColumnWidth } from './TableActionsColumnWidthContext';
 import { MIN_TABLE_COLUMN_WIDTH, TableHeaderCellResizeHandle } from './TableHeaderCellResizeHandle';
-import { resolveTableTheme } from './resolveTableTheme';
 import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
+import { useTableActionsColumnShadowStyles } from './tableActionsColumnStyles';
+import { Flex } from '../Flex';
+import { useUIState } from '../../providers';
 
-const useStyles = createStyles((theme) => {
-  const { headerBackgroundColor } = resolveTableTheme(theme);
-
-  return {
-    tableHeaderCell: {
-      display: 'inline-block',
-      flexShrink: 0,
-      flexGrow: 1,
-      padding: '4px 8px',
-      boxSizing: 'border-box',
-      userSelect: 'none',
-      cursor: 'default',
-      alignItems: 'center',
-      zIndex: 1,
-      textOverflow: 'ellipsis',
-      overflow: 'hidden',
-      whiteSpace: 'nowrap',
-      position: 'relative',
-    },
-    tableActionsHeaderCell: {
-      display: 'inline-flex',
-      flexShrink: 0,
-      flexGrow: 0,
-      zIndex: 2,
-      backgroundColor: Color(headerBackgroundColor).opaquer(1).hex(),
-      overflow: 'unset',
-      padding: 0,
-      textAlign: 'left',
-      alignItems: 'center',
-    },
-  };
-});
+const useStyles = createStyles(() => ({
+  tableHeaderCell: {
+    display: 'inline-block',
+    flexShrink: 0,
+    flexGrow: 0,
+    padding: '4px 8px',
+    boxSizing: 'border-box',
+    userSelect: 'none',
+    cursor: 'default',
+    alignItems: 'center',
+    zIndex: 1,
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    position: 'relative',
+  },
+  tableActionsHeaderCell: {
+    display: 'inline-flex',
+    flexShrink: 0,
+    flexGrow: 0,
+    zIndex: 2,
+    overflow: 'unset',
+    padding: 0,
+    textAlign: 'left',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    position: 'relative',
+  },
+}));
 
 interface Props {
   column: TableColumn;
@@ -58,6 +56,8 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
   onColumnWidthPersist,
 }: Props) => {
   const { css, join, useInlineStyle } = useStyles();
+  const { css: shadowCss } = useTableActionsColumnShadowStyles();
+  const { isLoading } = useUIState();
   const { target: resizeTarget, width: actualWidth } = useOnResize({ observeWidthOnly: true });
   const columnWidth = useGetTableColumnWidth(columnIndex);
   const actionsColumnWidth = useTableActionsColumnWidth();
@@ -71,6 +71,7 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
     width,
     maxWidth: width,
     minWidth: width,
+    padding: isTableActionsColumn ? 0 : undefined,
     textAlign: isTableActionsColumn ? 'left' : column.alignment,
     justifyContent: isTableActionsColumn
       ? 'flex-start'
@@ -115,7 +116,10 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
 
   return (
     <Tag ref={cellRef} name="table-header-cell" className={join(css.tableHeaderCell, isTableActionsColumn && css.tableActionsHeaderCell)} style={style}>
-      <Skeleton type="text">{column.label}</Skeleton>
+      {!isTableActionsColumn && (isLoading
+        ? <Skeleton type="text" useRandomWidth />
+        : column.label)}
+      {isTableActionsColumn && <Flex tagName="table-header-actions-shadow" className={shadowCss.tableActionsShadow} />}
       {resizeHandle}
     </Tag>
   );

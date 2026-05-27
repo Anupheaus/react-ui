@@ -4,14 +4,14 @@ import { useMemo } from 'react';
 import type { TableColumn } from './TableModels';
 import { TableRowActionColumn } from './TableRowActionColumn';
 import { createStyles } from '../../theme';
-import Color from 'color';
-import { resolveTableTheme } from './resolveTableTheme';
+import { resolveOpaqueTableBackground, resolveTableTheme } from './resolveTableTheme';
 import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 
 const mergeClassNames = (...classNames: (string | undefined)[]) => classNames.filter(Boolean).join(' ');
 
 const useStyles = createStyles((theme) => {
   const { rowBackgroundColor } = resolveTableTheme(theme);
+  const surfaceBackgroundColor = theme.surface.asAContainer.normal.backgroundColor ?? '#ffffff';
 
   return {
     tableActionsCell: {
@@ -20,7 +20,7 @@ const useStyles = createStyles((theme) => {
       right: 0,
       flexShrink: 0,
       zIndex: 2,
-      backgroundColor: Color(rowBackgroundColor).opaquer(1).hex(),
+      backgroundColor: resolveOpaqueTableBackground(rowBackgroundColor, surfaceBackgroundColor),
       overflow: 'unset',
       height: 'auto',
       textAlign: 'left',

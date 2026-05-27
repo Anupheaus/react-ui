@@ -16,6 +16,7 @@ function useItems<T = void>(props: UseItemsProps<T>): UseItemsResult<T>
 | `items` | `ReactListItem<T>[]` | No | Static array of items; used when `onRequest` is not provided |
 | `selectedItemIds` | `string[]` | No | IDs of currently selected items; persisted across refreshes |
 | `useSkeletons` | `boolean` | No | Show skeleton placeholder items while loading (default: `false`) |
+| `createSkeletonItem` | `(context: CreateSkeletonItemContext) => ReactListItem<T>` | No | Factory for skeleton placeholder items when `useSkeletons` is true (default: generic deferred-promise item) |
 | `actions` | `UseActions<UseItemsActions>` | No | Exposes a `refresh()` action to the parent |
 | `onRequest` | `(request, response) => Promise<void>` | No | Async data-fetch callback invoked with pagination parameters |
 | `onItemsChange` | `(items) => void` | No | Called (debounced) whenever the resolved item list changes |

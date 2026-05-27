@@ -128,10 +128,11 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         return { content: render(event), doNotWrap: false };
       }
     }
+    if (is.function(item.renderLoading)) return { content: item.renderLoading(event), doNotWrap: true };
     return {
-      content: item.renderLoading?.(event) ?? (isSelectable ? '' : (
+      content: isSelectable ? '' : (
         <Skeleton type="text" useRandomWidth isVisible />
-      )),
+      ),
       doNotWrap: false,
     };
   }, [item, data, isLoading, error, index, isSelectable]);
