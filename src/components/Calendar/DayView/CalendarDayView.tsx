@@ -41,21 +41,10 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   const { css, join } = useStyles();
   const calendarDayViewElementRef = useRef<HTMLDivElement | null>(null);
 
-  const { startHour, endHour } = useMemo(() => {
-    const providedStartHour = rawStartHour == null ? 0 : Math.between(rawStartHour, 0, 23);
-    const providedEndHour = rawEndHour == null ? 24 : Math.between(rawEndHour, 1, 24);
-
-    if (entries.length === 0) return { startHour: providedStartHour, endHour: providedEndHour };
-    const earliestAppointmentHour = entries.map(entry => entry.startDate.getHours()).min();
-    let lastAppointmentHour = entries.map(entry => (entry.endDate?.getHours() ?? 0) + ((entry.endDate?.getMinutes() ?? 0) > 0 ? 1 : 0)).max();
-    if (lastAppointmentHour > 24) lastAppointmentHour = 24;
-    // if (earliestAppointmentHour > 0) earliestAppointmentHour -= 1;
-    // if (lastAppointmentHour < 24) lastAppointmentHour += 1;
-    return {
-      startHour: (rawStartHour == null || earliestAppointmentHour < providedStartHour) ? earliestAppointmentHour : providedStartHour,
-      endHour: (rawEndHour == null || lastAppointmentHour > providedEndHour) ? lastAppointmentHour : providedEndHour,
-    };
-  }, [rawStartHour, rawEndHour, entries]);
+  const { startHour, endHour } = useMemo(
+    () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour),
+    [rawStartHour, rawEndHour, entries],
+  );
 
   const scrollTo = useMemo(() => {
     if (calendarDayViewElementRef.current == null) return 0;

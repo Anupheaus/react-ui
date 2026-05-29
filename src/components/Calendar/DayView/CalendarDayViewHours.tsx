@@ -3,6 +3,13 @@ import { createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 
+interface Props {
+  hourHeight: number;
+  startHour: number;
+  endHour: number;
+  omitFirstLine?: boolean;
+}
+
 const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
   hours: {
     width: '100%',
@@ -19,20 +26,17 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
     justifyContent: 'flex-end',
     width: '100%',
   },
+  firstHour: {
+    borderTopWidth: 0,
+  },
 }));
-
-interface Props {
-  hourHeight: number;
-  startHour: number;
-  endHour: number;
-}
-
 export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
   hourHeight,
   startHour,
   endHour,
+  omitFirstLine = false,
 }: Props) => {
-  const { css, useInlineStyle } = useStyles();
+  const { css, join, useInlineStyle } = useStyles();
 
   const style = useInlineStyle(() => ({
     minHeight: hourHeight,
@@ -40,15 +44,15 @@ export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
   }), [hourHeight]);
 
   const renderedHours = useMemo(() => {
-    return Array(endHour - startHour).fill(0).map((_, index) => {
-      const hour = `${(index + startHour).toString().padStart(2, '0')}:00`;
+    return Array(endHour - startHour).fill(0).map((_, hourIndex) => {
+      const hour = `${(hourIndex + startHour).toString().padStart(2, '0')}:00`;
       return (
-        <Flex tagName="calendar-day-view-hour" key={hour} className={css.hour} style={style}>
+        <Flex tagName="calendar-day-view-hour" key={hour} className={join(css.hour, omitFirstLine && hourIndex === 0 && css.firstHour)} style={style}>
           {hour}
         </Flex>
       );
     });
-  }, [style, startHour, endHour]);
+  }, [css.firstHour, css.hour, endHour, join, omitFirstLine, startHour, style]);
 
   return (
     <Flex tagName="calendar-day-view-hours" className={css.hours} isVertical>

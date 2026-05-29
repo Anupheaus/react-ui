@@ -16,14 +16,17 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 ### Utilities
 - `CalendarDayUtils.ts` — pure time-to-pixel conversion helpers:
   - `getOffset(date, hourHeight, startHour)` — returns the pixel Y offset from the top of the hour grid for a given time
-  - `getHeight(entry, hourHeight)` — pixel height of an entry chip based on its duration
-  - `getMinutes(date)` — total minutes from midnight
+  - `getEffectiveHourRange(entries, rawStartHour?, rawEndHour?)` — resolves the visible hour range, expanding to fit entries when needed
+- `CalendarDayViewLayout.ts` — overlap layout helpers:
+  - `clipEntryToDay(entry, startOfDay, endOfDay)` — trims an entry to the portion that falls on the displayed day (handles overnight and multi-day entries)
+  - `layoutDayViewEntries(entries)` — splits overlapping entries into time segments with column, `leftPercent`, and `widthPercent` for side-by-side layout
 
 ## Ambiguities and gotchas
 
 - **`startHour`/`endHour` are treated as hints, not hard limits** — if any entry's start or end time falls outside the provided range, the range is silently expanded to include it. The provided values are only used when no entries fall outside them.
 - **`scrollTo` is computed from `calendarDayViewElementRef.current`** — this is a `useMemo` that reads a DOM element. The initial value is `0` because the ref is not yet populated on the first render; the scroll only applies after the element mounts. This is intentional (avoids a `useEffect` flash).
 - **`hourHeight` defaults to 60** — one pixel per minute. Changing `hourHeight` scales everything (hours, entry heights, scroll offsets) proportionally because all calculations multiply by `hourHeight`.
+- **Overnight and multi-day entries are clipped per column** — each day/week column only renders the portion of an entry between that day's start and end. Without clipping, the chip position uses the original start time (often on a previous day), so only a tail near midnight may appear visible.
 
 ## Related
 

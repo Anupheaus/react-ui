@@ -14,7 +14,6 @@ import { useCalendarEntryHighlighting } from '../CalenderEntryHighlightProvider'
 interface Props {
   entry: CalendarEntryRecord;
   cellDate: Date;
-  cellSize: number;
   renderedOnRow: number;
   dayIndex: number;
 }
@@ -69,7 +68,6 @@ const useStyles = createStyles(({ calendar }, { applyTransition }) => ({
 export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCellEntry', ({
   entry,
   cellDate,
-  cellSize,
   renderedOnRow,
   dayIndex,
 }: Props) => {
@@ -80,7 +78,7 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   const widthInDays = dayIndex + daysToEndFromCurrentCell > 7 ? 7 - dayIndex : daysToEndFromCurrentCell + 1;
   const hasStart = CalendarUtils.daysInBetween(entry.startDate, cellDate) <= dayIndex;
   const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
-  const width = (widthInDays * cellSize) + (widthInDays - 1);
+  const spanWidth = `calc(${widthInDays} * 100% + ${widthInDays - 1}px)`;
   const hasNoTitle = is.empty(entry.title as string | number | null | undefined);
   const renderedTitle = hasNoTitle ? entry.title : (
     <>
@@ -93,9 +91,9 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
     top: renderedOnRow * 20,
     backgroundColor: colors.lighten(entry.color ?? 'red', 15),
     borderLeftColor: entry.color ?? 'red',
-    minWidth: width,
-    width,
-  }), [renderedOnRow, entry.color, width]);
+    minWidth: spanWidth,
+    width: spanWidth,
+  }), [renderedOnRow, entry.color, spanWidth]);
 
 
   return (

@@ -5,6 +5,7 @@ import type { CalendarEntryRecord } from '../CalendarModels';
 import { createStyles } from '../../../theme';
 import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
+import { layoutDayViewEntries, clipEntryToDay } from './CalendarDayViewLayout';
 import { Typography } from '../../Typography';
 
 const useStyles = createStyles(({ surface: { shadows } }) => ({
@@ -12,6 +13,10 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     position: 'absolute',
     inset: 0,
     right: 30,
+  },
+  entriesFillColumn: {
+    position: 'absolute',
+    inset: 0,
   },
   entry: {
     position: 'absolute',
@@ -38,41 +43,13 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
   },
 }));
 
-interface ColumnEntry {
-  entry: CalendarEntryRecord;
-  column: number;
-  isLastColumn: boolean;
-}
-
-function lineUpEntries(entries: readonly CalendarEntryRecord[]): [ColumnEntry[], number] {
-  let lastEntry: ColumnEntry | undefined;
-  let maxColumns = 0;
-  const linedUpEntries = entries.map(entry => {
-    const result = (() => {
-      if (lastEntry != null) {
-        if (lastEntry.entry.endDate == null || entry.startDate < lastEntry.entry.endDate) {
-          lastEntry.isLastColumn = false;
-          return { entry, column: lastEntry.column + 1, isLastColumn: true };
-        } else {
-          return { entry, column: 1, isLastColumn: true };
-        }
-      } else {
-        return { entry, column: 1, isLastColumn: true };
-      }
-    })();
-    lastEntry = result;
-    maxColumns = Math.max(maxColumns, result.column);
-    return result;
-  });
-  return [linedUpEntries, maxColumns];
-}
-
 interface Props {
   date: Date;
   startHour: number;
   endHour: number;
   entries: readonly CalendarEntryRecord[];
   hourHeight: number;
+  fillColumn?: boolean;
   onSelect(entry: CalendarEntryRecord): void;
 }
 
@@ -81,61 +58,53 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
   startHour,
   entries,
   hourHeight,
+  fillColumn = false,
   onSelect,
 }: Props) => {
-  const { css, theme, useInlineStyle } = useStyles();
+  const { css, theme, join } = useStyles();
 
-  const [renderedEntries, topOffset] = useMemo(() => {
+  const renderedEntries = useMemo(() => {
     const luxonDate = DateTime.fromJSDate(date);
     const startOfDay = luxonDate.startOf('day').toJSDate();
     const endOfDay = luxonDate.endOf('day').toJSDate();
-    let innerTopOffset = 0;
-    const [linedUpEntries, maxColumns] = lineUpEntries(entries
-      .filter(entry => entry.startDate <= endOfDay && (entry.endDate ?? entry.startDate) >= startOfDay)
-      .orderBy(entry => entry.startDate.getTime()));
-    const columnWidth = Math.round(100 / maxColumns);
+    const dayEntries = entries
+      .map(entry => clipEntryToDay(entry, startOfDay, endOfDay))
+      .filter((entry): entry is CalendarEntryRecord => entry != null);
+    const laidOutSegments = layoutDayViewEntries(dayEntries);
 
-    const innerRenderedEntities = linedUpEntries
-      .map((linedUpEntry, index) => {
-        const top = calendarDayUtils.getOffset(linedUpEntry.entry.endDate == null ? startOfDay : linedUpEntry.entry.startDate, hourHeight, startHour);
-        const height = calendarDayUtils.getOffset(linedUpEntry.entry.endDate ?? endOfDay, hourHeight, startHour) - top;
-        const left = `${(linedUpEntry.column - 1) * columnWidth}%`;
-        const width = `${(linedUpEntry.isLastColumn ? maxColumns - (linedUpEntry.column - 1) : 1) * columnWidth}%`;
-        return (
+    return laidOutSegments.map((laidOutSegment, index) => {
+      const top = calendarDayUtils.getOffset(laidOutSegment.segmentStart, hourHeight, startHour);
+      const height = calendarDayUtils.getOffset(laidOutSegment.segmentEnd, hourHeight, startHour) - top;
+      const left = `${laidOutSegment.leftPercent}%`;
+      const width = `${laidOutSegment.widthPercent}%`;
+      return (
+        <Flex
+          tagName="calendar-day-view-entry"
+          key={`${laidOutSegment.entry.id}-${laidOutSegment.segmentStart.getTime()}`}
+          className={css.entry}
+          style={{ top, height, left, width }}
+        >
           <Flex
-            tagName="calendar-day-view-entry"
-            key={linedUpEntry.entry.id}
-            className={css.entry}
-            style={{ top, height, left, width }}
+            tagName="calendar-day-view-entry-content"
+            className={css.entryContent}
+            style={{ backgroundColor: laidOutSegment.entry.color ?? theme.paletteColours[index % theme.paletteColours.length] }}
+            testId={`calendar-day-view-entry-${index}`}
+            onClickCapture={event => {
+              event.stopPropagation();
+              onSelect(laidOutSegment.entry);
+            }}
           >
-            <Flex
-              tagName="calendar-day-view-entry-content"
-              className={css.entryContent}
-              style={{ backgroundColor: linedUpEntry.entry.color ?? theme.paletteColours[index % theme.paletteColours.length] }}
-              testId={`calendar-day-view-entry-${index}`}
-              onClickCapture={event => {
-                event.stopPropagation();
-                onSelect(linedUpEntry.entry);
-              }}
-            >
-              <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
-                {linedUpEntry.entry.title}
-              </Typography>
-            </Flex>
+            <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
+              {laidOutSegment.entry.title}
+            </Typography>
           </Flex>
-        );
-      });
-    const firstEntry = entries[0]?.startDate;
-    if (firstEntry != null && firstEntry < startOfDay) innerTopOffset = -((24 - firstEntry.getHours()) * hourHeight);
-    return [innerRenderedEntities, innerTopOffset];
-  }, [entries, date, startHour, onSelect]);
-
-  const style = useInlineStyle(() => ({
-    top: topOffset,
-  }), [topOffset]);
+        </Flex>
+      );
+    });
+  }, [entries, date, startHour, hourHeight, onSelect, css.entry, css.entryContent, css.entryTitle, theme.paletteColours]);
 
   return (
-    <Flex tagName="calendar-day-view-entries" className={css.entries} style={style}>
+    <Flex tagName="calendar-day-view-entries" className={join(fillColumn ? css.entriesFillColumn : css.entries)}>
       {renderedEntries}
     </Flex>
   );

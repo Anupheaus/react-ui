@@ -1,17 +1,26 @@
 # Calendar
 
-A full-page calendar component with month and day views. It renders a list of `CalendarEntryRecord` items and supports entry selection. The month view shows a traditional grid; the day view shows a timed schedule for a single day.
+A full-page calendar component with month, week, and day views. It renders a list of `CalendarEntryRecord` items and supports entry selection. The month view shows a traditional grid; the week view shows a timed schedule across configurable weekdays; the day view shows a timed schedule for a single day.
 
 ## Props
 
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
-| `view` | `'month' \| 'day'` | No | Which view to render (default: `'month'`). |
+| `view` | `'month' \| 'week' \| 'day'` | No | Which view to render (default: `'month'`). |
 | `viewingDate` | `Date` | No | The date the calendar is currently showing (default: today). |
 | `entries` | `readonly CalendarEntryRecord[]` | No | Array of calendar entries to display. |
 | `onSelect` | `(entry: CalendarEntryRecord) => void` | No | Called when the user selects an entry. |
-| `label` | `ReactNode` | No | Optional label for the calendar. |
+| `label` | `ReactNode` | No | Optional label shown above the view (month, week, and day). |
 | `className` | `string` | No | CSS class applied to the root element. |
+
+### Week-view-only props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `weekDays` | `readonly CalendarWeekDay[]` | No | Weekdays to show as columns (default: Mon–Sun). |
+| `startHour` | `number` | No | First hour shown in the week view (0–23). |
+| `endHour` | `number` | No | Last hour shown in the week view (0–23). |
+| `hourHeight` | `number` | No | Pixel height of each hour row in the week view. |
 
 ### Day-view-only props
 
@@ -20,6 +29,16 @@ A full-page calendar component with month and day views. It renders a list of `C
 | `startHour` | `number` | No | First hour shown in the day view (0–23). |
 | `endHour` | `number` | No | Last hour shown in the day view (0–23). |
 | `hourHeight` | `number` | No | Pixel height of each hour row in the day view. |
+
+## CalendarWeekDay
+
+```ts
+type CalendarWeekDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+const DEFAULT_CALENDAR_WEEK_DAYS: readonly CalendarWeekDay[] = [
+  'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
+];
+```
 
 ## CalendarEntryRecord
 
@@ -63,6 +82,32 @@ function MyCalendar() {
   );
 }
 
+// Week view (Mon–Sun by default)
+function MyWeekCalendar() {
+  return (
+    <Calendar
+      view="week"
+      viewingDate={new Date()}
+      entries={entries}
+      startHour={8}
+      endHour={18}
+      onSelect={entry => console.log('selected', entry)}
+    />
+  );
+}
+
+// Week view with selected weekdays only
+function MyWorkWeekCalendar() {
+  return (
+    <Calendar
+      view="week"
+      weekDays={['mon', 'tue', 'wed', 'thu', 'fri']}
+      viewingDate={new Date()}
+      entries={entries}
+    />
+  );
+}
+
 // Day view
 function MyDayCalendar() {
   return (
@@ -80,7 +125,7 @@ function MyDayCalendar() {
 
 ## Architecture
 
-`Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. The actual rendering is delegated to `CalendarMonthView` or `CalendarDayView` depending on the `view` prop.
+`Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. The actual rendering is delegated to `CalendarMonthView`, `CalendarWeekView`, or `CalendarDayView` depending on the `view` prop.
 
 ## Decision rationale
 
@@ -90,13 +135,15 @@ function MyDayCalendar() {
 
 ## Ambiguities and gotchas
 
-- **`view` defaults to `'month'`** — omitting the `view` prop renders the month grid. Pass `view="day"` explicitly to get the hour-schedule view.
-- **`viewingDate` defaults to today** — both views use `viewingDate` to determine which month/day to show. Updating `viewingDate` is the only way to navigate; there are no built-in prev/next controls.
-- **Day-view-only props are silently ignored in month view** — `startHour`, `endHour`, and `hourHeight` are only read by `CalendarDayView`. Passing them when `view="month"` does nothing and produces no warning.
+- **`view` defaults to `'month'`** — omitting the `view` prop renders the month grid. Pass `view="week"` or `view="day"` explicitly for schedule views.
+- **`viewingDate` defaults to today** — all views use `viewingDate` to determine which month/week/day to show. Updating `viewingDate` is the only way to navigate; there are no built-in prev/next controls.
+- **Week view uses Monday-start weeks** — the week containing `viewingDate` is resolved from Monday through Sunday unless `weekDays` limits the visible columns.
+- **Schedule props are ignored in month view** — `weekDays`, `startHour`, `endHour`, and `hourHeight` are only read by the week and day views.
 
 ## Related
 
 - [MonthView/AGENTS.md](./MonthView/AGENTS.md) — month grid view: 35-cell layout, `findFirstDateFor`, `createMonthEntries`, and the Monday-start/5-week-only caveats
+- [WeekView/AGENTS.md](./WeekView/AGENTS.md) — week schedule view: configurable weekday columns and shared hour grid
 - [DayView/AGENTS.md](./DayView/AGENTS.md) — day schedule view: hour grid, `getOffset`/`getHeight` pixel helpers, auto-expanding `startHour`/`endHour` range, and initial `scrollTo` behaviour
 
 ---

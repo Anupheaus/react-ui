@@ -18,7 +18,7 @@ interface Props {
 const useStyles = createStyles(({ calendar }) => ({
   cell: {
     position: 'relative',
-    width: cellSize,
+    width: '100%',
     height: cellSize,
     padding: '2px 4px',
     boxSizing: 'border-box',
@@ -51,7 +51,7 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   const { css, join } = useStyles();
 
   const renderedEntries = useMemo(() => entries.map(({ renderedOnRow, entry }) => (
-    <CalendarMonthViewCellEntry key={entry.id} entry={entry} cellDate={cellDate} renderedOnRow={renderedOnRow} dayIndex={dayIndex} cellSize={cellSize} />
+    <CalendarMonthViewCellEntry key={entry.id} entry={entry} cellDate={cellDate} renderedOnRow={renderedOnRow} dayIndex={dayIndex} />
   )), [entries, cellDate]);
 
   return (

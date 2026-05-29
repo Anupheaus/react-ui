@@ -1,11 +1,12 @@
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import type { CalendarEntryRecord } from './CalendarModels';
+import type { CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
 import { CalendarMonthView } from './MonthView';
 import { CalendarEntrySelectionProvider } from './CalendarEntrySelectionProvider';
 import { CalendarEntryHighlightProvider } from './CalenderEntryHighlightProvider';
 import { createStyles } from '../../theme';
 import { CalendarDayView } from './DayView';
+import { CalendarWeekView } from './WeekView';
 import type { ReactNode } from 'react';
 
 const useStyles = createStyles({
@@ -17,24 +18,18 @@ const useStyles = createStyles({
   },
 });
 
-interface DayViewProps {
-  view: 'day';
+interface Props {
+  label?: ReactNode;
+  className?: string;
+  view?: 'month' | 'week' | 'day';
+  viewingDate?: Date;
+  entries?: readonly CalendarEntryRecord[];
+  onSelect?(entry: CalendarEntryRecord): void;
+  weekDays?: readonly CalendarWeekDay[];
   startHour?: number;
   endHour?: number;
   hourHeight?: number;
 }
-
-interface MonthViewProps {
-  view?: 'month';
-}
-
-type Props = (DayViewProps | MonthViewProps) & {
-  label?: ReactNode;
-  className?: string;
-  viewingDate?: Date;
-  entries?: readonly CalendarEntryRecord[];
-  onSelect?(entry: CalendarEntryRecord): void;
-};
 
 export const Calendar = createComponent('Calendar', ({
   className,
@@ -42,14 +37,40 @@ export const Calendar = createComponent('Calendar', ({
   viewingDate = new Date(),
   entries = Array.empty<CalendarEntryRecord>(),
   onSelect = Function.empty(),
-  ...props
+  weekDays,
+  startHour,
+  endHour,
+  hourHeight,
+  label,
 }: Props) => {
   const { css, join } = useStyles();
 
   const renderedView = (() => {
     switch (view) {
-      case 'month': return <CalendarMonthView entries={entries} viewingDate={viewingDate} />;
-      case 'day': return <CalendarDayView {...props} entries={entries} viewingDate={viewingDate} onSelect={onSelect} />;
+      case 'month': return <CalendarMonthView label={label} entries={entries} viewingDate={viewingDate} />;
+      case 'day': return (
+        <CalendarDayView
+          label={label}
+          entries={entries}
+          viewingDate={viewingDate}
+          onSelect={onSelect}
+          startHour={startHour}
+          endHour={endHour}
+          hourHeight={hourHeight}
+        />
+      );
+      case 'week': return (
+        <CalendarWeekView
+          label={label}
+          entries={entries}
+          viewingDate={viewingDate}
+          onSelect={onSelect}
+          weekDays={weekDays}
+          startHour={startHour}
+          endHour={endHour}
+          hourHeight={hourHeight}
+        />
+      );
     }
   })();
 
