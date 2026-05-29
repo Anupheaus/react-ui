@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { useMemo } from 'react';
+import { is } from '@anupheaus/common';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Skeleton } from '../Skeleton';
@@ -8,6 +9,13 @@ import type { Function } from 'ts-toolbelt';
 import type { TypographyTypes } from './Typographies';
 import { LocalTypographicDefinitions } from './Typographies';
 import { useUIState } from '../../providers/UIStateProvider';
+
+function isEmptyContent(children: ReactNode): boolean {
+  if (children == null || typeof children === 'boolean') return true;
+  if (is.string(children) || is.number(children)) return is.empty(children);
+  if (Array.isArray(children)) return children.every(isEmptyContent);
+  return false;
+}
 
 const useStyles = createStyles({
   typography: {
@@ -38,6 +46,7 @@ interface Props<T extends TypographyTypes = typeof LocalTypographicDefinitions> 
   color?: string;
   opacity?: number;
   fullWidth?: boolean;
+  disableGrow?: boolean;
   align?: CSSProperties['textAlign'];
   valign?: CSSProperties['verticalAlign'];
   style?: CSSProperties;
@@ -58,6 +67,7 @@ const TypographyComponent = createComponent('Typography', ({
   shadow,
   color,
   fullWidth,
+  disableGrow = false,
   align,
   valign,
   style: providedStyle,
@@ -65,8 +75,8 @@ const TypographyComponent = createComponent('Typography', ({
   children,
   onClick,
 }: Props<typeof LocalTypographicDefinitions>) => {
-  const { isLoading } = useUIState();
   const { css, join } = useStyles();
+  const { isLoading } = useUIState();
   const typeStyle = type != null ? augmentedTypographicDefinitions[type] : undefined;
 
   const style = useMemo<CSSProperties>(() => ({
@@ -87,13 +97,29 @@ const TypographyComponent = createComponent('Typography', ({
     ...providedStyle,
   }), [typeStyle, align, valign, size, opacity, weight, name, spacing, shadow, color, providedStyle]);
 
-  const isEmpty = children == null || (typeof (children) === 'string' && children.trim().length === 0);
+  const hasNoContent = isEmptyContent(children);
+
+  const skeletonStyle = useMemo<CSSProperties | undefined>(() => {
+    if (!hasNoContent) return;
+    return {
+      ...style,
+      ...(disableGrow ? undefined : { width: '100%' }),
+    };
+  }, [disableGrow, hasNoContent, style]);
 
   return (
-    <Skeleton type="text">
-      <Tag name={tagName ?? 'typography'} className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style} onClick={onClick}>
-        {isLoading && isEmpty ? 'Loading...' : children}
-      </Tag>
+    <Skeleton
+      type="text"
+      disableGrow={disableGrow}
+      useRandomWidth={hasNoContent && disableGrow}
+      wide={!hasNoContent && fullWidth === true && !disableGrow}
+      style={skeletonStyle}
+    >
+      {hasNoContent ? (isLoading ? <span>&nbsp;</span> : null) : (
+        <Tag name={tagName ?? 'typography'} className={join(css.typography, fullWidth === true && css.fullWidth, className)} style={style} onClick={onClick}>
+          {children}
+        </Tag>
+      )}
     </Skeleton>
   );
 });

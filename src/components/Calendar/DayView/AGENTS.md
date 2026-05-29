@@ -11,7 +11,7 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 ### Components
 - `CalendarDayView.tsx` — root component. Computes the effective `startHour`/`endHour` range (expanding to fit entries), calculates the initial `scrollTo` offset to centre the `viewingDate`'s current time, and composes `CalendarDayViewHours` and `CalendarDayViewEntries` inside a `Scroller`.
 - `CalendarDayViewHours.tsx` — the left-hand hour label column. Renders one row per hour between `startHour` and `endHour`, each `hourHeight` pixels tall.
-- `CalendarDayViewEntries.tsx` — the entries overlay. Positions each `CalendarEntryRecord` absolutely based on its `startDate` time relative to `startHour` and `hourHeight`. Handles overlapping entries by splitting available width.
+- `CalendarDayViewEntries.tsx` — the entries overlay. Positions each `CalendarEntryRecord` absolutely based on its `startDate` time relative to `startHour` and `hourHeight`. Handles overlapping entries by splitting available width. Entry titles are rendered with `Typography` (`disableGrow`) so empty titles show random-width skeleton bars at text height while loading.
 
 ### Utilities
 - `CalendarDayUtils.ts` — pure time-to-pixel conversion helpers:

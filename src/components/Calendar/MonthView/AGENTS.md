@@ -11,7 +11,7 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
 ### Components
 - `CalendarMonthView.tsx` — root component. Computes the grid's `firstDate` (the Monday on or before the 1st of the viewed month), renders day-name headers (MON–SUN), then renders 35 `CalendarMonthViewCell` instances.
 - `CalendarMonthViewCell.tsx` — a single day cell. Shows the day number and a list of `CalendarMonthViewCellEntry` chips for entries on that day. Receives `dehighlightDate` when the cell belongs to the previous or next month.
-- `CalendarMonthViewCellEntry.tsx` — a single entry chip inside a day cell. Renders the entry's `title`, `color`, and `icon`.
+- `CalendarMonthViewCellEntry.tsx` — a single entry chip inside a day cell. Renders the entry's `title`, `color`, and `icon`. Entry titles use `Typography` inside a flex title wrapper so empty-title skeleton bars stay in the title slot (beside the icon) while loading.
 
 ### Models and utilities
 - `CalendarMonthViewModels.ts` — internal types for the month view (grouped entry records per cell).

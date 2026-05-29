@@ -5,6 +5,7 @@ import type { CalendarEntryRecord } from '../CalendarModels';
 import { createStyles } from '../../../theme';
 import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
+import { Typography } from '../../Typography';
 
 const useStyles = createStyles(({ surface: { shadows } }) => ({
   entries: {
@@ -27,8 +28,13 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     border: '1px solid rgba(0 0 0 / 20%)',
     borderRadius: 8,
     padding: '1px 2px',
+    overflow: 'hidden',
+  },
+  entryTitle: {
     fontSize: 11,
     overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
 }));
 
@@ -112,7 +118,9 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
                 onSelect(linedUpEntry.entry);
               }}
             >
-              {linedUpEntry.entry.title}
+              <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
+                {linedUpEntry.entry.title}
+              </Typography>
             </Flex>
           </Flex>
         );

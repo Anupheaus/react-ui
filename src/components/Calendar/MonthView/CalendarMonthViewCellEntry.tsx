@@ -2,8 +2,10 @@ import type { CSSProperties} from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles, colors } from '../../../theme';
+import { is } from '@anupheaus/common';
 import { Icon } from '../../Icon';
 import { Tag } from '../../Tag';
+import { Typography } from '../../Typography';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
 import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
@@ -48,6 +50,11 @@ const useStyles = createStyles(({ calendar }, { applyTransition }) => ({
   isDehighlighted: {
     opacity: 0.3,
   },
+  cellEntryTitleWrapper: {
+    flex: '1 1 auto',
+    minWidth: 0,
+    overflow: 'hidden',
+  },
   cellEntryTitle: {
     fontSize: calendar.monthViewEventFontSize,
     fontWeight: calendar.monthViewEventFontWeight,
@@ -74,6 +81,13 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   const hasStart = CalendarUtils.daysInBetween(entry.startDate, cellDate) <= dayIndex;
   const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
   const width = (widthInDays * cellSize) + (widthInDays - 1);
+  const hasNoTitle = is.empty(entry.title as string | number | null | undefined);
+  const renderedTitle = hasNoTitle ? entry.title : (
+    <>
+      {!hasStart && '...'}
+      {entry.title}
+    </>
+  );
 
   const style = useMemo<CSSProperties>(() => ({
     top: renderedOnRow * 20,
@@ -100,9 +114,10 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
       tabIndex={0}
     >
       {entry.icon != null && <Icon name={entry.icon} size={'small'} />}
-      <Tag name="calendar-month-cell-entry-title" className={css.cellEntryTitle}>
-        {!hasStart && '...'}
-        {entry.title}
+      <Tag name="calendar-month-cell-entry-title-wrapper" className={css.cellEntryTitleWrapper}>
+        <Typography tagName="calendar-month-cell-entry-title" className={css.cellEntryTitle} disableWrap>
+          {renderedTitle}
+        </Typography>
       </Tag>
     </Tag>
   );

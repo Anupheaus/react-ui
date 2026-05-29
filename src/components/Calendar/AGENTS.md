@@ -30,7 +30,7 @@ interface CalendarEntryRecord {
   endDate?: Date;
   isAllDay?: boolean;
   isBusy?: boolean;
-  title: ReactNode;
+  title?: ReactNode;          // omit or pass '' while loading; Typography shows a random-width skeleton
   description?: ReactNode;
   color?: string;           // hex/CSS colour used to tint the entry chip
   icon?: IconName;          // icon shown inside the entry chip

@@ -17,7 +17,8 @@ A flexible text component that applies font size, weight, family, colour, letter
 | `opacity` | `number` | No | Opacity (0–1). |
 | `align` | `CSSProperties['textAlign']` | No | Horizontal text alignment. |
 | `valign` | `CSSProperties['verticalAlign']` | No | Vertical alignment. |
-| `fullWidth` | `boolean` | No | Stretches the element to 100% width. |
+| `fullWidth` | `boolean` | No | Stretches the element to 100% width when content is present. |
+| `disableGrow` | `boolean` | No | Prevents the loading skeleton from growing to fill a flex parent. Use inside tall flex containers where only the text line should skeletonise. |
 | `disableWrap` | `boolean` | No | Sets `white-space: nowrap`. Default: `false`. |
 | `tagName` | `string` | No | Custom HTML tag name rendered via `Tag` (default: `'typography'`). |
 | `style` | `CSSProperties` | No | Additional inline styles (merged last). |
@@ -34,7 +35,12 @@ import { Typography } from '@anupheaus/react-ui';
 
 // Named preset
 <Typography type="field-value">42</Typography>
+
+// Loading with no content yet — skeleton uses a random-width text bar automatically
+<Typography disableGrow>{title}</Typography>
 ```
+
+When `children` is `undefined`, `null`, or an empty/whitespace string, `Typography` omits the text tag and shows a loading skeleton within its layout slot (no `wide`). Pass `disableGrow` to use random-width text bars at text height instead (calendar day-view events).
 
 ## Extending typography presets
 

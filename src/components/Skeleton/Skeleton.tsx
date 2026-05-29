@@ -53,10 +53,23 @@ const useStyles = createStyles(({ skeleton }) => ({
     '&.full-width': {
       flexGrow: 1,
     },
+    '&.disable-grow': {
+      alignSelf: 'flex-start',
+    },
+    '&.disable-grow:not(.full-width)': {
+      flex: '0 0 auto',
+    },
+    '&.disable-grow.full-width': {
+      flex: '1 1 auto',
+      minWidth: 0,
+    },
   },
   content: {
     display: 'flex',
     flex: 'auto',
+    '&.disable-grow': {
+      flex: '0 0 auto',
+    },
     '&.is-hidden': {
       visibility: 'hidden',
       pointerEvents: 'none',
@@ -106,6 +119,7 @@ interface Props {
   children?: ReactNode;
   useAnimatedBorder?: boolean;
   wide?: boolean;
+  disableGrow?: boolean;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
 
@@ -119,23 +133,26 @@ export const Skeleton = createComponent('Skeleton', ({
   children = null,
   useAnimatedBorder = false,
   wide = false,
+  disableGrow = false,
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
   const { isLoading } = useUIState({ isLoading: isVisible });
   const noSkeletons = useContext(SkeletonContexts.noSkeletons);
 
+  if (children === false || children === true) children = null;
+
   const style = useMemo<CSSProperties | undefined>(() => {
-    if (children != null || !useRandomWidth) return providedStyle;
+    if (!useRandomWidth) return providedStyle;
     return {
       ...providedStyle,
       width: `${20 + Math.round(Math.random() * 80)}%`,
     };
-  }, [providedStyle, children, useRandomWidth]);
+  }, [providedStyle, useRandomWidth]);
 
-  if (style != null) wide = false;
+  if (style != null && !useRandomWidth) wide = false;
 
-  if (useRandomWidth && children == null) children = <span>&nbsp;</span>;
+  if (children == null && (useRandomWidth || wide)) children = <span>&nbsp;</span>;
 
   if (!isLoading && children != null) return (<>{children}</>);
 
@@ -144,12 +161,13 @@ export const Skeleton = createComponent('Skeleton', ({
       name="skeleton"
       className={join(
         css.skeleton,
-        children == null && 'is-absolute-positioned',
+        type !== 'text' && children == null && !wide && !useRandomWidth && className == null && 'is-absolute-positioned',
         isLoading && !noSkeletons && 'is-visible',
         useAnimatedBorder && 'is-using-animated-border',
         isLoading && !noSkeletons && !useAnimatedBorder && 'is-pulsing',
         css[`variant_${type}`],
         wide && 'full-width',
+        disableGrow && 'disable-grow',
         className
       )}
       style={style}
@@ -157,7 +175,7 @@ export const Skeleton = createComponent('Skeleton', ({
       {children != null && (useAnimatedBorder ? children : (
         <Tag
           name="skeleton-content"
-          className={join(css.content, css[`variant_content_${type}`], isLoading && 'is-hidden', contentClassName)}
+          className={join(css.content, css[`variant_content_${type}`], disableGrow && 'disable-grow', isLoading && 'is-hidden', contentClassName)}
           onClick={onClick}
         >
           {children}
