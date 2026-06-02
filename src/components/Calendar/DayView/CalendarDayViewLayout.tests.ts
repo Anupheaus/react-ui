@@ -12,7 +12,7 @@ function entry(id: string, start: string, end: string): CalendarEntryRecord {
 }
 
 describe('layoutDayViewEntries', () => {
-  it('places concurrent appointments side by side', () => {
+  it('places concurrent appointments side by side as one block per entry', () => {
     const layouts = calendarDayViewLayout.layoutDayViewEntries([
       entry('long', '2025-06-10T10:00:00', '2025-06-10T14:00:00'),
       entry('short', '2025-06-10T10:00:00', '2025-06-10T11:00:00'),
@@ -21,31 +21,18 @@ describe('layoutDayViewEntries', () => {
       entry('late', '2025-06-10T13:00:00', '2025-06-10T14:00:00'),
     ]);
 
-    const segmentsById = layouts.reduce<Record<string, typeof layouts>>((result, layout) => {
-      result[layout.entry.id] ??= [];
-      result[layout.entry.id].push(layout);
-      return result;
-    }, {});
+    expect(layouts).toHaveLength(5);
 
-    expect(segmentsById.long).toEqual(expect.arrayContaining([
-      expect.objectContaining({ leftPercent: 0, widthPercent: 50 }),
-      expect.objectContaining({ leftPercent: 0, widthPercent: 50 }),
-      expect.objectContaining({ leftPercent: 0, widthPercent: 33.33 }),
-    ]));
-    expect(segmentsById.short).toEqual([
-      expect.objectContaining({ leftPercent: 50, widthPercent: 50 }),
-    ]);
-    expect(segmentsById.mid).toEqual([
-      expect.objectContaining({ leftPercent: 50, widthPercent: 50 }),
-    ]);
-    expect(segmentsById.afternoon).toEqual([
-      expect.objectContaining({ leftPercent: 50, widthPercent: 50 }),
-      expect.objectContaining({ leftPercent: 33.33, widthPercent: 33.33 }),
-    ]);
-    expect(segmentsById.late).toEqual([
-      expect.objectContaining({ leftPercent: 66.67, widthPercent: 33.33 }),
-      expect.objectContaining({ leftPercent: 50, widthPercent: 50 }),
-    ]);
+    const layoutById = Object.fromEntries(layouts.map(layout => [layout.entry.id, layout]));
+
+    expect(layoutById.long).toMatchObject({ leftPercent: 0, widthPercent: 33.33 });
+    expect(layoutById.long?.segmentStart).toEqual(new Date('2025-06-10T10:00:00Z'));
+    expect(layoutById.long?.segmentEnd).toEqual(new Date('2025-06-10T14:00:00Z'));
+
+    expect(layoutById.short).toMatchObject({ leftPercent: 50, widthPercent: 50 });
+    expect(layoutById.mid).toMatchObject({ leftPercent: 50, widthPercent: 50 });
+    expect(layoutById.afternoon).toMatchObject({ leftPercent: 33.33, widthPercent: 33.33 });
+    expect(layoutById.late).toMatchObject({ leftPercent: 66.67, widthPercent: 33.33 });
   });
 
   it('expands a single appointment to full width', () => {

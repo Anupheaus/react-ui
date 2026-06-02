@@ -10,6 +10,7 @@ const cellSize = 100;
 
 interface Props {
   className?: string;
+  viewingDate: Date;
   cellDate: Date;
   dayIndex: number;
   entries: CalendarMonthEntryRecord[];
@@ -43,6 +44,7 @@ const useStyles = createStyles(({ calendar }) => ({
 
 export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   className,
+  viewingDate,
   cellDate,
   dayIndex,
   entries,
@@ -51,8 +53,15 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   const { css, join } = useStyles();
 
   const renderedEntries = useMemo(() => entries.map(({ renderedOnRow, entry }) => (
-    <CalendarMonthViewCellEntry key={entry.id} entry={entry} cellDate={cellDate} renderedOnRow={renderedOnRow} dayIndex={dayIndex} />
-  )), [entries, cellDate]);
+    <CalendarMonthViewCellEntry
+      key={entry.id}
+      entry={entry}
+      viewingDate={viewingDate}
+      cellDate={cellDate}
+      renderedOnRow={renderedOnRow}
+      dayIndex={dayIndex}
+    />
+  )), [entries, cellDate, dayIndex, viewingDate]);
 
   return (
     <Tag

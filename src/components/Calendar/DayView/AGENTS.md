@@ -10,8 +10,8 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 
 ### Components
 - `CalendarDayView.tsx` — root component. Computes the effective `startHour`/`endHour` range (expanding to fit entries), calculates the initial `scrollTo` offset to centre the `viewingDate`'s current time, and composes `CalendarDayViewHours` and `CalendarDayViewEntries` inside a `Scroller`.
-- `CalendarDayViewHours.tsx` — the left-hand hour label column. Renders one row per hour between `startHour` and `endHour`, each `hourHeight` pixels tall.
-- `CalendarDayViewEntries.tsx` — the entries overlay. Positions each `CalendarEntryRecord` absolutely based on its `startDate` time relative to `startHour` and `hourHeight`. Handles overlapping entries by splitting available width. Entry titles are rendered with `Typography` (`disableGrow`) so empty titles show random-width skeleton bars at text height while loading.
+- `CalendarDayViewHours.tsx` — the left-hand hour label column. Renders one row per hour between `startHour` and `endHour`, each `hourHeight` pixels tall. Hour row borders use `getCalendarGridLineColor`.
+- `CalendarDayViewEntries.tsx` — the entries overlay. Positions each `CalendarEntryRecord` absolutely based on its `startDate` time relative to `startHour` and `hourHeight`. Handles overlapping entries by splitting available width. Renders an optional entry `icon` beside the title. Entry titles are rendered with `Typography` (`disableGrow`) so empty titles show random-width skeleton bars at text height while loading.
 
 ### Utilities
 - `CalendarDayUtils.ts` — pure time-to-pixel conversion helpers:
@@ -19,7 +19,7 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
   - `getEffectiveHourRange(entries, rawStartHour?, rawEndHour?)` — resolves the visible hour range, expanding to fit entries when needed
 - `CalendarDayViewLayout.ts` — overlap layout helpers:
   - `clipEntryToDay(entry, startOfDay, endOfDay)` — trims an entry to the portion that falls on the displayed day (handles overnight and multi-day entries)
-  - `layoutDayViewEntries(entries)` — splits overlapping entries into time segments with column, `leftPercent`, and `widthPercent` for side-by-side layout
+  - `layoutDayViewEntries(entries)` — assigns each entry a column and renders one block per entry for its full duration. Width is shared among all entries that overlap it at any point (`100 / columnCount`), so long events are not split into multiple chips when shorter events start and end beside them.
 
 ## Ambiguities and gotchas
 

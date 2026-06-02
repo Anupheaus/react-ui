@@ -66,64 +66,29 @@ function assignColumns(entries: readonly CalendarEntryRecord[]): PositionedEntry
   });
 }
 
-function getSegmentBreakpoints(entry: CalendarEntryRecord, positionedEntries: PositionedEntry[]): number[] {
-  const eventStart = entry.startDate.getTime();
-  const eventEnd = getEventEnd(entry).getTime();
-  const breakpoints = new Set<number>([eventStart, eventEnd]);
-
-  for (const positionedEntry of positionedEntries) {
-    if (!eventsOverlap(positionedEntry.entry, entry)) continue;
-    const otherStart = positionedEntry.entry.startDate.getTime();
-    const otherEnd = getEventEnd(positionedEntry.entry).getTime();
-    if (otherStart > eventStart && otherStart < eventEnd) breakpoints.add(otherStart);
-    if (otherEnd > eventStart && otherEnd < eventEnd) breakpoints.add(otherEnd);
-  }
-
-  return [...breakpoints].sort((first, second) => first - second);
-}
-
-function layoutSegment(
-  positionedEntry: PositionedEntry,
-  segmentStart: number,
-  segmentEnd: number,
-  activeInSegment: PositionedEntry[],
-): DayViewEntryLayoutSegment {
-  const sortedActive = [...activeInSegment].sort((first, second) => first.column - second.column);
-  const columnCount = sortedActive.length;
-  const displayIndex = sortedActive.findIndex(activeEntry => activeEntry.entry.id === positionedEntry.entry.id);
-
-  return {
-    entry: positionedEntry.entry,
-    segmentStart: new Date(segmentStart),
-    segmentEnd: new Date(segmentEnd),
-    leftPercent: Math.round((displayIndex / columnCount) * 10000) / 100,
-    widthPercent: Math.round((100 / columnCount) * 100) / 100,
-  };
+function getOverlapColumnCount(positionedEntry: PositionedEntry, positionedEntries: PositionedEntry[]): number {
+  const overlapping = positionedEntries.filter(other =>
+    other.entry.id !== positionedEntry.entry.id && eventsOverlap(other.entry, positionedEntry.entry),
+  );
+  if (overlapping.length === 0) return 1;
+  return Math.max(positionedEntry.column, ...overlapping.map(other => other.column)) + 1;
 }
 
 export function layoutDayViewEntries(entries: readonly CalendarEntryRecord[]): DayViewEntryLayoutSegment[] {
   const positionedEntries = assignColumns(entries);
-  const segments: DayViewEntryLayoutSegment[] = [];
 
-  for (const positionedEntry of positionedEntries) {
-    const breakpoints = getSegmentBreakpoints(positionedEntry.entry, positionedEntries);
+  return positionedEntries.map(positionedEntry => {
+    const columnCount = getOverlapColumnCount(positionedEntry, positionedEntries);
+    const segmentEnd = getEventEnd(positionedEntry.entry);
 
-    for (let breakpointIndex = 0; breakpointIndex < breakpoints.length - 1; breakpointIndex += 1) {
-      const segmentStart = breakpoints[breakpointIndex];
-      const segmentEnd = breakpoints[breakpointIndex + 1];
-      if (segmentEnd <= segmentStart) continue;
-
-      const activeInSegment = positionedEntries.filter(other => {
-        const otherStart = other.entry.startDate.getTime();
-        const otherEnd = getEventEnd(other.entry).getTime();
-        return otherStart < segmentEnd && otherEnd > segmentStart;
-      });
-
-      segments.push(layoutSegment(positionedEntry, segmentStart, segmentEnd, activeInSegment));
-    }
-  }
-
-  return segments;
+    return {
+      entry: positionedEntry.entry,
+      segmentStart: positionedEntry.entry.startDate,
+      segmentEnd,
+      leftPercent: Math.round((positionedEntry.column / columnCount) * 10000) / 100,
+      widthPercent: Math.round((100 / columnCount) * 100) / 100,
+    };
+  });
 }
 
 export const calendarDayViewLayout = {

@@ -9,8 +9,7 @@ import type { FieldProps } from '../Field';
 import { Field } from '../Field';
 import { useBound } from '../../hooks';
 import { DateTime } from 'luxon';
-import { Icon } from '../Icon';
-import { Button } from '../Button';
+import { buildDatePickerAdornments } from './CalendarNavigationAdornments';
 
 // Module-level singleton: holds the close function of whichever picker is currently open.
 // When a new picker opens it calls this first, ensuring only one is ever visible.
@@ -101,6 +100,7 @@ type PropsAllowDisallowClear = PropsAllowClear | PropsDisallowClear;
 type Props = PropsAllowDisallowClear & FieldProps & {
   mode?: DateTimeMode;
   format?: string;
+  startAdornments?: ReactNode;
   endAdornment?: ReactNode;
   labelEndAdornment?: ReactNode;
   maxDate?: DateTime;
@@ -108,6 +108,8 @@ type Props = PropsAllowDisallowClear & FieldProps & {
   minWidth?: string | number;
   value?: string | Date | DateTime;
   onDialogClosed?(): void;
+  onNavigatePrevious?: () => void;
+  onNavigateNext?: () => void;
 };
 
 export const DatePicker = createComponent('DateTime', ({
@@ -119,6 +121,10 @@ export const DatePicker = createComponent('DateTime', ({
   onChange,
   format,
   mode = 'date',
+  startAdornments,
+  endAdornment,
+  onNavigatePrevious,
+  onNavigateNext,
   ...props
 }: Props) => {
   const { css } = useStyles();
@@ -167,6 +173,17 @@ export const DatePicker = createComponent('DateTime', ({
     desktopPaper: { classes: { root: css.muiDatePickerDialog } },
   }), []);
 
+  const { startAdornments: fieldStartAdornments, endAdornments: fieldEndAdornments } = useMemo(
+    () => buildDatePickerAdornments({
+      onNavigatePrevious,
+      onNavigateNext,
+      startAdornments,
+      endAdornment,
+      onOpenPicker: openPicker,
+    }),
+    [endAdornment, onNavigateNext, onNavigatePrevious, openPicker, startAdornments],
+  );
+
   return (
     <Field
       {...props}
@@ -174,9 +191,8 @@ export const DatePicker = createComponent('DateTime', ({
       className={className}
       contentClassName={css.fieldContent}
       minWidth={minWidth}
-      endAdornments={(
-        <Button onSelect={openPicker}><Icon name='calendar' /></Button>
-      )}
+      startAdornments={fieldStartAdornments}
+      endAdornments={fieldEndAdornments}
     >
       <LocalizationProvider dateAdapter={AdapterLuxon} adapterLocale={'en-gb'}>
         {mode === 'time' && (

@@ -7,6 +7,7 @@ import { Label } from '../../Label';
 import { Scroller } from '../../Scroller';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
+import { getCalendarGridLineColor } from '../CalendarGridLineColor';
 import type { CalendarEntryRecord, CalendarWeekDay } from '../CalendarModels';
 import { CalendarDayViewHours } from '../DayView/CalendarDayViewHours';
 import { calendarDayUtils } from '../DayView/CalendarDayUtils';
@@ -17,7 +18,10 @@ import { useCalendarWeekViewColumnLayout } from './useCalendarWeekViewColumnLayo
 
 const HOURS_COLUMN_WIDTH = 40;
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles(({ fields: { content: { normal } } }) => {
+  const gridLineColor = getCalendarGridLineColor(normal);
+
+  return {
   weekViewShell: {
     display: 'flex',
     flexDirection: 'column',
@@ -32,7 +36,7 @@ const useStyles = createStyles(() => ({
     minWidth: 400,
     minHeight: 0,
     overflow: 'hidden',
-    border: 'solid 1px #eee',
+    border: `solid 1px ${gridLineColor}`,
     borderRadius: 8,
   },
   gridShell: {
@@ -41,14 +45,14 @@ const useStyles = createStyles(() => ({
   },
   headerRow: {
     flex: 'none',
-    borderBottom: 'solid 1px #eee',
+    borderBottom: `solid 1px ${gridLineColor}`,
   },
   headerCorner: {
     minWidth: HOURS_COLUMN_WIDTH,
     maxWidth: HOURS_COLUMN_WIDTH,
     flexShrink: 0,
     boxSizing: 'border-box',
-    outline: 'solid 1px #eee',
+    outline: `solid 1px ${gridLineColor}`,
   },
   headerDayColumns: {
     flex: '1 1 auto',
@@ -59,7 +63,7 @@ const useStyles = createStyles(() => ({
     minWidth: 0,
   },
   gridCellBorder: {
-    outline: 'solid 1px #eee',
+    outline: `solid 1px ${gridLineColor}`,
   },
   scrollBody: {
     position: 'relative',
@@ -70,17 +74,14 @@ const useStyles = createStyles(() => ({
     minWidth: HOURS_COLUMN_WIDTH,
     maxWidth: HOURS_COLUMN_WIDTH,
     flexShrink: 0,
-    outline: 'solid 1px #eee',
-
-    '& calendar-day-view-hour': {
-      borderColor: '#eee',
-    },
+    outline: `solid 1px ${gridLineColor}`,
   },
   dayColumns: {
     flex: '1 1 auto',
     minWidth: 0,
   },
-}));
+};
+});
 
 interface Props {
   className?: string;

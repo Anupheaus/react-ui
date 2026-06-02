@@ -138,45 +138,6 @@ const waitForStoryReady = async () => {
   await new Promise(resolve => setTimeout(resolve, 200));
 };
 
-export const MonthViewDefault: Story = createStory({
-  width: 720,
-  height: 480,
-  render: () => (
-    <Calendar
-      label="June 2025"
-      entries={monthViewEntries}
-      viewingDate={VIEWING_DATE}
-    />
-  ),
-});
-MonthViewDefault.name = 'Month View — Default';
-
-export const MonthViewEmpty: Story = createStory({
-  width: 720,
-  height: 480,
-  render: () => (
-    <Calendar
-      label="June 2025"
-      entries={[]}
-      viewingDate={VIEWING_DATE}
-    />
-  ),
-});
-MonthViewEmpty.name = 'Month View — Empty';
-
-export const MonthViewBusyDay: Story = createStory({
-  width: 720,
-  height: 480,
-  render: () => (
-    <Calendar
-      label="June 2025 — Busy Day"
-      entries={busyMonthViewEntries}
-      viewingDate={VIEWING_DATE}
-    />
-  ),
-});
-MonthViewBusyDay.name = 'Month View — Busy Day';
-
 export const DayViewDefault: Story = createStory({
   width: 420,
   height: 640,
@@ -245,6 +206,46 @@ export const DayViewCustomHours: Story = createStory({
 });
 DayViewCustomHours.name = 'Day View — Custom Hours';
 DayViewCustomHours.play = waitForStoryReady;
+
+export const DayViewLoadingEmptyTitles: Story = createStory({
+  width: 420,
+  height: 640,
+  render: () => (
+    <UIState isLoading>
+      <Calendar
+        label="Tuesday 10 June — loading titles"
+        view="day"
+        entries={dayViewLoadingTitleEntries}
+        viewingDate={VIEWING_DATE}
+        startHour={8}
+        endHour={18}
+        onSelect={fn()}
+      />
+    </UIState>
+  ),
+});
+DayViewLoadingEmptyTitles.name = 'Day View — Loading Empty Titles';
+DayViewLoadingEmptyTitles.play = waitForStoryReady;
+
+const dayViewUIStatesConfig = {
+  args: {
+    label: 'Tuesday 10 June',
+    view: 'day' as const,
+    viewingDate: VIEWING_DATE,
+    startHour: 8,
+    endHour: 18,
+    onSelect: fn(),
+  },
+  width: 420,
+  height: 640,
+  render: (props: React.ComponentProps<typeof Calendar>) => (
+    <Calendar {...props} entries={dayViewEntries} />
+  ),
+};
+
+export const DayViewUIStates: Story = createStorybookComponentStates(dayViewUIStatesConfig) as Story;
+DayViewUIStates.name = 'Day View — UI States';
+DayViewUIStates.play = waitForStoryReady;
 
 export const WeekViewDefault: Story = createStory({
   width: 960,
@@ -369,78 +370,6 @@ export const WeekViewLoadingEmptyTitles: Story = createStory({
 WeekViewLoadingEmptyTitles.name = 'Week View — Loading Empty Titles';
 WeekViewLoadingEmptyTitles.play = waitForStoryReady;
 
-export const MonthViewLoadingEmptyTitles: Story = createStory({
-  width: 720,
-  height: 480,
-  render: () => (
-    <UIState isLoading>
-      <Calendar
-        label="June 2025 — loading titles"
-        entries={monthViewLoadingTitleEntries}
-        viewingDate={VIEWING_DATE}
-      />
-    </UIState>
-  ),
-});
-MonthViewLoadingEmptyTitles.name = 'Month View — Loading Empty Titles';
-MonthViewLoadingEmptyTitles.play = waitForStoryReady;
-
-export const DayViewLoadingEmptyTitles: Story = createStory({
-  width: 420,
-  height: 640,
-  render: () => (
-    <UIState isLoading>
-      <Calendar
-        label="Tuesday 10 June — loading titles"
-        view="day"
-        entries={dayViewLoadingTitleEntries}
-        viewingDate={VIEWING_DATE}
-        startHour={8}
-        endHour={18}
-        onSelect={fn()}
-      />
-    </UIState>
-  ),
-});
-DayViewLoadingEmptyTitles.name = 'Day View — Loading Empty Titles';
-DayViewLoadingEmptyTitles.play = waitForStoryReady;
-
-const monthViewUIStatesConfig = {
-  args: {
-    label: 'June 2025',
-    viewingDate: VIEWING_DATE,
-  },
-  width: 720,
-  height: 480,
-  render: (props: React.ComponentProps<typeof Calendar>) => (
-    <Calendar {...props} entries={monthViewEntries} />
-  ),
-};
-
-export const MonthViewUIStates: Story = createStorybookComponentStates(monthViewUIStatesConfig) as Story;
-MonthViewUIStates.name = 'Month View — UI States';
-MonthViewUIStates.play = waitForStoryReady;
-
-const dayViewUIStatesConfig = {
-  args: {
-    label: 'Tuesday 10 June',
-    view: 'day' as const,
-    viewingDate: VIEWING_DATE,
-    startHour: 8,
-    endHour: 18,
-    onSelect: fn(),
-  },
-  width: 420,
-  height: 640,
-  render: (props: React.ComponentProps<typeof Calendar>) => (
-    <Calendar {...props} entries={dayViewEntries} />
-  ),
-};
-
-export const DayViewUIStates: Story = createStorybookComponentStates(dayViewUIStatesConfig) as Story;
-DayViewUIStates.name = 'Day View — UI States';
-DayViewUIStates.play = waitForStoryReady;
-
 const weekViewUIStatesConfig = {
   args: {
     label: 'Week of 9 June 2025',
@@ -458,3 +387,74 @@ const weekViewUIStatesConfig = {
 export const WeekViewUIStates: Story = createStorybookComponentStates(weekViewUIStatesConfig) as Story;
 WeekViewUIStates.name = 'Week View — UI States';
 WeekViewUIStates.play = waitForStoryReady;
+
+export const MonthViewDefault: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <Calendar
+      label="June 2025"
+      entries={monthViewEntries}
+      viewingDate={VIEWING_DATE}
+    />
+  ),
+});
+MonthViewDefault.name = 'Month View — Default';
+
+export const MonthViewEmpty: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <Calendar
+      label="June 2025"
+      entries={[]}
+      viewingDate={VIEWING_DATE}
+    />
+  ),
+});
+MonthViewEmpty.name = 'Month View — Empty';
+
+export const MonthViewBusyDay: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <Calendar
+      label="June 2025 — Busy Day"
+      entries={busyMonthViewEntries}
+      viewingDate={VIEWING_DATE}
+    />
+  ),
+});
+MonthViewBusyDay.name = 'Month View — Busy Day';
+
+export const MonthViewLoadingEmptyTitles: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <UIState isLoading>
+      <Calendar
+        label="June 2025 — loading titles"
+        entries={monthViewLoadingTitleEntries}
+        viewingDate={VIEWING_DATE}
+      />
+    </UIState>
+  ),
+});
+MonthViewLoadingEmptyTitles.name = 'Month View — Loading Empty Titles';
+MonthViewLoadingEmptyTitles.play = waitForStoryReady;
+
+const monthViewUIStatesConfig = {
+  args: {
+    label: 'June 2025',
+    viewingDate: VIEWING_DATE,
+  },
+  width: 720,
+  height: 480,
+  render: (props: React.ComponentProps<typeof Calendar>) => (
+    <Calendar {...props} entries={monthViewEntries} />
+  ),
+};
+
+export const MonthViewUIStates: Story = createStorybookComponentStates(monthViewUIStatesConfig) as Story;
+MonthViewUIStates.name = 'Month View — UI States';
+MonthViewUIStates.play = waitForStoryReady;

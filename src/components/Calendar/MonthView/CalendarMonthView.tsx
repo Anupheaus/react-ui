@@ -1,4 +1,5 @@
 import { createStyles } from '../../../theme';
+import { getCalendarGridLineColor } from '../CalendarGridLineColor';
 import { Tag } from '../../Tag';
 import { Label } from '../../Label';
 import type { CalendarEntryRecord } from '../CalendarModels';
@@ -14,7 +15,10 @@ interface Props {
   viewingDate: Date;
   entries: readonly CalendarEntryRecord[];
 }
-const useStyles = createStyles(({ calendar }) => ({
+const useStyles = createStyles(({ calendar, fields: { content: { normal } } }) => {
+  const gridLineColor = getCalendarGridLineColor(normal);
+
+  return {
   monthViewShell: {
     display: 'flex',
     flexDirection: 'column',
@@ -27,11 +31,11 @@ const useStyles = createStyles(({ calendar }) => ({
     gridGap: 1,
     minWidth: 400,
     overflow: 'hidden',
-    border: 'solid 1px #eee',
+    border: `solid 1px ${gridLineColor}`,
     borderRadius: 8,
   },
   gridCellBorder: {
-    outline: 'solid 1px #eee',
+    outline: `solid 1px ${gridLineColor}`,
   },
   dayName: {
     display: 'flex',
@@ -41,7 +45,8 @@ const useStyles = createStyles(({ calendar }) => ({
     fontSize: calendar.monthViewDayNameFontSize,
     fontWeight: calendar.monthViewDayNameFontWeight,
   },
-}));
+};
+});
 
 export const CalendarMonthView = createComponent('CalendarMonthView', ({
   label,
@@ -62,9 +67,9 @@ export const CalendarMonthView = createComponent('CalendarMonthView', ({
     const entriesForDay = CalendarMonthViewUtils.getEntriesForDate(monthEntries, cellDate, dayIndex);
     const dehighlightDate = cellDate.getMonth() !== viewingDate.getMonth();
     return (
-      <CalendarMonthViewCell key={index} className={css.gridCellBorder} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} />
+      <CalendarMonthViewCell key={index} className={css.gridCellBorder} viewingDate={viewingDate} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} />
     );
-  }), [firstDate]);
+  }), [firstDate, viewingDate]);
 
   const monthGrid = (
     <Tag name="calendar-month-view" className={css.monthView}>

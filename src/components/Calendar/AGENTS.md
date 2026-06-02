@@ -127,6 +127,8 @@ function MyDayCalendar() {
 
 `Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. The actual rendering is delegated to `CalendarMonthView`, `CalendarWeekView`, or `CalendarDayView` depending on the `view` prop.
 
+Grid lines and view shells (month grid border, week schedule frame, day/week hour dividers) resolve colour via `getCalendarGridLineColor` in `CalendarGridLineColor.ts` (`fields.content.normal.borderColor`, fallback `rgba(0 0 0 / 10%)`).
+
 ## Decision rationale
 
 **Two separate context providers for selection and highlight**

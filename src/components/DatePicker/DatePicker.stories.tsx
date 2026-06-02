@@ -31,3 +31,21 @@ const waitForStoryReady = async () => {
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true }) as Story;
 UIStates.name = 'UI States';
 UIStates.play = waitForStoryReady;
+
+export const WithNavigation: Story = {
+  ...config,
+  name: 'With navigation',
+  render: props => {
+    const [value, setValue] = useUpdatableState<DateTime>(() => DateTime.now(), [props.value]);
+    return (
+      <DatePicker
+        {...props}
+        value={value}
+        onChange={setValue}
+        onNavigatePrevious={() => setValue(value.minus({ days: 1 }))}
+        onNavigateNext={() => setValue(value.plus({ days: 1 }))}
+      />
+    );
+  },
+};
+WithNavigation.play = waitForStoryReady;

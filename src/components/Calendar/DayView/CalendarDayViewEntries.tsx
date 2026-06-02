@@ -7,6 +7,7 @@ import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
 import { layoutDayViewEntries, clipEntryToDay } from './CalendarDayViewLayout';
 import { Typography } from '../../Typography';
+import { Icon } from '../../Icon';
 
 const useStyles = createStyles(({ surface: { shadows } }) => ({
   entries: {
@@ -33,6 +34,14 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     border: '1px solid rgba(0 0 0 / 20%)',
     borderRadius: 8,
     padding: '1px 2px',
+    overflow: 'hidden',
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 4,
+  },
+  entryTitleWrapper: {
+    flex: '1 1 auto',
+    minWidth: 0,
     overflow: 'hidden',
   },
   entryTitle: {
@@ -94,14 +103,19 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
               onSelect(laidOutSegment.entry);
             }}
           >
-            <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
-              {laidOutSegment.entry.title}
-            </Typography>
+            {laidOutSegment.entry.icon != null && (
+              <Icon name={laidOutSegment.entry.icon} size="small" />
+            )}
+            <Flex tagName="calendar-day-view-entry-title-wrapper" className={css.entryTitleWrapper}>
+              <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
+                {laidOutSegment.entry.title}
+              </Typography>
+            </Flex>
           </Flex>
         </Flex>
       );
     });
-  }, [entries, date, startHour, hourHeight, onSelect, css.entry, css.entryContent, css.entryTitle, theme.paletteColours]);
+  }, [entries, date, startHour, hourHeight, onSelect, css.entry, css.entryContent, css.entryTitle, css.entryTitleWrapper, theme.paletteColours]);
 
   return (
     <Flex tagName="calendar-day-view-entries" className={join(fillColumn ? css.entriesFillColumn : css.entries)}>

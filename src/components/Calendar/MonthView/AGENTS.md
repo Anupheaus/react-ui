@@ -9,9 +9,9 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
 ## Contents
 
 ### Components
-- `CalendarMonthView.tsx` — root component. Computes the grid's `firstDate` (the Monday on or before the 1st of the viewed month), renders an optional `label`, day-name headers (MON–SUN), then renders 35 `CalendarMonthViewCell` instances.
+- `CalendarMonthView.tsx` — root component. Computes the grid's `firstDate` (the Monday on or before the 1st of the viewed month), renders an optional `label`, day-name headers (MON–SUN), then renders 35 `CalendarMonthViewCell` instances. The month grid shell and cell outlines use `getCalendarGridLineColor`, matching day/week schedule grids.
 - `CalendarMonthViewCell.tsx` — a single day cell. Shows the day number and a list of `CalendarMonthViewCellEntry` chips for entries on that day. Receives `dehighlightDate` when the cell belongs to the previous or next month.
-- `CalendarMonthViewCellEntry.tsx` — a single entry chip inside a day cell. Renders the entry's `title`, `color`, and `icon`. Entry titles use `Typography` inside a flex title wrapper so empty-title skeleton bars stay in the title slot (beside the icon) while loading.
+- `CalendarMonthViewCellEntry.tsx` — a single entry chip inside a day cell. Uses the same chip styling as the day/week views (solid background colour, light shadow, 8px rounded corners, 11px title) plus an optional `icon`. The icon and title appear on the entry start day and on Monday continuations when the event began in a previous month relative to `viewingDate`; other week-row continuations show the coloured bar only. Multi-day segments round only the visible start/end edges. Entry titles use `Typography` so empty-title loading skeletons still render.
 
 ### Models and utilities
 - `CalendarMonthViewModels.ts` — internal types for the month view (grouped entry records per cell).
@@ -19,6 +19,7 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
   - `findFirstDateFor(viewingDate)` — returns `[firstDate, endDate]` where `firstDate` is the Monday of the week containing the 1st of the month
   - `createMonthEntries(entries, firstDate, endDate)` — groups entries by day index within the grid
   - `getEntriesForDate(monthEntries, cellDate, dayIndex)` — retrieves entries for a specific cell
+  - `shouldShowEntryLabel(entry, cellDate, dayIndex, viewingDate)` — whether to show the icon and title on a chip anchor (the start day, or a Monday continuation when the event began in a previous month)
 
 ## Ambiguities and gotchas
 

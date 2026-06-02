@@ -40,8 +40,34 @@ function getEntriesForDate(entries: CalendarMonthEntryRecord[], date: Date, dayI
     || (CalendarUtils.isBetween(date, startDate, endDate) && dayIndex === 0));
 }
 
+function isInViewedMonth(date: Date, viewingDate: Date): boolean {
+  return date.getMonth() === viewingDate.getMonth() && date.getFullYear() === viewingDate.getFullYear();
+}
+
+function entryStartedBeforeViewedMonth(startDate: Date, viewingDate: Date): boolean {
+  const startMonthKey = startDate.getFullYear() * 12 + startDate.getMonth();
+  const viewedMonthKey = viewingDate.getFullYear() * 12 + viewingDate.getMonth();
+  return startMonthKey < viewedMonthKey;
+}
+
+function shouldShowEntryLabel(
+  entry: CalendarEntryRecord,
+  cellDate: Date,
+  dayIndex: number,
+  viewingDate: Date,
+): boolean {
+  if (CalendarUtils.isOnSameDay(entry.startDate, cellDate)) return true;
+
+  const endDate = entry.endDate ?? entry.startDate;
+  return dayIndex === 0
+    && isInViewedMonth(cellDate, viewingDate)
+    && entryStartedBeforeViewedMonth(entry.startDate, viewingDate)
+    && CalendarUtils.isBetween(cellDate, entry.startDate, endDate);
+}
+
 export const CalendarMonthViewUtils = {
   createMonthEntries,
   findFirstDateFor,
   getEntriesForDate,
+  shouldShowEntryLabel,
 };

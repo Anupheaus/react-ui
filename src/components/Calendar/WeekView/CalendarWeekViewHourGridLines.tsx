@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
+import { getCalendarGridLineColor } from '../CalendarGridLineColor';
 
 interface Props {
   hourHeight: number;
@@ -10,7 +11,10 @@ interface Props {
   omitFirstLine?: boolean;
 }
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles(({ fields: { content: { normal } } }) => {
+  const gridLineColor = getCalendarGridLineColor(normal);
+
+  return {
   gridLines: {
     position: 'absolute',
     inset: 0,
@@ -20,7 +24,7 @@ const useStyles = createStyles(() => ({
     zIndex: 0,
   },
   hourLine: {
-    borderColor: '#eee',
+    borderColor: gridLineColor,
     borderWidth: 0,
     borderTopWidth: 1,
     borderStyle: 'solid',
@@ -30,7 +34,8 @@ const useStyles = createStyles(() => ({
   firstHourLine: {
     borderTopWidth: 0,
   },
-}));
+};
+});
 
 export const CalendarWeekViewHourGridLines = createComponent('CalendarWeekViewHourGridLines', ({
   hourHeight,

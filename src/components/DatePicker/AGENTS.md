@@ -14,7 +14,10 @@ A date-input field that wraps MUI X `DatePicker` with the library's `Field` chro
 | `minWidth` | `string \| number` | No | Minimum width of the field (default: `110`). |
 | `allowClear` | `boolean` | No | When `true`, `onChange` may be called with `undefined`. |
 | `onChange` | `(value: DateTime \| undefined) => void` | No | Called with a Luxon `DateTime` when the user picks a date. If `allowClear` is `true`, the value may be `undefined`. |
-| `endAdornment` | `ReactNode` | No | Extra content appended after the calendar icon button. |
+| `startAdornments` | `ReactNode` | No | Extra content in the field adornment area before the input (after any navigation buttons). |
+| `endAdornment` | `ReactNode` | No | Extra content between the next navigation button and the calendar icon button. |
+| `onNavigatePrevious` | `() => void` | No | When set, renders a previous (`go-back`) icon button to the left of the input. |
+| `onNavigateNext` | `() => void` | No | When set, renders a next (`sub-menu`) icon button before the calendar icon button. |
 | `labelEndAdornment` | `ReactNode` | No | Extra content appended to the label. |
 | `onDialogClosed` | `() => void` | No | Called when the calendar popup closes. |
 | *(FieldProps)* | | | All props from `Field` (e.g. `label`, `error`, `disabled`, `readOnly`) are also accepted. |
@@ -42,7 +45,7 @@ function MyForm() {
 
 ## Architecture
 
-`DatePicker` composes the library's `Field` wrapper around MUI X's `DatePicker`. The MUI picker's built-in open-button is hidden; instead the library renders its own `Button`/`Icon` adornment that controls the `open` prop. Locale is hard-coded to `en-gb` via `AdapterLuxon`.
+`DatePicker` composes the library's `Field` wrapper around MUI X's `DatePicker`. The MUI picker's built-in open-button is hidden; instead the library renders its own `Button`/`Icon` adornments that control the `open` prop. Optional `onNavigatePrevious` / `onNavigateNext` add chevron icon buttons (left and right of the input area). Locale is hard-coded to `en-gb` via `AdapterLuxon`.
 
 ---
 

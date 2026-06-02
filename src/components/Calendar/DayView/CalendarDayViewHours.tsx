@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { createStyles } from '../../../theme';
+import { getCalendarGridLineColor } from '../CalendarGridLineColor';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 
@@ -10,12 +11,15 @@ interface Props {
   omitFirstLine?: boolean;
 }
 
-const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
+const useStyles = createStyles(({ fields: { content: { normal } } }) => {
+  const gridLineColor = getCalendarGridLineColor(normal);
+
+  return {
   hours: {
     width: '100%',
   },
   hour: {
-    borderColor: normal.borderColor ?? 'rgba(0 0 0 / 10%)',
+    borderColor: gridLineColor,
     borderWidth: 0,
     borderTopWidth: 1,
     borderStyle: 'solid',
@@ -29,7 +33,8 @@ const useStyles = createStyles(({ fields: { content: { normal } } }) => ({
   firstHour: {
     borderTopWidth: 0,
   },
-}));
+};
+});
 export const CalendarDayViewHours = createComponent('CalendarDayViewHours', ({
   hourHeight,
   startHour,
