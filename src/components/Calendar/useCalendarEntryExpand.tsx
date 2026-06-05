@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { PaperProps, PopoverProps } from '@mui/material';
 import { Popover } from '@mui/material';
@@ -16,6 +16,7 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     borderRadius: 8,
     padding: '1px 2px',
     boxSizing: 'border-box',
+    // For entries wider than this, the per-entry minWidth (set inline) wins, which is intended.
     maxWidth: MAX_OVERLAY_WIDTH,
     maxHeight: '90vh',
     overflow: 'auto',
@@ -36,8 +37,8 @@ interface OverlayProps {
 const CalendarEntryExpandOverlay = createComponent('CalendarEntryExpandOverlay', ({
   anchor, minWidth, minHeight, color, content, onMouseEnter, onMouseLeave,
 }: OverlayProps) => {
-  const { css } = useStyles();
-  const paperStyle: CSSProperties = { minWidth, minHeight, backgroundColor: color };
+  const { css, useInlineStyle } = useStyles();
+  const paperStyle = useInlineStyle(() => ({ minWidth, minHeight, backgroundColor: color }), [minWidth, minHeight, color]);
   const paperProps: PaperProps = { className: css.overlayPaper, style: paperStyle, onMouseEnter, onMouseLeave };
   const slotProps: PopoverProps['slotProps'] = { root: { style: { pointerEvents: 'none' } } };
   return (
@@ -82,6 +83,7 @@ export function useCalendarEntryExpand(content: ReactNode, color: string): Expan
   useLayoutEffect(() => {
     const el = elementRef.current;
     if (el == null) { setIsTruncated(false); return; }
+    // +1 tolerance guards against sub-pixel rounding so we don't flag a fit as truncated.
     setIsTruncated(el.scrollHeight > el.clientHeight + 1 || el.scrollWidth > el.clientWidth + 1);
   }, [width, height, content]);
 
