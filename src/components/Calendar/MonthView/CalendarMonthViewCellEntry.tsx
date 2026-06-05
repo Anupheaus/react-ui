@@ -4,11 +4,12 @@ import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 import { Icon } from '../../Icon';
 import { createStyles } from '../../../theme';
-import { Typography } from '../../Typography';
+import { useBound } from '../../../hooks';
 import { useCalendarEntrySelection } from '../CalendarEntrySelectionProvider';
 import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
 import { useCalendarEntryHighlighting } from '../CalenderEntryHighlightProvider';
+import { useCalendarEntryExpand } from '../useCalendarEntryExpand';
 import { CalendarMonthViewUtils } from './CalendarMonthViewUtils';
 
 interface Props {
@@ -64,12 +65,8 @@ const useStyles = createStyles(({ surface: { shadows } }, { applyTransition }) =
     flex: '1 1 auto',
     minWidth: 0,
     overflow: 'hidden',
-  },
-  entryTitle: {
     fontSize: 11,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    lineHeight: 1.3,
   },
 }));
 
@@ -89,6 +86,11 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
   const spanWidth = `calc(${widthInDays} * 100% + ${widthInDays - 1}px)`;
   const showIconAndTitle = CalendarMonthViewUtils.shouldShowEntryLabel(entry, cellDate, dayIndex, viewingDate);
+  const entryColor = entry.color ?? theme.paletteColours[renderedOnRow % theme.paletteColours.length];
+  const { target, onMouseEnter: expandEnter, onMouseLeave: expandLeave, overlay } = useCalendarEntryExpand(entry.title, entryColor);
+
+  const handleMouseEnter = useBound(() => { highlight(); expandEnter(); });
+  const handleMouseLeave = useBound(() => { dehighlight(); expandLeave(); });
 
   const cellEntryStyle = useMemo<CSSProperties>(() => ({
     top: renderedOnRow * 20,
@@ -97,16 +99,16 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   }), [renderedOnRow, spanWidth]);
 
   const entryContentStyle = useMemo<CSSProperties>(() => ({
-    backgroundColor: entry.color ?? theme.paletteColours[renderedOnRow % theme.paletteColours.length],
-  }), [entry.color, renderedOnRow, theme.paletteColours]);
+    backgroundColor: entryColor,
+  }), [entryColor]);
 
   return (
     <Flex
       tagName="calendar-month-cell-entry"
       className={join(css.cellEntry, isDehighlighted && css.isDehighlighted)}
       style={cellEntryStyle}
-      onMouseEnter={highlight}
-      onMouseLeave={dehighlight}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       tabIndex={0}
     >
       <Flex
@@ -118,16 +120,16 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
           (isSelected || isHighlighted) && css.isHighlighted,
         )}
         style={entryContentStyle}
+        ref={target}
       >
         {showIconAndTitle && entry.icon != null && <Icon name={entry.icon} size="small" />}
         {showIconAndTitle && (
           <Flex tagName="calendar-month-cell-entry-title-wrapper" className={css.entryTitleWrapper}>
-            <Typography tagName="calendar-month-cell-entry-title" className={css.entryTitle} disableWrap disableGrow>
-              {entry.title}
-            </Typography>
+            {entry.title}
           </Flex>
         )}
       </Flex>
+      {overlay}
     </Flex>
   );
 });
