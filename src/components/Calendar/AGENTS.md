@@ -56,6 +56,16 @@ interface CalendarEntryRecord {
 }
 ```
 
+> No field changed for the expand-on-truncation behaviour below — `title` was already a `ReactNode`. Only the rendering/hover behaviour changed.
+
+## Entry rendering and expand-on-truncation
+
+Entries render their `title` as multi-line content clipped to the entry box. Day and week entries are sized by their duration (taller entries fit more lines); month entries are a fixed-height pill. Content that overflows the box is clipped.
+
+When an entry's content is truncated (it doesn't fit the box), hovering the entry shows an in-place overlay anchored over it. The overlay starts at the entry's rendered width/height and grows to fit the full content, while being kept within the viewport (it is a MUI `Popover`). When the content fully fits, no overlay appears. This is automatic — there is no prop to enable it — and applies to the day, week, and month views.
+
+The behaviour lives in `useCalendarEntryExpand.tsx`. It measures the rendered entry (`scrollHeight`/`scrollWidth` vs `clientHeight`/`clientWidth`, with a 1px tolerance) to decide whether content is truncated, and returns a `target` ref to attach to the entry, `onMouseEnter`/`onMouseLeave` handlers, and an `overlay` node to render. It is consumed by `CalendarDayViewEntries.tsx` (day and week views) and `CalendarMonthViewCellEntry.tsx` (month view).
+
 ## Usage
 
 ```tsx
