@@ -6,8 +6,8 @@ import { createStyles } from '../../../theme';
 import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
 import { layoutDayViewEntries, clipEntryToDay } from './CalendarDayViewLayout';
-import { Typography } from '../../Typography';
 import { Icon } from '../../Icon';
+import { useCalendarEntryExpand } from '../useCalendarEntryExpand';
 
 const useStyles = createStyles(({ surface: { shadows } }) => ({
   entries: {
@@ -43,14 +43,51 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     flex: '1 1 auto',
     minWidth: 0,
     overflow: 'hidden',
-  },
-  entryTitle: {
     fontSize: 11,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    lineHeight: 1.3,
   },
 }));
+
+interface DayEntryProps {
+  entry: CalendarEntryRecord;
+  color: string;
+  top: number;
+  height: number;
+  left: string;
+  width: string;
+  testId: string;
+  onSelect(entry: CalendarEntryRecord): void;
+}
+
+const CalendarDayViewEntry = createComponent('CalendarDayViewEntry', ({
+  entry, color, top, height, left, width, testId, onSelect,
+}: DayEntryProps) => {
+  const { css } = useStyles();
+  const { target, onMouseEnter, onMouseLeave, overlay } = useCalendarEntryExpand(entry.title, color);
+  return (
+    <Flex tagName="calendar-day-view-entry" className={css.entry} style={{ top, height, left, width }}>
+      <Flex
+        tagName="calendar-day-view-entry-content"
+        className={css.entryContent}
+        style={{ backgroundColor: color }}
+        testId={testId}
+        ref={target}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        onClickCapture={event => {
+          event.stopPropagation();
+          onSelect(entry);
+        }}
+      >
+        {entry.icon != null && <Icon name={entry.icon} size="small" />}
+        <Flex tagName="calendar-day-view-entry-title-wrapper" className={css.entryTitleWrapper}>
+          {entry.title}
+        </Flex>
+      </Flex>
+      {overlay}
+    </Flex>
+  );
+});
 
 interface Props {
   date: Date;
@@ -86,36 +123,22 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
       const height = calendarDayUtils.getOffset(laidOutSegment.segmentEnd, hourHeight, startHour) - top;
       const left = `${laidOutSegment.leftPercent}%`;
       const width = `${laidOutSegment.widthPercent}%`;
+      const color = laidOutSegment.entry.color ?? theme.paletteColours[index % theme.paletteColours.length];
       return (
-        <Flex
-          tagName="calendar-day-view-entry"
+        <CalendarDayViewEntry
           key={`${laidOutSegment.entry.id}-${laidOutSegment.segmentStart.getTime()}`}
-          className={css.entry}
-          style={{ top, height, left, width }}
-        >
-          <Flex
-            tagName="calendar-day-view-entry-content"
-            className={css.entryContent}
-            style={{ backgroundColor: laidOutSegment.entry.color ?? theme.paletteColours[index % theme.paletteColours.length] }}
-            testId={`calendar-day-view-entry-${index}`}
-            onClickCapture={event => {
-              event.stopPropagation();
-              onSelect(laidOutSegment.entry);
-            }}
-          >
-            {laidOutSegment.entry.icon != null && (
-              <Icon name={laidOutSegment.entry.icon} size="small" />
-            )}
-            <Flex tagName="calendar-day-view-entry-title-wrapper" className={css.entryTitleWrapper}>
-              <Typography tagName="calendar-day-view-entry-title" className={css.entryTitle} disableWrap disableGrow>
-                {laidOutSegment.entry.title}
-              </Typography>
-            </Flex>
-          </Flex>
-        </Flex>
+          entry={laidOutSegment.entry}
+          color={color}
+          top={top}
+          height={height}
+          left={left}
+          width={width}
+          testId={`calendar-day-view-entry-${index}`}
+          onSelect={onSelect}
+        />
       );
     });
-  }, [entries, date, startHour, hourHeight, onSelect, css.entry, css.entryContent, css.entryTitle, css.entryTitleWrapper, theme.paletteColours]);
+  }, [entries, date, startHour, hourHeight, onSelect, theme.paletteColours]);
 
   return (
     <Flex tagName="calendar-day-view-entries" className={join(fillColumn ? css.entriesFillColumn : css.entries)}>
