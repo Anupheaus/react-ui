@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
-import { useLayoutEffect, useRef, useState } from 'react';
-import type { PaperProps, PopoverProps } from '@mui/material';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import type { PaperProps, PopoverActions, PopoverProps } from '@mui/material';
 import { Popover } from '@mui/material';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
@@ -38,12 +38,24 @@ const CalendarEntryExpandOverlay = createComponent('CalendarEntryExpandOverlay',
   anchor, minWidth, minHeight, color, content, onMouseEnter, onMouseLeave,
 }: OverlayProps) => {
   const { css, useInlineStyle } = useStyles();
+  const actionRef = useRef<PopoverActions>(null);
+  const { width: contentWidth, height: contentHeight, target: contentTarget } = useOnResize();
+
+  // MUI Popover applies viewport clamping when it computes position (on open) and on window
+  // resize/scroll — but NOT when its own content changes size. Our overlay content can grow
+  // after the initial position is computed (data settling, multi-line wrapping), which left it
+  // overflowing the screen edge. Recompute position whenever the content resizes so MUI re-clamps.
+  useEffect(() => {
+    actionRef.current?.updatePosition();
+  }, [contentWidth, contentHeight]);
+
   const paperStyle = useInlineStyle(() => ({ minWidth, minHeight, backgroundColor: color }), [minWidth, minHeight, color]);
   const paperProps: PaperProps = { className: css.overlayPaper, style: paperStyle, onMouseEnter, onMouseLeave };
   const slotProps: PopoverProps['slotProps'] = { root: { style: { pointerEvents: 'none' } } };
   return (
     <Popover
       open
+      action={actionRef}
       anchorEl={anchor}
       anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
       transformOrigin={{ vertical: 'top', horizontal: 'left' }}
@@ -56,7 +68,7 @@ const CalendarEntryExpandOverlay = createComponent('CalendarEntryExpandOverlay',
       slotProps={slotProps}
       PaperProps={paperProps}
     >
-      {content}
+      <div ref={contentTarget}>{content}</div>
     </Popover>
   );
 });
