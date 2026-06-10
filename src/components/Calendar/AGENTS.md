@@ -8,10 +8,11 @@ A full-page calendar component with month, week, and day views. It renders a lis
 |------|------|----------|-------------|
 | `view` | `'month' \| 'week' \| 'day'` | No | Which view to render (default: `'month'`). |
 | `viewingDate` | `Date` | No | The date the calendar is currently showing (default: today). |
-| `entries` | `readonly CalendarEntryRecord[]` | No | Array of calendar entries to display. |
+| `entries` | `readonly CalendarEntryRecord[]` | No | **Static** entries to display (no live updates, no swipe). Provide EITHER `entries` OR `onEntries`. |
+| `onEntries` | `(range: { from: Date; to: Date }, setEntries: (e) => void) => void` | No | **Reactive** entries provider. The calendar requests the date range it needs and the provider pushes entries back via `setEntries` (initially and on every live change). Enables the **swipe carousel** on touch devices. Provide EITHER `entries` OR `onEntries`. |
 | `onSelect` | `(entry: CalendarEntryRecord) => void` | No | Called when the user selects an entry. |
 | `label` | `ReactNode` | No | Label shown above the view. When omitted, the day view defaults it to the formatted viewing date. |
-| `onViewingDateChange` | `(date: Date) => void` | No | Called when a **touch** swipe navigates to a new period — left = next, right = previous, stepped by `view` (day → ±1 day, week → ±1 week, month → ±1 month). No-op in non-touch environments or when not provided. The parent applies the new date back to `viewingDate`. |
+| `onViewingDateChange` | `(date: Date) => void` | No | Called when a **touch** swipe navigates to a new period — left = next, right = previous, stepped by `view` (day → ±1 day, week → ±1 week, month → ±1 month). Only active in `onEntries` mode on touch devices. The parent applies the new date back to `viewingDate`. |
 | `className` | `string` | No | CSS class applied to the root element. |
 
 ### Week-view-only props
@@ -134,9 +135,18 @@ function MyDayCalendar() {
 }
 ```
 
+## Entries: static vs reactive (`onEntries`) + swipe carousel
+
+Entries reach the calendar one of two mutually-exclusive ways:
+
+- **`entries`** — a fixed list, rendered as-is. No live updates, no swipe. Used by static displays and Storybook stories.
+- **`onEntries(range, setEntries)`** — the calendar declares the date range it needs (`calendarNavigation.getVisibleRange`) and the provider pushes entries back via `setEntries`. The provider should push the initial set and again whenever its live data changes, so the calendar stays reactive *without* re-passing a prop. `useCalendarEntries.ts` holds the pushed entries.
+
+When `onEntries` is provided **and** the device is touch (`isTouchEnvironment`), the calendar renders a **3-panel swipe carousel** (`CalendarSwipeViewport.tsx`): previous / current / next period sit just off-screen and bleed in as you drag. The requested range widens to ±1 period so the neighbour panels have data; each view self-clips entries to its own period. Releasing past the threshold commits via `onViewingDateChange`; the track is re-centred on the new period in a `useLayoutEffect` (before paint) so there is no flicker. Horizontal moves `preventDefault` to suppress the browser's history (back/forward) swipe. On non-touch (or `entries` mode) a single static view renders.
+
 ## Architecture
 
-`Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. The actual rendering is delegated to `CalendarMonthView`, `CalendarWeekView`, or `CalendarDayView` depending on the `view` prop.
+`Calendar` wraps its content in two context providers — `CalendarEntrySelectionProvider` and `CalendarEntryHighlightProvider` — so that child views can coordinate hover/selection state without prop-drilling. A single period is rendered by `CalendarView` (the month/week/day switch); the carousel renders three `CalendarView`s in a track.
 
 Grid lines and view shells (month grid border, week schedule frame, day/week hour dividers) resolve colour via `getCalendarGridLineColor` in `CalendarGridLineColor.ts` (`fields.content.normal.borderColor`, fallback `rgba(0 0 0 / 10%)`).
 
@@ -149,7 +159,7 @@ Grid lines and view shells (month grid border, week schedule frame, day/week hou
 ## Ambiguities and gotchas
 
 - **`view` defaults to `'month'`** — omitting the `view` prop renders the month grid. Pass `view="week"` or `view="day"` explicitly for schedule views.
-- **`viewingDate` defaults to today** — all views use `viewingDate` to determine which month/week/day to show. Updating `viewingDate` is the only programmatic way to navigate; there are no prev/next buttons. On **touch** devices, horizontal swipes navigate by `view` via `onViewingDateChange` (see `useCalendarSwipe.ts`); the parent must apply the emitted date to `viewingDate`. Swipe uses native non-passive listeners and `preventDefault`s horizontal moves to suppress the browser's back/forward history gesture (vertical scrolling is preserved).
+- **`viewingDate` defaults to today** — all views use `viewingDate` to determine which month/week/day to show. Updating `viewingDate` is the only programmatic way to navigate; there are no prev/next buttons. In **`onEntries` mode on touch** devices, horizontal swipes navigate by `view` via `onViewingDateChange` (see the swipe carousel section + `CalendarSwipeViewport.tsx`); the parent must apply the emitted date to `viewingDate`. Swipe uses native non-passive listeners and `preventDefault`s horizontal moves to suppress the browser's back/forward history gesture (vertical scrolling is preserved). In `entries` mode (or non-touch) there is no swipe.
 - **Week view uses Monday-start weeks** — the week containing `viewingDate` is resolved from Monday through Sunday unless `weekDays` limits the visible columns.
 - **Schedule props are ignored in month view** — `weekDays`, `startHour`, `endHour`, and `hourHeight` are only read by the week and day views.
 
