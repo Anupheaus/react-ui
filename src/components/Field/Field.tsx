@@ -208,7 +208,7 @@ export const Field = createComponent('Field', ({
     </>);
     return (<>
       <NoSkeletons>{content}</NoSkeletons>
-      <Skeleton type="full" className={css.skeleton} />
+      <Skeleton type="full" className={css.skeleton} fill />
     </>);
   };
 

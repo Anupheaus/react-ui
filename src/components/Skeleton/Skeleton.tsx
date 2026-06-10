@@ -120,6 +120,9 @@ interface Props {
   useAnimatedBorder?: boolean;
   wide?: boolean;
   disableGrow?: boolean;
+  // Force the skeleton to absolutely fill its container even when a className is supplied. Without this, passing a
+  // className (e.g. for border-radius) disables the auto fill, leaving the skeleton 0px wide.
+  fill?: boolean;
   onClick?(event: MouseEvent<HTMLDivElement>): void;
 }
 
@@ -134,6 +137,7 @@ export const Skeleton = createComponent('Skeleton', ({
   useAnimatedBorder = false,
   wide = false,
   disableGrow = false,
+  fill = false,
   onClick,
 }: Props) => {
   const { css, join } = useStyles();
@@ -161,7 +165,7 @@ export const Skeleton = createComponent('Skeleton', ({
       name="skeleton"
       className={join(
         css.skeleton,
-        type !== 'text' && children == null && !wide && !useRandomWidth && className == null && 'is-absolute-positioned',
+        type !== 'text' && children == null && !wide && !useRandomWidth && (className == null || fill) && 'is-absolute-positioned',
         isLoading && !noSkeletons && 'is-visible',
         useAnimatedBorder && 'is-using-animated-border',
         isLoading && !noSkeletons && !useAnimatedBorder && 'is-pulsing',

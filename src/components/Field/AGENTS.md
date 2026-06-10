@@ -37,6 +37,8 @@ Used directly only when building custom input components. Consumer code typicall
 | `disableSkeleton` | `boolean` | Opt out of skeleton loading state |
 | `disableRipple` | `boolean` | Disable ripple effect on container click |
 
+When loading, `Field` wraps its content in `NoSkeletons` and overlays a single content skeleton (`<Skeleton type="full" fill />`). The `fill` prop is required because `Field` gives that skeleton a `className` for border-radius, which would otherwise disable the absolute-fill behaviour and leave the skeleton at 0px — see [../Skeleton/AGENTS.md](../Skeleton/AGENTS.md). The skeleton fills the field container, which the (hidden but laid-out) content sizes.
+
 ## `useFields` hook
 
 Binds a typed source object to field components, with deep change propagation.

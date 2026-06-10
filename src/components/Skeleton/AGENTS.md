@@ -14,7 +14,8 @@ A loading-state placeholder used throughout the library. When the UI is in a loa
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
 | `type` | `'full' \| 'text' \| 'circle' \| 'outline'` | No | Shape variant of the placeholder. Defaults to `'full'`. See variants below. |
-| `children` | `ReactNode` | No | Content to show when not loading. If omitted and `type` is not `text`, the skeleton is absolutely positioned to fill its parent (`inset: 0`). Text skeletons never use absolute positioning. |
+| `children` | `ReactNode` | No | Content to show when not loading. If omitted and `type` is not `text`, the skeleton is absolutely positioned to fill its parent (`inset: 0`) — **but only when no `className` is supplied** (see `fill`). Text skeletons never use absolute positioning. |
+| `fill` | `boolean` | No | Forces the absolute fill behaviour even when a `className` is supplied. Without it, passing a `className` (e.g. just for `border-radius`) disables the auto-fill and the skeleton collapses to 0px. `Field` uses this for its content skeleton. |
 | `isVisible` | `boolean` | No | Overrides the global `isLoading` UI state to force the skeleton visible. |
 | `useRandomWidth` | `boolean` | No | Gives the skeleton a random width between 20 % and 100 % (useful for text-line placeholders). Only applies when `children` is not provided. |
 | `wide` | `boolean` | No | Makes the skeleton grow to fill available horizontal space (`flex-grow: 1`). Ignored when `style` is set. |
@@ -64,6 +65,10 @@ import { UIState } from '@anupheaus/react-ui';
 ## Architecture
 
 `Skeleton` reads the `isLoading` flag from `UIStateProvider` (overridable via the `isVisible` prop) and the `noSkeletons` context set by `NoSkeletons`. When both conditions allow it, the skeleton element is made visible and the children are hidden. When loading is complete and children are present they are rendered directly, bypassing the skeleton wrapper entirely.
+
+### Gotcha — `className` disables auto-fill
+
+A childless, non-text skeleton fills its parent via `is-absolute-positioned` (`position: absolute; inset: 0`) **only when `className == null`**. The reasoning is that a caller supplying a `className` is assumed to be controlling layout itself. This bites when the className is purely cosmetic (e.g. `border-radius`): the skeleton silently stops filling and collapses to 0px. Pass `fill` to keep the absolute-fill behaviour alongside a className. (This is exactly why `Field` passes `fill` to its content skeleton — `[../Field/AGENTS.md](../Field/AGENTS.md)`.)
 
 ---
 
