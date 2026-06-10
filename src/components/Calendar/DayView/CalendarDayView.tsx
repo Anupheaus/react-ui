@@ -41,6 +41,12 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   const { css, join } = useStyles();
   const calendarDayViewElementRef = useRef<HTMLDivElement | null>(null);
 
+  // Default the header to the viewing date when no explicit label is supplied.
+  const resolvedLabel = useMemo(
+    () => label ?? viewingDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
+    [label, viewingDate],
+  );
+
   const { startHour, endHour } = useMemo(
     () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour),
     [rawStartHour, rawEndHour, entries],
@@ -54,7 +60,7 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
 
   return (
     <Flex tagName="calendar-day-view" className={join(css.dayView, className)} gap={4} maxHeight isVertical>
-      <Label>{label}</Label>
+      <Label>{resolvedLabel}</Label>
       <Flex tagName="calendar-day-view-scrolling-area" ref={calendarDayViewElementRef} maxHeight disableOverflow>
         <Scroller scrollTo={scrollTo}>
           <CalendarDayViewHours hourHeight={hourHeight} startHour={startHour} endHour={endHour} />
