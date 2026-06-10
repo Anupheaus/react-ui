@@ -18,19 +18,22 @@ type Phase = 'next' | 'prev' | 'snap' | null;
 const useStyles = createStyles({
   viewport: {
     position: 'relative',
-    flex: 'auto',
+    flex: '1 1 auto',
     minWidth: 0,
     minHeight: 0,
     maxWidth: '100%',
     maxHeight: '100%',
     overflow: 'hidden',
-    display: 'flex',
   },
+  // Absolutely positioned so it isn't a shrinking flex item — keeps its full 300% width.
   track: {
-    display: 'flex',
-    flexDirection: 'row',
+    position: 'absolute',
+    top: 0,
+    left: 0,
     width: '300%',
     height: '100%',
+    display: 'flex',
+    flexDirection: 'row',
     willChange: 'transform',
   },
   panel: {
