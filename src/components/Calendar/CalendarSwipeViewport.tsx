@@ -66,11 +66,19 @@ export const CalendarSwipeViewport = createComponent('CalendarSwipeViewport', ({
   const [dragX, setDragX] = useState<number | null>(null);
   const [phase, setPhase] = useState<Phase>(null);
 
-  const panels = useMemo(() => [
-    renderPanel(shiftViewingDate(view, viewingDate, -1)),
-    renderPanel(viewingDate),
-    renderPanel(shiftViewingDate(view, viewingDate, 1)),
-  ], [view, viewingDate, renderPanel]);
+  // Key panels by their date so a commit REUSES the neighbour panel (React moves the existing
+  // element into the centre) instead of re-rendering the centre's content from the old date to
+  // the new one — which otherwise clears and re-adds the label (a visible flash). The committed
+  // date equals the old neighbour's date exactly, so the keys match.
+  const renderedPanels = useMemo(() => {
+    const previousDate = shiftViewingDate(view, viewingDate, -1);
+    const nextDate = shiftViewingDate(view, viewingDate, 1);
+    return [
+      <div key={previousDate.getTime()} className={css.panel}>{renderPanel(previousDate)}</div>,
+      <div key={viewingDate.getTime()} className={css.panel}>{renderPanel(viewingDate)}</div>,
+      <div key={nextDate.getTime()} className={css.panel}>{renderPanel(nextDate)}</div>,
+    ];
+  }, [view, viewingDate, renderPanel, css.panel]);
 
   // Refs so the once-bound native listeners can read/guard against the latest state.
   const phaseRef = useRef<Phase>(phase);
@@ -154,9 +162,7 @@ export const CalendarSwipeViewport = createComponent('CalendarSwipeViewport', ({
   return (
     <Tag name="calendar-swipe-viewport" ref={viewportRef} className={css.viewport}>
       <div className={css.track} style={trackStyle} onTransitionEnd={handleTransitionEnd}>
-        <div className={css.panel}>{panels[0]}</div>
-        <div className={css.panel}>{panels[1]}</div>
-        <div className={css.panel}>{panels[2]}</div>
+        {renderedPanels}
       </div>
     </Tag>
   );
