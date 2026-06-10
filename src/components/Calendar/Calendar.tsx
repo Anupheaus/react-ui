@@ -7,6 +7,7 @@ import { CalendarEntryHighlightProvider } from './CalenderEntryHighlightProvider
 import { createStyles } from '../../theme';
 import { CalendarDayView } from './DayView';
 import { CalendarWeekView } from './WeekView';
+import { useCalendarSwipe } from './useCalendarSwipe';
 import type { ReactNode } from 'react';
 
 const useStyles = createStyles({
@@ -23,6 +24,8 @@ interface Props {
   className?: string;
   view?: 'month' | 'week' | 'day';
   viewingDate?: Date;
+  /** Called when a touch swipe navigates to a new period (day/week/month per `view`). */
+  onViewingDateChange?(date: Date): void;
   entries?: readonly CalendarEntryRecord[];
   onSelect?(entry: CalendarEntryRecord): void;
   weekDays?: readonly CalendarWeekDay[];
@@ -35,6 +38,7 @@ export const Calendar = createComponent('Calendar', ({
   className,
   view = 'month',
   viewingDate = new Date(),
+  onViewingDateChange,
   entries = Array.empty<CalendarEntryRecord>(),
   onSelect = Function.empty(),
   weekDays,
@@ -44,6 +48,7 @@ export const Calendar = createComponent('Calendar', ({
   label,
 }: Props) => {
   const { css, join } = useStyles();
+  const swipeRef = useCalendarSwipe({ view, viewingDate, onViewingDateChange });
 
   const renderedView = (() => {
     switch (view) {
@@ -77,7 +82,7 @@ export const Calendar = createComponent('Calendar', ({
   return (
     <CalendarEntryHighlightProvider>
       <CalendarEntrySelectionProvider>
-        <Tag name="calendar" className={join(css.calendar, className)}>
+        <Tag name="calendar" ref={swipeRef} className={join(css.calendar, className)}>
           {renderedView}
         </Tag>
       </CalendarEntrySelectionProvider>

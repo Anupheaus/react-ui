@@ -10,7 +10,8 @@ A full-page calendar component with month, week, and day views. It renders a lis
 | `viewingDate` | `Date` | No | The date the calendar is currently showing (default: today). |
 | `entries` | `readonly CalendarEntryRecord[]` | No | Array of calendar entries to display. |
 | `onSelect` | `(entry: CalendarEntryRecord) => void` | No | Called when the user selects an entry. |
-| `label` | `ReactNode` | No | Optional label shown above the view (month, week, and day). |
+| `label` | `ReactNode` | No | Label shown above the view. When omitted, the day view defaults it to the formatted viewing date. |
+| `onViewingDateChange` | `(date: Date) => void` | No | Called when a **touch** swipe navigates to a new period — left = next, right = previous, stepped by `view` (day → ±1 day, week → ±1 week, month → ±1 month). No-op in non-touch environments or when not provided. The parent applies the new date back to `viewingDate`. |
 | `className` | `string` | No | CSS class applied to the root element. |
 
 ### Week-view-only props
@@ -148,7 +149,7 @@ Grid lines and view shells (month grid border, week schedule frame, day/week hou
 ## Ambiguities and gotchas
 
 - **`view` defaults to `'month'`** — omitting the `view` prop renders the month grid. Pass `view="week"` or `view="day"` explicitly for schedule views.
-- **`viewingDate` defaults to today** — all views use `viewingDate` to determine which month/week/day to show. Updating `viewingDate` is the only way to navigate; there are no built-in prev/next controls.
+- **`viewingDate` defaults to today** — all views use `viewingDate` to determine which month/week/day to show. Updating `viewingDate` is the only programmatic way to navigate; there are no prev/next buttons. On **touch** devices, horizontal swipes navigate by `view` via `onViewingDateChange` (see `useCalendarSwipe.ts`); the parent must apply the emitted date to `viewingDate`. Swipe uses native non-passive listeners and `preventDefault`s horizontal moves to suppress the browser's back/forward history gesture (vertical scrolling is preserved).
 - **Week view uses Monday-start weeks** — the week containing `viewingDate` is resolved from Monday through Sunday unless `weekDays` limits the visible columns.
 - **Schedule props are ignored in month view** — `weekDays`, `startHour`, `endHour`, and `hourHeight` are only read by the week and day views.
 
