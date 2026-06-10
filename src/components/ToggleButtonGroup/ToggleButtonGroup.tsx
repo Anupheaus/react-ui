@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { is } from '@anupheaus/common';
 import type { ListItemClickEvent, ReactListItem } from '../../models';
 import { createComponent } from '../Component';
 import type { FieldProps } from '../Field';
@@ -7,11 +8,21 @@ import { ToggleButton } from './ToggleButton';
 import { useBound } from '../../hooks';
 import { useValidation } from '../../providers';
 
-interface Props extends FieldProps {
-  items: ReactListItem[];
+interface SingleSelectProps {
+  // Omitted or undefined value puts the group into single-select mode.
   value?: string;
   onChange?: (value: string) => void;
 }
+
+interface MultiSelectProps {
+  // An array value (including an empty array) puts the group into multi-select mode.
+  value?: string[];
+  onChange?: (values: string[]) => void;
+}
+
+type Props = FieldProps & {
+  items: ReactListItem[];
+} & (SingleSelectProps | MultiSelectProps);
 
 export const ToggleButtonGroup = createComponent('ToggleButtonGroup', ({
   items,
@@ -23,18 +34,29 @@ export const ToggleButtonGroup = createComponent('ToggleButtonGroup', ({
 }: Props) => {
   const { validate } = useValidation();
 
+  const isMultiSelect = is.array(value);
+  const selectedIds = isMultiSelect ? value : (value != null ? [value] : []);
+
   const clicked = useBound((event: ListItemClickEvent) => {
     const originalClick = items.findById(event.id)?.onClick;
     originalClick?.(event);
-    onChange?.(event.id);
+    if (is.array(value)) {
+      // Toggle the clicked id in/out of the current selection.
+      const newValues = value.includes(event.id) ? value.filter(id => id !== event.id) : [...value, event.id];
+      (onChange as MultiSelectProps['onChange'])?.(newValues);
+      return;
+    }
+    (onChange as SingleSelectProps['onChange'])?.(event.id);
   });
 
-  const { error } = validate(({ validateRequired }) => validateRequired(value, !isOptional, requiredMessage));
+  // validateRequired does not understand arrays, so treat an empty multi-select as "nothing selected".
+  const validationValue = isMultiSelect ? (value.length > 0 ? value : undefined) : value;
+  const { error } = validate(({ validateRequired }) => validateRequired(validationValue, !isOptional, requiredMessage));
 
   const renderedItems = useMemo(() => items.map(item => {
     const newItem: ReactListItem = {
       ...item,
-      isSelected: item.isSelected ?? (item.id === value),
+      isSelected: item.isSelected ?? selectedIds.includes(item.id),
       onClick: clicked,
     };
     return (
