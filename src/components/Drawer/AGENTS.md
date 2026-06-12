@@ -1,6 +1,6 @@
 # Drawer
 
-A slide-in panel that opens from the right side of the screen. Use the `useDrawer` hook to obtain a bound `Drawer` component together with `openDrawer` / `closeDrawer` helpers, avoiding manual state management.
+A slide-in panel that opens from the right side of the screen by default, or from the bottom as a full-width sheet when `position="bottom"`. Use the `useDrawer` hook to obtain a bound `Drawer` component together with `openDrawer` / `closeDrawer` helpers, avoiding manual state management.
 
 ## Usage
 
@@ -26,6 +26,7 @@ function MyComponent() {
 | Prop | Type | Required | Description |
 |------|------|----------|-------------|
 | `title` | `ReactNode` | No | Title displayed in the drawer's header bar |
+| `position` | `'right' \| 'bottom'` | No | Edge the drawer slides in from. `'bottom'` renders a full-width bottom-sheet (mobile-friendly, rounded top, `max-height: 85vh`). Defaults to `'right'`. |
 | `headerActions` | `ReactNode` | No | Additional action elements rendered in the header alongside the title |
 | `children` | `ReactNode` | No | Body content of the drawer |
 | `className` | `string` | No | Additional CSS class applied to the drawer paper element |

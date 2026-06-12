@@ -17,6 +17,8 @@ export interface DrawerProps {
   className?: string;
   headerActions?: ReactNode;
   title?: ReactNode;
+  /** Which edge the drawer slides in from. `'bottom'` renders a full-width bottom-sheet (mobile-friendly). Defaults to `'right'`. */
+  position?: 'right' | 'bottom';
   disableBackdropClick?: boolean;
   disableEscapeKeyDown?: boolean;
   children?: ReactNode;
@@ -27,34 +29,43 @@ interface Props extends DrawerProps {
   state: DistributedState<boolean>;
 }
 
-const useStyles = createStyles({
+const useStyles = createStyles(({ toolbar }) => ({
   drawer: {
-    minWidth: 400,
     // contentBackgroundColor,
     // color: textColor,
+  },
+  drawerRight: {
+    minWidth: 400,
+  },
+  drawerBottom: {
+    minWidth: 0,
+    width: '100%',
+    maxHeight: '85vh',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
   drawerTitle: {
     gap: 12,
     padding: '0 12px !important',
-    // fontSize,
-    // fontWeight,
-    // color: headerTextColor,
-    // backgroundColor: headerBackgroundColor,
+    // Header colour comes from the app theme — matching the window title bar (`theme.toolbar`)
+    // rather than MUI's default primary (blue) AppBar. The AppBar itself is made transparent below
+    // so this background (the window-title background colour) is what shows.
+    backgroundColor: toolbar.normal.backgroundColor,
+    color: toolbar.normal.color,
   },
   drawerTitleText: {
-    // color: headerTextColor,
-    // fontSize,
-    // fontWeight,
+    color: toolbar.normal.color,
   },
   closeDrawerButton: {
     marginRight: 8,
   },
-});
+}));
 
 export const Drawer = createComponent('Drawer', ({
   className,
   title,
   headerActions,
+  position = 'right',
   disableBackdropClick,
   disableEscapeKeyDown,
   state,
@@ -66,8 +77,8 @@ export const Drawer = createComponent('Drawer', ({
   const { getAndObserve: getOpenState, set: setOpenState } = useDistributedState(state);
 
   const drawerClasses = useMemo<MuiDrawerProps['classes']>(() => ({
-    paper: join(css.drawer, className),
-  }), [className]);
+    paper: join(css.drawer, position === 'bottom' ? css.drawerBottom : css.drawerRight, className),
+  }), [className, position]);
 
   const close = useBound((_event?: {}, standardReason: DrawerCloseReasons = 'drawerClosed') => {
     if (standardReason === 'backdropClick' && disableBackdropClick === true) return;
@@ -80,12 +91,12 @@ export const Drawer = createComponent('Drawer', ({
     <MuiDrawer
       open={getOpenState()}
       onClose={close}
-      anchor="right"
+      anchor={position}
       classes={drawerClasses}
       {...props}
 
     >
-      <AppBar position="static">
+      <AppBar position="static" color="transparent" elevation={0}>
         <Toolbar className={css.drawerTitle}>
           <Button onClick={close}><Icon name="drawer-close" /></Button>
           <Flex tagName="drawer-title-text" className={css.drawerTitleText}>
