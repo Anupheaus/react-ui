@@ -7,6 +7,7 @@ import { DateTime } from 'luxon';
 import { calendarDayUtils } from './CalendarDayUtils';
 import { layoutDayViewEntries, clipEntryToDay } from './CalendarDayViewLayout';
 import { Icon } from '../../Icon';
+import { useBound } from '../../../hooks';
 import { useCalendarEntryExpand } from '../useCalendarEntryExpand';
 
 const useStyles = createStyles(({ surface: { shadows } }) => ({
@@ -63,7 +64,8 @@ const CalendarDayViewEntry = createComponent('CalendarDayViewEntry', ({
   entry, color, top, height, left, width, testId, onSelect,
 }: DayEntryProps) => {
   const { css } = useStyles();
-  const { target, onMouseEnter, onMouseLeave, overlay } = useCalendarEntryExpand(entry.title, color);
+  const handleSelect = useBound(() => onSelect(entry));
+  const { target, onMouseEnter, onMouseLeave, onClick, overlay } = useCalendarEntryExpand(entry.title, color, handleSelect);
   return (
     <Flex tagName="calendar-day-view-entry" className={css.entry} style={{ top, height, left, width }}>
       <Flex
@@ -74,10 +76,7 @@ const CalendarDayViewEntry = createComponent('CalendarDayViewEntry', ({
         ref={target}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        onClickCapture={event => {
-          event.stopPropagation();
-          onSelect(entry);
-        }}
+        onClickCapture={onClick}
       >
         {entry.icon != null && <Icon name={entry.icon} size="small" />}
         <Flex tagName="calendar-day-view-entry-title-wrapper" className={css.entryTitleWrapper}>

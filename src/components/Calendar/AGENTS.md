@@ -66,7 +66,13 @@ Entries render their `title` as multi-line content clipped to the entry box. Day
 
 When an entry's content is truncated (it doesn't fit the box), hovering the entry shows an in-place overlay anchored over it. The overlay starts at the entry's rendered width/height and grows to fit the full content, while being kept within the viewport (it is a MUI `Popover`). When the content fully fits, no overlay appears. This is automatic — there is no prop to enable it — and applies to the day, week, and month views.
 
-The behaviour lives in `useCalendarEntryExpand.tsx`. It measures the rendered entry (`scrollHeight`/`scrollWidth` vs `clientHeight`/`clientWidth`, with a 1px tolerance) to decide whether content is truncated, and returns a `target` ref to attach to the entry, `onMouseEnter`/`onMouseLeave` handlers, and an `overlay` node to render. It is consumed by `CalendarDayViewEntries.tsx` (day and week views) and `CalendarMonthViewCellEntry.tsx` (month view).
+The behaviour lives in `useCalendarEntryExpand.tsx`. It measures the rendered entry (`scrollHeight`/`scrollWidth` vs `clientHeight`/`clientWidth`, with a 1px tolerance) to decide whether content is truncated, and returns a `target` ref to attach to the entry, `onMouseEnter`/`onMouseLeave` handlers, an **`onClick`** handler for the entry, and an `overlay` node to render. It is consumed by `CalendarDayViewEntries.tsx` (day and week views) and `CalendarMonthViewCellEntry.tsx` (month view).
+
+**Selection (`onSelect`).** `useCalendarEntryExpand(content, color, onSelect?)` also drives entry selection, so expansion and selection compose on touch. The model:
+- **Non-touch:** hover expands; clicking the entry **or** the expanded overlay fires `onSelect`.
+- **Touch:** the first tap on a *truncated* entry only **expands** the popup (it does not select); tapping the now-covering popup fires `onSelect`. A non-truncated entry (nothing to expand into) selects on the first tap.
+
+The overlay is only made tappable when an `onSelect` is supplied (the day/week entries pass one; the month entry currently does not). `Calendar.onSelect(entry)` is wired through `CalendarDayViewEntries.tsx`.
 
 ## Usage
 

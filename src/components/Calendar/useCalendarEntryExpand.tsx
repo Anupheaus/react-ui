@@ -5,6 +5,7 @@ import { Popover } from '@mui/material';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { useBound, useOnResize, useOnUnmount } from '../../hooks';
+import { isTouchEnvironment } from './calendarNavigation';
 
 const MAX_OVERLAY_WIDTH = 360;
 const CLOSE_DELAY_MS = 80;
@@ -22,6 +23,9 @@ const useStyles = createStyles(({ surface: { shadows } }) => ({
     overflow: 'auto',
     pointerEvents: 'auto',
   },
+  selectable: {
+    cursor: 'pointer',
+  },
 }));
 
 interface OverlayProps {
@@ -32,12 +36,14 @@ interface OverlayProps {
   content: ReactNode;
   onMouseEnter(): void;
   onMouseLeave(): void;
+  /** When provided the overlay is tappable/clickable and invokes this on click (used to "select" the entry). */
+  onSelect?(): void;
 }
 
 const CalendarEntryExpandOverlay = createComponent('CalendarEntryExpandOverlay', ({
-  anchor, minWidth, minHeight, color, content, onMouseEnter, onMouseLeave,
+  anchor, minWidth, minHeight, color, content, onMouseEnter, onMouseLeave, onSelect,
 }: OverlayProps) => {
-  const { css, useInlineStyle } = useStyles();
+  const { css, join, useInlineStyle } = useStyles();
   const actionRef = useRef<PopoverActions>(null);
   const { width: contentWidth, height: contentHeight, target: contentTarget } = useOnResize();
 
@@ -50,7 +56,13 @@ const CalendarEntryExpandOverlay = createComponent('CalendarEntryExpandOverlay',
   }, [contentWidth, contentHeight]);
 
   const paperStyle = useInlineStyle(() => ({ minWidth, minHeight, backgroundColor: color }), [minWidth, minHeight, color]);
-  const paperProps: PaperProps = { className: css.overlayPaper, style: paperStyle, onMouseEnter, onMouseLeave };
+  const paperProps: PaperProps = {
+    className: join(css.overlayPaper, onSelect != null && css.selectable),
+    style: paperStyle,
+    onMouseEnter,
+    onMouseLeave,
+    onClick: onSelect,
+  };
   const slotProps: PopoverProps['slotProps'] = { root: { style: { pointerEvents: 'none' } } };
   return (
     <Popover
@@ -77,10 +89,16 @@ interface ExpandResult {
   target(element: HTMLElement | null): void;
   onMouseEnter(): void;
   onMouseLeave(): void;
+  /**
+   * Click/tap handler for the entry itself. Touch: a truncated entry's first tap only expands the
+   * popup (selection then happens by tapping the popup, which covers the entry); a non-truncated
+   * entry selects immediately. Non-touch: always selects (hover handles expansion).
+   */
+  onClick(event: { stopPropagation(): void }): void;
   overlay: ReactNode;
 }
 
-export function useCalendarEntryExpand(content: ReactNode, color: string): ExpandResult {
+export function useCalendarEntryExpand(content: ReactNode, color: string, onSelect?: () => void): ExpandResult {
   const elementRef = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [isHovered, setIsHovered] = useState(false);
@@ -107,6 +125,20 @@ export function useCalendarEntryExpand(content: ReactNode, color: string): Expan
     if (closeTimer.current != null) clearTimeout(closeTimer.current);
     closeTimer.current = setTimeout(() => setIsHovered(false), CLOSE_DELAY_MS);
   });
+  const hide = useBound(() => {
+    if (closeTimer.current != null) clearTimeout(closeTimer.current);
+    setIsHovered(false);
+  });
+
+  const onClick = useBound((event: { stopPropagation(): void }) => {
+    event.stopPropagation();
+    // Touch + truncated: first tap only expands; the popup (which now covers the entry) is what
+    // gets tapped to select. Everything else selects immediately.
+    if (isTouchEnvironment && isTruncated) { open(); return; }
+    onSelect?.();
+  });
+
+  const onOverlaySelect = useBound(() => { hide(); onSelect?.(); });
 
   useOnUnmount(() => { if (closeTimer.current != null) clearTimeout(closeTimer.current); });
 
@@ -120,9 +152,10 @@ export function useCalendarEntryExpand(content: ReactNode, color: string): Expan
         content={content}
         onMouseEnter={open}
         onMouseLeave={close}
+        onSelect={onSelect != null ? onOverlaySelect : undefined}
       />
     )
     : null;
 
-  return { target, onMouseEnter: open, onMouseLeave: close, overlay };
+  return { target, onMouseEnter: open, onMouseLeave: close, onClick, overlay };
 }
