@@ -1,5 +1,6 @@
 import Color from 'color';
 import type { Theme } from './ThemeModel';
+import { mobileQuery, touchPointerQuery } from '../useDevice/deviceQueries';
 
 const primaryTextColor = '#000';
 
@@ -180,8 +181,8 @@ export const DefaultTheme: Theme = {
   pseudoClasses: {
     active: '&:not(.is-read-only):hover, &:not(.is-read-only):active, &:not(.is-read-only):focus, &:not(.is-read-only):focus-visible, &:not(.is-read-only).is-active',
     readOnly: '&.is-read-only',
-    tablet: '@media(pointer: coarse)',
-    mobile: '@media(pointer: coarse) and (max-width: 768px)',
+    tablet: `@media${touchPointerQuery}`,
+    mobile: `@media${mobileQuery}`,
   },
   tooltip: {
     backgroundColor: '#555',

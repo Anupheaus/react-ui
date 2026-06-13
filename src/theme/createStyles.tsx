@@ -5,6 +5,7 @@ import { is } from '@anupheaus/common';
 import type { CSSProperties } from 'react';
 import { useContext, useMemo } from 'react';
 import { ThemeContext } from './ThemeContext';
+import type { DeviceType } from './useDevice/device-models';
 import { DefaultTheme } from './themes';
 import Color from 'color';
 import { hoistMediaQueriesInStyles } from './hoistMediaQueries';
@@ -19,6 +20,7 @@ type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () =>
   css: { [K in keyof TStyles]: string; };
   theme: TTheme;
   tools: ThemeTools;
+  device: DeviceType;
   alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme; // NamedExoticComponent<{ children: ReactNode; }>;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   toPx(value: number | string | undefined): string | undefined;
@@ -101,7 +103,7 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
   });
 
   return () => {
-    const { theme, isValid } = useContext(ThemeContext);
+    const { theme, isValid, device } = useContext(ThemeContext);
     const themeInUse = isValid ? theme : DefaultTheme;
     const tools = createThemeTools(themeInUse);
     const { classes: css, cx } = useStylesInnerFunc({ theme: themeInUse, tools });
@@ -109,6 +111,7 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
     return {
       css: css as { [K in keyof TStyles]: string; },
       theme: themeInUse,
+      device,
       alterTheme: (delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme => {
         const newTheme = delegate(themeInUse);
         return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);

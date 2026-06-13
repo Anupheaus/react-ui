@@ -4,6 +4,7 @@ import { UIState } from '../providers';
 import { StorybookComponent } from './StorybookComponent2';
 import { Flex } from '../components';
 import type { ReactNode } from 'react';
+import type { DeviceType } from '../theme';
 
 const states = {
   'Normal': {},
@@ -39,10 +40,12 @@ type NewStoryObj<P extends AnyObject> = StoryObj<P> & {
   includeError?: boolean;
   width?: string | number;
   height?: string | number;
+  /** Render this story as though it is on the given device (drives the touch/mobile pseudo-classes). */
+  device?: DeviceType;
 };
 
 export function createStorybookComponentStates<P extends AnyObject>(story: NewStoryObj<P>): StoryObj<P> {
-  const { includeError, width, height } = story;
+  const { includeError, width, height, device } = story;
   story.args = {
     ...story.args,
 
@@ -74,5 +77,7 @@ export function createStorybookComponentStates<P extends AnyObject>(story: NewSt
     },
   } as StoryObj<P>;
   config.name = story.name ?? story.storyName ?? 'UI States';
+  // Surface the device choice as a story parameter so the global device decorator can pick it up.
+  if (device != null) config.parameters = { ...config.parameters, device };
   return config;
 }

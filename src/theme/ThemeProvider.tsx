@@ -7,6 +7,7 @@ import type { Theme } from './themes';
 import { createTheme, ThemeProvider as MuiThemeProvider } from '@mui/material';
 import type { CSSInterpolation } from 'tss-react';
 import { GlobalStyles } from 'tss-react';
+import { useDevice } from './useDevice';
 
 const muiTheme = createTheme();
 
@@ -22,10 +23,13 @@ export const ThemeProvider = createComponent('ThemeProvider', <ThemeType extends
   children,
 }: Props<ThemeType>) => {
 
+  const device = useDevice();
+
   const context = useMemo<ThemeContextProps>(() => ({
     theme: providedTheme,
     isValid: true,
-  }), [providedTheme]);
+    device,
+  }), [providedTheme, device]);
 
   const { text, fonts } = providedTheme;
 
