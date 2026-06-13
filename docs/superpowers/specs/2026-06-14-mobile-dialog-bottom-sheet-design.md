@@ -90,14 +90,19 @@ All changes in [useWindow.tsx](../../../src/components/Windows/useWindow.tsx).
 - Call `useDevice()` once, unconditionally, in the main (args-provided) branch — the same
   place existing hooks like `useId` are called. (The no-arg in-content branch returns early
   and is a stable, separate call site, so this introduces no rules-of-hooks risk.)
-- Change `getManager` to select the manager type by device:
+- A `managerId` provided to `useWindow` (or resolved from `WindowsManagerContext`) is a
+  **windows-type** id and cannot be reused for type `'dialogs'`. So on mobile the dialogs
+  manager is resolved independently, the same way `useDialog` does it — via
+  `DialogsManagerContext` (defaulting to the dialogs default manager). Change `getManager`
+  to branch on device:
 
   ```ts
   const device = useDevice();
-  const getManager = () => WindowsManager.getManagerForType(
-    device === 'mobile' ? 'dialogs' : 'windows',
-    effectiveManagerId,
-  );
+  const contextDialogsManagerId = useContext(DialogsManagerContext);
+  // existing: effectiveManagerId = providedManagerId ?? useContext(WindowsManagerContext)
+  const getManager = () => device === 'mobile'
+    ? WindowsManager.getManagerForType('dialogs', contextDialogsManagerId)
+    : WindowsManager.getManagerForType('windows', effectiveManagerId);
   ```
 
 - `open()` argument semantics are unchanged on both platforms — only the target manager
