@@ -5,7 +5,8 @@ import { InitialWindowState } from './WindowsModels';
 import { WindowsManager } from './WindowsManager';
 import { useContext, useRef } from 'react';
 import { useBound, useId } from '../../hooks';
-import { WindowRenderContext, WindowsManagerContext } from './WindowsContexts';
+import { WindowRenderContext, WindowsManagerContext, DialogsManagerContext } from './WindowsContexts';
+import { useDevice } from '../../theme/useDevice';
 
 interface Props<Name extends string, Args extends unknown[], CloseResponseType = string | undefined> {
   id?: string;
@@ -44,8 +45,12 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   const lastOpenedWindowIdRef = useRef<string>(id);
   const contextManagerId = useContext(WindowsManagerContext);
   const effectiveManagerId = providedManagerId ?? contextManagerId;
+  const device = useDevice();
+  const contextDialogsManagerId = useContext(DialogsManagerContext);
 
-  const getManager = () => WindowsManager.getManagerForType('windows', effectiveManagerId);
+  const getManager = () => device === 'mobile'
+    ? WindowsManager.getManagerForType('dialogs', contextDialogsManagerId)
+    : WindowsManager.getManagerForType('windows', effectiveManagerId);
 
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();
