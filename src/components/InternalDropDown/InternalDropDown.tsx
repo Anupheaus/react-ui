@@ -17,7 +17,7 @@ import { is } from '@anupheaus/common';
 import { InternalList } from '../InternalList';
 import { addOptionalItemTo, optionalItemKey } from './addOptionalItemTo';
 
-const useStyles = createStyles(({ menu: { normal } }) => ({
+const useStyles = createStyles(({ pseudoClasses, menu: { normal } }) => ({
   dropDown: {
     minWidth: 75,
   },
@@ -25,6 +25,12 @@ const useStyles = createStyles(({ menu: { normal } }) => ({
     alignItems: 'center',
     gap: 4,
     padding: '0 8px',
+
+    // Match the touch-device sizing of the text input (see InternalText/InputStyles.ts) so dropdowns and text fields line up on touch devices.
+    [pseudoClasses.tablet]: {
+      fontSize: '1.2em',
+      padding: '8px 12px',
+    },
   },
   popover: {
     ...normal,

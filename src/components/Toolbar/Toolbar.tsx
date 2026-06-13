@@ -30,7 +30,9 @@ const useStyles = createStyles(({ fields: { content: { normal: field } } }) => (
       minHeight: '28px!important',
       padding: '4px 4px!important',
       width: '28px!important',
-      height: '28px!important',
+      // Stretch to the full height of the field container (taller on touch devices) rather than a fixed height, so the button is flush top-to-bottom.
+      height: 'auto!important',
+      alignSelf: 'stretch',
     },
   },
   popover: {
