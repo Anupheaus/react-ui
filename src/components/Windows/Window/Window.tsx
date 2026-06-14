@@ -79,8 +79,8 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
       minWidth: '0 !important',
       height: 'auto !important',
       minHeight: '0 !important',
-      maxHeight: '85vh',
-      borderTopLeftRadius: 16,
+      maxHeight: '85vh', // keep some of the backdrop visible above the sheet
+      borderTopLeftRadius: 16, // rounded top to read as a bottom-sheet
       borderTopRightRadius: 16,
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0,
@@ -89,18 +89,16 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
       '&.preparing': {
         transform: 'translateY(0)',
         opacity: 0,
+        transitionProperty: 'none',
       },
       '&.prepared': {
         transform: 'translateY(100%)',
         opacity: 0,
+        transitionProperty: 'none',
       },
       '&.is-visible': {
         transform: 'translateY(0)',
         opacity: 1,
-      },
-      '&.is-maximized': {
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 0,
       },
     },
 
