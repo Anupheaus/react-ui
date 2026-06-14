@@ -274,7 +274,7 @@ export const Window = createComponent('Window', ({
         isMobile && 'is-mobile',
         className,
       )}
-      style={isMobile ? undefined : style}
+      style={style}
       onMouseDownCapture={handleMouseDown}
     >
       <Tag
