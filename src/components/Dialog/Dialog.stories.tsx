@@ -77,3 +77,30 @@ export const Default: Story = {
     );
   },
 };
+
+export const MobileBottomSheet: Story = {
+  args: {},
+  parameters: { device: 'mobile' },
+  render: () => {
+    const { css } = useStyles();
+    const { openTestDialog } = useDialog(TestDialogDefinition);
+
+    const onOpen = useBound(async () => {
+      await openTestDialog(123, 'This dialog should slide up from the bottom as a sheet on mobile.');
+    });
+
+    return (
+      <Flex tagName="dialog-test" valign="top" align="left" isVertical>
+        <Flex gap={4}>
+          <Button onClick={onOpen}>Open</Button>
+        </Flex>
+        <StorybookComponent width={390} height={700} showComponentBorders>
+          <Dialogs shouldBlurBackground>
+            <Flex tagName="background" className={css.background} />
+            <Flex className={css.text}>This should be blurred behind the sheet!</Flex>
+          </Dialogs>
+        </StorybookComponent>
+      </Flex>
+    );
+  },
+};
