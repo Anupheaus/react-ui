@@ -3,6 +3,9 @@ import { vi } from 'vitest';
 
 // Control the device the hook sees. Each test sets currentDevice before rendering.
 let currentDevice: 'web' | 'tablet' | 'mobile' = 'web';
+// NOTE: Mutating currentDevice after renderHook does NOT trigger a re-render
+// because the vi.mock bypasses useSyncExternalStore's subscribe mechanism.
+// Set currentDevice before calling renderHook.
 vi.mock('../../theme/useDevice', () => ({
   useDevice: () => currentDevice,
 }));
@@ -32,7 +35,6 @@ afterEach(() => {
 describe('useWindow device routing', () => {
   it('opens into the windows manager on web', async () => {
     createDefaultManagers();
-    currentDevice = 'web';
     const { result } = renderHook(() => useWindow(RoutingTestWindow));
     await act(async () => { await (result.current as any).openRoutingTestWindow('rt-web'); });
     expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-web')).toBe(true);
@@ -46,6 +48,15 @@ describe('useWindow device routing', () => {
     await act(async () => { await (result.current as any).openRoutingTestWindow('rt-mobile'); });
     expect(WindowsManager.get(DIALOGS_DEFAULT_ID).has('rt-mobile')).toBe(true);
     expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-mobile')).toBe(false);
+  });
+
+  it('opens into the windows manager on tablet', async () => {
+    createDefaultManagers();
+    currentDevice = 'tablet';
+    const { result } = renderHook(() => useWindow(RoutingTestWindow));
+    await act(async () => { await (result.current as any).openRoutingTestWindow('rt-tablet'); });
+    expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-tablet')).toBe(true);
+    expect(WindowsManager.get(DIALOGS_DEFAULT_ID).has('rt-tablet')).toBe(false);
   });
 
   it('throws a clear error on mobile when no dialogs manager is mounted', async () => {
