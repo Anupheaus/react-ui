@@ -69,6 +69,39 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
       borderRadius: 0,
     },
 
+    '&.is-mobile': {
+      top: 'auto !important',
+      bottom: '0 !important',
+      left: '0 !important',
+      right: '0 !important',
+      width: '100% !important',
+      maxWidth: '100% !important',
+      minWidth: '0 !important',
+      height: 'auto !important',
+      minHeight: '0 !important',
+      maxHeight: '85vh', // keep some of the backdrop visible above the sheet
+      borderTopLeftRadius: 16, // rounded top to read as a bottom-sheet
+      borderTopRightRadius: 16,
+      borderBottomLeftRadius: 0,
+      borderBottomRightRadius: 0,
+      transform: 'translateY(100%)',
+
+      '&.preparing': {
+        transform: 'translateY(0)',
+        opacity: 0,
+        transitionProperty: 'none',
+      },
+      '&.prepared': {
+        transform: 'translateY(100%)',
+        opacity: 0,
+        transitionProperty: 'none',
+      },
+      '&.is-visible': {
+        transform: 'translateY(0)',
+        opacity: 1,
+      },
+    },
+
     '&.stop-transitions': {
       transitionProperty: 'none',
     },
@@ -163,8 +196,10 @@ export const Window = createComponent('Window', ({
   const [state, setState] = useWindowState(manager, id, providedWidth, providedHeight);
   const { isMaximized: savedIsMaximized, index: windowIndex, isFocused } = state;
   const isMaximized = savedIsMaximized ?? providedIsMaximized;
-  const isDraggable = !disableDrag && !isMaximized;
-  const { css, join } = useStyles();
+  const { css, join, device } = useStyles();
+  const isMobile = device === 'mobile';
+  const hideMaximize = hideMaximizeButton || isMobile;
+  const isDraggable = !disableDrag && !isMaximized && !isMobile;
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
   const [isResizing, setIsResizing] = useState(false);
   const { ValidateSection, isValid } = useValidation();
@@ -236,6 +271,7 @@ export const Window = createComponent('Window', ({
         allowIsMaximized && isMaximized && 'is-maximized',
         shouldStopTransitions && 'stop-transitions',
         !isFocused && 'is-not-focused',
+        isMobile && 'is-mobile',
         className,
       )}
       style={style}
@@ -253,8 +289,8 @@ export const Window = createComponent('Window', ({
           title={displayTitle}
           endAdornment={<>
             {windowControls}
-            {!hideMaximizeButton && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
-            {!hideMaximizeButton && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
+            {!hideMaximize && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
+            {!hideMaximize && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
             {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
           </>}
         />
@@ -268,7 +304,7 @@ export const Window = createComponent('Window', ({
               </ValidateSection>
             </FormObserver>
           </WindowValidationProvider>
-          <WindowResizer isEnabled={!isMaximized && !disableResize} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
+          <WindowResizer isEnabled={!isMaximized && !disableResize && !isMobile} windowElementRef={windowElementRef} onResizingStart={handleResizingStart} onResizingEnd={handleResizingEnd} />
         </UIState>
       </Tag>
     </Flex >
