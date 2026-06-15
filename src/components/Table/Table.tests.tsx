@@ -68,6 +68,10 @@ function createTableRequest(sourceRecords: TestRecord[]): TableOnRequest<TestRec
   };
 }
 
+const emptyTableRequest: TableOnRequest<TestRecord> = async ({ requestId }, response) => {
+  response({ requestId, records: [], total: 0 });
+};
+
 function findCssPropertyMatchingSelector(selectorIncludes: string, property: string): string | undefined {
   for (const sheet of Array.from(document.styleSheets)) {
     let rules: CSSRuleList;
@@ -226,6 +230,89 @@ describe('Table', () => {
     expect(Array.from(actionsCell!.classList).some(className => className.includes('dataCell'))).toBe(false);
     expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'position')).not.toBe('sticky');
     expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'overflow')).toBe('unset');
+  });
+
+  it('shows the provided empty message when there are no records', async () => {
+    const { container, getByText } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('Nothing here yet')).not.toBeNull();
+    });
+
+    expect(container.querySelectorAll('table-row')).toHaveLength(0);
+    expect(container.querySelectorAll('table-cell')).toHaveLength(0);
+  });
+
+  it('shows the default empty message when emptyMessage is omitted', async () => {
+    const { getByText } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('No records to display')).not.toBeNull();
+    });
+  });
+
+  it('renders no empty-state UI when emptyMessage is null', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage={null} />,
+    );
+
+    await waitFor(() => {
+      expect(getBodyScroller(container)).not.toBeNull();
+    });
+
+    expect(container.querySelector('list-empty-message')).toBeNull();
+  });
+
+  it('leaves the header and footer unaffected when the empty message is shown', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('list-empty-message')).not.toBeNull();
+    });
+
+    expect(container.querySelector('table-header')).not.toBeNull();
+    expect(container.querySelector('table-footer')).not.toBeNull();
+  });
+
+  it('does not show the empty message when records are returned', async () => {
+    const { container, getByText } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('Alpha')).not.toBeNull();
+    });
+
+    expect(container.querySelector('list-empty-message')).toBeNull();
+  });
+
+  it('renders a React element empty message', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage={<span data-testid="custom-empty">Custom</span>} />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-testid="custom-empty"]')).not.toBeNull();
+    });
+  });
+
+  it('does not show the empty message while loading', async () => {
+    const pendingRequest: TableOnRequest<TestRecord> = () => new Promise<void>(() => void 0);
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={pendingRequest} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(getBodyScroller(container)).not.toBeNull();
+    });
+
+    expect(container.querySelector('list-empty-message')).toBeNull();
   });
 });
 
