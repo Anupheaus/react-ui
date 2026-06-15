@@ -27,7 +27,12 @@ export const WindowsContentRenderer = createComponent('WindowsContentRenderer', 
     const globalDef = windowsDefinitionsManager.getGlobalDefinition(windowTypeName);
     if (globalDef == null) continue;
 
-    const windowComponent = managerType === 'dialogs' ? Dialog : undefined;
+    // Only genuine dialog definitions (createDialog → dialogOnly) render through <Dialog> (no close
+    // button by default). A window definition shown in the dialogs manager (e.g. a useWindow window
+    // presented as a dialog on mobile) renders as a normal <Window> — it keeps the window chrome
+    // (close button shown by default) and still slides up, since the bottom-sheet styling lives in
+    // the Window component's mobile device styling, not in Dialog.
+    const windowComponent = managerType === 'dialogs' && globalDef.dialogOnly ? Dialog : undefined;
     for (const state of instances) {
       nodes.push(
         <WindowRenderer

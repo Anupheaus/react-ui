@@ -70,6 +70,6 @@ export function createWindow<Name extends string, Args extends unknown[], CloseR
   Reflect.defineProperty(component, 'name', { get: () => name, enumerable: true, configurable: true });
   (component as AnyObject).definition = windowDefinition;
   if (dialogOnly) (component as AnyObject).dialogOnly = true;
-  windowsDefinitionsManager.registerGlobal(name, windowDefinition, doNotPersist);
+  windowsDefinitionsManager.registerGlobal(name, windowDefinition, doNotPersist, dialogOnly);
   return component as ReactUIWindow<Name, Args, CloseResponseType>;
 }

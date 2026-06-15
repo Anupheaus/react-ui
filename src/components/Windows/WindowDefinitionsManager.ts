@@ -9,6 +9,8 @@ type WindowId = string;
 interface GlobalDefinition {
   definition: WindowDefinition<unknown[], unknown>;
   doNotPersist: boolean;
+  /** True for `createDialog` definitions — they render as dialogs and have no close button by default. */
+  dialogOnly: boolean;
 }
 
 interface LocalDefinition {
@@ -37,8 +39,9 @@ class WindowsDefinitionsManager {
     definitionId: DefinitionId,
     definition: WindowDefinition<Args, CloseResponseType>,
     doNotPersist: boolean,
+    dialogOnly = false,
   ): void {
-    this.#globalDefinitions.set(definitionId, { definition: definition as WindowDefinition<unknown[], unknown>, doNotPersist });
+    this.#globalDefinitions.set(definitionId, { definition: definition as WindowDefinition<unknown[], unknown>, doNotPersist, dialogOnly });
   }
 
   public getGlobalDefinitionIds(): DefinitionId[] {
