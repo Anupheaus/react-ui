@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { DefaultTheme, ThemeProvider } from '../../theme';
@@ -35,7 +36,7 @@ beforeAll(() => {
   });
 });
 
-function renderList(children: React.ReactNode) {
+function renderList(children: ReactNode) {
   return render(
     <ThemeProvider theme={DefaultTheme}>
       <div style={{ width: 300, height: 400, display: 'flex' }}>

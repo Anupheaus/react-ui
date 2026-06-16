@@ -183,7 +183,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     scrollTo,
   });
 
-  const showEmptyMessage = total === 0 && isLoading === false && error == null && emptyMessage != null;
+const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
 
   const requestItems = useBound(() => {
     if (hasUnmounted()) return;
