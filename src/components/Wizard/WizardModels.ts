@@ -34,6 +34,10 @@ export interface WizardEnabledContextProps {
   isBackEnabled: boolean;
 }
 
+export interface WizardRenderModeContextProps {
+  mode: 'dialog' | 'inline';
+}
+
 export interface WizardRegistrationContextProps {
   isValid: boolean;
   upsertStep(record: StepRecord): void;

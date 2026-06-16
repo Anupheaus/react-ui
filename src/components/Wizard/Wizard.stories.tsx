@@ -44,6 +44,40 @@ export const InlineSteps: Story = {
   },
 };
 
+// ── Inline (headless) mode ───────────────────────────────────────────────────
+
+const InlineModeWizard = createWizard('InlineModeWizard', ({ Wizard, Step, Actions }) => () => (
+  <Wizard title="Inline Wizard" showProgress width={620} height={420}>
+    <Step id="account" label="Account details"><p>Enter your account information here.</p></Step>
+    <Step id="prefs" label="Preferences"><p>Customise your preferences.</p></Step>
+    <Step id="review" label="Review"><p>Review and confirm your submission.</p></Step>
+    <Actions />
+  </Wizard>
+));
+
+const InlineModeStory = createComponent('InlineModeStory', () => {
+  const { InlineInlineModeWizard } = useWizard(InlineModeWizard, 'inline-mode-1');
+  const [closedWith, setClosedWith] = useState<string | undefined>(undefined);
+  return (
+    <Flex isVertical gap={8}>
+      {closedWith == null
+        ? <InlineInlineModeWizard onClose={reason => setClosedWith(reason ?? 'closed')} />
+        : <p>Wizard finished with: {closedWith}</p>}
+    </Flex>
+  );
+});
+
+export const InlineMode: Story = {
+  render() {
+    return (
+      <StorybookComponent width={900} height={600} title="Inline (headless) Wizard">
+        <InlineModeStory />
+      </StorybookComponent>
+    );
+  },
+};
+InlineMode.name = 'Inline (headless) Mode';
+
 // ── External createWizardStep components ─────────────────────────────────────
 
 const DetailsStep = createWizardStep('DetailsStep', ({ id, setNextIsEnabled }) => {

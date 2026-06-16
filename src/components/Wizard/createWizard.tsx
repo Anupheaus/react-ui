@@ -5,6 +5,7 @@ import { windowsDefinitionsManager } from '../Windows/WindowDefinitionsManager';
 import type { ReactUIWindow, WindowDefinition, WindowDefinitionProps } from '../Windows/WindowsModels';
 import type { WizardDefinition } from './WizardModels';
 import { WizardContentComponent } from './WizardRenderer';
+import { createInlineWizard } from './createInlineWizard';
 
 function getArgsLength(fn: (...args: any[]) => any): number {
   try {
@@ -64,6 +65,7 @@ export function createWizard<Name extends string, Args extends unknown[], CloseR
   }
   Reflect.defineProperty(component, 'name', { get: () => name, enumerable: true, configurable: true });
   (component as AnyObject).definition = wizardDefinition;
+  (component as AnyObject).Inline = createInlineWizard(name, wizardDefinition);
 
   windowsDefinitionsManager.registerGlobal(name, windowDefinition as WindowDefinition<unknown[], unknown>, false);
 
