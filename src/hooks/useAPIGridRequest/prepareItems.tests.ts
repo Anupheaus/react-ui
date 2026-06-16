@@ -1,7 +1,6 @@
 import '@anupheaus/common';
 import { DeferredPromise } from '@anupheaus/common';
 import { prepareItems } from './prepareItems';
-import type { ListItemType } from '../../models';
 
 type Item = { id: string; name: string };
 

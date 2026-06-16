@@ -64,9 +64,9 @@ interface Props<T> {
 
 export const MatrixXYCategoryRenderer = createComponent('MatrixXYCategoryRenderer', function <T = unknown>({
   renderer: Renderer,
-  isLast,
-  onInsertBefore,
-  onInsertAfter,
+  isLast: _isLast,
+  onInsertBefore: _onInsertBefore,
+  onInsertAfter: _onInsertAfter,
   location,
   ...props
 }: Props<T>) {

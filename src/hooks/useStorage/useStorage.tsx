@@ -15,7 +15,7 @@ function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] |
   if (value == null || value.length === 0 || value === 'null') return defaultValue?.();
   try {
     return JSON.parse(value) as unknown as T;
-  } catch (err) {
+  } catch {
     // eslint-disable-next-line no-console
     console.warn(`A value found in storage with key "${key}" could not be parsed correctly, will use defaultValue if provided.`);
     return defaultValue?.() as T;

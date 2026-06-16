@@ -18,7 +18,7 @@ interface ApiFilterOperatorListItem extends ReactListItem {
   valueModification(value: unknown): unknown;
 }
 
-const { ids: filterOperatorIds, pairs: ApiFilterOperatorPairs } = ListItems.as<ApiFilterOperatorListItem>().create([
+const { ids: _filterOperatorIds, pairs: ApiFilterOperatorPairs } = ListItems.as<ApiFilterOperatorListItem>().create([
   { id: 'equals', text: 'is equal to', operatorSymbol: '=', valueModification: v => v },
   { id: 'notEquals', text: 'is not equal to', operatorSymbol: '!=', valueModification: v => v },
   { id: 'greaterThan', text: 'is greater than', operatorSymbol: '>', valueModification: v => v },
@@ -35,7 +35,7 @@ const ApiFilterOperators = ApiFilterOperatorPairs as (typeof ApiFilterOperatorPa
 ApiFilterOperators.getSymbolFor = operator => ApiFilterOperators.find(item => item.id === operator)?.operatorSymbol;
 ApiFilterOperators.applyValueModificationUsing = (operator, value) => ApiFilterOperators.find(item => item.id === operator)?.valueModification(value) ?? value;
 
-export type ApiFilterOperator = typeof filterOperatorIds;
+export type ApiFilterOperator = typeof _filterOperatorIds;
 export { ApiFilterOperators };
 
 export interface ApiFilterFull<T extends {} = {}, K extends keyof T = keyof T> {
