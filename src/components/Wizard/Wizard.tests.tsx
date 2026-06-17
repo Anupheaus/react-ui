@@ -351,6 +351,35 @@ describe('Wizard', () => {
 
 });
 
+// ─── Wizard inline mode ───────────────────────────────────────────────────────
+
+import { WizardRenderModeContext } from './WizardContexts';
+
+describe('Wizard inline mode', () => {
+  it('renders step content inline without rendering a window element', async () => {
+    const { container, findByText } = render(
+      <WizardRenderModeContext.Provider value={{ mode: 'inline' }}>
+        <Wizard title="Inline Title">
+          <WizardStep id="s1">Inline Step One</WizardStep>
+        </Wizard>
+      </WizardRenderModeContext.Provider>
+    );
+    expect(await findByText('Inline Step One')).toBeInTheDocument();
+    expect(container.querySelector('window')).toBeNull();
+  });
+
+  it('renders the title as an inline header', async () => {
+    const { findByText } = render(
+      <WizardRenderModeContext.Provider value={{ mode: 'inline' }}>
+        <Wizard title="Inline Header Title">
+          <WizardStep id="s1">content</WizardStep>
+        </Wizard>
+      </WizardRenderModeContext.Provider>
+    );
+    expect(await findByText('Inline Header Title')).toBeInTheDocument();
+  });
+});
+
 // ─── createWizardStep ─────────────────────────────────────────────────────────
 
 describe('createWizardStep', () => {
@@ -421,6 +450,67 @@ describe('useWizard', () => {
     const { result } = renderHook(() => useWizard(MyWizard, 'hw-1'));
     expect(typeof result.current.openMyHookWizard).toBe('function');
     expect(typeof result.current.closeMyHookWizard).toBe('function');
+  });
+});
+
+// ─── useWizard inline component ────────────────────────────────────────────────
+
+describe('useWizard inline component', () => {
+  it('exposes an Inline component named after the wizard', () => {
+    const MyWizard = createWizard('InlineApiWizard', ({ Wizard, Step }) => () => (
+      <Wizard title="x"><Step id="s1"><div /></Step></Wizard>
+    ));
+    const { result } = renderHook(() => useWizard(MyWizard, 'ia-1'));
+    expect((result.current as any).InlineInlineApiWizard).toBeDefined();
+  });
+
+  it('renders the wizard inline with its title and step content, without a window', async () => {
+    const MyWizard = createWizard('InlineRenderWizard', ({ Wizard, Step, Actions }) => () => (
+      <Wizard title="Render Title"><Step id="s1">Render Step</Step><Actions /></Wizard>
+    ));
+    const { result } = renderHook(() => useWizard(MyWizard, 'ir-1'));
+    const Inline = (result.current as any).InlineInlineRenderWizard;
+    const { container, findByText } = render(<Inline />);
+    expect(await findByText('Render Title')).toBeInTheDocument();
+    expect(await findByText('Render Step')).toBeInTheDocument();
+    expect(container.querySelector('window')).toBeNull();
+  });
+
+  it('navigates Next then Back across steps inline', async () => {
+    const MyWizard = createWizard('InlineNavWizard', ({ Wizard, Step, Actions }) => () => (
+      <Wizard title="x">
+        <Step id="s1">First Inline Step</Step>
+        <Step id="s2">Second Inline Step</Step>
+        <Actions />
+      </Wizard>
+    ));
+    const { result } = renderHook(() => useWizard(MyWizard, 'inav-1'));
+    const Inline = (result.current as any).InlineInlineNavWizard;
+    const { container, findByText } = render(<Inline />);
+
+    fireEvent.click((await findByText('Next')).closest('button')!);
+    await waitFor(() => {
+      const visible = container.querySelector('[aria-hidden="false"]');
+      expect(visible?.textContent).toContain('Second Inline Step');
+    });
+
+    fireEvent.click((await findByText('Back')).closest('button')!);
+    await waitFor(() => {
+      const visible = container.querySelector('[aria-hidden="false"]');
+      expect(visible?.textContent).toContain('First Inline Step');
+    });
+  });
+
+  it('fires onClose with "ok" when the final step is saved', async () => {
+    const onClose = vi.fn();
+    const MyWizard = createWizard('InlineSaveWizard', ({ Wizard, Step, Actions }) => () => (
+      <Wizard title="x"><Step id="s1">only step</Step><Actions /></Wizard>
+    ));
+    const { result } = renderHook(() => useWizard(MyWizard, 'isv-1'));
+    const Inline = (result.current as any).InlineInlineSaveWizard;
+    const { findByText } = render(<Inline onClose={onClose} />);
+    fireEvent.click((await findByText('Save')).closest('button')!);
+    await waitFor(() => expect(onClose).toHaveBeenCalledWith('ok'));
   });
 });
 

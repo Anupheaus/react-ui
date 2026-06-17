@@ -1,13 +1,14 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBound, useDistributedState } from '../../../hooks';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import { Tag } from '../../Tag';
 import { Window } from '../../Windows/Window/Window';
-import { WizardContext, WizardEnabledContext, WizardRegistrationContext, WizardStepIdContext } from '../WizardContexts';
+import { WizardContext, WizardEnabledContext, WizardRegistrationContext, WizardRenderModeContext, WizardStepIdContext } from '../WizardContexts';
 import type { StepRecord, WizardProps } from '../WizardModels';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardStepIndicator } from './WizardStepIndicator';
+import { WizardInlineShell } from './WizardInlineShell';
 
 const useStyles = createStyles(({ wizard, windows: { content } }) => ({
   hidden: {
@@ -60,6 +61,7 @@ export const Wizard = createComponent('Wizard', ({
   navigationRef,
 }: WizardProps) => {
   const { css } = useStyles();
+  const { mode } = useContext(WizardRenderModeContext);
   const { state, set, get } = useDistributedState<string>(() => providedStep ?? '');
   const [steps, setSteps] = useState<StepRecord[]>([]);
   const [isNextEnabled, setIsNextEnabled] = useState(true);
@@ -187,6 +189,44 @@ export const Wizard = createComponent('Wizard', ({
     </WizardStepContent>
   )), [steps]);
 
+  const body = (
+    <WizardContext.Provider value={wizardContext}>
+      <WizardEnabledContext.Provider value={wizardEnabledContext}>
+        <WizardRegistrationContext.Provider value={registrationContext}>
+          <Tag name="hidden" className={css.hidden}>
+            {wrappedStepChildren}
+          </Tag>
+          <div className={css.wizardLayout}>
+            {showProgress && <WizardStepIndicator />}
+            <div className={css.wizardRight}>
+              <Tag name="wizard-steps" className={css.wizardSteps}>
+                {renderedSteps}
+              </Tag>
+              {otherChildren}
+            </div>
+          </div>
+        </WizardRegistrationContext.Provider>
+      </WizardEnabledContext.Provider>
+    </WizardContext.Provider>
+  );
+
+  if (mode === 'inline') {
+    return (
+      <WizardInlineShell
+        title={title}
+        icon={icon}
+        className={className}
+        width={width}
+        height={height}
+        minWidth={minWidth}
+        minHeight={minHeight}
+        isLoading={isLoading}
+      >
+        {body}
+      </WizardInlineShell>
+    );
+  }
+
   return (
     <Window
       title={title}
@@ -207,24 +247,7 @@ export const Wizard = createComponent('Wizard', ({
       onClosed={onClosed}
       onFocus={onFocus}
     >
-      <WizardContext.Provider value={wizardContext}>
-        <WizardEnabledContext.Provider value={wizardEnabledContext}>
-          <WizardRegistrationContext.Provider value={registrationContext}>
-            <Tag name="hidden" className={css.hidden}>
-              {wrappedStepChildren}
-            </Tag>
-            <div className={css.wizardLayout}>
-              {showProgress && <WizardStepIndicator />}
-              <div className={css.wizardRight}>
-                <Tag name="wizard-steps" className={css.wizardSteps}>
-                  {renderedSteps}
-                </Tag>
-                {otherChildren}
-              </div>
-            </div>
-          </WizardRegistrationContext.Provider>
-        </WizardEnabledContext.Provider>
-      </WizardContext.Provider>
+      {body}
     </Window>
   );
 });

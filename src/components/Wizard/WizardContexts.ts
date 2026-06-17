@@ -1,6 +1,6 @@
 // src/components/Wizard/WizardContexts.ts
 import { createContext } from 'react';
-import type { WizardContextProps, WizardEnabledContextProps, WizardRegistrationContextProps, WizardStepIdContextProps } from './WizardModels';
+import type { WizardContextProps, WizardEnabledContextProps, WizardRegistrationContextProps, WizardRenderModeContextProps, WizardStepIdContextProps } from './WizardModels';
 
 export const WizardContext = createContext<WizardContextProps>({
   state: null as never,
@@ -26,3 +26,6 @@ export const WizardRegistrationContext = createContext<WizardRegistrationContext
 });
 
 export const WizardStepIdContext = createContext<WizardStepIdContextProps>({ id: '' });
+
+/** Tells <Wizard> whether to render as a dialog (default) or inline in the page flow. */
+export const WizardRenderModeContext = createContext<WizardRenderModeContextProps>({ mode: 'dialog' });
