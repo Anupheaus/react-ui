@@ -94,6 +94,7 @@ export function useForm<T extends AnyObject>({
   const Form = useMemo(() => createComponent('Form', ({
     children,
   }: FormProps) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
     const context = useMemo<FormContextProps>(() => ({
       isReal: true,
       save,

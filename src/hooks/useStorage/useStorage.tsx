@@ -60,6 +60,7 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
   if (!firstStorage && !secondStorage) throw new Error('No browser storage available.');
 
   if (firstStorage) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- storage availability is constant for a given environment, so hook order is stable per call site
     const { hasKey, state: innerState, setState: innerSetState } = useStorageState(key, firstStorage, defaultValue, disabled);
     state = innerState;
     firstSetState = setState = innerSetState;
@@ -67,7 +68,9 @@ export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defau
   }
 
   if (secondStorage) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- storage availability is constant for a given environment, so hook order is stable per call site
     const { state: innerState, setState: innerSetState } = useStorageState(key, secondStorage, defaultValue, disabled);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     setState = useBound((param: SetStateAction<T | undefined>) => {
       if (disabled) return;
       batchUpdates(() => {

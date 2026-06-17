@@ -17,6 +17,7 @@ export function useExpander(initialState: boolean | (() => boolean) = false, onE
   });
 
   const Expander = useMemo(() => createComponent('UseExpander', ({ children, ...props }: Props) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
     const { getAndObserve: localGetAndObserve } = useDistributedState(state);
     const isExpanded = localGetAndObserve();
 

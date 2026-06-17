@@ -2,7 +2,7 @@ import type { DataPagination, PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import type { PaperProps, PopoverOrigin } from '@mui/material';
 import { Popover } from '@mui/material';
-import type { FunctionComponent, KeyboardEvent, ReactNode } from 'react';
+import type { FunctionComponent, KeyboardEvent } from 'react';
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useBatchUpdates, useBooleanState, useBound, useDOMRef, useOnResize, useOnUnmount, useUpdatableState } from '../../hooks';
 import type { ListItemClickEvent, ReactListItem } from '../../models';
@@ -50,7 +50,6 @@ interface Props extends Omit<InternalTextProps<string | ReactListItem>, 'onChang
   values?: ReactListItem[];
   minSearchLength?: number;
   overridePopup?: FunctionComponent<AutocompletePopupProps>;
-  renderSelectedValue?(item?: ReactListItem): ReactNode | void;
   onGetValues?(search: string, pagination?: DataPagination): PromiseMaybe<ReactListItem[]>;
   onChange?(id: string, item: ReactListItem): void;
 
@@ -61,7 +60,6 @@ export const Autocomplete = createComponent('Autocomplete', ({
   values: providedValues,
   minSearchLength = 3,
   overridePopup: PopupOverride,
-  renderSelectedValue: _renderSelectedValue,
   onGetValues,
   onChange,
   ...props
@@ -121,7 +119,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
   const menuItems = useMemo(() => {
     if ((!is.array(values) && !isLoadingValuesForDropDown) || PopupOverride != null) return [];
     return isLoadingValuesForDropDown ? fakeValues : values;
-  }, [values, isLoadingValuesForDropDown]);
+  }, [values, isLoadingValuesForDropDown, PopupOverride]);
 
   const renderedItems = useMemo(() => {
     if (menuItems.length === 0) return null;

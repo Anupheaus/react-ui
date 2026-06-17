@@ -114,6 +114,7 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
       device,
       alterTheme: (delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme => {
         const newTheme = delegate(themeInUse);
+        // eslint-disable-next-line react-hooks/rules-of-hooks -- alterTheme is a render-time helper invoked from a component; hook order is stable per call site
         return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);
       },
       join(...classNames: (string | boolean | undefined)[]): string | undefined {

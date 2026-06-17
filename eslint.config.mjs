@@ -36,10 +36,7 @@ export default tseslint.config(
       // Components are created through the `createComponent` factory, which assigns the display name dynamically,
       // so this rule only produces false positives in this codebase.
       'react/display-name': 'off',
-      // The codebase relies on render-time helper functions (e.g. the `validate` helper returned from `useValidation`)
-      // that call hooks but are not named like hooks. Surface these as warnings rather than hard errors, consistent
-      // with how `exhaustive-deps` is handled.
-      'react-hooks/rules-of-hooks': 'warn',
+      'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
       'react/no-children-prop': 'off',
     },

@@ -34,7 +34,8 @@ type FieldOf<SourceType> = keyof SourceType extends string ? keyof SourceType : 
 //   | (P[keyof P] extends {} ? FieldsOf<P[keyof P], CreateField<P, Prefix>> : never);
 
 function internalUseFields<SourceType>(target: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, 
-  dependencies: unknown[] = Array.empty()) {  
+  dependencies: unknown[] = Array.empty()) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- internal render-time helper invoked from useFields; hook order is stable
   const { get, set, onChange: onChangeObservable } = useObservable(target, dependencies);
   
   onChangeObservable((newValue: SourceType | undefined)=>onChange?.(newValue));
@@ -87,6 +88,7 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
     };
   }
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- internal render-time helper invoked from useFields; hook order is stable
   const Field = useMemo<ReactUIComponent<<ComponentProps extends AnyObject>(_props: FieldComponentProps<SourceType, ComponentProps>) => null | JSX.Element>>(() =>
     createComponent('UseFieldsFieldComponent', ({ component: Component, field, defaultValue, ...props }) => {      
       const { [field]: value, [`set${field.toPascalCase()}`]: setValue } = useField(field, undefined, undefined, defaultValue) as AnyObject;      

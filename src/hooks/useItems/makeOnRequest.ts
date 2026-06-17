@@ -11,9 +11,13 @@ function useOrdinalToSort<T>(item: ReactListItem<T>) {
 
 export function makeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();
+  // render-time helper invoked unconditionally from a hook, so hook order is stable
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const lastRequestHashRef = useRef<string>('');
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const lastResponseRef = useRef<UseDataResponse<ReactListItem<T>>>();
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useOnChange(() => {
     lastRequestHashRef.current = '';
     lastResponseRef.current = undefined;

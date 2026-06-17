@@ -61,7 +61,6 @@ const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClas
     borderTopRightRadius: 4,
   },
   internalListEmptyMessage: {
-    flex: '1 1 auto',
     minHeight: '100%',
   },
 }));
@@ -165,7 +164,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo, refreshShadowVisibility } = useActions<ScrollerActions>();
   const [selectedItemIds, updateSelectedItemIds] = useUpdatableState<string[]>(prevValues => (providedSelectedItemIds ?? prevValues ?? []).removeNull(), [providedSelectedItemIds]);
-  const { items, total, request, offset, limit, error, isLoading } = useItems({
+  const { items, total, request, offset, limit, error } = useItems({
     initialLimit: 50,
     onRequest,
     actions: useItemsActions,
@@ -183,7 +182,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     scrollTo,
   });
 
-const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
+const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
 
   const requestItems = useBound(() => {
     if (hasUnmounted()) return;
@@ -375,7 +374,7 @@ const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
         disableShadows={disableShadowsOnScroller}
         horizontalShadows={horizontalScrollShadows}
         className={join(css.internalListScrollerContent, contentClassName)}
-        fullHeight={fullHeight}
+        fullHeight={fullHeight || showEmptyMessage}
         useParentContext={useParentScrollContext}
         headerContent={headerContent}
         style={{ paddingTop: stickyHeaderHeight }}

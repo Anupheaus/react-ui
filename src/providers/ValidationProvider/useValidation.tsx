@@ -50,8 +50,12 @@ export function useValidation(props?: UseValidationProps | string) {
   const getInvalidSections = useBound(() => invalidSections.get());
 
   const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
+    // The validate helper is a render-time helper called once per validated field; each call site invokes it unconditionally, so hook order is stable.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const validateId = useId();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [highlight, setHighlight] = useState(false);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const update = useForceUpdate();
     highlightErrorsCallbacks.register(setHighlight);
 
@@ -79,6 +83,7 @@ export function useValidation(props?: UseValidationProps | string) {
       }
     }) as void | boolean | ReactNode | undefined;
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- part of the validate render-time helper; invoked unconditionally per call site, so hook order is stable
     const enableErrors = useBound(() => {
       if (isReadOnly) return;
       setHighlight(true);

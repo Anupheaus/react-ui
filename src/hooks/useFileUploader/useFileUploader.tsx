@@ -31,8 +31,10 @@ export function useFileUploader() {
   });
 
   const FileUploader = useMemo(() => createComponent('FileUploader', ({ allowMultiple = false, fileTypes = [] }: Props) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
     const { css } = useStyles();
 
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
     const saveFileInputElement = useBound((element: HTMLInputElement | null) => {
       fileInputRef.current = element;
       if (!element) return;

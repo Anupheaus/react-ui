@@ -5,6 +5,7 @@ import type { ListItemType } from '../../models';
 export function makeOnRequest<T extends ListItemType>(providedItems: T[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- render-time helper invoked unconditionally from a hook; hook order is stable
   useOnChange(refresh, [providedItems]);
 
   return async ({ requestId, pagination: { limit, offset = 0 } }: UseDataRequest, response: (response: UseDataResponse<T>) => void): Promise<void> => {

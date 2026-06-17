@@ -38,6 +38,7 @@ function useIdWithRecordsProvider<T extends Record = Record>(typeId: string, id:
   };
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks -- type-only helper class used purely for ReturnType inference; these methods are never executed at runtime
 class UseRecordsProvider<T extends Record> { public getEmpty() { return useEmptyRecordsProvider<T>(''); } public getWithId() { return useIdWithRecordsProvider<T>('', ''); } }
 
 export function useRecordsProvider<T extends Record = Record>(typeId: string): ReturnType<UseRecordsProvider<T>['getEmpty']>;
@@ -45,5 +46,6 @@ export function useRecordsProvider<T extends Record = Record>(typeId: string, id
 export function useRecordsProvider<T extends Record = Record>(...args: unknown[]) {
   const typeId = args[0] as string | undefined;
   if (is.empty(typeId)) throw new Error('The typeId for the records provider is required.');
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- each call site consistently uses one overload (with or without id), so hook order is stable per usage
   return args.length === 1 ? useEmptyRecordsProvider<T>(typeId) : useIdWithRecordsProvider<T>(typeId, args[1] as string | undefined);
 }

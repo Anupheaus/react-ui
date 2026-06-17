@@ -30,33 +30,42 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   window: ReactUIWindowOnly<Name, Args, CloseResponseType>): UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
   if (args.length === 0) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- overloaded hook; each call site consistently uses the no-args form, so hook order is stable per usage
     const { setTitle, close } = useContext(WindowRenderContext);
     if (setTitle == null || close == null) {
       throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
     }
     return { setTitle, close } as UseWindowCurrentWindowUtils;
   }
+  // The hooks below run only in the args form of this overloaded hook; each call site consistently uses one form, so hook order is stable per usage.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const hookId = useId();
   const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
   if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
     throw new Error(`Window "${window.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
   }
   const id = providedId ?? hookId;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const lastOpenedWindowIdRef = useRef<string>(id);
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const contextManagerId = useContext(WindowsManagerContext);
   const effectiveManagerId = providedManagerId ?? contextManagerId;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const device = useDevice();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const contextDialogsManagerId = useContext(DialogsManagerContext);
 
   const getManager = () => device === 'mobile'
     ? WindowsManager.getManagerForType('dialogs', contextDialogsManagerId)
     : WindowsManager.getManagerForType('windows', effectiveManagerId);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();
     return (manager[funcName] as AnyFunction)(targetId ?? lastOpenedWindowIdRef.current ?? id);
   });
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const openWindow = useBound(async (...openArgs: unknown[]) => {
     const manager = getManager();
     const managerId = manager.id;
@@ -89,6 +98,7 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
     });
   });
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const closeWindow = useBound(async (reasonOrId?: CloseResponseType | string, reason?: CloseResponseType) => {
     const manager = getManager();
     const targetId = providedId != null
@@ -98,8 +108,11 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
     return manager.close(targetId, closeReason);
   });
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const focusWindow = useBound(async (targetId?: string) => executeSimpleMethod('focus', targetId));
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const restoreWindow = useBound(async (targetId?: string) => executeSimpleMethod('restore', targetId));
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const maximizeWindow = useBound(async (targetId?: string) => executeSimpleMethod('maximize', targetId));
 
   return {

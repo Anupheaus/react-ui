@@ -59,6 +59,8 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   };
 
   useLayoutEffect(() => manager.subscribeToStateChanges((newActiveStates, reason) => {
+    // Strip the manager-internal `index` and `isFocused` fields from each state; only the
+    // remaining (consumer-owned) properties should be surfaced and persisted via onChange/saved states.
     const newStates = newActiveStates.map(({ index: _index, isFocused: _isFocused, ...rest }) => rest as StateType);
     if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates);
     lastOnChangeRef.current = newStates;

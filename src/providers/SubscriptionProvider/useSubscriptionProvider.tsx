@@ -38,6 +38,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
       onUnsubscribed,
     }: Props<SubscribePayload, InvokePayload>) => {
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
       const unsubscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['unsubscribe']>((id, debug) => {
         subscriptionCallbacks.delete(id);
         let groupDestroyed: boolean | undefined;
@@ -56,6 +57,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
         onUnsubscribed?.(id, groupId, groupDestroyed, debug);
       });
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
       const subscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['subscribe']>(async (id, payload, callback, groupId, debug) => {
         if (idToGroup.has(id) && idToGroup.get(id) !== groupId) {
           unsubscribe(id, debug);
@@ -80,6 +82,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
         }
       });
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
       const context = useMemo<SubscriptionContext<SubscribePayload, InvokePayload>>(() => ({
         isValid: true,
         subscribe,

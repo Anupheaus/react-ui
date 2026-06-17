@@ -8,7 +8,6 @@ export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximize
   allowCloseButton?: boolean;
   allowDrag?: boolean;
   allowResize?: boolean;
-  disableBlurBackground?: boolean;
 }
 
 const useStyles = createStyles({
@@ -24,7 +23,6 @@ export const Dialog = createComponent('Dialog', ({
   allowCloseButton = false,
   allowDrag = false,
   allowResize = false,
-  disableBlurBackground: _ignored,
   ...props
 }: Props) => {
   const { css, join } = useStyles();

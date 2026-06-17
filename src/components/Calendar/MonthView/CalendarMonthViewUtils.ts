@@ -5,6 +5,7 @@ import { CalendarUtils } from '../CalendarUtils';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 
 function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date) /*: CalendarMonthEntryRecord[]*/ {
+  // eslint-disable-next-line react-hooks/rules-of-hooks -- render-time helper invoked from a component; hook order is stable
   return useMemo(() => {
     const relevantEntries = entries
       .filter(({ startDate, endDate }) => startDate <= lastDate && (endDate === undefined ? startDate >= firstDate : endDate >= firstDate))
