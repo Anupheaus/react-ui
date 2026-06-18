@@ -78,7 +78,7 @@ export const List = createComponent('List', function <T = void, V extends string
   hideOptionalLabel,
   help,
   width,
-  minHeight = 130,
+  minHeight,
   wide,
   fullHeight,
   delayRenderingItems,
@@ -146,12 +146,14 @@ export const List = createComponent('List', function <T = void, V extends string
 
   const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null;
 
+  console.log({ showFooter, onAdd });
+
   return (
     <Field
       tagName="list"
       label={label}
       help={help}
-      className={join(listCss.list, className)}
+      className={join(listCss.list, fullHeight && 'full-height', className)}
       containerClassName={join(listCss.listContainer, containerClassName)}
       containerAdornments={adornments != null && (
         <Flex tagName="list-actions" gap={4} valign="center" className={css.adornments}>

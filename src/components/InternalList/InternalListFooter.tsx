@@ -60,7 +60,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
   const addButton = useMemo(() => {
     if (onAdd == null) return null;
     const button = (
-      <Button variant="hover" onSelect={handleAdd} size="small" aria-label={addLabel ?? 'Add'}>
+      <Button variant="hover" onSelect={handleAdd} size="small" iconOnly={addLabel == null} aria-label={addLabel ?? 'Add'}>
         <Icon name="add" size="small" />
         {addLabel}
       </Button>
