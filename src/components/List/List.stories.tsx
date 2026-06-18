@@ -337,7 +337,6 @@ export const InlineListWithTooMuchContentInsideScrollableContainer: Story = crea
 });
 
 export const EmptyMessageDefault: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
@@ -348,7 +347,6 @@ export const EmptyMessageDefault: Story = createStory<ListDefault>({
 });
 
 export const EmptyMessageCustomString: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
@@ -359,7 +357,6 @@ export const EmptyMessageCustomString: Story = createStory<ListDefault>({
 });
 
 export const EmptyMessageReactElement: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
@@ -370,7 +367,6 @@ export const EmptyMessageReactElement: Story = createStory<ListDefault>({
 });
 
 export const EmptyMessageSuppressed: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
@@ -381,7 +377,6 @@ export const EmptyMessageSuppressed: Story = createStory<ListDefault>({
 });
 
 export const EmptyMessagePopulated: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
@@ -392,7 +387,6 @@ export const EmptyMessagePopulated: Story = createStory<ListDefault>({
 });
 
 export const EmptyMessageLoading: Story = createStory<ListDefault>({
-  parameters: { test: { skipScreenshot: true } },
   width: 300,
   height: 400,
   render: () => (
