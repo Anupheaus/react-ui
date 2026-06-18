@@ -1,5 +1,4 @@
 import { createComponent } from '../Component';
-import type { ComponentProps } from 'react';
 import { useMemo, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
@@ -7,7 +6,9 @@ import type { TableColumn, TableOnRequest } from './TableModels';
 import type { Record } from '@anupheaus/common';
 import type { TableHeaderActions } from './TableHeader';
 import { TableHeader } from './TableHeader';
-import { TableFooter } from './TableFooter';
+import type { InternalListFooterProps } from '../InternalList/InternalListFooter';
+import { InternalListFooter } from '../InternalList/InternalListFooter';
+import { resolveTableTheme } from './resolveTableTheme';
 import type { TableRowsProps } from './TableRows';
 import { TableRows } from './TableRows';
 import { TableColumnWidthProvider } from './TableColumnWidths';
@@ -25,28 +26,33 @@ export interface TableActions extends ListActions {
 
 }
 
-const useStyles = createStyles(() => ({
-  table: {
-    display: 'flex',
-    flex: 'auto',
-    position: 'relative',
-    width: '100%',
-    maxWidth: '100%',
-    minWidth: 0,
-    borderRadius: 4,
-    overflow: 'hidden',
-    flexDirection: 'column',
-    boxSizing: 'border-box',
-
-    '& *': {
+const useStyles = createStyles((theme) => {
+  const { footerBackgroundColor } = resolveTableTheme(theme);
+  return {
+    table: {
+      display: 'flex',
+      flex: 'auto',
+      position: 'relative',
+      width: '100%',
+      maxWidth: '100%',
+      minWidth: 0,
+      borderRadius: 4,
+      overflow: 'hidden',
+      flexDirection: 'column',
       boxSizing: 'border-box',
+
+      '& *': {
+        boxSizing: 'border-box',
+      },
     },
-  },
-}));
+    tableFooter: {
+      backgroundColor: footerBackgroundColor,
+    },
+  };
+});
 
 type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
-type FooterProps = ComponentProps<typeof TableFooter>;
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<FooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel'> {
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<InternalListFooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel' | 'addTooltip'> {
   className?: string;
   records?: RecordType[];
   columns: TableColumn<RecordType>[];
@@ -71,6 +77,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   summary,
   hideRecordCount,
   addLabel,
+  addTooltip,
   persistenceKey,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
@@ -164,7 +171,17 @@ export const Table = createComponent('Table', function <RecordType extends Recor
               isInitialLoading={totalRecords == null}
             />
             <UIState isLoading={recordsLoading}>
-              <TableFooter totalRecords={totalRecords} unitName={unitName} error={error} summary={summary} hideRecordCount={hideRecordCount} onAdd={onAdd} addLabel={addLabel} />
+              <InternalListFooter
+                total={totalRecords}
+                unitName={unitName}
+                error={error}
+                summary={summary}
+                hideRecordCount={hideRecordCount}
+                onAdd={onAdd}
+                addLabel={addLabel}
+                addTooltip={addTooltip}
+                footerClassName={css.tableFooter}
+              />
             </UIState>
           </TableActionsColumnWidthProvider>
         </TableColumnWidthProvider>

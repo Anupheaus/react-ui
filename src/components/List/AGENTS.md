@@ -20,9 +20,13 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `maxSelectableItems` | `number` | No | Maximum number of simultaneously selected items. Inferred from `value` type when not set: `1` for `string`, unlimited for `string[]`. |
 | `selectionRequiredMessage` | `ReactNode` | No | Validation message shown when `onChange` is set but nothing is selected. |
 | `allowMultiSelect` | `boolean` | No | Convenience alias to allow multiple selections without providing `value`. |
-| `onAdd` | `(event: MouseEvent<HTMLElement>) => PromiseMaybe<T \| void>` | No | When provided, renders an Add button. Called when the button is clicked. |
+| `onAdd` | `() => PromiseMaybe<T \| void>` | No | When provided, renders an Add button in the footer bar. |
+| `addLabel` | `string` | No | Text shown beside the Add icon in the footer. |
 | `addTooltip` | `ReactNode` | No | Tooltip for the Add button. Defaults to `"Add a new item to this list"`. |
 | `deleteTooltip` | `ReactNode` | No | Tooltip shown on each item's delete control. Defaults to `"Delete this item from this list"`. |
+| `unitName` | `string` | No | Unit name for the item count in the footer (e.g. `'item'`). Defaults to `'item'`. Pass `undefined` with `hideRecordCount` to suppress the footer. |
+| `summary` | `ReactNode` | No | Optional content rendered in the footer between the spacer and the count. |
+| `hideRecordCount` | `boolean` | No | Suppresses the total count display in the footer. |
 | `onDelete` | `(event: ListItemEvent<T>) => void` | No | Called when an item's delete button is activated. |
 | `adornments` | `ReactNode` | No | Extra controls rendered in the top-right corner of the field container. |
 | `stickyHeader` | `ReactNode` | No | Content placed in the sticky header above the scrollable area (hides on scroll down). |
@@ -92,6 +96,8 @@ const [selected, setSelected] = useState<string[]>([]);
 - Adds form-level validation (required / selection-required messages).
 - Translates the `value` / `onChange` pattern into `selectedItemIds` / `onSelectedItemsChange`.
 - Adds the Add button lifecycle (calls `onAdd`, then re-enables validation errors).
+- Intercepts `onRequest` and `onError` to capture `total` and request errors for the footer.
+- Renders an **`InternalListFooter`** below the `InternalList` showing the Add button, item count, and optional summary. The footer is always visible when `unitName` is set (default `'item'`). Use `hideRecordCount` to suppress the count.
 
 All `onRequest` / virtualisation behaviour is handled entirely by `InternalList`. Refer to [InternalList](../InternalList/AGENTS.md) for the virtualisation and request contract details.
 

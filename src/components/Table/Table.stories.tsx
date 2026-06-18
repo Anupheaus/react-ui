@@ -231,3 +231,120 @@ export const TableUsingRecordIds: Story = createStory({
     );
   },
 });
+
+// ─── Footer stories ───────────────────────────────────────────────────────────
+
+export const TableWithAddButton: Story = createStory({
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const smallRecords = useMemo(() => generateRecords(3), []);
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
+    });
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add record'));
+    return <Table columns={localColumns} unitName="person" onRequest={handleRequest} onAdd={handleAdd} />;
+  },
+});
+
+export const TableWithAddLabel: Story = createStory({
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const smallRecords = useMemo(() => generateRecords(3), []);
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
+    });
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add person'));
+    return (
+      <Table columns={localColumns} unitName="person" onRequest={handleRequest} onAdd={handleAdd} addLabel="Add person" />
+    );
+  },
+});
+
+export const TableWithAddTooltip: Story = createStory({
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const smallRecords = useMemo(() => generateRecords(3), []);
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
+    });
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add'));
+    return (
+      <Table
+        columns={localColumns}
+        unitName="person"
+        onRequest={handleRequest}
+        onAdd={handleAdd}
+        addTooltip="Click to add a new person to the table"
+      />
+    );
+  },
+});
+
+export const TableWithSummary: Story = createStory({
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const smallRecords = useMemo(() => generateRecords(3), []);
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
+    });
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add'));
+    return (
+      <Table
+        columns={localColumns}
+        unitName="person"
+        onRequest={handleRequest}
+        onAdd={handleAdd}
+        summary="Last synced: just now"
+      />
+    );
+  },
+});
+
+export const TableHideRecordCount: Story = createStory({
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const smallRecords = useMemo(() => generateRecords(3), []);
+    const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
+    });
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add'));
+    return (
+      <Table
+        columns={localColumns}
+        onRequest={handleRequest}
+        onAdd={handleAdd}
+        addLabel="Add person"
+        hideRecordCount
+      />
+    );
+  },
+});
+
+export const TableWithRequestError: Story = createStory({
+  parameters: { test: { skipScreenshot: true } },
+  width: 700,
+  height: 250,
+  render: () => {
+    const [localColumns] = useState(columns);
+    const handleRequest = useBound<TableOnRequest>(async () => {
+      await Promise.delay(800);
+      throw new Error('Failed to load records from the server');
+    });
+    return <Table columns={localColumns} unitName="person" onRequest={handleRequest} />;
+  },
+});

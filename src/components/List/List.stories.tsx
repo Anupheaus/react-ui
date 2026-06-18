@@ -278,6 +278,99 @@ export const InlineListWithTooMuchContent: Story = createStory<ListDefault>({
   },
 });
 
+// ─── Footer stories ───────────────────────────────────────────────────────────
+
+export const ListFooterCountOnly: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => (
+    <List label="People" items={staticItems.slice(0, 5)} />
+  ),
+});
+
+export const ListFooterWithAddLabel: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => {
+    const items = staticItems.slice(0, 5);
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add person'));
+    return <List label="People" items={items} onAdd={handleAdd} addLabel="Add person" />;
+  },
+});
+
+export const ListFooterWithAddTooltip: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => {
+    const items = staticItems.slice(0, 5);
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add person'));
+    return (
+      <List
+        label="People"
+        items={items}
+        onAdd={handleAdd}
+        addTooltip="Click to add a new person to the list"
+      />
+    );
+  },
+});
+
+export const ListFooterWithSummary: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => {
+    const items = staticItems.slice(0, 5);
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add'));
+    return (
+      <List
+        label="People"
+        items={items}
+        onAdd={handleAdd}
+        summary="Last synced: just now"
+      />
+    );
+  },
+});
+
+export const ListFooterCustomUnitName: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => (
+    <List label="People" items={staticItems.slice(0, 12)} unitName="person" />
+  ),
+});
+
+export const ListFooterHideCount: Story = createStory<ListDefault>({
+  width: 280,
+  height: 200,
+  render: () => {
+    const items = staticItems.slice(0, 5);
+    // eslint-disable-next-line no-alert
+    const handleAdd = useBound(() => window.alert('Add'));
+    return (
+      <List label="People" items={items} onAdd={handleAdd} addLabel="Add person" hideRecordCount />
+    );
+  },
+});
+
+export const ListFooterWithRequestError: Story = createStory<ListDefault>({
+  parameters: { test: { skipScreenshot: true } },
+  width: 280,
+  height: 200,
+  render: () => {
+    const handleRequest = useBound<ListOnRequest>(async () => {
+      await Promise.delay(800);
+      throw new Error('Failed to load items from the server');
+    });
+    return <List label="People" onRequest={handleRequest} />;
+  },
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const InlineListWithTooMuchContentInsideScrollableContainer: Story = createStory<ListDefault>({
   args: {
     label: 'List',
