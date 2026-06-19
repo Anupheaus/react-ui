@@ -99,8 +99,9 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   const selectedValue = useMemo(() => {
     if (isReadOnly && readOnlyValue != null) return readOnlyValue;
     if (is.function(renderSelectedValue)) return renderSelectedValue(value);
+    if (value?.id === optionalItemKey && optionalItemLabel === null) return '';
     return ReactListItem.render(value);
-  }, [value, isReadOnly, readOnlyValue, renderSelectedValue]);
+  }, [value, isReadOnly, readOnlyValue, optionalItemLabel, renderSelectedValue]);
 
   const openDropDown = useBound(() => {
     if (isReadOnly || isOpen) return;
@@ -126,7 +127,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
       </Button>
       {providedEndAdornments}
     </>
-  ), [providedEndAdornments]);
+  ), [providedEndAdornments, openDropDown]);
 
   const anchorOrigin = useMemo<PopoverOrigin>(() => ({
     horizontal: 'right',
@@ -145,7 +146,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
         minWidth: width,
       },
     }
-  }), [width]);
+  }), [width, css.popover]);
 
   return (
     <UIState isLoading={isLoadingValues}>
