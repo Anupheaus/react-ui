@@ -24,6 +24,7 @@ A data table component that supports **request-based (lazy) loading**, configura
 | `removeLabel` | `string` | Optional. Label for the remove action (e.g. `"Delete"`). |
 | `onAdd` | `() => PromiseMaybe<void>` | Optional. If provided, footer shows an Add button. |
 | `addLabel` | `string` | Optional. Label shown beside the Add icon in the footer. Icon-only when omitted. |
+| `addTooltip` | `ReactNode` | Optional. Tooltip content for the Add button in the footer. |
 | `onEdit` | `(record, index) => PromiseMaybe<void>` | Optional. If provided, each row gets an edit action in the actions column. |
 | `onRemove` | `(record, index) => PromiseMaybe<void>` | Optional. If provided, each row gets a remove action (with confirmation dialog). |
 | `delayRenderingRows` | `boolean` | Optional. Defers rendering rows (e.g. for virtualization). Default `false`. |
@@ -104,12 +105,12 @@ Table
 │   │   └── TableHeaderCell
 │   ├── TableRows                 (reports vertical scrollbar width; adapts records → ReactListItems)
 │   │   └── InternalList → Scroller → TableRow → TableCell
-│   └── TableFooter
+│   └── InternalListFooter  (from InternalList; footerClassName applies table-themed background)
 ```
 
 - **Column widths:** **TableColumnWidthProvider** stores widths by index. **TableHeaderCell** measures header cells (via `useOnResize`) and calls **useSetTableColumnWidth**. Resizable columns (`isResizable: true`) show a drag handle on the right edge of the header cell with twin vertical line indicators that fade in when the cursor is over the table; dragging updates width via **useDrag** and persists on drag end when `persistenceKey` is set. Manually resized widths are not overwritten by subsequent measurements. The actions column uses **TableActionsColumnWidthProvider**: each **TableRowActionColumn** measures its content (including custom `children`) and reports the width; the context keeps the maximum so every actions cell and the pinned header cell share the same width. The actions column is pinned on the right: the header cell sits outside the horizontally scrolled header strip; body rows stretch to the full table width (`width: 100%`, `min-width: max-content`) with a flex fill spacer (`table-row-fill` / `table-header-fill`) before the actions cell so actions align with the header even when data columns are narrower than the table, and body cells use `position: sticky` so they stay visible while data columns scroll horizontally.
 - **Rows:** **TableRows** converts each `record` from **onRequest** into a **ReactListItem** and renders **TableRow** inside **InternalList**. **TableRow** is a horizontal **Flex** with `valign="stretch"`. Data **TableCell**s use `dataCell` / `dataCellContent` styles so every cell fills the row height and overflowing text ellipsizes on the inner wrapper. Row actions render inside **`table-row-actions-pin`** (`position: sticky; right: 0`) so pinning is not affected by flex stretch or `overflow: hidden` on data cells. **TableRows** applies **tableBodyScrollerLayout** so the body scroller uses `scrollbar-gutter: auto` instead of the shared Scroller default (`stable`) — see **Layout gotchas** below.
-- **Loading:** While the first **onRequest** is in flight, **Table** sets `recordsLoading` and wraps **TableHeader** and **TableFooter** in **UIState** `isLoading`. **TableRows** wraps the body in **UIState** and passes `showSkeletons` with a `createSkeletonItem` factory that builds placeholder **records** from column definitions (`createPlaceholderRecord`).
+- **Loading:** While the first **onRequest** is in flight, **Table** sets `recordsLoading` and wraps **TableHeader** and **InternalListFooter** in **UIState** `isLoading`. **TableRows** wraps the body in **UIState** and passes `showSkeletons` with a `createSkeletonItem` factory that builds placeholder **records** from column definitions (`createPlaceholderRecord`).
 - **Row actions:** If `onEdit` or `onRemove` are passed to **Table**, **useColumns** appends a synthetic column with `id: 'table-actions'` and `renderValue` rendering **TableRowActionColumn**, which contains **TableRowEditAction** and/or **TableRowMenuAction** (ellipsis menu with remove + confirmation).
 
 **Custom row actions:** Add your own column with `id: 'table-actions'` and a `renderValue` that wraps custom buttons in **TableRowActionColumn** (pass `{...props}` from `renderValue`, then your buttons as `children`). **useColumns** applies the sticky cell class automatically; the header is pinned on the right by **TableHeader**. Do not pass `onEdit`/`onRemove` when supplying your own actions column.
@@ -120,7 +121,7 @@ Table
 
 | File | Role |
 |------|------|
-| **Table.tsx** | Root. Uses **useColumns**, wires **onRequest**, **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **TableFooter**. Syncs header `padding-right` to body vertical scrollbar width. |
+| **Table.tsx** | Root. Uses **useColumns**, wires **onRequest**, **TableColumnWidthProvider**, **TableHeader**, **TableRows**, **InternalListFooter**. Syncs header `padding-right` to body vertical scrollbar width. Applies table-themed footer background via `footerClassName`. |
 | **TableModels.ts** | Types: **TableColumn**, **TableColumnCommonProps**, **TableRenderValueProps**, **TableOnRequest**. |
 | **TableHeader.tsx** | Header row above the body scroller; `padding-right` offsets the actions column when the body shows a vertical scrollbar. Data columns sync with horizontal scroll via `translateX`; a `table-header-fill` spacer before the actions header cell mirrors **TableRow** layout when data columns are narrower than the table. |
 | **TableHeaderCell.tsx** | Single header cell: label in **Skeleton** (shows placeholder while loading), optional resize handle when `isResizable`, width from props or measured, reports width to context. |
@@ -135,7 +136,7 @@ Table
 | **TableColumnWidths.tsx** | **TableColumnWidthProvider** (context), **useSetTableColumnWidth**, **useGetTableColumnWidth**. |
 | **TableColumnsContext.ts** | React context holding the current **TableColumn[]**. |
 | **useColumns.tsx** | **useColumns** hook: filters visible columns, appends actions column when **onEdit** / **onRemove** provided. |
-| **TableFooter.tsx** | Add button (if **onAdd**), error message, total record count (locale-formatted, with skeleton). |
+| ~~**TableFooter.tsx**~~ | Deleted — replaced by **InternalListFooter** from the `InternalList` folder. |
 | **TableActionsColumnWidthContext.tsx** | Shared max-width context for the actions column; each **TableRowActionColumn** reports its measured width and all cells adopt the largest value. |
 | **TableRowActionColumn.tsx** | Sticky actions cell: edit button, remove menu, custom children, shadow; measures and reports width to **TableActionsColumnWidthProvider**. |
 | **TableRowEditAction.tsx** | Edit button; calls **onEdit(record, rowIndex)**. |

@@ -19,9 +19,6 @@ import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { InternalListItem } from './InternalListItem';
 import { StickyHideHeader } from '../StickyHideHeader';
-import { Button } from '../Button';
-import { Icon } from '../Icon';
-import { Tooltip } from '../Tooltip';
 import { measureVerticalScrollbarWidth } from '../Scroller/measureVerticalScrollbarWidth';
 
 const VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK = 18;
@@ -110,13 +107,11 @@ interface Props<T = void> extends InternalListProps<T> {
   selectedItemIds?: string[];
   showSkeletons?: boolean;
   createSkeletonItem?: InternalListProps<T>['createSkeletonItem'];
-  addTooltip?: ReactNode;
   deleteTooltip?: ReactNode;
   onScroll?(values: OnScrollEventData): void;
   onScrollHorizontal?(values: Pick<OnScrollEventData, 'left' | 'element'>): void;
   onItemsChange?(items: ReactListItem<T>[]): void;
   onMouseEnter?(event: MouseEvent): void;
-  onAdd?(event: MouseEvent<HTMLElement>): PromiseMaybe<T | void>;
 }
 
 export const InternalList = createComponent('InternalList', function <T = void>({
@@ -136,7 +131,6 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   showSkeletons,
   createSkeletonItem,
   emptyMessage = 'No items to display',
-  addTooltip,
   deleteTooltip,
   actions,
   onScroll,
@@ -148,7 +142,6 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   onSelectedItemsChange,
   onItemsChange,
   onClick,
-  onAdd,
   stickyHeader,
   onVerticalScrollbarWidthChange,
   onScrollTopChange,
@@ -253,24 +246,14 @@ const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
     onScroll?.(values);
   });
 
-  const handleAdd = useBound(async (event: MouseEvent<HTMLElement>) => { await onAdd?.(event); });
-
   const headerContent = useMemo(() => {
-    if (stickyHeader == null && onAdd == null) return undefined;
+    if (stickyHeader == null) return undefined;
     return (
       <StickyHideHeader onHeightChange={setStickyHeaderHeight} align="right" contentClassName={css.internalListStickyHeaderContent}>
         {stickyHeader}
-        {onAdd != null && (
-          <Tooltip content={addTooltip}>
-            <Button size="small" variant="hover" onClick={handleAdd}>
-              <Icon name="add" size="small" />
-              Add
-            </Button>
-          </Tooltip>
-        )}
       </StickyHideHeader>
     );
-  }, [stickyHeader, onAdd, handleAdd, addTooltip, setStickyHeaderHeight, css.internalListStickyHeaderContent]);
+  }, [stickyHeader, setStickyHeaderHeight, css.internalListStickyHeaderContent]);
 
   const handleActiveChange = useBound((event: ListItemEvent<T>, isActive: boolean) => {
     onActive?.(event, isActive);

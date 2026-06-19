@@ -5,6 +5,9 @@ export const useListStyles = createStyles({
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
+    '&.full-height': {
+      height: '100%',
+    },
   },
   listContainer: {
     flexGrow: 1,

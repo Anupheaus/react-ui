@@ -19,7 +19,7 @@ The core virtualised list engine used by both `List` and `Table`. It implements 
 | `createSkeletonItem` | `(context: CreateSkeletonItemContext) => ReactListItem<T>` | No | Custom skeleton item factory when `showSkeletons` is true. |
 | `addTooltip` | `ReactNode` | No | Tooltip text for the built-in Add button. |
 | `deleteTooltip` | `ReactNode` | No | Tooltip text shown on each item's delete control. |
-| `stickyHeader` | `ReactNode` | No | Content rendered in a `StickyHideHeader` above the scrollable area. Hides on scroll down, reappears on scroll up. |
+| `stickyHeader` | `ReactNode` | No | Content rendered in a `StickyHideHeader` above the scrollable area. Hides on scroll down, reappears on scroll up. Note: the Add button is no longer part of the sticky header — pass `onAdd` to the wrapping `List` or `Table` component instead. |
 | `onVerticalScrollbarWidthChange` | `(width: number) => void` | No | Called when the measured vertical scrollbar width of the scroll container changes (0 when no vertical overflow). |
 | `delayRenderingItems` | `boolean` | No | When `true`, item rendering is deferred by ~100 ms after mount (useful to avoid flash during animation). |
 | `className` | `string` | No | Class applied to the root `Flex` container. |
@@ -105,13 +105,15 @@ import { InternalList } from '@anupheaus/react-ui';
 ```
 InternalList
 ├── Scroller                   — scrollable viewport; fires onScroll
-│   ├── StickyHideHeader       — optional header (add button, custom controls)
+│   ├── StickyHideHeader       — optional sticky header (custom controls via stickyHeader prop only)
 │   ├── lazy-load-header       — invisible spacer above the rendered window
 │   ├── InternalListContextProvider  — distributes delete/select/active callbacks
 │   │   └── InternalListItem × N     — one per visible item in the window
 │   └── lazy-load-footer       — invisible spacer below the rendered window
 └── (useItems hook)            — owns request lifecycle, skeleton generation
 ```
+
+The footer bar (Add button, item count, summary, error) is provided by the sibling component **InternalListFooter** — rendered by `List` and `Table`, not by `InternalList` itself. See [InternalListFooter](#internallistfooter) below.
 
 **Item rendering:** `renderItem` and `renderLoading` skip the default `list-item` wrapper (`doNotWrap`) so consumers such as **Table** can render full-width row layouts during load and after data arrives.
 
@@ -121,6 +123,32 @@ InternalList
 3. It calculates `requestOffset` and `requestLimit` from the viewport height, locked row height, and current scroll position.
 4. It calls `request(...)` which ultimately invokes `onRequest`.
 5. Header/footer spacers are sized to `offset * itemHeight` and `(total - offset - limit) * itemHeight` respectively, so the scroll bar reflects the full dataset even though only a slice is in the DOM.
+
+---
+
+## InternalListFooter
+
+`InternalListFooter` is a shared footer bar component used by both `List` and `Table`. It is not rendered by `InternalList` itself — the wrapping component is responsible for placing it below the `InternalList`.
+
+### Props
+
+| Prop | Type | Required | Description |
+|------|------|----------|-------------|
+| `total` | `number` | No | Total item/record count shown on the right. Shows a skeleton placeholder when `undefined`. |
+| `unitName` | `string` | No | Unit name for the count (e.g. `'item'`, `'record'`). Count is suppressed when omitted. |
+| `error` | `Error` | No | Error from the request — displays an error icon and message. |
+| `summary` | `ReactNode` | No | Optional content slot rendered between the spacer and the count. |
+| `hideRecordCount` | `boolean` | No | Suppresses the total count display when `true`. |
+| `onAdd` | `() => PromiseMaybe<void>` | No | If provided, renders an Add button on the left. |
+| `addLabel` | `string` | No | Text shown beside the Add icon. |
+| `addTooltip` | `ReactNode` | No | Tooltip content for the Add button. |
+| `footerClassName` | `string` | No | Extra class applied to the footer root — used by `Table` to apply its themed background colour. |
+
+### Layout
+
+```
+[ Add button ] [ error (if any) ] [ ─── spacer ─── ] [ summary (if any) ] [ N unit(s) ]
+```
 
 ---
 
