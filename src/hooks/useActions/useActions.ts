@@ -80,5 +80,4 @@ type UseActionsFunc = typeof useActionsFunc & { createDefaultHandler<T extends {
 
 export const useActions = useActionsFunc as UseActionsFunc;
 
-// eslint-disable-next-line react-hooks/rules-of-hooks -- render-time helper invoked from a component; hook order is stable
-useActions.createDefaultHandler = () => useRef(() => void 0).current;
+useActions.createDefaultHandler = () => () => void 0;

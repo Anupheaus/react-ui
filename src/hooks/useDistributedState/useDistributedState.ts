@@ -15,8 +15,10 @@ export function useDistributedState<T>(state: () => T, dependencies?: unknown[])
 export function useDistributedState<T>(state: DistributedState<T>): DistributedStateApi<T>;
 export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dependencies: unknown[] = []): DistributedStateApi<T> {
   const createState = is.function(arg) ? arg : undefined;
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- each call site consistently passes either a factory or an existing state, so hook order is stable per usage
-  const state = (createState ? useRef<any>({ state: createState(), callbacks: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
+  const callbacks = useCallbacks();
+  const createdStateRef = useRef<InternalState<T>>();
+  if (createState != null && createdStateRef.current == null) createdStateRef.current = { state: createState(), callbacks };
+  const state = (createState != null ? createdStateRef : arg) as MutableRefObject<InternalState<T>>;
   const update = useForceUpdate();
   const firstRenderRef = useRef(true);
   const { invoke, register } = state.current.callbacks;
