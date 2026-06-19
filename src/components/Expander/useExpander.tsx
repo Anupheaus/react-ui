@@ -16,8 +16,7 @@ export function useExpander(initialState: boolean | (() => boolean) = false, onE
     onExpand?.(!isExpanded);
   });
 
-  const Expander = useMemo(() => createComponent('UseExpander', ({ children, ...props }: Props) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
+  const Expander = useMemo(() => createComponent('UseExpander', function UseExpander({ children, ...props }: Props) {
     const { getAndObserve: localGetAndObserve } = useDistributedState(state);
     const isExpanded = localGetAndObserve();
 

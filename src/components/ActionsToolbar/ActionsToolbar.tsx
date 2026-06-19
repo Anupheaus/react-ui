@@ -72,7 +72,7 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
   children,
 }: ActionsToolbarProps) => {
   const { isInForm, save: saveForm, cancel: cancelForm } = useFormActions();
-  const { css, alterTheme, tools: { modifyColor }, join } = useStyles();
+  const { css, useAlterTheme, tools: { modifyColor }, join } = useStyles();
   const confirmationContext = useContext(ConfirmationDialogContext);
   if ((cancelDialogMessage != null || deleteDialogMessage != null) && !confirmationContext) {
     throw new Error('ActionsToolbar with cancelDialogMessage or deleteDialogMessage must be used within Dialogs.');
@@ -107,7 +107,7 @@ export const ActionsToolbar = createComponent('ActionsToolbar', ({
     }
   });
 
-  const deleteButtonTheme = alterTheme(({ buttons }) => ({
+  const deleteButtonTheme = useAlterTheme(({ buttons }) => ({
     buttons: {
       ...buttons,
       default: {

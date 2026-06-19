@@ -38,11 +38,11 @@ interface NotificationProps {
 }
 
 export function useNotifications() {
-  const { css, alterTheme } = useStyles();
+  const { css, useAlterTheme } = useStyles();
 
   const closeToast = useDelegatedBound((id: string) => () => toast.dismiss(id));
 
-  const errorTheme = alterTheme(() => ({
+  const errorTheme = useAlterTheme(() => ({
     buttons: {
       hover: {
         normal: {

@@ -21,7 +21,7 @@ type UseStylesType<TTheme extends BaseTheme, TStyles extends StylesType> = () =>
   theme: TTheme;
   tools: ThemeTools;
   device: DeviceType;
-  alterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme; // NamedExoticComponent<{ children: ReactNode; }>;
+  useAlterTheme(delegate: (theme: TTheme) => DeepPartial<TTheme>): TTheme; // NamedExoticComponent<{ children: ReactNode; }>;
   join(...classNames: (string | boolean | undefined)[]): string | undefined;
   toPx(value: number | string | undefined): string | undefined;
   useInlineStyle(delegate: () => CSSObject, dependencies?: unknown[]): CSSProperties | undefined;
@@ -112,9 +112,8 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
       css: css as { [K in keyof TStyles]: string; },
       theme: themeInUse,
       device,
-      alterTheme: (delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme => {
+      useAlterTheme: (delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme => {
         const newTheme = delegate(themeInUse);
-        // eslint-disable-next-line react-hooks/rules-of-hooks -- alterTheme is a render-time helper invoked from a component; hook order is stable per call site
         return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);
       },
       join(...classNames: (string | boolean | undefined)[]): string | undefined {

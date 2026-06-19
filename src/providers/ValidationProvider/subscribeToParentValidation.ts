@@ -5,11 +5,9 @@ import type { MutableRefObject } from 'react';
 import { useContext, useLayoutEffect } from 'react';
 import { ValidationContext } from './ValidationContext';
 
-export function subscribeToParentValidation(errors: Records<ValidationRecord>, invalidSections: Collection<string>,
+export function useSubscribeToParentValidation(errors: Records<ValidationRecord>, invalidSections: Collection<string>,
   highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>, errorsAreHighlightedRef: MutableRefObject<boolean>) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- render-time helper invoked unconditionally from the ValidationProvider; hook order is stable per call site
   const parentContext = useContext(ValidationContext);
-  if (!parentContext.isReal) return;
 
   // register from the parent any highlight error callbacks
   if (parentContext.isReal) {
@@ -20,7 +18,6 @@ export function subscribeToParentValidation(errors: Records<ValidationRecord>, i
     });
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- render-time helper invoked unconditionally from the ValidationProvider; hook order is stable per call site
   useLayoutEffect(() => {
     if (!parentContext.isReal) return;
     parentContext.errors.upsert(errors.toArray());

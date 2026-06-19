@@ -5,16 +5,11 @@ import { useOnUnmount } from '../../hooks/useOnUnmount';
 import type { RippleConfig, RippleState } from './RippleModels';
 import { useUIState } from '../../providers';
 
-export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
-  // render-time helper invoked unconditionally from a component, so hook order is stable
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+export function useRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
   const unhookRef = useRef<() => void>(() => void 0);
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const isUnmounted = useOnUnmount();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { isReadOnly } = useUIState();
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   return useBound((element: HTMLElement | null) => {
     unhookRef.current();
     if (!element) return;

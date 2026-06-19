@@ -21,11 +21,10 @@ export function useFormObserver() {
     }
   });
 
-  const FormObserver = useMemo(() => createComponent('FormObserver', ({
+  const FormObserver = useMemo(() => createComponent('FormObserver', function FormObserverBody({
     children,
-  }: Props) => {
+  }: Props) {
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- body of a component created via createComponent; hooks run at render time
     const context = useMemo<FormObserverContextProps>(() => ({
       isReal: true,
       setIsDirty,

@@ -19,34 +19,28 @@ export interface RegisterOutOfRenderPhaseProps {
 
 type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
-function internalUseCallbacks<T extends CallbackFunction = () => void>() {
-  // eslint-disable-next-line react-hooks/rules-of-hooks -- internal render-time helper for useCallbacks; the register helpers below are invoked once per callback during render, so hook order is stable
+function useInternalCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useSet<T>();
 
-  const register = (delegate: AddCallbackState<T>) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+  const useRegister = (delegate: AddCallbackState<T>) => {
     const waitOnRenderPhaseCompleteRef = useRef(useMemo(() => Promise.createDeferred(), []));
     if (waitOnRenderPhaseCompleteRef.current.state !== PromiseState.Pending) waitOnRenderPhaseCompleteRef.current = Promise.createDeferred();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const boundDelegate = useBound((...args: Parameters<T>) => delegate.call({
       isDuringRenderPhase: waitOnRenderPhaseCompleteRef.current.state === PromiseState.Pending,
       waitOnRenderPhaseComplete: waitOnRenderPhaseCompleteRef.current,
     }, ...args)) as T;
     if (!callbacks.has(boundDelegate)) callbacks.add(boundDelegate);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
       waitOnRenderPhaseCompleteRef.current.resolve();
     });
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => () => {
       callbacks.delete(boundDelegate);
     }, []);
   };
 
-  const registerOutOfRenderPhaseOnly = (delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+  const useRegisterOutOfRenderPhaseOnly = (delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) => {
     const update = useForceUpdate();
-    register(async function (...args: Parameters<T>) {
+    useRegister(async function (...args: Parameters<T>) {
       const updateTimer = setTimeout(() => update(), updateAfterTimeout);
       const cancelTimer = setTimeout(() => {
         const error = new InternalError('Callback took too long to complete.', {
@@ -66,14 +60,14 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
     });
   };
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const invoke = useBound((async (...args: unknown[]) => { await Promise.all(Array.from(callbacks).map(callback => callback(...args))); }) as T);
 
-  return { invoke, register, registerOutOfRenderPhaseOnly };
+  return { invoke, register: useRegister, registerOutOfRenderPhaseOnly: useRegisterOutOfRenderPhaseOnly };
 }
 
-class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return internalUseCallbacks<T>(); } }
+// eslint-disable-next-line react-hooks/rules-of-hooks -- type-only helper class used purely for ReturnType inference; these methods are never executed at runtime
+class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return useInternalCallbacks<T>(); } }
 
 export type UseCallbacks<T extends CallbackFunction> = ReturnType<UseCallbacksReturnType<T>['result']>;
 
-export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return internalUseCallbacks<T>(); }
+export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return useInternalCallbacks<T>(); }

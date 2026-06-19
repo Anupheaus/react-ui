@@ -7,7 +7,7 @@ import type { ValidationRecord, ValidationTools } from './ValidationModels';
 import type { ValidateSectionProps } from './ValidateSection';
 import { ValidateSection as ValidateSectionComponent } from './ValidateSection';
 import { useBound, useCallbacks, useForceUpdate, useId } from '../../hooks';
-import { subscribeToParentValidation } from './subscribeToParentValidation';
+import { useSubscribeToParentValidation } from './subscribeToParentValidation';
 import { useUIState } from '../UIStateProvider';
 
 function createTools(): ValidationTools {
@@ -35,7 +35,7 @@ export function useValidation(props?: UseValidationProps | string) {
   const { isReadOnly } = useUIState();
   const effectivelyReadOnly = isReadOnly && !forceEnable;
 
-  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
+  useSubscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
 
   const highlightValidationErrors = useBound(() => {
     if (errorsAreHighlightedRef.current === true) return;
@@ -49,13 +49,9 @@ export function useValidation(props?: UseValidationProps | string) {
 
   const getInvalidSections = useBound(() => invalidSections.get());
 
-  const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
-    // The validate helper is a render-time helper called once per validated field; each call site invokes it unconditionally, so hook order is stable.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+  const useValidate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
     const validateId = useId();
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const [highlight, setHighlight] = useState(false);
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     const update = useForceUpdate();
     highlightErrorsCallbacks.register(setHighlight);
 
@@ -83,7 +79,6 @@ export function useValidation(props?: UseValidationProps | string) {
       }
     }) as void | boolean | ReactNode | undefined;
 
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- part of the validate render-time helper; invoked unconditionally per call site, so hook order is stable
     const enableErrors = useBound(() => {
       if (isReadOnly) return;
       setHighlight(true);
@@ -108,7 +103,7 @@ export function useValidation(props?: UseValidationProps | string) {
     highlightValidationErrors,
     /* Using isValid will enable the error highlighting */
     isValid,
-    validate,
+    validate: useValidate,
     getErrors,
   };
 }
