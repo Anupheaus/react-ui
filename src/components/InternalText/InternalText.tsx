@@ -76,8 +76,13 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   }, [type]);
 
   useLayoutEffect(() => {
-    if (!isMultiline || textareaRef.current == null) return;
-    setRowsHeight(textareaRef.current.offsetHeight);
+    const el = textareaRef.current;
+    if (!isMultiline || el == null) return;
+    // Size from the textarea's scrollHeight (the basis the auto-grow effect below uses), plus the 2px the
+    // Scroller wrapper consumes — without that extra the textarea overflows by a hair and shows a sliver of scrollbar.
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+    setRowsHeight(el.scrollHeight + 2);
   }, [isMultiline]);
 
   useEffect(() => {
