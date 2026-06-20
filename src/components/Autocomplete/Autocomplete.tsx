@@ -128,7 +128,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
         <Menu items={menuItems} onClick={handleItemClick} />
       </PopupMenuContext.Provider>
     );
-  }, [menuItems, handleItemClick]);
+  }, [menuItems, handleItemClick, setIsClosed]);
 
   const loadValues = useBound(() => batchUpdates(async () => {
     const requestId = lastActionIdRef.current;
@@ -151,7 +151,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
     <Button key="dropdown-open" onSelect={loadValues} iconOnly={false}>
       <Icon name="dropdown" />
     </Button>
-  )], []);
+  )], [loadValues]);
 
   const anchorOrigin = useMemo<PopoverOrigin>(() => ({
     horizontal: 'right',

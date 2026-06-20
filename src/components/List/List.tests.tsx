@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { render, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { act, render, waitFor } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { DefaultTheme, ThemeProvider } from '../../theme';
 import type { ReactListItem } from '../../models';
-import type { ListOnRequest } from './List';
+import type { ListActions, ListOnRequest } from './List';
 import { List } from './List';
 
 const items: ReactListItem[] = [
@@ -11,30 +11,9 @@ const items: ReactListItem[] = [
   { id: 'item-2', text: 'Beta' },
 ];
 
-class MockIntersectionObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
+function normaliseFooterCount(container: HTMLElement): string {
+  return (container.querySelector('internal-list-footer-total')?.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
-
-class MockResizeObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
-}
-
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'IntersectionObserver', {
-    writable: true,
-    configurable: true,
-    value: MockIntersectionObserver,
-  });
-  Object.defineProperty(globalThis, 'ResizeObserver', {
-    writable: true,
-    configurable: true,
-    value: MockResizeObserver,
-  });
-});
 
 function renderList(children: ReactNode) {
   return render(
@@ -88,8 +67,11 @@ describe('List', () => {
       <List label="List" onRequest={emptyListRequest} emptyMessage={null} />,
     );
 
+    // Wait until the data source has confirmed `total === 0` (the footer reports "0 items")
+    // before asserting the empty-state element is absent, otherwise the assertion could pass
+    // simply because the list is still in its initial loading state.
     await waitFor(() => {
-      expect(container.querySelector('list-content')).not.toBeNull();
+      expect(normaliseFooterCount(container)).toBe('0 items');
     });
 
     expect(container.querySelector('list-empty-message')).toBeNull();
@@ -117,16 +99,38 @@ describe('List', () => {
     });
   });
 
-  it('does not show the empty message while loading', async () => {
-    const pendingRequest: ListOnRequest = () => new Promise<void>(() => void 0);
-    const { container } = renderList(
-      <List label="List" onRequest={pendingRequest} emptyMessage="Nothing here yet" />,
-    );
-
-    await waitFor(() => {
-      expect(container.querySelector('list-content')).not.toBeNull();
+  it('hides the empty message while a re-request is in flight even though total is 0', async () => {
+    // Each onRequest call is captured but never auto-resolves, so the test controls exactly
+    // when (and with what total) each request responds.
+    const pendingCalls: Array<(total: number) => void> = [];
+    const request: ListOnRequest = (req, respondWith) => new Promise<void>(() => {
+      pendingCalls.push((total: number) => respondWith({ requestId: req.requestId, items: [], total }));
     });
 
-    expect(container.querySelector('list-empty-message')).toBeNull();
+    let listActions: ListActions | undefined;
+    const { container } = renderList(
+      <List label="List" onRequest={request} emptyMessage="Nothing here yet" actions={a => { listActions = a; }} />,
+    );
+
+    // Resolve the initial request with an empty result so we reach total === 0 and the message shows.
+    await waitFor(() => expect(pendingCalls).toHaveLength(1));
+    await act(async () => { pendingCalls[0](0); });
+    await waitFor(() => expect(container.querySelector('list-empty-message')).not.toBeNull());
+
+    // Trigger re-requests. The first stays in flight (keeping isLoading true) while the second
+    // responds with total === 0, so the list settles on total === 0 with a request still loading.
+    await act(async () => { listActions!.refresh(); });
+    await act(async () => { listActions!.refresh(); });
+    await waitFor(() => expect(pendingCalls).toHaveLength(3));
+    await act(async () => { pendingCalls[2](0); });
+
+    // Once the latest request reports total === 0 the loading skeletons disappear (so there are no
+    // `list-item`s), proving total === 0 has been processed. A request is still in flight
+    // (isLoading === true), so the guard must keep the empty message hidden despite total === 0.
+    await waitFor(() => {
+      expect(container.querySelectorAll('list-item')).toHaveLength(0);
+      expect(container.querySelector('list-empty-message')).toBeNull();
+    });
+    expect(normaliseFooterCount(container)).toBe('0 items');
   });
 });

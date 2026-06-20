@@ -3,6 +3,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { describe, it, expect, beforeAll } from 'vitest';
 import { DefaultTheme, ThemeProvider } from '../../theme';
 import type { TableColumn, TableOnRequest } from './TableModels';
+import type { TableActions } from './Table';
 import { Table } from './Table';
 import { TableRows } from './TableRows';
 import { TABLE_BODY_SCROLLER_SCROLLBAR_GUTTER } from './tableBodyScrollerLayout';
@@ -71,6 +72,10 @@ function createTableRequest(sourceRecords: TestRecord[]): TableOnRequest<TestRec
 const emptyTableRequest: TableOnRequest<TestRecord> = async ({ requestId }, response) => {
   response({ requestId, records: [], total: 0 });
 };
+
+function normaliseFooterCount(container: HTMLElement): string {
+  return (container.querySelector('internal-list-footer-total')?.textContent ?? '').replace(/\s+/g, ' ').trim();
+}
 
 function findCssPropertyMatchingSelector(selectorIncludes: string, property: string): string | undefined {
   for (const sheet of Array.from(document.styleSheets)) {
@@ -260,8 +265,11 @@ describe('Table', () => {
       <Table columns={columns} onRequest={emptyTableRequest} emptyMessage={null} />,
     );
 
+    // Wait until the data source has confirmed `total === 0` (the footer reports "0 records")
+    // before asserting the empty-state element is absent, otherwise the assertion could pass
+    // simply because the table is still in its initial loading state.
     await waitFor(() => {
-      expect(getBodyScroller(container)).not.toBeNull();
+      expect(normaliseFooterCount(container)).toBe('0 records');
     });
 
     expect(container.querySelector('list-empty-message')).toBeNull();
@@ -302,17 +310,39 @@ describe('Table', () => {
     });
   });
 
-  it('does not show the empty message while loading', async () => {
-    const pendingRequest: TableOnRequest<TestRecord> = () => new Promise<void>(() => void 0);
-    const { container } = renderTable(
-      <Table columns={columns} onRequest={pendingRequest} emptyMessage="Nothing here yet" />,
-    );
-
-    await waitFor(() => {
-      expect(getBodyScroller(container)).not.toBeNull();
+  it('hides the empty message while a re-request is in flight even though total is 0', async () => {
+    // Each onRequest call is captured but never auto-resolves, so the test controls exactly
+    // when (and with what total) each request responds.
+    const pendingCalls: Array<(total: number) => void> = [];
+    const request: TableOnRequest<TestRecord> = (req, response) => new Promise<void>(() => {
+      pendingCalls.push((total: number) => response({ requestId: req.requestId, records: [], total }));
     });
 
-    expect(container.querySelector('list-empty-message')).toBeNull();
+    let tableActions: TableActions | undefined;
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={request} emptyMessage="Nothing here yet" actions={a => { tableActions = a; }} />,
+    );
+
+    // Resolve the initial request with an empty result so we reach total === 0 and the message shows.
+    await waitFor(() => expect(pendingCalls).toHaveLength(1));
+    await act(async () => { pendingCalls[0](0); });
+    await waitFor(() => expect(container.querySelector('list-empty-message')).not.toBeNull());
+
+    // Trigger re-requests. The first stays in flight (keeping isLoading true) while the second
+    // responds with total === 0, so the table settles on total === 0 with a request still loading.
+    await act(async () => { tableActions!.refresh(); });
+    await act(async () => { tableActions!.refresh(); });
+    await waitFor(() => expect(pendingCalls).toHaveLength(3));
+    await act(async () => { pendingCalls[2](0); });
+
+    // The empty message stays mounted until the latest request commits total === 0, so waiting for
+    // it to disappear pinpoints the total === 0 state. A request is still in flight
+    // (isLoading === true), so the guard must keep the empty message hidden despite total === 0.
+    await waitFor(() => {
+      expect(container.querySelector('list-empty-message')).toBeNull();
+    });
+    expect(normaliseFooterCount(container)).toBe('0 records');
+    expect(container.querySelectorAll('table-row')).toHaveLength(0);
   });
 });
 

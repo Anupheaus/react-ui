@@ -157,7 +157,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo, refreshShadowVisibility } = useActions<ScrollerActions>();
   const [selectedItemIds, updateSelectedItemIds] = useUpdatableState<string[]>(prevValues => (providedSelectedItemIds ?? prevValues ?? []).removeNull(), [providedSelectedItemIds]);
-  const { items, total, request, offset, limit, error } = useItems({
+  const { items, total, request, offset, limit, error, isLoading } = useItems({
     initialLimit: 50,
     onRequest,
     actions: useItemsActions,
@@ -175,7 +175,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     scrollTo,
   });
 
-  const showEmptyMessage = total === 0 && error == null && emptyMessage != null;
+  const showEmptyMessage = total === 0 && isLoading === false && error == null && emptyMessage != null;
 
   const requestItems = useBound(() => {
     if (hasUnmounted()) return;
