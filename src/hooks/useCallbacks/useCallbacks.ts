@@ -17,9 +17,15 @@ export interface RegisterOutOfRenderPhaseProps {
   updateAfterTimeout?: number;
 }
 
-type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
+export type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
-function useInternalCallbacks<T extends CallbackFunction = () => void>() {
+export interface UseCallbacks<T extends CallbackFunction> {
+  invoke: T;
+  register(delegate: AddCallbackState<T>): void;
+  registerOutOfRenderPhaseOnly(delegate: AddCallbackState<T>, props?: RegisterOutOfRenderPhaseProps): void;
+}
+
+function useInternalCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> {
   const callbacks = useSet<T>();
 
   const useRegister = (delegate: AddCallbackState<T>) => {
@@ -64,10 +70,5 @@ function useInternalCallbacks<T extends CallbackFunction = () => void>() {
 
   return { invoke, register: useRegister, registerOutOfRenderPhaseOnly: useRegisterOutOfRenderPhaseOnly };
 }
-
-// eslint-disable-next-line react-hooks/rules-of-hooks -- type-only helper class used purely for ReturnType inference; these methods are never executed at runtime
-class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return useInternalCallbacks<T>(); } }
-
-export type UseCallbacks<T extends CallbackFunction> = ReturnType<UseCallbacksReturnType<T>['result']>;
 
 export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return useInternalCallbacks<T>(); }

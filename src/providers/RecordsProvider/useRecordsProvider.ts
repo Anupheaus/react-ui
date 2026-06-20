@@ -2,10 +2,18 @@ import type { Record } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { useContext, useRef } from 'react';
 import { useForceUpdate } from '../../hooks/useForceUpdate';
-import type { RecordsProviderContextProps } from './RecordsProviderContext';
+import type { RecordsProviderContextEntry, RecordsProviderContextProps } from './RecordsProviderContext';
 import { createRecordsProviderContextEntry, RecordsProviderContext } from './RecordsProviderContext';
 
-function useEmptyRecordsProvider<T extends Record = Record>(typeId: string) {
+export interface UseEmptyRecordsProvider<T extends Record> extends Pick<RecordsProviderContextEntry<T>, 'onChanged' | 'upsert' | 'get'> {
+  readonly records: Map<string, T>;
+}
+
+export interface UseIdRecordsProvider<T extends Record> extends Pick<RecordsProviderContextEntry<T>, 'onChanged' | 'upsert'> {
+  readonly record: T | undefined;
+}
+
+function useEmptyRecordsProvider<T extends Record = Record>(typeId: string): UseEmptyRecordsProvider<T> {
   const recordsMap = useContext(RecordsProviderContext) as RecordsProviderContextProps<T>;
   const { records: mappedRecords, onChanged, upsert, get } = recordsMap.getOrSet(typeId, () => createRecordsProviderContextEntry());
   const observeRef = useRef(false);
@@ -24,7 +32,7 @@ function useEmptyRecordsProvider<T extends Record = Record>(typeId: string) {
   };
 }
 
-function useIdWithRecordsProvider<T extends Record = Record>(typeId: string, id: string | undefined) {
+function useIdWithRecordsProvider<T extends Record = Record>(typeId: string, id: string | undefined): UseIdRecordsProvider<T> {
   const recordsMap = useContext(RecordsProviderContext) as RecordsProviderContextProps<T>;
   const { onChanged, upsert, get } = recordsMap.getOrSet(typeId, () => createRecordsProviderContextEntry());
   const update = useForceUpdate();
@@ -38,11 +46,8 @@ function useIdWithRecordsProvider<T extends Record = Record>(typeId: string, id:
   };
 }
 
-// eslint-disable-next-line react-hooks/rules-of-hooks -- type-only helper class used purely for ReturnType inference; these methods are never executed at runtime
-class UseRecordsProvider<T extends Record> { public getEmpty() { return useEmptyRecordsProvider<T>(''); } public getWithId() { return useIdWithRecordsProvider<T>('', ''); } }
-
-export function useRecordsProvider<T extends Record = Record>(typeId: string): ReturnType<UseRecordsProvider<T>['getEmpty']>;
-export function useRecordsProvider<T extends Record = Record>(typeId: string, id: string): ReturnType<UseRecordsProvider<T>['getWithId']>;
+export function useRecordsProvider<T extends Record = Record>(typeId: string): UseEmptyRecordsProvider<T>;
+export function useRecordsProvider<T extends Record = Record>(typeId: string, id: string): UseIdRecordsProvider<T>;
 export function useRecordsProvider<T extends Record = Record>(...args: unknown[]) {
   const typeId = args[0] as string | undefined;
   if (is.empty(typeId)) throw new Error('The typeId for the records provider is required.');
