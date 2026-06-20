@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { act, render, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DefaultTheme, ThemeProvider } from '../../theme';
 import type { TableColumn, TableOnRequest } from './TableModels';
 import type { TableActions } from './Table';
@@ -21,31 +21,6 @@ const records: TestRecord[] = [
   { id: 'record-1', name: 'Alpha' },
   { id: 'record-2', name: 'Beta' },
 ];
-
-class MockIntersectionObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
-}
-
-class MockResizeObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
-}
-
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'IntersectionObserver', {
-    writable: true,
-    configurable: true,
-    value: MockIntersectionObserver,
-  });
-  Object.defineProperty(globalThis, 'ResizeObserver', {
-    writable: true,
-    configurable: true,
-    value: MockResizeObserver,
-  });
-});
 
 function renderTable(children: ReactNode) {
   return render(
