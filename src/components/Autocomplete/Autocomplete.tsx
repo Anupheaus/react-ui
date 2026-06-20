@@ -168,7 +168,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
     style: {
       minWidth: width,
     },
-  }), [width]);
+  }), [width, css.popover]);
 
   const handleKeyDown = useBound((event: KeyboardEvent<HTMLInputElement>) => batchUpdates(() => {
     lastActionIdRef.current = Math.uniqueId();
