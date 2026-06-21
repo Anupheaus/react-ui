@@ -83,7 +83,7 @@ jobs:
           scope: "@anupheaus"
 
       - name: Download patched package.json
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package-json
 
@@ -138,7 +138,7 @@ jobs:
           scope: "@anupheaus"
 
       - name: Download patched package.json
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package-json
 
@@ -192,7 +192,7 @@ jobs:
           scope: "@anupheaus"
 
       - name: Download patched package.json
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package-json
 
@@ -250,7 +250,7 @@ jobs:
           scope: "@anupheaus"
 
       - name: Download patched package.json
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: package-json
 
