@@ -190,6 +190,10 @@ export const DefaultTheme: Theme = {
     fontSize: 13,
     fontWeight: 400,
   },
+  badge: {
+    backgroundColor: '#555',
+    textColor: '#fff',
+  },
   errorTooltip: {
     backgroundColor: '#870000',
     textColor: 'white',
@@ -309,21 +313,13 @@ export const DefaultTheme: Theme = {
   },
   slider: {
     normal: {
-      trackColor: 'rgba(0 0 0 / 55%)',
-      railColor: 'rgba(0 0 0 / 15%)',
-      thumbColor: 'rgba(0 0 0 / 55%)',
-      thumbBorderColor: 'transparent',
       markColor: 'rgba(0 0 0 / 25%)',
       valueLabelBackgroundColor: 'rgba(0 0 0 / 75%)',
       valueLabelTextColor: '#fff',
       forbiddenRailColor: 'rgba(0 0 0 / 12%)',
     },
-    active: {
-      trackColor: 'rgba(0 0 0 / 70%)',
-      thumbColor: 'rgba(0 0 0 / 70%)',
-    },
+    active: {},
     readOnly: {
-      trackColor: 'rgba(0 0 0 / 25%)',
       railColor: 'rgba(0 0 0 / 10%)',
       thumbColor: 'rgba(0 0 0 / 25%)',
     },

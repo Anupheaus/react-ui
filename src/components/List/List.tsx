@@ -131,7 +131,7 @@ export const List = createComponent('List', function <T = void, V extends string
 
   const { error, enableErrors } = validate(
     ({ validateRequired }) => validateRequired(hasItems ? 1 : undefined, isOptional !== true, isRequiredMessage),
-    () => onChange != null && !hasSelectedItems ? (selectionRequiredMessage ?? ((maxSelectableItems ?? 0) > 1 ? 'Please select at least one item' : 'Please select an item')) : undefined,
+    () => onChange != null && isOptional !== true && !hasSelectedItems ? (selectionRequiredMessage ?? ((maxSelectableItems ?? 0) > 1 ? 'Please select at least one item' : 'Please select an item')) : undefined,
   );
 
   const handleItemsChanged = useBound((items: ReactListItem<T>[]) => {
@@ -145,8 +145,6 @@ export const List = createComponent('List', function <T = void, V extends string
   });
 
   const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null;
-
-  console.log({ showFooter, onAdd });
 
   return (
     <Field

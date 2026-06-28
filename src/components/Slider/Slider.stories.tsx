@@ -10,7 +10,14 @@ export default meta;
 type Story = StoryObj<typeof Slider>;
 
 export const Single: Story = {
-  args: { type: 'single', label: 'Volume', value: 40, min: 0, max: 100 },
+  args: {
+    type: 'single',
+    label: 'Volume',
+    value: 40,
+    min: 0,
+    max: 100,
+    showValue: "none"
+  },
   render: props => {
     const [value, setValue] = useState(props.type === 'single' ? (props.value as number) ?? 0 : 0);
     return <Slider {...props} type="single" value={value} onChange={setValue} width={240} />;
@@ -43,10 +50,36 @@ export const ShowValueInline: Story = {
   },
 };
 
+export const ShowValueActive: Story = {
+  args: { type: 'single', label: 'Volume', value: 60, showValue: 'active' },
+  render: props => {
+    const [value, setValue] = useState(60);
+    return <Slider {...props} type="single" value={value} onChange={setValue} width={240} />;
+  },
+};
+
 export const WithMarks: Story = {
   args: { type: 'single', label: 'Step', value: 50, min: 0, max: 100, step: 10, showMarks: true },
   render: props => {
     const [value, setValue] = useState(50);
+    return <Slider {...props} type="single" value={value} onChange={setValue} width={240} />;
+  },
+};
+
+export const WithScaleLabels: Story = {
+  args: {
+    type: 'single',
+    label: 'Budget',
+    value: 250,
+    min: 0,
+    max: 500,
+    showScaleLabels: true,
+    showValue: 'tooltip',
+    minLabel: '$0',
+    maxLabel: '$500',
+  },
+  render: props => {
+    const [value, setValue] = useState(250);
     return <Slider {...props} type="single" value={value} onChange={setValue} width={240} />;
   },
 };

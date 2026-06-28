@@ -25,6 +25,12 @@ describe('ensureSelectedItemsPersist', () => {
     ensureSelectedItemsPersist(items, ['1']);
     expect(items[0].isSelected).toBeUndefined();
   });
+
+  it('resets a previously-selected item to false when it is no longer in selectedItemIds', () => {
+    const items: ReactListItem<Item>[] = [{ id: '1', text: 'A', data: { name: 'A' }, isSelected: true }];
+    ensureSelectedItemsPersist(items, []);
+    expect(items[0].isSelected).toBe(false);
+  });
 });
 
 describe('updateWithResponse', () => {
