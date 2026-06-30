@@ -8,11 +8,13 @@ import { useUIState } from '../../providers';
 import { Tooltip } from '../Tooltip';
 import { Flex } from '../Flex';
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles(({ badge }) => ({
   outerBadge: {
 
   },
   badge: {
+    backgroundColor: badge?.backgroundColor,
+    color: badge?.textColor,
 
     '&.is-loading': {
       visibility: 'hidden',

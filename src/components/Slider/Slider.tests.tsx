@@ -64,6 +64,37 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenCalledWith(80);
   });
 
+  it('renders the value label for showValue tooltip', () => {
+    const { container } = render(<Slider type="single" value={50} showValue="tooltip" />);
+    expect(container.querySelector('[class*="valueLabel"]')).not.toBeNull();
+  });
+
+  it('does not render the value label by default', () => {
+    const { container } = render(<Slider type="single" value={50} />);
+    expect(container.querySelector('[class*="valueLabel"]')).toBeNull();
+  });
+
+  it('hides the value label at rest for showValue active', () => {
+    const { container } = render(<Slider type="single" value={50} showValue="active" />);
+    expect(container.querySelector('[class*="valueLabel"]')).toBeNull();
+  });
+
+  it('shows the value label while the thumb is being dragged for showValue active', () => {
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} showValue="active" />);
+    const root = container.querySelector('.MuiSlider-root') as HTMLElement;
+    fireEvent.mouseDown(root, { clientX: 10, clientY: 0, buttons: 1 });
+    expect(container.querySelector('[class*="valueLabel"]')).not.toBeNull();
+  });
+
+  it('hides the value label again once the drag ends for showValue active', () => {
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} showValue="active" />);
+    const root = container.querySelector('.MuiSlider-root') as HTMLElement;
+    fireEvent.mouseDown(root, { clientX: 10, clientY: 0, buttons: 1 });
+    expect(container.querySelector('[class*="valueLabel"]')).not.toBeNull();
+    fireEvent.mouseUp(root);
+    expect(container.querySelector('[class*="valueLabel"]')).toBeNull();
+  });
+
   it('renders a forbidden overlay when clampMin is set', () => {
     const { container } = render(
       <Slider type="single" value={60} min={0} max={100} clampMin={50} />
@@ -75,5 +106,43 @@ describe('Slider', () => {
     const { container } = render(<Slider type="single" value={50} min={0} max={100} />);
     expect(container.querySelector('[data-testid="forbidden-overlay-min"]')).toBeNull();
     expect(container.querySelector('[data-testid="forbidden-overlay-max"]')).toBeNull();
+  });
+
+  it('does not render scale labels by default', () => {
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} />);
+    expect(container.querySelector('[data-testid="scale-label-min"]')).toBeNull();
+    expect(container.querySelector('[data-testid="scale-label-max"]')).toBeNull();
+  });
+
+  it('renders numeric scale labels when showScaleLabels is true', () => {
+    const { getByTestId } = render(
+      <Slider type="single" value={50} min={0} max={100} showScaleLabels />
+    );
+    expect(getByTestId('scale-label-min').textContent).toBe('0');
+    expect(getByTestId('scale-label-max').textContent).toBe('100');
+  });
+
+  it('renders custom scale labels when minLabel and maxLabel are provided', () => {
+    const { getByTestId } = render(
+      <Slider
+        type="single"
+        value={50}
+        min={0}
+        max={100}
+        showScaleLabels
+        minLabel="$0"
+        maxLabel="$100"
+      />
+    );
+    expect(getByTestId('scale-label-min').textContent).toBe('$0');
+    expect(getByTestId('scale-label-max').textContent).toBe('$100');
+  });
+
+  it('renders scale labels above and below the track for vertical orientation', () => {
+    const { getByTestId } = render(
+      <Slider type="single" value={50} min={0} max={100} orientation="vertical" showScaleLabels />
+    );
+    expect(getByTestId('scale-label-min').textContent).toBe('0');
+    expect(getByTestId('scale-label-max').textContent).toBe('100');
   });
 });

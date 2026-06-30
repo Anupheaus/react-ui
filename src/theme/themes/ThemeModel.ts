@@ -125,6 +125,16 @@ interface AvatarTheme {
   shadow?: boolean | string;
 }
 
+interface BusyTheme {
+  /** Colour of the Busy indicator (spinner / progress bar / pulsating dot). Defaults to the MUI primary. */
+  color?: string;
+}
+
+interface BadgeTheme {
+  backgroundColor?: string;
+  textColor?: string;
+}
+
 interface ShadowsTheme {
   veryLight(inset: boolean): CSSProperties['boxShadow'];
   light(inset: boolean): CSSProperties['boxShadow'];
@@ -211,10 +221,22 @@ interface QRCodeTheme {
 }
 
 interface SliderTheme {
-  trackColor: string;
-  railColor: string;
-  thumbColor: string;
+  /** Filled-track background. Defaults to a medium grey derived from the field content border colour flattened onto the window background. */
+  trackColor?: string;
+  /** Filled-track border. Defaults to the filled-track colour. */
+  trackBorderColor?: string;
+  /** Unfilled-track background. Defaults to a light grey derived from the field content border colour flattened onto the window background. */
+  railColor?: string;
+  /** Defaults to a darker grey derived from the field content border colour flattened onto the window background, so the thumb is the most prominent part. */
+  thumbColor?: string;
+  /** Defaults to the field content border colour (same source as the checkbox / radio borders). */
   thumbBorderColor?: string;
+  /** Defaults to the field content border width. */
+  thumbBorderWidth?: number;
+  /** Defaults to `'solid'`. */
+  thumbBorderStyle?: string;
+  /** Colour of the hover / drag halo ring around the thumb. Defaults to the thumb colour at low opacity. */
+  haloColor?: string;
   markColor?: string;
   valueLabelBackgroundColor?: string;
   valueLabelTextColor?: string;
@@ -363,6 +385,8 @@ export interface Theme {
     readOnly: Partial<AvatarTheme>;
   };
   shadows: ShadowsTheme;
+  busy?: BusyTheme;
+  badge?: BadgeTheme;
   icons: {
     normal: IconTheme;
     active: Partial<IconTheme>;
@@ -434,6 +458,7 @@ export interface Theme {
   slider: {
     normal: SliderTheme;
     active: Partial<SliderTheme>;
+    hover?: Partial<SliderTheme>;
     readOnly: Partial<SliderTheme>;
   };
   notifications?: {

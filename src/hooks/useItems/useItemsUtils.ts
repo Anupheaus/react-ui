@@ -5,9 +5,11 @@ import type { State } from './useItems';
 export function ensureSelectedItemsPersist<T = void>(items: ReactListItem<T>[], selectedItemIds?: string[]): void {
   if (selectedItemIds == null) return;
   for (const item of items) {
-    if (selectedItemIds.includes(item.id) && item.isSelectable !== false) {
-      item.isSelected = true;
-    }
+    // Sync both ways: items that drop out of selectedItemIds must be cleared, otherwise a
+    // stale isSelected=true lingers on reused/shared item objects and renders as a checked
+    // checkbox that isn't actually selected (a UI relic when the list is shown again).
+    if (item.isSelectable === false) continue;
+    item.isSelected = selectedItemIds.includes(item.id);
   }
 }
 
