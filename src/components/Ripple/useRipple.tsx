@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { createRippleEventHandler } from './createRippleEventHandler';
+import { useRippleEventHandler } from './createRippleEventHandler';
 import type { RippleProps } from './Ripple';
 import { Ripple as RippleComponent } from './Ripple';
 import type { RippleConfig, RippleState } from './RippleModels';
@@ -10,7 +10,7 @@ export function useRipple() {
   const { state: rippleState, modify: modifyRippleState } = useDistributedState<RippleState>(() => ({ x: 0, y: 0, isActive: false, useCoords: false }));
   const rippleConfig = useDistributedState<RippleConfig>(() => ({ ignoreMouseCoords: false, containerElement: null }));
 
-  const rippleTarget = createRippleEventHandler(modifyRippleState, rippleConfig);
+  const rippleTarget = useRippleEventHandler(modifyRippleState, rippleConfig);
 
   const Ripple = useMemo(() => createComponent('Ripple', (props: RippleProps) => (<RippleComponent {...props} rippleState={rippleState} rippleConfig={rippleConfig.state} />)), []);
 

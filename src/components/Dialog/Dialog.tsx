@@ -8,6 +8,7 @@ export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximize
   allowCloseButton?: boolean;
   allowDrag?: boolean;
   allowResize?: boolean;
+  /** @deprecated No longer has any effect; retained so existing call sites continue to compile. */
   disableBlurBackground?: boolean;
 }
 
@@ -24,6 +25,7 @@ export const Dialog = createComponent('Dialog', ({
   allowCloseButton = false,
   allowDrag = false,
   allowResize = false,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- soft-deprecated prop intentionally consumed here so it is not forwarded on to Window
   disableBlurBackground: ignored,
   ...props
 }: Props) => {

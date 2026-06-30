@@ -4,7 +4,7 @@ import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 
-function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date) /*: CalendarMonthEntryRecord[]*/ {
+function useMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date) /*: CalendarMonthEntryRecord[]*/ {
   return useMemo(() => {
     const relevantEntries = entries
       .filter(({ startDate, endDate }) => startDate <= lastDate && (endDate === undefined ? startDate >= firstDate : endDate >= firstDate))
@@ -66,7 +66,7 @@ function shouldShowEntryLabel(
 }
 
 export const CalendarMonthViewUtils = {
-  createMonthEntries,
+  useMonthEntries,
   findFirstDateFor,
   getEntriesForDate,
   shouldShowEntryLabel,

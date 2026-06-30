@@ -17,12 +17,18 @@ export interface RegisterOutOfRenderPhaseProps {
   updateAfterTimeout?: number;
 }
 
-type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
+export type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
-function internalUseCallbacks<T extends CallbackFunction = () => void>() {
+export interface UseCallbacks<T extends CallbackFunction> {
+  invoke: T;
+  register(delegate: AddCallbackState<T>): void;
+  registerOutOfRenderPhaseOnly(delegate: AddCallbackState<T>, props?: RegisterOutOfRenderPhaseProps): void;
+}
+
+function useInternalCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> {
   const callbacks = useSet<T>();
 
-  const register = (delegate: AddCallbackState<T>) => {
+  const useRegister = (delegate: AddCallbackState<T>) => {
     const waitOnRenderPhaseCompleteRef = useRef(useMemo(() => Promise.createDeferred(), []));
     if (waitOnRenderPhaseCompleteRef.current.state !== PromiseState.Pending) waitOnRenderPhaseCompleteRef.current = Promise.createDeferred();
     const boundDelegate = useBound((...args: Parameters<T>) => delegate.call({
@@ -38,9 +44,9 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
     }, []);
   };
 
-  const registerOutOfRenderPhaseOnly = (delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) => {
+  const useRegisterOutOfRenderPhaseOnly = (delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) => {
     const update = useForceUpdate();
-    register(async function (...args: Parameters<T>) {
+    useRegister(async function (...args: Parameters<T>) {
       const updateTimer = setTimeout(() => update(), updateAfterTimeout);
       const cancelTimer = setTimeout(() => {
         const error = new InternalError('Callback took too long to complete.', {
@@ -62,11 +68,7 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
 
   const invoke = useBound((async (...args: unknown[]) => { await Promise.all(Array.from(callbacks).map(callback => callback(...args))); }) as T);
 
-  return { invoke, register, registerOutOfRenderPhaseOnly };
+  return { invoke, register: useRegister, registerOutOfRenderPhaseOnly: useRegisterOutOfRenderPhaseOnly };
 }
 
-class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return internalUseCallbacks<T>(); } }
-
-export type UseCallbacks<T extends CallbackFunction> = ReturnType<UseCallbacksReturnType<T>['result']>;
-
-export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return internalUseCallbacks<T>(); }
+export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return useInternalCallbacks<T>(); }

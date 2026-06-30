@@ -32,11 +32,11 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
   const Provider = useMemo(() => {
     const Context = subscriptionContexts.get(subscription);
     if (Context == null) throw new Error('Context not found for the subscription provided.');
-    return createComponent('SubscriptionProvider', ({
+    return createComponent('SubscriptionProvider', function SubscriptionProvider({
       children,
       onSubscribed,
       onUnsubscribed,
-    }: Props<SubscribePayload, InvokePayload>) => {
+    }: Props<SubscribePayload, InvokePayload>) {
 
       const unsubscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['unsubscribe']>((id, debug) => {
         subscriptionCallbacks.delete(id);

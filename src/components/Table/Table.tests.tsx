@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { act, render, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { DefaultTheme, ThemeProvider } from '../../theme';
 import type { TableColumn, TableOnRequest } from './TableModels';
+import type { TableActions } from './Table';
 import { Table } from './Table';
 import { TableRows } from './TableRows';
 import { TABLE_BODY_SCROLLER_SCROLLBAR_GUTTER } from './tableBodyScrollerLayout';
@@ -20,31 +21,6 @@ const records: TestRecord[] = [
   { id: 'record-1', name: 'Alpha' },
   { id: 'record-2', name: 'Beta' },
 ];
-
-class MockIntersectionObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
-}
-
-class MockResizeObserver {
-  observe() { return undefined; }
-  unobserve() { return undefined; }
-  disconnect() { return undefined; }
-}
-
-beforeAll(() => {
-  Object.defineProperty(globalThis, 'IntersectionObserver', {
-    writable: true,
-    configurable: true,
-    value: MockIntersectionObserver,
-  });
-  Object.defineProperty(globalThis, 'ResizeObserver', {
-    writable: true,
-    configurable: true,
-    value: MockResizeObserver,
-  });
-});
 
 function renderTable(children: ReactNode) {
   return render(
@@ -66,6 +42,14 @@ function createTableRequest(sourceRecords: TestRecord[]): TableOnRequest<TestRec
       total: sourceRecords.length,
     });
   };
+}
+
+const emptyTableRequest: TableOnRequest<TestRecord> = async ({ requestId }, response) => {
+  response({ requestId, records: [], total: 0 });
+};
+
+function normaliseFooterCount(container: HTMLElement): string {
+  return (container.querySelector('internal-list-footer-total')?.textContent ?? '').replace(/\s+/g, ' ').trim();
 }
 
 function findCssPropertyMatchingSelector(selectorIncludes: string, property: string): string | undefined {
@@ -226,6 +210,114 @@ describe('Table', () => {
     expect(Array.from(actionsCell!.classList).some(className => className.includes('dataCell'))).toBe(false);
     expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'position')).not.toBe('sticky');
     expect(findCssPropertyMatchingSelector(actionsCellClassName!, 'overflow')).toBe('unset');
+  });
+
+  it('shows the provided empty message when there are no records', async () => {
+    const { container, getByText } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('Nothing here yet')).not.toBeNull();
+    });
+
+    expect(container.querySelectorAll('table-row')).toHaveLength(0);
+    expect(container.querySelectorAll('table-cell')).toHaveLength(0);
+  });
+
+  it('shows the default empty message when emptyMessage is omitted', async () => {
+    const { getByText } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('No records to display')).not.toBeNull();
+    });
+  });
+
+  it('renders no empty-state UI when emptyMessage is null', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage={null} />,
+    );
+
+    // Wait until the data source has confirmed `total === 0` (the footer reports "0 records")
+    // before asserting the empty-state element is absent, otherwise the assertion could pass
+    // simply because the table is still in its initial loading state.
+    await waitFor(() => {
+      expect(normaliseFooterCount(container)).toBe('0 records');
+    });
+
+    expect(container.querySelector('list-empty-message')).toBeNull();
+  });
+
+  it('leaves the header and footer unaffected when the empty message is shown', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('list-empty-message')).not.toBeNull();
+    });
+
+    expect(container.querySelector('table-header')).not.toBeNull();
+    expect(container.querySelector('table-footer')).not.toBeNull();
+  });
+
+  it('does not show the empty message when records are returned', async () => {
+    const { container, getByText } = renderTable(
+      <Table columns={columns} onRequest={createTableRequest(records)} emptyMessage="Nothing here yet" />,
+    );
+
+    await waitFor(() => {
+      expect(getByText('Alpha')).not.toBeNull();
+    });
+
+    expect(container.querySelector('list-empty-message')).toBeNull();
+  });
+
+  it('renders a React element empty message', async () => {
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={emptyTableRequest} emptyMessage={<span data-testid="custom-empty">Custom</span>} />,
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('[data-testid="custom-empty"]')).not.toBeNull();
+    });
+  });
+
+  it('hides the empty message while a re-request is in flight even though total is 0', async () => {
+    // Each onRequest call is captured but never auto-resolves, so the test controls exactly
+    // when (and with what total) each request responds.
+    const pendingCalls: Array<(total: number) => void> = [];
+    const request: TableOnRequest<TestRecord> = (req, response) => new Promise<void>(() => {
+      pendingCalls.push((total: number) => response({ requestId: req.requestId, records: [], total }));
+    });
+
+    let tableActions: TableActions | undefined;
+    const { container } = renderTable(
+      <Table columns={columns} onRequest={request} emptyMessage="Nothing here yet" actions={a => { tableActions = a; }} />,
+    );
+
+    // Resolve the initial request with an empty result so we reach total === 0 and the message shows.
+    await waitFor(() => expect(pendingCalls).toHaveLength(1));
+    await act(async () => { pendingCalls[0](0); });
+    await waitFor(() => expect(container.querySelector('list-empty-message')).not.toBeNull());
+
+    // Trigger re-requests. The first stays in flight (keeping isLoading true) while the second
+    // responds with total === 0, so the table settles on total === 0 with a request still loading.
+    await act(async () => { tableActions!.refresh(); });
+    await act(async () => { tableActions!.refresh(); });
+    await waitFor(() => expect(pendingCalls).toHaveLength(3));
+    await act(async () => { pendingCalls[2](0); });
+
+    // The empty message stays mounted until the latest request commits total === 0, so waiting for
+    // it to disappear pinpoints the total === 0 state. A request is still in flight
+    // (isLoading === true), so the guard must keep the empty message hidden despite total === 0.
+    await waitFor(() => {
+      expect(container.querySelector('list-empty-message')).toBeNull();
+    });
+    expect(normaliseFooterCount(container)).toBe('0 records');
+    expect(container.querySelectorAll('table-row')).toHaveLength(0);
   });
 });
 

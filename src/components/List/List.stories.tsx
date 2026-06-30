@@ -12,6 +12,7 @@ import { useScroller } from '../Scroller/useScroller';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 import { Scroller } from '../Scroller';
+import { DefaultTheme, ThemeProvider } from '../../theme';
 
 function ScrollPositionLabel() {
   const { scrollTop } = useScroller();
@@ -64,6 +65,26 @@ const itemsWithSubItems: ReactListItem[] = [
     ],
   },
 ];
+
+// Empty-message helpers mirror those used in List.tests.tsx so the stories exercise the same data-source behaviour.
+const emptyMessageItems: ReactListItem[] = [
+  { id: 'item-1', text: 'Alpha' },
+  { id: 'item-2', text: 'Beta' },
+];
+
+const emptyListRequest: ListOnRequest = async ({ requestId }, respondWith) => {
+  respondWith({ requestId, items: [], total: 0 });
+};
+
+const populatedListRequest: ListOnRequest = async ({ requestId, pagination: { offset = 0, limit } }, respondWith) => {
+  respondWith({
+    requestId,
+    items: emptyMessageItems.slice(offset, offset + limit),
+    total: emptyMessageItems.length,
+  });
+};
+
+const pendingListRequest: ListOnRequest = () => new Promise<void>(() => void 0);
 
 const meta: Meta<ListDefault> = {
   component: List as ListDefault,
@@ -407,3 +428,64 @@ export const InlineListWithTooMuchContentInsideScrollableContainer: Story = crea
     );
   },
 });
+
+export const EmptyMessageDefault: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={emptyListRequest} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageCustomString: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={emptyListRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageReactElement: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={emptyListRequest} emptyMessage={<span data-testid="custom-empty">Custom empty content</span>} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageSuppressed: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={emptyListRequest} emptyMessage={null} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessagePopulated: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={populatedListRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageLoading: Story = createStory<ListDefault>({
+  width: 300,
+  height: 400,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <List label="List" onRequest={pendingListRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
+});
+

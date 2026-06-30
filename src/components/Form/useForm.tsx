@@ -91,9 +91,9 @@ export function useForm<T extends AnyObject>({
   });
   const getIsDirty = useBound(() => isDirtyRef.current);
 
-  const Form = useMemo(() => createComponent('Form', ({
+  const Form = useMemo(() => createComponent('Form', function FormBody({
     children,
-  }: FormProps) => {
+  }: FormProps) {
     const context = useMemo<FormContextProps>(() => ({
       isReal: true,
       save,

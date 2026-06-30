@@ -25,8 +25,8 @@ export const ErrorTooltip = createComponent('ErrorTooltip', ({
   error,
   children = null,
 }: Props) => {
-  const { css, alterTheme } = useStyles();
-  const tooltipTheme = alterTheme(theme => ({
+  const { css, useAlterTheme } = useStyles();
+  const tooltipTheme = useAlterTheme(theme => ({
     tooltip: {
       ...theme.tooltip,
       backgroundColor: theme.errorTooltip.backgroundColor,

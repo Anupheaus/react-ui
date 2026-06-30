@@ -7,7 +7,7 @@ import type { ValidationRecord, ValidationTools } from './ValidationModels';
 import type { ValidateSectionProps } from './ValidateSection';
 import { ValidateSection as ValidateSectionComponent } from './ValidateSection';
 import { useBound, useCallbacks, useForceUpdate, useId } from '../../hooks';
-import { subscribeToParentValidation } from './subscribeToParentValidation';
+import { useSubscribeToParentValidation } from './subscribeToParentValidation';
 import { useUIState } from '../UIStateProvider';
 
 function createTools(): ValidationTools {
@@ -35,7 +35,7 @@ export function useValidation(props?: UseValidationProps | string) {
   const { isReadOnly } = useUIState();
   const effectivelyReadOnly = isReadOnly && !forceEnable;
 
-  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
+  useSubscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
 
   const highlightValidationErrors = useBound(() => {
     if (errorsAreHighlightedRef.current === true) return;
@@ -49,7 +49,7 @@ export function useValidation(props?: UseValidationProps | string) {
 
   const getInvalidSections = useBound(() => invalidSections.get());
 
-  const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
+  const useValidate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
     const validateId = useId();
     const [highlight, setHighlight] = useState(false);
     const update = useForceUpdate();
@@ -103,7 +103,7 @@ export function useValidation(props?: UseValidationProps | string) {
     highlightValidationErrors,
     /* Using isValid will enable the error highlighting */
     isValid,
-    validate,
+    validate: useValidate,
     getErrors,
   };
 }
