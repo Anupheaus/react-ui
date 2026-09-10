@@ -3,7 +3,7 @@
 ## Before making changes
 
 <EXTREMELY_IMPORTANT>
-You MUST read `C:\code\personal\agents\agents.md` before doing anything else in this repo. This is non-negotiable and cannot be skipped under any circumstances.
+You MUST read [`../agents/agents.md`](../agents/agents.md) before doing anything else in this repo. This is non-negotiable and cannot be skipped under any circumstances.
 </EXTREMELY_IMPORTANT>
 
 When working in this repository, **read the `agent.md` file at the root of the `@anupheaus/common` package** for information on how to leverage its tools and utilities.
