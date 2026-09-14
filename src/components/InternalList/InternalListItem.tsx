@@ -114,7 +114,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   const isClickable = !isReadOnly && (isSelectable || isExpandable || is.function(onClick ?? item.onClick));
   const [isExpanded, setExpanded] = useState(item.isExpanded ?? false);
 
-  let { content, doNotWrap } = useMemo<{ content: ReactNode; doNotWrap: boolean; }>(() => {
+  const { content: initialContent, doNotWrap } = useMemo<{ content: ReactNode; doNotWrap: boolean; }>(() => {
     const event = ReactListItem.createEvent(item);
     event.data = data as T;
     event.ordinal = index;
@@ -136,6 +136,8 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
       doNotWrap: false,
     };
   }, [item, data, isLoading, error, index, isSelectable]);
+
+  let content = initialContent;
 
   const createItemEvent = useBound((): ListItemEvent<T> => {
     const event = ReactListItem.createEvent(item);

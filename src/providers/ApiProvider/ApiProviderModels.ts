@@ -18,6 +18,7 @@ interface ApiFilterOperatorListItem extends ReactListItem {
   valueModification(value: unknown): unknown;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- filterOperatorIds is consumed by the ApiFilterOperator type alias below (a type-only usage that no-unused-vars cannot see)
 const { ids: filterOperatorIds, pairs: ApiFilterOperatorPairs } = ListItems.as<ApiFilterOperatorListItem>().create([
   { id: 'equals', text: 'is equal to', operatorSymbol: '=', valueModification: v => v },
   { id: 'notEquals', text: 'is not equal to', operatorSymbol: '!=', valueModification: v => v },

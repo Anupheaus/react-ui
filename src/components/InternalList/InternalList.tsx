@@ -57,6 +57,9 @@ const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClas
     borderTopLeftRadius: 4,
     borderTopRightRadius: 4,
   },
+  internalListEmptyMessage: {
+    minHeight: '100%',
+  },
 }));
 
 export interface InternalListActions extends UseItemsActions {
@@ -90,6 +93,8 @@ export interface InternalListProps<T = void> {
   horizontalScrollShadows?: boolean;
   /** Custom skeleton item factory used while `showSkeletons` is active (e.g. table rows during initial load). */
   createSkeletonItem?(context: CreateSkeletonItemContext): ReactListItem<T>;
+  /** Message rendered, centred, inside the scrollable area when the data source has confirmed there are no items. Pass `null` to suppress. */
+  emptyMessage?: ReactNode;
 }
 
 interface Props<T = void> extends InternalListProps<T> {
@@ -125,6 +130,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   minHeight,
   showSkeletons,
   createSkeletonItem,
+  emptyMessage = 'No items to display',
   deleteTooltip,
   actions,
   onScroll,
@@ -151,7 +157,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const { setActions: useItemsActions, refresh } = useActions<UseItemsActions>();
   const { setActions: scrollerActions, scrollTo, refreshShadowVisibility } = useActions<ScrollerActions>();
   const [selectedItemIds, updateSelectedItemIds] = useUpdatableState<string[]>(prevValues => (providedSelectedItemIds ?? prevValues ?? []).removeNull(), [providedSelectedItemIds]);
-  const { items, total, request, offset, limit, error } = useItems({
+  const { items, total, request, offset, limit, error, isLoading } = useItems({
     initialLimit: 50,
     onRequest,
     actions: useItemsActions,
@@ -168,6 +174,8 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     refresh,
     scrollTo,
   });
+
+  const showEmptyMessage = total === 0 && isLoading === false && error == null && emptyMessage != null;
 
   const requestItems = useBound(() => {
     if (hasUnmounted()) return;
@@ -349,15 +357,23 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         disableShadows={disableShadowsOnScroller}
         horizontalShadows={horizontalScrollShadows}
         className={join(css.internalListScrollerContent, contentClassName)}
-        fullHeight={fullHeight}
+        fullHeight={fullHeight || showEmptyMessage}
         useParentContext={useParentScrollContext}
         headerContent={headerContent}
         style={{ paddingTop: stickyHeaderHeight }}
       >
         {header}
-        <InternalListContextProvider deleteTooltip={deleteTooltip} onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
-          {renderedItems}
-        </InternalListContextProvider>
+        {showEmptyMessage
+          ? (
+            <Flex tagName="list-empty-message" className={css.internalListEmptyMessage} alignCentrally>
+              {emptyMessage}
+            </Flex>
+          )
+          : (
+            <InternalListContextProvider deleteTooltip={deleteTooltip} onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
+              {renderedItems}
+            </InternalListContextProvider>
+          )}
         {footer}
       </Scroller>
     </Flex>

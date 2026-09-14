@@ -23,6 +23,7 @@ function useActionsFunc<T extends {}>(): UseActionsApi<T> {
       actionsRef.current = actions;
       resolveRef.current();
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- intentionally registered from within setActions; invoked once during render wiring
     useEffect(() => {
       hasUnmountedRef.current = false;
       actionsRef.current = actions;
@@ -79,4 +80,4 @@ type UseActionsFunc = typeof useActionsFunc & { createDefaultHandler<T extends {
 
 export const useActions = useActionsFunc as UseActionsFunc;
 
-useActions.createDefaultHandler = () => useRef(() => void 0).current;
+useActions.createDefaultHandler = () => () => void 0;

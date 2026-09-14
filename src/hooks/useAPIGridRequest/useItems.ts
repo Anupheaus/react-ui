@@ -9,7 +9,7 @@ import { saveItems } from './saveItems';
 import { useForceUpdate } from '../useForceUpdate';
 import { useDebounce } from '../useDebounce';
 import type { UseActions } from '../useActions';
-import { makeOnRequest } from './makeOnRequest';
+import { useMakeOnRequest } from './makeOnRequest';
 import type { ListItemType } from '../../models';
 
 export interface UseItemsActions {
@@ -39,7 +39,8 @@ export function useItems<T extends ListItemType>({ initialLimit = 20, items, act
     stateRef.current.total = undefined;
     makeRequest(lastPaginationRequestRef.current);
   };
-  const request = (onRequest ?? makeOnRequest(items, refresh));
+  const defaultOnRequest = useMakeOnRequest(items, refresh);
+  const request = (onRequest ?? defaultOnRequest);
   const asyncRequests = useRef(new Set<string>()).current;
   const currentRequestIdRef = useRef<string>('');
   const lastPaginationRequestRef = useRef<FullPagination>({ offset: 0, limit: initialLimit });

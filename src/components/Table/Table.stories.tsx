@@ -6,6 +6,7 @@ import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useMemo, useState } from 'react';
 import { to } from '@anupheaus/common';
+import { DefaultTheme, ThemeProvider } from '../../theme';
 
 interface DemoRecord {
   id: string;
@@ -40,6 +41,27 @@ const generateRecords = (count: number): DemoRecord[] => new Array(count).fill(0
   phone: faker.phone.number(),
   address: faker.location.streetAddress(),
 }));
+
+// Empty-message helpers mirror those used in Table.tests.tsx so the stories exercise the same data-source behaviour.
+const emptyMessageColumns: TableColumn<DemoRecord>[] = [
+  { id: '1', field: 'name', label: 'Name', type: 'string', width: 150 },
+  { id: '2', field: 'email', label: 'Email', type: 'string', width: 200 },
+];
+
+const emptyTableRequest: TableOnRequest<DemoRecord> = async ({ requestId }, response) => {
+  response({ requestId, records: [], total: 0 });
+};
+
+const populatedTableRequest: TableOnRequest<DemoRecord> = async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+  const populatedRecords = generateRecords(2);
+  response({
+    requestId,
+    records: populatedRecords.slice(offset, offset + limit),
+    total: populatedRecords.length,
+  });
+};
+
+const pendingTableRequest: TableOnRequest<DemoRecord> = () => new Promise<void>(() => void 0);
 
 const meta: Meta<typeof Table> = {
   component: Table,
@@ -123,6 +145,66 @@ export const RequestedMinimumRecords: Story = createStory({
       />
     );
   },
+});
+
+export const EmptyMessageDefault: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={emptyTableRequest} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageCustomString: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={emptyTableRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageReactElement: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={emptyTableRequest} emptyMessage={<span data-testid="custom-empty">Custom empty content</span>} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageSuppressed: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={emptyTableRequest} emptyMessage={null} />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessagePopulated: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={populatedTableRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
+});
+
+export const EmptyMessageLoading: Story = createStory({
+  width: 700,
+  height: 300,
+  render: () => (
+    <ThemeProvider theme={DefaultTheme}>
+      <Table columns={emptyMessageColumns} onRequest={pendingTableRequest} emptyMessage="Nothing here yet" />
+    </ThemeProvider>
+  ),
 });
 
 const resizableColumns: TableColumn<DemoRecord>[] = [

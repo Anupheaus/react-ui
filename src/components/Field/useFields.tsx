@@ -33,8 +33,8 @@ type FieldOf<SourceType> = keyof SourceType extends string ? keyof SourceType : 
 // type FieldsOf<P, Prefix extends string | void = void> = CreateField<P, Prefix>
 //   | (P[keyof P] extends {} ? FieldsOf<P[keyof P], CreateField<P, Prefix>> : never);
 
-function internalUseFields<SourceType>(target: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, 
-  dependencies: unknown[] = Array.empty()) {  
+function useInternalFields<SourceType>(target: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void,
+  dependencies: unknown[] = Array.empty()) {
   const { get, set, onChange: onChangeObservable } = useObservable(target, dependencies);
   
   onChangeObservable((newValue: SourceType | undefined)=>onChange?.(newValue));
@@ -83,13 +83,13 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
     return {
       [name]: valueRef.current,
       [`set${name.toPascalCase()}`]: setValue,
-      Field: internalUseFields(valueRef.current, setValue).Field,
+      Field: useInternalFields(valueRef.current, setValue).Field,
     };
   }
 
   const Field = useMemo<ReactUIComponent<<ComponentProps extends AnyObject>(_props: FieldComponentProps<SourceType, ComponentProps>) => null | JSX.Element>>(() =>
-    createComponent('UseFieldsFieldComponent', ({ component: Component, field, defaultValue, ...props }) => {      
-      const { [field]: value, [`set${field.toPascalCase()}`]: setValue } = useField(field, undefined, undefined, defaultValue) as AnyObject;      
+    createComponent('UseFieldsFieldComponent', function UseFieldsFieldComponent({ component: Component, field, defaultValue, ...props }) {
+      const { [field]: value, [`set${field.toPascalCase()}`]: setValue } = useField(field, undefined, undefined, defaultValue) as AnyObject;
 
       return (
         <Component 
@@ -107,10 +107,10 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
 }
 
 // eslint-disable-next-line max-len
-export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
+export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies?: unknown[]): ReturnType<typeof useInternalFields<SourceType>>;
 // eslint-disable-next-line max-len
-export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
-export function useFields<SourceType>(source: SourceType | (() => SourceType), onChange: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof internalUseFields<SourceType>>;
+export function useFields<SourceType>(source: SourceType | undefined | (() => (SourceType | undefined)), onChange?: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof useInternalFields<SourceType>>;
+export function useFields<SourceType>(source: SourceType | (() => SourceType), onChange: (updatedValue: SourceType) => void, dependencies?: unknown[]): ReturnType<typeof useInternalFields<SourceType>>;
 export function useFields<SourceType>(source: (SourceType | undefined) | (() => (SourceType | undefined)), onChange?: (updatedValue: (SourceType | undefined)) => void, dependencies?: unknown[]) {
-  return internalUseFields<SourceType>(source, onChange, dependencies);
+  return useInternalFields<SourceType>(source, onChange, dependencies);
 }

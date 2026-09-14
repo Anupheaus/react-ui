@@ -29,29 +29,30 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(
   window: ReactUIWindowOnly<Name, Args, CloseResponseType>): UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
-  if (args.length === 0) {
-    const { setTitle, close } = useContext(WindowRenderContext);
-    if (setTitle == null || close == null) {
-      throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
-    }
-    return { setTitle, close } as UseWindowCurrentWindowUtils;
-  }
+  // Every hook below is called unconditionally so the hook order is identical on every render regardless of
+  // which overload is used. The no-args form simply ignores the window-command hooks it doesn't need; all of
+  // them (useRef/useBound/useContext/useId/useDevice) are side-effect-free at call time, so creating them in
+  // the no-args form is harmless. getProps is a plain function (not a hook), so calling it conditionally is fine.
+  const currentWindowUtils = useContext(WindowRenderContext);
   const hookId = useId();
-  const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
-  if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
-    throw new Error(`Window "${window.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
-  }
-  const id = providedId ?? hookId;
-  const lastOpenedWindowIdRef = useRef<string>(id);
   const contextManagerId = useContext(WindowsManagerContext);
-  const effectiveManagerId = providedManagerId ?? contextManagerId;
-  const device = useDevice();
   const contextDialogsManagerId = useContext(DialogsManagerContext);
+  const device = useDevice();
+
+  const props = args.length > 0 ? getProps<Name, Args>(args) : undefined;
+  const providedId = props?.id;
+  const window = props?.window;
+  const effectiveManagerId = props?.managerId ?? contextManagerId;
+  const id = providedId ?? hookId;
+
+  const lastOpenedWindowIdRef = useRef<string>(id);
 
   const getManager = () => device === 'mobile'
     ? WindowsManager.getManagerForType('dialogs', contextDialogsManagerId)
     : WindowsManager.getManagerForType('windows', effectiveManagerId);
 
+  // The command closures below only ever run in the command (args) form, where `window` is defined — hence the
+  // non-null assertions on it.
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();
     return (manager[funcName] as AnyFunction)(targetId ?? lastOpenedWindowIdRef.current ?? id);
@@ -72,7 +73,7 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
       explicitId = openArgs.shift() as string;
       innerArgs = openArgs as Args;
     }
-    let initialState = (innerArgs.length > window.argsLength ? (innerArgs as unknown[]).pop() : undefined) as InitialWindowState;
+    let initialState = (innerArgs.length > window!.argsLength ? (innerArgs as unknown[]).pop() : undefined) as InitialWindowState;
     if (!InitialWindowState.isState(initialState)) {
       if (initialState !== undefined) (innerArgs as unknown[]).push(initialState);
       initialState = {};
@@ -82,7 +83,7 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
     return manager.open({
       id: windowId,
       definitionId: windowId,
-      windowTypeName: window.name,
+      windowTypeName: window!.name,
       managerId,
       args: innerArgs,
       ...initialState,
@@ -102,11 +103,25 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   const restoreWindow = useBound(async (targetId?: string) => executeSimpleMethod('restore', targetId));
   const maximizeWindow = useBound(async (targetId?: string) => executeSimpleMethod('maximize', targetId));
 
+  // No-args form: return the current window's controls, available only from within window content.
+  if (props == null) {
+    const { setTitle, close } = currentWindowUtils;
+    if (setTitle == null || close == null) {
+      throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
+    }
+    return { setTitle, close } as UseWindowCurrentWindowUtils;
+  }
+
+  // Command form: validate the window definition and return its open/close/focus/restore/maximize commands.
+  if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
+    throw new Error(`Window "${window!.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
+  }
+
   return {
-    [`open${window.name}`]: openWindow,
-    [`close${window.name}`]: closeWindow,
-    [`focus${window.name}`]: focusWindow,
-    [`restore${window.name}`]: restoreWindow,
-    [`maximize${window.name}`]: maximizeWindow,
+    [`open${window!.name}`]: openWindow,
+    [`close${window!.name}`]: closeWindow,
+    [`focus${window!.name}`]: focusWindow,
+    [`restore${window!.name}`]: restoreWindow,
+    [`maximize${window!.name}`]: maximizeWindow,
   } as UseWindowApiCommands<Name, Args, CloseResponseType> | UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 }

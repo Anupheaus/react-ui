@@ -73,7 +73,7 @@ export const TabButton = createComponent('TabButton', ({
   testId,
   orientation,
 }: Props) => {
-  const { css, join, alterTheme } = useStyles();
+  const { css, join, useAlterTheme } = useStyles();
   const { get, set, onChange } = useDistributedState(state);
   const [isFocused, setIsFocused] = useState(get() === tabIndex);
 
@@ -84,7 +84,7 @@ export const TabButton = createComponent('TabButton', ({
 
   const selectTab = useBound(() => set(tabIndex));
 
-  const buttonTheme = alterTheme(currentTheme => {
+  const buttonTheme = useAlterTheme(currentTheme => {
     const mergeWith = (style: Partial<typeof currentTheme.buttons.hover.normal>): Partial<typeof currentTheme.buttons.hover.normal> => ({
       ...style,
       backgroundColor: 'transparent',

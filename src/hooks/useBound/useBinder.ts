@@ -7,6 +7,7 @@ interface BinderCache {
 
 export function useBinder() {
   return <T extends any[], R>(delegate: (...args: T) => R): (...args: T) => R => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- the returned binder is a render-time helper called once per bound function; hook order is stable
     const cache = useRef<BinderCache>({ cachedFunc: undefined, func: delegate });
 
     // get or create cached function

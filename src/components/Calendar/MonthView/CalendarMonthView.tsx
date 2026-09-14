@@ -55,7 +55,7 @@ export const CalendarMonthView = createComponent('CalendarMonthView', ({
 }: Props) => {
   const { css, join } = useStyles();
   const [firstDate, endDate] = CalendarMonthViewUtils.findFirstDateFor(viewingDate);
-  const monthEntries = CalendarMonthViewUtils.createMonthEntries(entries, firstDate, endDate);
+  const monthEntries = CalendarMonthViewUtils.useMonthEntries(entries, firstDate, endDate);
 
   const renderDayName = (dayName: string) => (
     <Tag name="calendar-month-view-day-name" className={join(css.gridCellBorder, css.dayName)}>{dayName}</Tag>

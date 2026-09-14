@@ -30,7 +30,7 @@ export function useFileUploader() {
     promiseRef.current?.resolve([]);
   });
 
-  const FileUploader = useMemo(() => createComponent('FileUploader', ({ allowMultiple = false, fileTypes = [] }: Props) => {
+  const FileUploader = useMemo(() => createComponent('FileUploader', function FileUploader({ allowMultiple = false, fileTypes = [] }: Props) {
     const { css } = useStyles();
 
     const saveFileInputElement = useBound((element: HTMLInputElement | null) => {

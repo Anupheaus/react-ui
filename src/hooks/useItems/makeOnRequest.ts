@@ -9,7 +9,7 @@ function useOrdinalToSort<T>(item: ReactListItem<T>) {
   if ('text' in item) return item.text;
 }
 
-export function makeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
+export function useMakeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();
   const lastRequestHashRef = useRef<string>('');
   const lastResponseRef = useRef<UseDataResponse<ReactListItem<T>>>();

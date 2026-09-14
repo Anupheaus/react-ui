@@ -6,6 +6,7 @@ import type { UseActions } from '../../hooks';
 import { useBound } from '../../hooks';
 import type { CreateSkeletonItemContext } from '../../hooks/useItems';
 import type { OnScrollEventData } from '../Scroller';
+import type { ReactNode } from 'react';
 import { useRef } from 'react';
 import { InternalList } from '../InternalList';
 import type { ListActions, ListOnRequest } from '../List';
@@ -56,6 +57,7 @@ export interface TableRowsProps<RecordType extends Record> {
   onRequest: TableOnRequest<RecordType>;
   onScrollLeft(value: number): void;
   onError?(error: Error): void;
+  emptyMessage?: ReactNode;
 }
 
 export const TableRows = createComponent('TableRows', function <RecordType extends Record>({
@@ -67,6 +69,7 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
   onRequest,
   onScrollLeft,
   onError,
+  emptyMessage,
 }: TableRowsProps<RecordType>) {
   const { css } = useStyles();
   const lastScrollLeftRef = useRef(0);
@@ -116,6 +119,7 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
           minWidth={0}
           minHeight={0}
           onError={onError}
+          emptyMessage={emptyMessage}
         />
       </UIState>
     </TableColumnsContext.Provider>

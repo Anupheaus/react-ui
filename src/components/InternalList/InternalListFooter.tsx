@@ -39,6 +39,8 @@ export interface InternalListFooterProps {
   addLabel?: string;
   addTooltip?: ReactNode;
   footerClassName?: string;
+  /** Tag name used for the footer container element. Defaults to `internal-list-footer`. */
+  tagName?: string;
 }
 
 export const InternalListFooter = createComponent('InternalListFooter', ({
@@ -51,6 +53,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
   addLabel,
   addTooltip,
   footerClassName,
+  tagName = 'internal-list-footer',
 }: InternalListFooterProps) => {
   const { css, join } = useStyles();
   const { formatNumber } = useLocale();
@@ -69,7 +72,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
   }, [onAdd, handleAdd, addLabel, addTooltip]);
 
   return (
-    <Flex tagName="internal-list-footer" className={join(css.footer, footerClassName)} valign="center" wide>
+    <Flex tagName={tagName} className={join(css.footer, footerClassName)} valign="center" wide>
 
       {addButton}
 

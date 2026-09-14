@@ -5,10 +5,9 @@ import type { MutableRefObject } from 'react';
 import { useContext, useLayoutEffect } from 'react';
 import { ValidationContext } from './ValidationContext';
 
-export function subscribeToParentValidation(errors: Records<ValidationRecord>, invalidSections: Collection<string>,
+export function useSubscribeToParentValidation(errors: Records<ValidationRecord>, invalidSections: Collection<string>,
   highlightErrorsCallbacks: UseCallbacks<(shouldHighlight: boolean) => void>, errorsAreHighlightedRef: MutableRefObject<boolean>) {
   const parentContext = useContext(ValidationContext);
-  if (!parentContext.isReal) return;
 
   // register from the parent any highlight error callbacks
   if (parentContext.isReal) {

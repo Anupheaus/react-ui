@@ -1,4 +1,5 @@
 import { createComponent } from '../Component';
+import type { ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
@@ -61,6 +62,7 @@ interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordTy
   actions?: UseActions<TableActions>;
   onRequest: TableRowsProps<RecordType>['onRequest'];
   persistenceKey?: string;
+  emptyMessage?: ReactNode;
 }
 
 export const Table = createComponent('Table', function <RecordType extends Record>({
@@ -79,6 +81,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   addLabel,
   addTooltip,
   persistenceKey,
+  emptyMessage = 'No records to display',
 }: Props<RecordType>) {
   const { css, join } = useStyles();
   const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
@@ -169,9 +172,11 @@ export const Table = createComponent('Table', function <RecordType extends Recor
               onScrollLeft={handleScrollLeft}
               delayRendering={delayRenderingRows}
               isInitialLoading={totalRecords == null}
+              emptyMessage={emptyMessage}
             />
             <UIState isLoading={recordsLoading}>
               <InternalListFooter
+                tagName="table-footer"
                 total={totalRecords}
                 unitName={unitName}
                 error={error}

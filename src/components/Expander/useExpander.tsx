@@ -16,7 +16,7 @@ export function useExpander(initialState: boolean | (() => boolean) = false, onE
     onExpand?.(!isExpanded);
   });
 
-  const Expander = useMemo(() => createComponent('UseExpander', ({ children, ...props }: Props) => {
+  const Expander = useMemo(() => createComponent('UseExpander', function UseExpander({ children, ...props }: Props) {
     const { getAndObserve: localGetAndObserve } = useDistributedState(state);
     const isExpanded = localGetAndObserve();
 
