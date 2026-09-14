@@ -115,7 +115,7 @@ describe('Table', () => {
     expect(container.querySelector('table-header')).not.toBeNull();
     expect(container.querySelector('table-rows')).not.toBeNull();
     expect(getBodyScroller(container)).not.toBeNull();
-    expect(container.querySelector('table-footer')).not.toBeNull();
+    expect(container.querySelector('internal-list-footer')).not.toBeNull();
 
     await waitFor(() => {
       expect(container.querySelectorAll('table-row').length).toBeGreaterThan(0);
