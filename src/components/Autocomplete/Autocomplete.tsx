@@ -61,7 +61,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
   values: providedValues,
   minSearchLength = 3,
   overridePopup: PopupOverride,
-  renderSelectedValue,
+  renderSelectedValue: _renderSelectedValue,
   onGetValues,
   onChange,
   ...props

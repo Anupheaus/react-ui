@@ -24,7 +24,7 @@ export const Dialog = createComponent('Dialog', ({
   allowCloseButton = false,
   allowDrag = false,
   allowResize = false,
-  disableBlurBackground: ignored,
+  disableBlurBackground: _ignored,
   ...props
 }: Props) => {
   const { css, join } = useStyles();

@@ -59,7 +59,7 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   };
 
   useLayoutEffect(() => manager.subscribeToStateChanges((newActiveStates, reason) => {
-    const newStates = newActiveStates.map(({ index, isFocused, ...rest }) => rest as StateType);
+    const newStates = newActiveStates.map(({ index: _index, isFocused: _isFocused, ...rest }) => rest as StateType);
     if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates);
     lastOnChangeRef.current = newStates;
     updateSavedStates(newStates);
