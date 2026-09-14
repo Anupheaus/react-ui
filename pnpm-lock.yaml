@@ -33,8 +33,8 @@ importers:
   .:
     dependencies:
       '@anupheaus/common':
-        specifier: ^0.1.34
-        version: 0.1.34
+        specifier: ^0.2.0
+        version: 0.2.0
       '@emotion/react':
         specifier: ^11.11.1
         version: 11.14.0(@types/react@18.3.28)(react@18.3.1)
@@ -222,8 +222,8 @@ packages:
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
 
-  '@anupheaus/common@0.1.34':
-    resolution: {integrity: sha512-8G0WLg8foyvrg5QPHBRFTz6rs4avKIwodRHMvHJg4WUvtDGJKayyKCTsbFfMwrtvx5yJjNC0V7DcLMjvlrXFAg==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.1.34/c281da9f121c542c21b71fc79c404c1ed9d75249}
+  '@anupheaus/common@0.2.0':
+    resolution: {integrity: sha512-5HlH3JL6qICzduir1mcnC5SKNjxN/rM6a0hPHGOBEGKXAB3+4hgtT34KbMdFUHLSqQbL7FEAdy5cnm79LL4hSA==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.2.0/b4fa4012b7abcd8bef6c199b0f23586caa0f786f}
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -2982,8 +2982,9 @@ packages:
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
-  fast-equals@4.0.3:
-    resolution: {integrity: sha512-G3BSX9cfKttjr+2o1O22tYMLq0DPluZnYtq1rXumE1SpL/F/SLIfHx08WYQoWSIpeMYf8sRbJ8++71+v6Pnxfg==}
+  fast-equals@6.0.3:
+    resolution: {integrity: sha512-IECu4C0fFZFoUC2cA2rDaNUuVIfWIZMwh3tY+ng924vOuD9OaUFFrcIrVwCKbV7TJDkGmrHfhwZ7R0AnHfVhyw==}
+    engines: {node: '>=6.0.0'}
 
   fast-json-parse@1.0.3:
     resolution: {integrity: sha512-FRWsaZRWEJ1ESVNbDWmsAlqDk96gPQezzLghafp5J4GUKjbCz3OkAHuZs5TuPEtkbVQERysLp9xv6c24fBm8Aw==}
@@ -4175,6 +4176,11 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  nanoid@5.1.16:
+    resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+
   napi-postinstall@0.3.4:
     resolution: {integrity: sha512-PHI5f1O0EP5xJ9gQmFGMS6IZcrVvTjpXjz7Na41gTE7eE2hK11lg04CECCYEEjdc17EV4DO+fkGEtt7TpTaTiQ==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
@@ -5362,6 +5368,10 @@ packages:
     resolution: {integrity: sha512-vIYxrBCC/N/K+Js3qSN88go7kIfNPssr/hHCesKCQNAjmgvYS2oqr69kIufEG+O4+PfezOH4EbIeHCfFov8ZgQ==}
     hasBin: true
 
+  uuid@14.0.2:
+    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
+    hasBin: true
+
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
@@ -5676,16 +5686,17 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@anupheaus/common@0.1.34':
+  '@anupheaus/common@0.2.0':
     dependencies:
-      fast-equals: 4.0.3
+      fast-equals: 6.0.3
       inflection: 3.0.2
       just-diff: 6.0.2
       just-diff-apply: 5.5.0
       luxon: 3.7.2
+      nanoid: 5.1.16
       numeral: 2.0.6
       object-hash: 3.0.0
-      uuid: 11.1.1
+      uuid: 14.0.2
 
   '@babel/code-frame@7.29.0':
     dependencies:
@@ -8736,7 +8747,7 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
-  fast-equals@4.0.3: {}
+  fast-equals@6.0.3: {}
 
   fast-json-parse@1.0.3: {}
 
@@ -10486,6 +10497,8 @@ snapshots:
 
   nanoid@3.3.11: {}
 
+  nanoid@5.1.16: {}
+
   napi-postinstall@0.3.4: {}
 
   natural-compare@1.4.0: {}
@@ -11917,6 +11930,8 @@ snapshots:
   utila@0.4.0: {}
 
   uuid@11.1.1: {}
+
+  uuid@14.0.2: {}
 
   v8-to-istanbul@9.3.0:
     dependencies:
