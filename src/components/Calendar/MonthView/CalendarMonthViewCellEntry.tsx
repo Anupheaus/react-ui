@@ -86,7 +86,7 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   const hasEnd = daysToEndFromCurrentCell <= (7 - dayIndex);
   const spanWidth = `calc(${widthInDays} * 100% + ${widthInDays - 1}px)`;
   const showIconAndTitle = CalendarMonthViewUtils.shouldShowEntryLabel(entry, cellDate, dayIndex, viewingDate);
-  const entryColor = entry.color ?? theme.paletteColours[renderedOnRow % theme.paletteColours.length];
+  const entryColor = entry.color ?? theme.paletteColours[renderedOnRow % theme.paletteColours.length]!;
   const { target, onMouseEnter: expandEnter, onMouseLeave: expandLeave, overlay } = useCalendarEntryExpand(entry.title, entryColor);
 
   const handleMouseEnter = useBound(() => { highlight(); expandEnter(); });

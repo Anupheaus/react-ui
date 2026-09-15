@@ -122,7 +122,7 @@ export const CalendarDayViewEntries = createComponent('CalendarDayViewEntries', 
       const height = calendarDayUtils.getOffset(laidOutSegment.segmentEnd, hourHeight, startHour) - top;
       const left = `${laidOutSegment.leftPercent}%`;
       const width = `${laidOutSegment.widthPercent}%`;
-      const color = laidOutSegment.entry.color ?? theme.paletteColours[index % theme.paletteColours.length];
+      const color = laidOutSegment.entry.color ?? theme.paletteColours[index % theme.paletteColours.length]!;
       return (
         <CalendarDayViewEntry
           key={`${laidOutSegment.entry.id}-${laidOutSegment.segmentStart.getTime()}`}
