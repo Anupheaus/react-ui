@@ -40,7 +40,7 @@ export const WindowContent = createComponent('WindowContent', ({
 
   const content = (() => {
     const renderedContent = (
-      <Flex {...props} tagName="window-content-inner" className={join(css.contentInner, disablePadding && 'no-padding', className)} disableOverflow={!disableScrolling}>
+      <Flex {...props} tagName="window-content-inner" className={join(css.contentInner, disablePadding && 'no-padding', className)}>
         {children}
       </Flex>
     );
