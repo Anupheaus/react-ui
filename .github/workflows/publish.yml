@@ -15,6 +15,9 @@ jobs:
   # ── PREPARE ─────────────────────────────────────────────────────────────────
   Prepare:
     name: Install Dependencies
+    concurrency:
+      group: prepare-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,6 +34,9 @@ jobs:
   # ── VALIDATE (parallel) ─────────────────────────────────────────────────────
   Validate-TypeCheck:
     name: Type check
+    concurrency:
+      group: validate-typecheck-${{ github.ref }}
+      cancel-in-progress: true
     needs: Prepare
     runs-on: ubuntu-latest
     permissions:
@@ -49,6 +55,9 @@ jobs:
 
   Validate-Lint:
     name: Lint
+    concurrency:
+      group: validate-lint-${{ github.ref }}
+      cancel-in-progress: true
     needs: Prepare
     runs-on: ubuntu-latest
     permissions:
@@ -67,6 +76,9 @@ jobs:
 
   Validate-Audit:
     name: Security audit
+    concurrency:
+      group: validate-audit-${{ github.ref }}
+      cancel-in-progress: true
     needs: Prepare
     runs-on: ubuntu-latest
     permissions:
@@ -86,6 +98,9 @@ jobs:
   # ── TEST (parallel) ─────────────────────────────────────────────────────────
   Test-Vitest:
     name: Vitest Tests
+    concurrency:
+      group: test-vitest-${{ github.ref }}
+      cancel-in-progress: true
     needs: Prepare
     runs-on: ubuntu-latest
     permissions:
@@ -112,6 +127,9 @@ jobs:
 
   Test-Storybook:
     name: Storybook Tests
+    concurrency:
+      group: test-storybook-${{ github.ref }}
+      cancel-in-progress: true
     needs: Prepare
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -144,6 +162,9 @@ jobs:
   # ── PUBLISH — master only, after Validate and Test ──────────────────────────
   Publish:
     name: Build and Publish
+    concurrency:
+      group: publish-${{ github.ref }}
+      cancel-in-progress: false
     needs: [Validate-TypeCheck, Validate-Lint, Validate-Audit, Test-Vitest, Test-Storybook]
     if: github.ref == 'refs/heads/master' && github.repository_owner == 'Anupheaus'
     runs-on: ubuntu-latest
