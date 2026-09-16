@@ -9,6 +9,8 @@ import type { FlexProps } from '../../Flex';
 export interface TabProps extends Pick<FlexProps, 'isVertical' | 'alignCentrally' | 'align' | 'valign' | 'gap' | 'padding' | 'maxHeight' | 'disableOverflow' | 'minWidth' | 'testId'> {
   className?: string;
   label?: ReactNode;
+  /** Optional icon for the tab button. In the `navigation` variant it is shown above the label. */
+  icon?: ReactNode;
   ordinalPosition?: number;
   children: ReactNode;
   testId?: string;
@@ -31,6 +33,7 @@ interface Props extends TabProps {
 export const TabComponent = createComponent('Tab', ({
   className,
   label,
+  icon,
   ordinalPosition,
   children,
   testId,
@@ -47,6 +50,7 @@ export const TabComponent = createComponent('Tab', ({
     upsertTab({
       id,
       label,
+      icon,
       ordinalPosition,
       className,
       testId,
@@ -55,7 +59,7 @@ export const TabComponent = createComponent('Tab', ({
       disableScroller,
       contentProps,
     });
-  }, [children, label, className, disableScroller]);
+  }, [children, label, icon, className, disableScroller]);
 
   useEffect(() => () => {
     removeTab(id);

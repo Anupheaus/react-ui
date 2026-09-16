@@ -51,6 +51,18 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
         display: 'none',
       },
     },
+    // Navigation variant: a mobile-style nav bar. Horizontal sits at the bottom with a top divider;
+    // buttons are stretched to equal widths via `flex: 1` on each TabButton (see TabButton nav styles).
+    tabsButtonsNav: {
+      position: 'relative',
+      borderTopStyle: 'solid',
+      borderTopWidth: stripWidth,
+      borderTopColor: stripColor,
+
+      '&.is-hidden': {
+        display: 'none',
+      },
+    },
     tabsContent: {
       display: 'grid',
       position: 'relative',
@@ -61,11 +73,19 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
   };
 });
 
+export type TabsVariant = 'tabs' | 'navigation';
+
 export interface TabsProps {
   className?: string;
   children: ReactNode;
   alwaysShowTabs?: boolean;
   orientation?: 'horizontal' | 'vertical';
+  /**
+   * `'tabs'` (default) renders a standard tab strip above (or, when vertical, beside) the content.
+   * `'navigation'` renders a mobile-style nav bar — icon-over-label buttons of equal width, at the
+   * bottom for a horizontal orientation or as a left rail for a vertical one.
+   */
+  variant?: TabsVariant;
   onChange?(index: number): void;
 }
 
@@ -78,6 +98,7 @@ export const TabsComponent = createComponent('Tabs', ({
   state,
   alwaysShowTabs = false,
   orientation = 'horizontal',
+  variant = 'tabs',
   children,
   onChange: providedOnChange,
 }: Props) => {
@@ -108,9 +129,9 @@ export const TabsComponent = createComponent('Tabs', ({
     removeTab,
   }), []);
 
-  const renderedTabButtons = useMemo(() => tabs.map(({ id, label, testId }, index) => (
-    <TabButton key={id} tabIndex={index} state={state} label={label} testId={testId} orientation={orientation} />
-  )), [tabs, orientation]);
+  const renderedTabButtons = useMemo(() => tabs.map(({ id, label, icon, testId }, index) => (
+    <TabButton key={id} tabIndex={index} state={state} label={label} icon={icon} testId={testId} orientation={orientation} variant={variant} />
+  )), [tabs, orientation, variant]);
 
   const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, disableScroller, contentProps }, index) => (
     <TabContent
@@ -125,6 +146,26 @@ export const TabsComponent = createComponent('Tabs', ({
     >{tabContent}</TabContent>
   )), [tabs, orientation]);
 
+  // Navigation + horizontal renders as a bottom nav bar (strip after the content).
+  const isBottomNav = variant === 'navigation' && orientation !== 'vertical';
+  const buttonsClassName = variant === 'navigation'
+    ? (orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtonsNav)
+    : (orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtons);
+
+  const buttonsStrip = (
+    <Flex tagName="tabs-buttons" isVertical={orientation === 'vertical'} disableGrow className={join(buttonsClassName, isTabsHidden && 'is-hidden')}>
+      <UIState isReadOnly={false}>
+        {renderedTabButtons}
+      </UIState>
+    </Flex>
+  );
+
+  const contentTag = (
+    <Tag name="tabs-content" className={css.tabsContent}>
+      {renderedTabs}
+    </Tag>
+  );
+
   return (
     <Flex tagName="tabs" isVertical={orientation !== 'vertical'} className={className} maxHeight>
       <Tag name="hidden" className={css.hidden}>
@@ -132,14 +173,9 @@ export const TabsComponent = createComponent('Tabs', ({
           {children}
         </TabsContext.Provider>
       </Tag>
-      <Flex tagName="tabs-buttons" isVertical={orientation === 'vertical'} disableGrow className={join(orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtons, isTabsHidden && 'is-hidden')}>
-        <UIState isReadOnly={false}>
-          {renderedTabButtons}
-        </UIState>
-      </Flex>
-      <Tag name="tabs-content" className={css.tabsContent}>
-        {renderedTabs}
-      </Tag>
+      {isBottomNav
+        ? <>{contentTag}{buttonsStrip}</>
+        : <>{buttonsStrip}{contentTag}</>}
     </Flex>
   );
 });

@@ -5,6 +5,8 @@ import { useBound, useDistributedState } from '../../../hooks';
 import { ThemeProvider, createStyles } from '../../../theme';
 import { createComponent } from '../../Component';
 import { Button } from '../../Button';
+import { Flex } from '../../Flex';
+import type { TabsVariant } from '../Tabs';
 
 const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { normal: { backgroundColor: activeButtonBackgroundColor } } }, pseudoClasses }, { toPx, applyTransition }) => {
   const stripColor = button?.stripColor ?? activeButtonBackgroundColor ?? 'rgba(0 0 0 / 5%)';
@@ -55,23 +57,52 @@ const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { n
         borderRightColor: stripColor,
       },
     },
+    // Navigation variant: an equal-width, icon-over-label item that reads as a mobile nav button.
+    tabButtonNav: {
+      flex: '1 1 0 !important',
+      minWidth: '0 !important',
+      borderRadius: '0 !important',
+      padding: '8px 6px !important',
+      opacity: 0.6,
+      ...applyTransition('opacity'),
+
+      '&.is-focused': {
+        opacity: 1,
+      },
+
+      [pseudoClasses.tablet]: {
+        padding: '12px 8px !important',
+      },
+    },
+    navContent: {
+      lineHeight: 1.1,
+    },
+    navLabel: {
+      fontSize: 11,
+      fontWeight: 600,
+      textAlign: 'center',
+    },
   };
 });
 
 interface Props {
   label: ReactNode;
+  icon?: ReactNode;
   state: DistributedState<number>;
   tabIndex: number;
   testId?: string;
   orientation: 'horizontal' | 'vertical';
+  variant: TabsVariant;
 }
 
 export const TabButton = createComponent('TabButton', ({
   label,
+  icon,
   state,
   tabIndex,
   testId,
   orientation,
+  variant,
 }: Props) => {
   const { css, join, alterTheme } = useStyles();
   const { get, set, onChange } = useDistributedState(state);
@@ -100,9 +131,21 @@ export const TabButton = createComponent('TabButton', ({
     };
   });
 
+  const isNavigation = variant === 'navigation';
+  const buttonClassName = isNavigation
+    ? join(css.tabButtonNav, isFocused && 'is-focused')
+    : join(css.tabButton, orientation === 'vertical' ? css.tabButtonVertical : css.tabButtonHorizontal, isFocused && 'is-focused');
+
   return (
     <ThemeProvider theme={buttonTheme}>
-      <Button onSelect={selectTab} variant="hover" className={join(css.tabButton, orientation === 'vertical' ? css.tabButtonVertical : css.tabButtonHorizontal, isFocused && 'is-focused')} testId={testId}>{label}</Button>
+      <Button onSelect={selectTab} variant="hover" className={buttonClassName} testId={testId}>
+        {isNavigation ? (
+          <Flex tagName="tab-nav-content" isVertical alignCentrally gap={3} className={css.navContent}>
+            {icon}
+            {label != null && <Flex tagName="tab-nav-label" disableGrow className={css.navLabel}>{label}</Flex>}
+          </Flex>
+        ) : label}
+      </Button>
     </ThemeProvider>
   );
 });

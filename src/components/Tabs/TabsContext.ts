@@ -7,6 +7,8 @@ export interface UpsertTabProps {
   ordinalPosition?: number;
   className?: string;
   label: ReactNode;
+  /** Optional icon shown alongside (navigation variant: above) the label in the tab button. */
+  icon?: ReactNode;
   testId?: string;
   children: ReactNode;
   noPadding?: boolean;
