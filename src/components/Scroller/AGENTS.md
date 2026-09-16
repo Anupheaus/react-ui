@@ -11,6 +11,8 @@ A scrollable content container that hides the scrollbar until the user hovers an
 | `containerClassName` | `string` | No | Class applied to the scrolling container element |
 | `disableShadows` | `boolean` | No | Disable the edge-shadow overflow indicators (default: `false`) |
 | `horizontalShadows` | `boolean` | No | When `false`, left/right edge shadows are omitted; vertical shadows still show (default: `true`) |
+| `horizontalOnly` | `boolean` | No | When `true`, only horizontal scrolling is enabled (default: `false`) |
+| `verticalOnly` | `boolean` | No | When `true`, only vertical scrolling is enabled (default: `false`) |
 | `scrollTo` | `number \| 'bottom'` | No | Imperatively scroll to a pixel offset or `'bottom'` when the value changes |
 | `headerContent` | `ReactNode` | No | Content rendered inside the scroll container above the scrollable area (e.g. a sticky header). Scrollbar runs alongside it. |
 | `footerContent` | `ReactNode` | No | Content rendered after the scroll container (e.g. a custom footer) |

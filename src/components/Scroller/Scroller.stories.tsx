@@ -121,3 +121,42 @@ export const LargerContentThanHeightAvailableWithFullHeight: Story = {
     );
   },
 };
+
+export const HorizontalOnlyStory: Story = {
+  name: 'Horizontal only',
+  args: { horizontalOnly: true },
+  render: (props: React.ComponentProps<typeof Scroller>) => {
+    const { css } = useStyles();
+    return (
+      <Flex width={300} height={200}>
+        <Scroller {...props} className={css.scroller}>
+          <Flex width={800} height={100}>
+            Wide content that scrolls horizontally only — vertical overflow is clipped.
+          </Flex>
+        </Scroller>
+      </Flex>
+    );
+  },
+};
+
+export const VerticalOnlyStory: Story = {
+  name: 'Vertical only',
+  args: { verticalOnly: true },
+  render: (props: React.ComponentProps<typeof Scroller>) => {
+    const { css } = useStyles();
+    const paragraphs = Array.from({ length: 20 }, (_, paragraphIndex) => (
+      <Flex key={paragraphIndex}>
+        Paragraph {paragraphIndex + 1}: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Interdum et malesuada fames ac ante ipsum primis in faucibus.
+      </Flex>
+    ));
+    return (
+      <Flex width={300} height={200}>
+        <Scroller {...props} className={css.scroller}>
+          <Flex width={800}>
+            {paragraphs}
+          </Flex>
+        </Scroller>
+      </Flex>
+    );
+  },
+};

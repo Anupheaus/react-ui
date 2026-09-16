@@ -26,9 +26,24 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
     position: 'relative',
     flexDirection: 'inherit',
     maxHeight: '100%',
+    // Mirror the height caps on the width axis so wide content (e.g. a horizontal board) scrolls instead
+    // of growing past the viewport and being clipped by the outer (overflow:hidden) scroller. min-width:0
+    // lets this flex item shrink below its content's intrinsic width so its own overflow can take over.
+    maxWidth: '100%',
+    minWidth: 0,
 
     '&.keep-height-to-content': {
       height: 'fit-content',
+    },
+
+    '&.horizontal-only': {
+      overflowX: 'overlay',
+      overflowY: 'hidden',
+    },
+
+    '&.vertical-only': {
+      overflowX: 'hidden',
+      overflowY: 'overlay',
     },
   },
   scrollerContent: {
@@ -139,6 +154,10 @@ interface Props {
   disableShadows?: boolean;
   /** When false, left/right edge shadows are not rendered (vertical shadows still show). */
   horizontalShadows?: boolean;
+  /** When true, only horizontal scrolling is enabled. */
+  horizontalOnly?: boolean;
+  /** When true, only vertical scrolling is enabled. */
+  verticalOnly?: boolean;
   offsetTop?: number;
   scrollTo?: number | 'bottom';
   children: ReactNode;
@@ -161,6 +180,8 @@ export const Scroller = createComponent('Scroller', ({
   containerClassName,
   disableShadows = false,
   horizontalShadows = true,
+  horizontalOnly = false,
+  verticalOnly = false,
   scrollTo,
   children,
   headerContent,
@@ -213,10 +234,10 @@ export const Scroller = createComponent('Scroller', ({
     if (disableShadows) return;
     const epsilon = 1;
     const next: OnShadowVisibleChangeEvent = {
-      top: element.scrollTop > epsilon,
-      bottom: element.scrollTop + element.clientHeight < element.scrollHeight - epsilon,
-      left: horizontalShadows && element.scrollLeft > epsilon,
-      right: horizontalShadows && element.scrollLeft + element.clientWidth < element.scrollWidth - epsilon,
+      top: !horizontalOnly && element.scrollTop > epsilon,
+      bottom: !horizontalOnly && element.scrollTop + element.clientHeight < element.scrollHeight - epsilon,
+      left: horizontalShadows && !verticalOnly && element.scrollLeft > epsilon,
+      right: horizontalShadows && !verticalOnly && element.scrollLeft + element.clientWidth < element.scrollWidth - epsilon,
     };
     const last = lastShadowVisibilityRef.current;
     if (last.top !== next.top) setShadowAtTop(next.top);
@@ -330,7 +351,7 @@ export const Scroller = createComponent('Scroller', ({
     const element = scrollerContainerElementRef.current;
     if (element == null) return;
     updateShadowVisibility(element);
-  }, [disableShadows, horizontalShadows, updateShadowVisibility]);
+  }, [disableShadows, horizontalOnly, horizontalShadows, updateShadowVisibility, verticalOnly]);
 
   useLayoutEffect(() => onShadowVisibilityChange?.({ top: shadowAtTop, left: shadowOnLeft, bottom: shadowAtBottom, right: shadowOnRight }),
     [shadowAtTop, shadowOnLeft, shadowAtBottom, shadowOnRight, onShadowVisibilityChange]);
@@ -345,6 +366,8 @@ export const Scroller = createComponent('Scroller', ({
           scrollbarsCss.scrollbars,
           isScrollbarVisible && 'is-scrollbar-visible',
           !fullHeight && 'keep-height-to-content',
+          horizontalOnly && 'horizontal-only',
+          verticalOnly && 'vertical-only',
           containerClassName,
         )}
       >
@@ -358,10 +381,10 @@ export const Scroller = createComponent('Scroller', ({
         </Tag>
       </Tag>
       {!disableShadows && (<>
-        <Tag name="scroller-shadow-top" className={join(css.scrollerShadow, css.scrollerShadowTop, shadowAtTop && 'is-visible')} />
-        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, horizontalShadows && shadowOnLeft && 'is-visible')} />
-        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, horizontalShadows && shadowOnRight && 'is-visible')} />
-        <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, shadowAtBottom && 'is-visible')} />
+        <Tag name="scroller-shadow-top" className={join(css.scrollerShadow, css.scrollerShadowTop, !horizontalOnly && shadowAtTop && 'is-visible')} />
+        <Tag name="scroller-shadow-left" className={join(css.scrollerShadow, css.scrollerShadowLeft, horizontalShadows && !verticalOnly && shadowOnLeft && 'is-visible')} />
+        <Tag name="scroller-shadow-right" className={join(css.scrollerShadow, css.scrollerShadowRight, horizontalShadows && !verticalOnly && shadowOnRight && 'is-visible')} />
+        <Tag name="scroller-shadow-bottom" className={join(css.scrollerShadow, css.scrollerShadowBottom, !horizontalOnly && shadowAtBottom && 'is-visible')} />
       </>)}
       {footerContent}
     </Tag>
