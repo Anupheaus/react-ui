@@ -61,6 +61,7 @@ This avoids a flash of incorrectly sized/positioned content.
 - **`allowIsMaximized`** is a separate flag from `isMaximized`. It is `false` during the preparation phase to prevent the maximize animation from firing before the window is sized. The `useLayoutEffect` that syncs `isMaximized` only fires when `allowIsMaximized` is `true`.
 - **`WindowAction` reads `WindowRenderContext`** — this means it only works when rendered inside a window created with `createWindow`. Rendering it outside a window will throw (context will be the default empty value).
 - **`useWindowState` calls `manager.updateStateWithoutNotifications` on every state change** — this pushes state back to the manager without triggering a re-render cascade. Do not replace this with `manager.setState` (the notifying variant) as it will cause an infinite loop.
+- **Mobile bottom-sheet safe area** — in mobile mode (`.is-mobile`, sheet anchored `bottom: 0`), `window-content-wrapper` is padded by the OS `env(safe-area-inset-*)` so the sheet's content (and bottom action bar) clears the on-screen navigation buttons / gesture bar and any landscape side cut-outs, while the sheet *background* still fills to the physical screen edge. The insets are `0` on platforms that don't expose them (and require the host page's viewport to use `viewport-fit=cover`), so this is inert on desktop.
 
 ## Related
 

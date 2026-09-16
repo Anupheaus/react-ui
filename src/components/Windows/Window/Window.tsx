@@ -100,6 +100,15 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
         transform: 'translateY(0)',
         opacity: 1,
       },
+
+      // Keep the bottom-sheet's content clear of the OS navigation buttons / gesture bar (and any
+      // side cut-outs in landscape) while the sheet background still fills to the physical screen
+      // edge. The insets resolve to 0 on platforms that don't expose them, so this is inert there.
+      '& window-content-wrapper': {
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      },
     },
 
     '&.stop-transitions': {
