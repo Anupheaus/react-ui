@@ -26,7 +26,23 @@ function getEffectiveHourRange(
   };
 }
 
+function isSameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
+/**
+ * The pixel Y offset for the current-time line on the given day, or `null` when it should not be
+ * shown — i.e. `now` is not on `date`, or the current time falls outside the visible hour range.
+ */
+function getNowLineOffset(now: Date, date: Date, hourHeight: number, startHour: number, endHour: number): number | null {
+  if (!isSameDay(now, date)) return null;
+  const offset = getOffset(now, hourHeight, startHour);
+  if (offset < 0 || offset > (endHour - startHour) * hourHeight) return null;
+  return offset;
+}
+
 export const calendarDayUtils = {
   getOffset,
   getEffectiveHourRange,
+  getNowLineOffset,
 };

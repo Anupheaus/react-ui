@@ -5,6 +5,7 @@ import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarDayViewHours } from './CalendarDayViewHours';
 import { createStyles } from '../../../theme';
 import { CalendarDayViewEntries } from './CalendarDayViewEntries';
+import { CalendarNowLine } from './CalendarNowLine';
 import { calendarDayUtils } from './CalendarDayUtils';
 import type { ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
@@ -65,6 +66,7 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
         <Scroller scrollTo={scrollTo}>
           <CalendarDayViewHours hourHeight={hourHeight} startHour={startHour} endHour={endHour} />
           <CalendarDayViewEntries entries={entries} date={viewingDate} hourHeight={hourHeight} startHour={startHour} endHour={endHour} onSelect={onSelect} />
+          <CalendarNowLine date={viewingDate} startHour={startHour} endHour={endHour} hourHeight={hourHeight} />
         </Scroller>
       </Flex>
     </Flex>

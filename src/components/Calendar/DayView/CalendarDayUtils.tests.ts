@@ -1,34 +1,29 @@
 import { calendarDayUtils } from './CalendarDayUtils';
 
-describe('calendarDayUtils.getOffset', () => {
-  const hourHeight = 60; // pixels per hour
+describe('calendarDayUtils.getNowLineOffset', () => {
+  const hourHeight = 60;
+  const startHour = 8;
+  const endHour = 18;
+  const day = new Date(2026, 8, 16); // 16 Sep 2026
 
-  it('returns 0 when date is exactly at startHour:00', () => {
-    const date = new Date(2024, 5, 15, 8, 0, 0);
-    expect(calendarDayUtils.getOffset(date, hourHeight, 8)).toBe(0);
+  it('returns the pixel offset when now is on the given day and within the hour range', () => {
+    const now = new Date(2026, 8, 16, 9, 30);
+    // 9h30 from midnight, minus the 8h start = 1h30 into the grid = 90px at 60px/hour.
+    expect(calendarDayUtils.getNowLineOffset(now, day, hourHeight, startHour, endHour)).toBe(90);
   });
 
-  it('increases by hourHeight for each hour past startHour', () => {
-    const date = new Date(2024, 5, 15, 10, 0, 0);
-    // 10:00 with startHour=8 → 2 hours * 60px = 120
-    expect(calendarDayUtils.getOffset(date, hourHeight, 8)).toBe(120);
+  it('returns null when now is on a different day', () => {
+    const now = new Date(2026, 8, 17, 9, 30);
+    expect(calendarDayUtils.getNowLineOffset(now, day, hourHeight, startHour, endHour)).toBeNull();
   });
 
-  it('adds fractional offset for minutes (30 mins = half hourHeight)', () => {
-    const date = new Date(2024, 5, 15, 8, 30, 0);
-    // 0h 30m with hourHeight=60 → 30 * (60/60) = 30px
-    expect(calendarDayUtils.getOffset(date, hourHeight, 8)).toBe(30);
+  it('returns null when the current time is before the visible start hour', () => {
+    const now = new Date(2026, 8, 16, 7, 0);
+    expect(calendarDayUtils.getNowLineOffset(now, day, hourHeight, startHour, endHour)).toBeNull();
   });
 
-  it('subtracts startHour offset correctly', () => {
-    const date = new Date(2024, 5, 15, 9, 0, 0);
-    // startHour=10 → 9:00 is 1 hour before start → -60
-    expect(calendarDayUtils.getOffset(date, hourHeight, 10)).toBe(-60);
-  });
-
-  it('works with hourHeight other than 60', () => {
-    const date = new Date(2024, 5, 15, 9, 0, 0);
-    // startHour=8, hourHeight=100 → 1 hour * 100 = 100
-    expect(calendarDayUtils.getOffset(date, 100, 8)).toBe(100);
+  it('returns null when the current time is after the visible end hour', () => {
+    const now = new Date(2026, 8, 16, 18, 30);
+    expect(calendarDayUtils.getNowLineOffset(now, day, hourHeight, startHour, endHour)).toBeNull();
   });
 });

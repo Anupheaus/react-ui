@@ -367,6 +367,8 @@ export interface Theme {
     monthViewDayNameFontSize: string | number;
     monthViewDayNameFontWeight: string | number;
     monthViewTodayBackgroundColor: string;
+    /** Colour of the current-time line (and its dot) drawn across the day/week views. */
+    currentTimeLineColor: string;
   };
   chips: {
     normal: ChipsTheme;

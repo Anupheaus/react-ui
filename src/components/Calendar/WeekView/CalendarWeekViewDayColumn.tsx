@@ -2,6 +2,7 @@ import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarDayViewEntries } from '../DayView/CalendarDayViewEntries';
+import { CalendarNowLine } from '../DayView/CalendarNowLine';
 import { createStyles } from '../../../theme';
 import { CalendarWeekViewHourGridLines } from './CalendarWeekViewHourGridLines';
 
@@ -61,6 +62,7 @@ export const CalendarWeekViewDayColumn = createComponent('CalendarWeekViewDayCol
           onSelect={onSelect}
         />
       </Flex>
+      <CalendarNowLine date={date} startHour={startHour} endHour={endHour} hourHeight={hourHeight} />
     </Flex>
   );
 });

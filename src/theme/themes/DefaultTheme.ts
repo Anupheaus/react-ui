@@ -221,6 +221,7 @@ export const DefaultTheme: Theme = {
     monthViewDayNameFontSize: 14,
     monthViewDayNameFontWeight: 600,
     monthViewTodayBackgroundColor: '#e1f7ff',
+    currentTimeLineColor: '#ea4335',
   },
   dropDown: {
     normal: {
