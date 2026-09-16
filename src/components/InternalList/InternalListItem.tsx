@@ -193,6 +193,13 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   const click = useBound((event: MouseEvent) => {
     if (!isClickable || isLoading) return;
     const hasClick = is.function(item.onClick ?? onClick);
+    const hasSelectChange = is.function(item.onSelectChange);
+    if (isSelectable && !hasClick && !hasSelectChange) {
+      const clickTarget = event.target;
+      if (clickTarget instanceof HTMLInputElement && clickTarget.type === 'checkbox') return;
+      handleSelect();
+      return;
+    }
     if (isExpandable && !hasClick) setExpanded(prev => !prev);
     const newEvent = ReactListItem.createClickEvent(event, item);
     item.onClick?.(newEvent);
@@ -244,7 +251,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         onBlur={blur}
       >
         <Ripple stayWithinContainer isDisabled={item.disableRipple} />
-        <Flex tagName="list-item-content" gap="fields" valign="center" className={css.listItemContent}>
+        <Flex tagName="list-item-content" gap="fields" valign="center" wide className={css.listItemContent}>
           {content}
         </Flex>
         {actions}

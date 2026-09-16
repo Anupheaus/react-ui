@@ -43,7 +43,7 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `contentClassName` | `string` | No | Class applied to the inner list content area. |
 | `children` | `ReactNode` | No | Additional content rendered inside the field. |
 | `gap` | `FlexProps['gap']` | No | Gap between list items. |
-| `onClick` | `(event: ListItemClickEvent<T>) => PromiseMaybe<void>` | No | Called when a list item is clicked. |
+| `onClick` | `(event: ListItemClickEvent<T>) => PromiseMaybe<void>` | No | Called when a list item is clicked. When omitted on a selectable list, clicking the row toggles selection like the checkbox. |
 | `onActive` | `(event: ListItemEvent<T>, isActive: boolean) => void` | No | Called when an item gains or loses active state. |
 | `onError` | `(error: Error) => void` | No | Called if the `onRequest` handler throws. |
 

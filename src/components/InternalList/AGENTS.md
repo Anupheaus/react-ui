@@ -34,7 +34,7 @@ The core virtualised list engine used by both `List` and `Table`. It implements 
 | `onItemsChange` | `(items: ReactListItem<T>[]) => void` | No | Called whenever the current item array changes. |
 | `onSelectedItemsChange` | `(ids: string[]) => void` | No | Called whenever the set of selected item IDs changes. |
 | `onActive` | `(event: ListItemEvent<T>, isActive: boolean) => void` | No | Called when an item gains or loses the active (hover/focus) state. |
-| `onClick` | `(event: ListItemClickEvent<T>) => PromiseMaybe<void>` | No | Called when an item is clicked. |
+| `onClick` | `(event: ListItemClickEvent<T>) => PromiseMaybe<void>` | No | Called when an item is clicked. When omitted on a selectable item (and the item has no `onSelectChange`), clicking the row toggles selection like the checkbox. |
 | `onDelete` | `(event: ListItemEvent<T>) => void` | No | Called when an item's delete control is activated. |
 | `onAdd` | `(event: MouseEvent<HTMLElement>) => PromiseMaybe<T \| void>` | No | Renders a built-in Add button in the sticky header when provided. |
 | `onMouseEnter` | `(event: MouseEvent) => void` | No | Forwarded to the root container. |
