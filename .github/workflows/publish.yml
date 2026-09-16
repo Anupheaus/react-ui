@@ -1,162 +1,104 @@
-name: Publish Package
+name: Publish
 
 on:
-  workflow_dispatch:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
 
 env:
-  PNPM_VERSION: '9'
+  PNPM_VERSION: '10'
   NODE_VERSION: '22'
 
-# ─── PREPARE ──────────────────────────────────────────────────────────────────
 jobs:
+  # ── PREPARE ─────────────────────────────────────────────────────────────────
   Prepare:
-    name: Prepare
+    name: Install Dependencies
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          fetch-depth: 1
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: pnpm-store-${{ runner.os }}-
-
-      - name: Patch package.json
-        run: |
-          jq 'del(.pnpm.overrides["@anupheaus/common"])' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload patched package.json
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-json
-          path: package.json
-          retention-days: 1
-
-# ─── VALIDATE ─────────────────────────────────────────────────────────────────
-  Validate:
-    name: Validate
-    needs: [Prepare]
+  # ── VALIDATE (parallel) ─────────────────────────────────────────────────────
+  Validate-TypeCheck:
+    name: Type check
+    needs: Prepare
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
-
-      - name: Download patched package.json
-        uses: actions/download-artifact@v4
-        with:
-          name: package-json
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: pnpm-store-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --prefer-offline
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Lint
-        run: pnpm run lint
-
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
       - name: Type check
         run: pnpm run typecheck
 
-      - name: Security audit
-        run: pnpm audit --audit-level=critical
-
-      - name: Check for outdated dependencies
-        run: pnpm outdated
-        continue-on-error: true
-
-# ─── TEST ─────────────────────────────────────────────────────────────────────
-  Test-Vitest:
-    name: Vitest Tests
-    needs: [Prepare]
+  Validate-Lint:
+    name: Lint
+    needs: Prepare
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
+      - name: Lint
+        run: pnpm run lint
 
-      - name: Download patched package.json
-        uses: actions/download-artifact@v4
+  Validate-Audit:
+    name: Security audit
+    needs: Prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          name: package-json
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
+      - name: Security audit
+        run: pnpm audit --audit-level=critical
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v4
+  # ── TEST (parallel) ─────────────────────────────────────────────────────────
+  Test-Vitest:
+    name: Vitest Tests
+    needs: Prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: pnpm-store-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --prefer-offline
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
 
       - name: Run Vitest tests
         run: pnpm run test:ci
@@ -170,7 +112,7 @@ jobs:
 
   Test-Storybook:
     name: Storybook Tests
-    needs: [Prepare]
+    needs: Prepare
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container:
@@ -179,38 +121,13 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v3
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
-
-      - name: Download patched package.json
-        uses: actions/download-artifact@v4
-        with:
-          name: package-json
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-container-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: pnpm-store-container-
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --prefer-offline
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
 
       - name: Run Storybook tests
         env:
@@ -224,59 +141,32 @@ jobs:
           files: ./coverage/storybook/lcov.info
           fail_ci_if_error: false
 
-# ─── PUBLISH ──────────────────────────────────────────────────────────────────
+  # ── PUBLISH — master only, after Validate and Test ──────────────────────────
   Publish:
-    name: Publish
-    needs: [Validate, Test-Vitest, Test-Storybook]
+    name: Build and Publish
+    needs: [Validate-TypeCheck, Validate-Lint, Validate-Audit, Test-Vitest, Test-Storybook]
+    if: github.ref == 'refs/heads/master' && github.repository_owner == 'Anupheaus'
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'Anupheaus'
     permissions:
       contents: write
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
-          registry-url: https://npm.pkg.github.com/
-          scope: "@anupheaus"
-
-      - name: Download patched package.json
-        uses: actions/download-artifact@v4
-        with:
-          name: package-json
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: Restore pnpm store cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.path }}
-          key: pnpm-store-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: pnpm-store-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile --prefer-offline
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
+          fetch-depth: '0'
 
       - name: Build
         run: pnpm run build
 
       - name: Bump version
-        uses: "phips28/gh-action-bump-version@master"
+        uses: phips28/gh-action-bump-version@master
         with:
-          commit-message: "CI: bumps version to {{version}} [skip ci]"
+          commit-message: 'CI: bumps version to {{version}} [skip ci]'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
