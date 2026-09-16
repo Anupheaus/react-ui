@@ -19,17 +19,17 @@ type Story = StoryObj<typeof Windows>;
 
 const WindowType1 = createWindow('WindowType1', ({ Window, Content, id }) => () => {
   const onFocus = useDelegatedBound((isFocused: boolean) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" is focused: ${isFocused}`);
   });
 
   const onClosing = useBound((reason?: string) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" is closing because: ${reason}`);
   });
 
   const onClose = useBound((reason?: string) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" has closed because: ${reason}`);
   });
 
@@ -66,17 +66,17 @@ const WindowContentWithUtilities = createComponent('WindowContentWithUtilities',
 
 const WindowType2 = createWindow('WindowType2', ({ Window, Content, id }) => () => {
   const onFocus = useBound((isFocused: boolean) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" is focused: ${isFocused}`);
   });
 
   const onClosing = useBound((reason?: string) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" is closing because: ${reason}`);
   });
 
   const onClose = useBound((reason?: string) => {
-    // eslint-disable-next-line no-console
+     
     console.log(`Window "${id}" has closed because: ${reason}`);
   });
 
@@ -96,7 +96,7 @@ const WindowActions = createComponent('WindowActions', () => {
   const performTest = async (action: string, fn: () => PromiseMaybe<void>) => {
     const startTime = Date.now();
     await fn();
-    // eslint-disable-next-line no-console
+     
     console.log(`${action} took ${Date.now() - startTime}ms`);
   };
 

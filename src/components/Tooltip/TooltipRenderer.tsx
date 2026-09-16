@@ -43,7 +43,7 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
   const child = Children.toArray(children)[0] as ReactElement;
 
   // See the documentation https://v4.mui.com/api/tooltip/#props the child must be a component that can take a ref
-  // eslint-disable-next-line no-console
+   
   if (child.type === Fragment) console.warn('TOOLTIP Fail: Fragment is not supported as a target of a tooltip.');
 
   return (

@@ -51,13 +51,13 @@ export const Default: Story = {
 
     const onOpen = useBound(async () => {
       const result = await openTestDialog(123, 'This is the content of the dialog');
-      // eslint-disable-next-line no-console
+       
       console.log('Dialog closed with result:', result);
     });
 
     const onConfirm = useBound(async () => {
       const result = await openConfirmationDialog('Confirm?', 'Are you sure?');
-      // eslint-disable-next-line no-console
+       
       console.log('Confirmation dialog closed with result:', result);
     });
 

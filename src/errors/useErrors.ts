@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+ 
 import { Error } from '@anupheaus/common';
 import { useContext } from 'react';
 import { ErrorContexts } from './ErrorContexts';

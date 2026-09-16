@@ -170,7 +170,7 @@ export class WindowsManager {
       if (state == null) return;
       this.#ensureGetId(id);
     } catch {
-      // eslint-disable-next-line no-console
+       
       console.warn(`Window with id "${id}" not found when focusing - it may have been closed or not yet added.`);
       return;
     }
@@ -265,7 +265,7 @@ export class WindowsManager {
     if (event !== 'allowClosing') {
       setTimeout(() => {
         if (deferred.state !== PromiseState.Pending) return;
-        // eslint-disable-next-line no-console
+         
         console.warn(`Event ${event} for window ${id} took too long to resolve.`);
         deferred.resolve();
       }, 4000);

@@ -18,7 +18,7 @@ if (localModule?.hot) {
   localModule.hot.accept(); // already had this init code
 
   localModule.hot.addStatusHandler(status => {
-    // eslint-disable-next-line no-console
+     
     if (status === 'check') console.clear();
   });
 }

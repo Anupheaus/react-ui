@@ -80,7 +80,7 @@ export const LazyLoadListItems: Story = createStory<ListDefault>({
   height: 300,
   render: (props: ListProps) => {
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 
@@ -113,7 +113,7 @@ export const LazyLoadSelectableListItems: Story = createStory<ListDefault>({
   render: (props: ListProps) => {
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 
@@ -186,7 +186,7 @@ export const ListWithStickyHeader: Story = createStory<ListDefault>({
     });
 
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 
@@ -225,7 +225,7 @@ export const InlineListWithTooLittleContent: Story = createStory<ListDefault>({
       }));
 
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 
@@ -260,7 +260,7 @@ export const InlineListWithTooMuchContent: Story = createStory<ListDefault>({
       }));
 
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 
@@ -293,7 +293,7 @@ export const ListFooterWithAddLabel: Story = createStory<ListDefault>({
   height: 200,
   render: () => {
     const items = staticItems.slice(0, 5);
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add person'));
     return <List label="People" items={items} onAdd={handleAdd} addLabel="Add person" />;
   },
@@ -304,7 +304,7 @@ export const ListFooterWithAddTooltip: Story = createStory<ListDefault>({
   height: 200,
   render: () => {
     const items = staticItems.slice(0, 5);
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add person'));
     return (
       <List
@@ -322,7 +322,7 @@ export const ListFooterWithSummary: Story = createStory<ListDefault>({
   height: 200,
   render: () => {
     const items = staticItems.slice(0, 5);
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add'));
     return (
       <List
@@ -348,7 +348,7 @@ export const ListFooterHideCount: Story = createStory<ListDefault>({
   height: 200,
   render: () => {
     const items = staticItems.slice(0, 5);
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add'));
     return (
       <List label="People" items={items} onAdd={handleAdd} addLabel="Add person" hideRecordCount />
@@ -388,7 +388,7 @@ export const InlineListWithTooMuchContentInsideScrollableContainer: Story = crea
       }));
 
     const handleAdd = useBound(() => {
-      // eslint-disable-next-line no-alert
+       
       window.alert('Add');
     });
 

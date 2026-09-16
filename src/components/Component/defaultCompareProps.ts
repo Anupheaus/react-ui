@@ -28,7 +28,7 @@ export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunct
         if (prevProps === newProps) return true;
         if (whitelistSet.has(propertyName)) return false;
         if (!suppressFunctionWarning) {
-          // eslint-disable-next-line no-console
+           
           console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
             `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component ` +
             'or by setting it in the configuration of the component.', { topLevelProps, newProps, whitelistFunctions });
@@ -58,7 +58,7 @@ export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunct
   if (debug) {
     return (prevProps: any, newProps: any) => {
       const result = doCompare(prevProps, newProps, 'props');
-      // eslint-disable-next-line no-console
+       
       console.log(`${name} - debug`, { prevProps, newProps, result });
       return result;
     };

@@ -20,7 +20,7 @@ interface Props<T extends Record = Record> {
   onDraggedOut?(draggedItems: DraggedItem<T>[], event: MouseLeaveEvent): void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const useStyles = createStyles(({ dragAndDrop }, { applyTransition }) => ({
   dropArea: {
     display: 'flex',

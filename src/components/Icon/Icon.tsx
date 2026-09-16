@@ -88,14 +88,14 @@ const IconComponent = createComponent('Icon', function ({
       try {
         return config.render({ size: sizeAmount, color });
       } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.error(`Error rendering icon "${name}":`, error);
         return defaultIcon().icon;
       }
     })();
 
     if (returnedIcon == null || returnedIcon.type == null) {
-      // eslint-disable-next-line no-console
+       
       console.error(`Icon "${name}" is not a valid icon`);
       return defaultIcon();
     }

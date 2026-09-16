@@ -45,7 +45,7 @@ function stringifyArgs(args: any[], delegate: AnyFunction): string {
   try {
     return `delegated-bound-${Object.stringify(args)}`;
   } catch (error) {
-    // eslint-disable-next-line no-console
+     
     console.error('Error stringifying args for useDelegatedBound', { error, args, delegate });
     return Math.uniqueId();
   }

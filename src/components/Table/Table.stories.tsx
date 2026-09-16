@@ -55,7 +55,7 @@ export const Loading: Story = createStory({
     const [localColumns] = useState(columns);
     const handleRequest = useBound<TableOnRequest>(async () => new Promise(() => void 0));
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
     return (
@@ -83,7 +83,7 @@ export const RequestedRecords: Story = createStory({
       });
     });
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
     return (
@@ -111,7 +111,7 @@ export const RequestedMinimumRecords: Story = createStory({
       });
     });
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
     return (
@@ -151,7 +151,7 @@ export const ResizableColumns: Story = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
 
@@ -184,7 +184,7 @@ export const ResizableColumnsThreeRecords: Story = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
 
@@ -217,7 +217,7 @@ export const TableUsingRecordIds: Story = createStory({
     });
 
     const handleOnEdit = useBound((record: DemoRecord) => {
-      // eslint-disable-next-line no-console
+       
       console.log('Edit record:', record);
     });
 
@@ -243,7 +243,7 @@ export const TableWithAddButton: Story = createStory({
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
     });
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add record'));
     return <Table columns={localColumns} unitName="person" onRequest={handleRequest} onAdd={handleAdd} />;
   },
@@ -258,7 +258,7 @@ export const TableWithAddLabel: Story = createStory({
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
     });
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add person'));
     return (
       <Table columns={localColumns} unitName="person" onRequest={handleRequest} onAdd={handleAdd} addLabel="Add person" />
@@ -275,7 +275,7 @@ export const TableWithAddTooltip: Story = createStory({
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
     });
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add'));
     return (
       <Table
@@ -298,7 +298,7 @@ export const TableWithSummary: Story = createStory({
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
     });
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add'));
     return (
       <Table
@@ -321,7 +321,7 @@ export const TableHideRecordCount: Story = createStory({
     const handleRequest = useBound<TableOnRequest<DemoRecord>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
       response({ requestId, records: smallRecords.slice(offset, offset + limit), total: smallRecords.length });
     });
-    // eslint-disable-next-line no-alert
+     
     const handleAdd = useBound(() => window.alert('Add'));
     return (
       <Table

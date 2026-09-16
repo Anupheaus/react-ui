@@ -180,7 +180,7 @@ export const Markdown = createComponent('Markdown', ({
   const [hasReachedBottom, setHasReachedBottom] = useState(false);
 
   const { error } = validate(() => {
-    console.log('Validating markdown being called', { showScrollPrompt, hasReachedBottom }); // eslint-disable-line no-console
+    console.log('Validating markdown being called', { showScrollPrompt, hasReachedBottom });  
     if (showScrollPrompt && !hasReachedBottom) return 'Please scroll to the bottom to confirm you have read all the content';
   });
 
