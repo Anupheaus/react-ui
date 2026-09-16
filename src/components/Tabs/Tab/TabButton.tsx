@@ -58,16 +58,17 @@ const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { n
       },
     },
     // Navigation variant: an equal-width, icon-over-label item that reads as a mobile nav button.
+    // The active tab keeps a subtle "pressed" background (the same feel as tapping it) rather than
+    // fading the inactive tabs — every tab stays at full strength.
     tabButtonNav: {
       flex: '1 1 0 !important',
       minWidth: '0 !important',
       borderRadius: '0 !important',
       padding: '8px 6px !important',
-      opacity: 0.6,
-      ...applyTransition('opacity'),
+      ...applyTransition('background-color'),
 
       '&.is-focused': {
-        opacity: 1,
+        backgroundColor: 'rgba(0 0 0 / 8%) !important',
       },
 
       [pseudoClasses.tablet]: {
