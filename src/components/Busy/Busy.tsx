@@ -1,5 +1,5 @@
 import { CircularProgress, LinearProgress } from '@mui/material';
-import { useTheme as useMuiTheme } from '@mui/material/styles';
+import { useTheme as useMuiTheme } from '@mui/material/styles/index.js';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { ReactNode } from 'react';
