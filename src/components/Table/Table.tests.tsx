@@ -166,6 +166,55 @@ describe('Table', () => {
     });
   });
 
+  describe('canRemove', () => {
+    // canRemove gates only the per-row remove (ellipsis) action; edit is unaffected.
+    const rowContaining = (container: HTMLElement, text: string): Element => {
+      const row = Array.from(container.querySelectorAll('table-row')).find(element => element.textContent?.includes(text));
+      expect(row, `expected a table-row containing "${text}"`).toBeDefined();
+      return row!;
+    };
+    const removeAction = (row: Element) => row.querySelector('[data-icon-type="ellipsis-menu"]');
+    const editAction = (row: Element) => row.querySelector('[data-icon-type="table-edit"]');
+
+    it('hides the remove action only on rows where canRemove returns false', async () => {
+      const { container } = renderTable(
+        <Table
+          columns={columns}
+          onRequest={createTableRequest(records)}
+          onEdit={() => void 0}
+          onRemove={() => void 0}
+          canRemove={record => record.id !== 'record-1'}
+        />,
+      );
+
+      await waitFor(() => expect(container.querySelectorAll('table-row')).toHaveLength(2));
+
+      const alphaRow = rowContaining(container, 'Alpha'); // record-1 → not removable
+      const betaRow = rowContaining(container, 'Beta'); // record-2 → removable
+      expect(removeAction(alphaRow)).toBeNull();
+      expect(removeAction(betaRow)).not.toBeNull();
+      // Edit is never gated by canRemove — both rows keep it.
+      expect(editAction(alphaRow)).not.toBeNull();
+      expect(editAction(betaRow)).not.toBeNull();
+    });
+
+    it('shows the remove action on every row when canRemove is not provided', async () => {
+      const { container } = renderTable(
+        <Table
+          columns={columns}
+          onRequest={createTableRequest(records)}
+          onEdit={() => void 0}
+          onRemove={() => void 0}
+        />,
+      );
+
+      await waitFor(() => expect(container.querySelectorAll('table-row')).toHaveLength(2));
+
+      expect(removeAction(rowContaining(container, 'Alpha'))).not.toBeNull();
+      expect(removeAction(rowContaining(container, 'Beta'))).not.toBeNull();
+    });
+  });
+
   it('applies scrollbar-gutter auto on the body scroller-container', async () => {
     const { container } = renderTable(
       <Table columns={columns} onRequest={createTableRequest(records)} onEdit={() => void 0} />,
