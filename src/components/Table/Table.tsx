@@ -52,7 +52,7 @@ const useStyles = createStyles((theme) => {
 });
 
 type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel'>, Pick<InternalListFooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel' | 'addTooltip'> {
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel' | 'editIcon'>, Pick<InternalListFooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel' | 'addTooltip'> {
   className?: string;
   records?: RecordType[];
   columns: TableColumn<RecordType>[];
@@ -74,6 +74,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   onAdd,
   onEdit,
   onRemove,
+  editIcon,
   summary,
   hideRecordCount,
   addLabel,
@@ -81,7 +82,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   persistenceKey,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
-  const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove });
+  const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove, editIcon });
   const { settings, persistColumnWidth } = useTableSettings(persistenceKey);
   const tableElementRef = useRef<HTMLDivElement | null>(null);
   const [totalRecords, setTotalRecords] = useState<number>();

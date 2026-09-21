@@ -1,19 +1,22 @@
 import type { PromiseMaybe, Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { Button } from '../Button';
-import { Icon } from '../Icon';
+import { Icon, type IconName } from '../Icon';
 import { useBound } from '../../hooks';
 
 interface Props<RecordType extends Record> {
   record: RecordType | undefined;
   rowIndex: number;
   onEdit?(record: RecordType, index: number): PromiseMaybe<void>;
+  /** Icon for the row edit action; defaults to the pencil (`table-edit`). Use e.g. `view` for a read-only list. */
+  editIcon?: IconName;
 }
 
 export const TableRowEditAction = createComponent('TableRowEditAction', <RecordType extends Record>({
   record,
   rowIndex,
   onEdit,
+  editIcon = 'table-edit',
 }: Props<RecordType>) => {
 
   const handleSelect = useBound(() => {
@@ -25,7 +28,7 @@ export const TableRowEditAction = createComponent('TableRowEditAction', <RecordT
 
   return (
     <Button onSelect={handleSelect} variant="hover" size="small">
-      <Icon name="table-edit" size="small" />
+      <Icon name={editIcon} size="small" />
     </Button>
   );
 });

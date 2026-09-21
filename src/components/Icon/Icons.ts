@@ -23,6 +23,7 @@ export const LocalIconDefinitions = {
   'table-column-selection': FiColumns,
   'table-refresh': FiRefreshCw,
   'table-edit': FiEdit2,
+  'view': FiEye,
   'no-image': FiImage,
   'button-apply': FiCheck,
   'error': FiAlertCircle,

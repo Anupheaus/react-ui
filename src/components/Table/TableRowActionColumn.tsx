@@ -11,6 +11,7 @@ import { useBound } from '../../hooks';
 import { useReportTableActionsColumnWidth } from './TableActionsColumnWidthContext';
 import { useUIState } from '../../providers';
 import { Skeleton } from '../Skeleton';
+import type { IconName } from '../Icon';
 
 const useStyles = createStyles(({ surface: { shadows: { light } } }) => ({
   actionLoadingSkeleton: {
@@ -52,6 +53,7 @@ interface Props<RecordType extends Record> extends TableRenderValueProps<RecordT
   onRemove?(record: RecordType, index: number): PromiseMaybe<void>;
   unitName?: string;
   removeLabel?: string;
+  editIcon?: IconName;
 }
 
 export const TableRowActionColumn = createComponent('TableRowActionColumn', <RecordType extends Record>({
@@ -61,6 +63,7 @@ export const TableRowActionColumn = createComponent('TableRowActionColumn', <Rec
   onRemove,
   unitName,
   removeLabel,
+  editIcon,
   children,
 }: Props<RecordType>) => {
   const { css } = useStyles();
@@ -101,7 +104,7 @@ export const TableRowActionColumn = createComponent('TableRowActionColumn', <Rec
         {onEdit != null && <Skeleton type="circle" className={css.actionLoadingSkeleton}>{'\u00A0'}</Skeleton>}
         {onRemove != null && <Skeleton type="circle" className={css.actionLoadingSkeleton}>{'\u00A0'}</Skeleton>}
       </>) : (children ?? <>
-        {onEdit != null && <TableRowEditAction onEdit={onEdit} record={record} rowIndex={rowIndex} />}
+        {onEdit != null && <TableRowEditAction onEdit={onEdit} editIcon={editIcon} record={record} rowIndex={rowIndex} />}
         {onRemove != null && <TableRowMenuAction unitName={unitName ?? 'record'} removeLabel={removeLabel} onRemove={onRemove} record={record} rowIndex={rowIndex} />}
       </>)}
       <Flex tagName="table-row-actions-shadow" className={css.tableActionsShadow} />

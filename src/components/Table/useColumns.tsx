@@ -27,11 +27,11 @@ const useStyles = createStyles((theme) => {
   };
 });
 
-interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof TableRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel'> {
+interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof TableRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel' | 'editIcon'> {
   css: ReturnType<typeof useStyles>['css'];
 }
 
-function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel, onEdit, onRemove }: AddActionColumnProps<RecordType>): TableColumn[] {
+function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel, onEdit, onRemove, editIcon }: AddActionColumnProps<RecordType>): TableColumn[] {
   if (onEdit == null && onRemove == null) return [];
   return [{
     id: 'table-actions',
@@ -47,6 +47,7 @@ function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel
         removeLabel={removeLabel}
         onEdit={onEdit}
         onRemove={onRemove}
+        editIcon={editIcon}
       />
     ),
   }];
@@ -71,6 +72,7 @@ export function useColumns<RecordType extends Record>({
   removeLabel,
   onEdit,
   onRemove,
+  editIcon,
 }: Props<RecordType>) {
   const { css } = useStyles();
 
@@ -79,8 +81,8 @@ export function useColumns<RecordType extends Record>({
     const enhancedColumns = withTableActionsColumnStyles(visibleColumns, css.tableActionsCell);
     const hasActionsColumn = visibleColumns.some(column => column.id === TABLE_ACTIONS_COLUMN_ID);
     if (hasActionsColumn) return enhancedColumns;
-    return enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove }));
-  }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove]);
+    return enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove, editIcon }));
+  }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove, editIcon]);
 
   return {
     columns,
