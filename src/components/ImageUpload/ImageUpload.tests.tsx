@@ -38,4 +38,14 @@ describe('ImageUpload', () => {
     fireEvent.click(getByText('Remove'));
     expect(onChange).toHaveBeenCalledWith(undefined);
   });
+
+  it('renders the label as a caption when provided', () => {
+    const { queryByText } = render(<ImageUpload label="My Logo" />);
+    expect(queryByText('My Logo')).not.toBeNull();
+  });
+
+  it('renders no stray caption when no label is provided', () => {
+    const { container } = render(<ImageUpload />);
+    expect(container.querySelector('label')).toBeNull();
+  });
 });

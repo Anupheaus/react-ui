@@ -5,6 +5,7 @@ import { Flex } from '../Flex';
 import { Image } from '../Image';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
+import { Label } from '../Label';
 import { useBound, useBooleanState } from '../../hooks';
 import { useFileUploader } from '../../hooks/useFileUploader';
 import { useNotifications } from '../Notifications';
@@ -33,6 +34,11 @@ export interface ImageUploadProps {
 }
 
 const useStyles = createStyles({
+  imageUploadField: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+  },
   imageUpload: {
     position: 'relative',
     borderRadius: 8,
@@ -67,6 +73,7 @@ export const ImageUpload = createComponent('ImageUpload', ({
   onUpload,
   fileTypes = DEFAULT_FILE_TYPES,
   maxSizeBytes,
+  label,
   className,
   width = 160,
   height = 90,
@@ -109,20 +116,23 @@ export const ImageUpload = createComponent('ImageUpload', ({
   });
 
   return (
-    <Flex
-      tagName="image-upload"
-      isVertical={false}
-      className={join(css.imageUpload, previewBackground === 'dark' ? css.previewDark : css.previewLight, className)}
-      style={frameStyle}
-      disableGrow
-    >
-      {value != null && value.length > 0
-        ? <Image src={value} className={css.image} />
-        : <Flex tagName="image-upload-placeholder" className={css.placeholder}><Icon name="no-image" size="large" /></Flex>}
-      <FileUploader fileTypes={fileTypes} />
-      <Flex tagName="image-upload-controls" className={css.controls} disableGrow>
-        <Button variant="bordered" onClick={handleChoose}>{value != null && value.length > 0 ? 'Replace' : 'Choose'}</Button>
-        {value != null && value.length > 0 && <Button variant="bordered" onClick={handleRemove}>Remove</Button>}
+    <Flex tagName="image-upload-field" isVertical className={join(css.imageUploadField, className)} disableGrow>
+      {label != null && label.length > 0 && <Label>{label}</Label>}
+      <Flex
+        tagName="image-upload"
+        isVertical={false}
+        className={join(css.imageUpload, previewBackground === 'dark' ? css.previewDark : css.previewLight)}
+        style={frameStyle}
+        disableGrow
+      >
+        {value != null && value.length > 0
+          ? <Image src={value} className={css.image} />
+          : <Flex tagName="image-upload-placeholder" className={css.placeholder}><Icon name="no-image" size="large" /></Flex>}
+        <FileUploader fileTypes={fileTypes} />
+        <Flex tagName="image-upload-controls" className={css.controls} disableGrow>
+          <Button variant="bordered" onClick={handleChoose}>{value != null && value.length > 0 ? 'Replace' : 'Choose'}</Button>
+          {value != null && value.length > 0 && <Button variant="bordered" onClick={handleRemove}>Remove</Button>}
+        </Flex>
       </Flex>
     </Flex>
   );
