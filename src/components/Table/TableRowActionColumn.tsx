@@ -54,6 +54,7 @@ interface Props<RecordType extends Record> extends TableRenderValueProps<RecordT
   unitName?: string;
   removeLabel?: string;
   editIcon?: IconName;
+  canRemove?(record: RecordType): boolean;
 }
 
 export const TableRowActionColumn = createComponent('TableRowActionColumn', <RecordType extends Record>({
@@ -64,6 +65,7 @@ export const TableRowActionColumn = createComponent('TableRowActionColumn', <Rec
   unitName,
   removeLabel,
   editIcon,
+  canRemove,
   children,
 }: Props<RecordType>) => {
   const { css } = useStyles();
@@ -105,7 +107,7 @@ export const TableRowActionColumn = createComponent('TableRowActionColumn', <Rec
         {onRemove != null && <Skeleton type="circle" className={css.actionLoadingSkeleton}>{'\u00A0'}</Skeleton>}
       </>) : (children ?? <>
         {onEdit != null && <TableRowEditAction onEdit={onEdit} editIcon={editIcon} record={record} rowIndex={rowIndex} />}
-        {onRemove != null && <TableRowMenuAction unitName={unitName ?? 'record'} removeLabel={removeLabel} onRemove={onRemove} record={record} rowIndex={rowIndex} />}
+        {onRemove != null && (canRemove == null || (record != null && canRemove(record))) && <TableRowMenuAction unitName={unitName ?? 'record'} removeLabel={removeLabel} onRemove={onRemove} record={record} rowIndex={rowIndex} />}
       </>)}
       <Flex tagName="table-row-actions-shadow" className={css.tableActionsShadow} />
     </Flex>

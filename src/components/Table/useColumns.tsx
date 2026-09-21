@@ -28,11 +28,11 @@ const useStyles = createStyles((theme) => {
   };
 });
 
-interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof TableRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel' | 'editIcon'> {
+interface AddActionColumnProps<RecordType extends Record> extends Pick<ComponentProps<typeof TableRowActionColumn<RecordType>>, 'onEdit' | 'onRemove' | 'unitName' | 'removeLabel' | 'editIcon' | 'canRemove'> {
   css: ReturnType<typeof useStyles>['css'];
 }
 
-function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel, onEdit, onRemove, editIcon }: AddActionColumnProps<RecordType>): TableColumn[] {
+function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel, onEdit, onRemove, editIcon, canRemove }: AddActionColumnProps<RecordType>): TableColumn[] {
   if (onEdit == null && onRemove == null) return [];
   return [{
     id: 'table-actions',
@@ -49,6 +49,7 @@ function addActionColumn<RecordType extends Record>({ css, unitName, removeLabel
         onEdit={onEdit}
         onRemove={onRemove}
         editIcon={editIcon}
+        canRemove={canRemove}
       />
     ),
   }];
@@ -74,6 +75,7 @@ export function useColumns<RecordType extends Record>({
   onEdit,
   onRemove,
   editIcon,
+  canRemove,
 }: Props<RecordType>) {
   const { css } = useStyles();
 
@@ -83,12 +85,12 @@ export function useColumns<RecordType extends Record>({
     const hasActionsColumn = visibleColumns.some(column => column.id === TABLE_ACTIONS_COLUMN_ID);
     const finalColumns = hasActionsColumn
       ? enhancedColumns
-      : enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove, editIcon }));
+      : enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove, editIcon, canRemove }));
     // `renderValue` closures legitimately change each render; register each so prop-comparison never warns
     // about them, regardless of which component compares them or in what traversal order.
     finalColumns.forEach(({ renderValue }) => { if (renderValue != null) markDynamicFunction(renderValue); });
     return finalColumns;
-  }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove, editIcon]);
+  }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove, editIcon, canRemove]);
 
   return {
     columns,
