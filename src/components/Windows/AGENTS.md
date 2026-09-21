@@ -4,6 +4,10 @@
 
 The Windows component renders draggable, resizable application windows. Window definitions are registered globally at `createWindow` time—they do not need to be passed as children.
 
+`createWindow` behaves like `createContext`: call it **once at module scope** to define a window type, then open instances from anywhere with `useWindow`. **Never render a `createWindow` component in JSX** (e.g. `<MyWindow />`) to "host" or "register" it — it is already registered globally, and every open instance is rendered by the mounted `<Windows />` host, not where you place the element. Rendering it yourself mounts a second renderer and makes the window appear on mount.
+
+Because window content is rendered at the `<Windows />` host — **outside the React tree of whatever opened it** — it does **not** inherit React context or props from the opener. Pass everything the content needs as **window args** (see [Passing data to window content](#4-passing-data-to-window-content)). A context provider wrapped around the opener will not reach the window, and would not survive persistence either (a persisted window re-materialises on reload with no surrounding providers).
+
 ## Usage
 
 ### 1. Mount the Windows component
@@ -84,6 +88,31 @@ function MyContent() {
 }
 ```
 
+### 4. Passing data to window content
+
+Window content gets its data **only** from the args passed at open time — never from React context/props of the opener, which are out of reach (see [Overview](#overview)). The args are the parameters of the definition's inner function, and `open` is fully typed from them:
+
+```tsx
+interface EditUserValue {
+  user: User;
+  save(user: User): Promise<void>; // a callback is fine — see persistence below
+}
+
+const EditUserWindow = createWindow('EditUserWindow', ({ Window, Content }) => (value: EditUserValue) => (
+  <Window title={`Edit ${value.user.name}`}>
+    <Content>{/* edit value.user, call value.save(...) */}</Content>
+  </Window>
+), { doNotPersist: true }); // args hold a function + class instance → not serialisable → do not persist
+
+// opener — no provider, no inline <EditUserWindow />, just open with the value:
+const { openEditUserWindow } = useWindow(EditUserWindow);
+await openEditUserWindow(user.id, { user, save });
+```
+
+Args are a **snapshot** taken at open time; the window will not re-read the opener's state as it changes. Seed local state from the args and drive the rest from within the window (its own hooks, the `save` callback, `useWindow()` to `close`).
+
+> **If any arg is non-serialisable — a function (e.g. a `save` callback), a class instance, a luxon `DateTime`, etc. — you MUST set `doNotPersist: true`.** Otherwise, with persistence enabled, the window is either silently dropped from storage or re-materialises on reload with broken args (a dead function reference, a plain object where a class instance was expected). A window is safe to persist only when every arg is plain JSON.
+
 ## Props
 
 | Prop | Type | Description |
@@ -103,7 +132,7 @@ Persistence is **disabled by default**. Pass `localStorageKey` to enable:
 <Windows localStorageKey="my-windows" />
 ```
 
-Only windows with simple (JSON-serializable) args are persisted. Use `doNotPersist: true` in `createWindow` options to exclude specific window types.
+Only windows with simple (JSON-serializable) args are persisted. **Any window whose args include non-serialisable values (functions, class instances, luxon `DateTime`, etc.) must set `doNotPersist: true`** in its `createWindow` options — see [Passing data to window content](#4-passing-data-to-window-content). A persisted window re-materialises on reload from its stored args alone, with no surrounding providers or live callbacks, so non-serialisable args cannot survive the round trip.
 
 ## Notes
 
@@ -161,9 +190,13 @@ If `<Windows />` unmounts and remounts (e.g. during a route transition), all ope
 
 `useWindow` defers manager lookup until `open` is called, not at hook time. Calling `open` before `<Windows />` has mounted will throw because no manager is registered. Opening in `useLayoutEffect` on a component that is a sibling or ancestor of `<Windows />` is safe as long as `<Windows />` has mounted first in the same layout pass.
 
+**Never render a `createWindow` component in JSX, and never feed a window via the opener's context**
+
+`createWindow` registers globally (like `createContext`), so a window opens purely through `useWindow(...).openX(...)`. Rendering the component yourself — `<MyWindow />`, or a `definitionId`-keyed "host" element inside the opener — mounts an extra renderer that shows the window as soon as that element mounts (a window appearing unbidden when its parent opens is the tell). It is also tempting to wrap that inline element in a context provider to feed the window data; that only appears to work because the element sits in the opener's tree. The real open instance renders at the `<Windows />` host, outside that tree, so the provider never reaches it — and a persisted window re-materialises with no providers at all. Pass data as **args** instead (see [Passing data to window content](#4-passing-data-to-window-content)).
+
 **`doNotPersist: true` in `createWindow` options excludes a window type from localStorage**
 
-Only windows whose args are JSON-serializable and whose definition does not set `doNotPersist: true` are written to localStorage. If a window type stores non-serializable args (e.g. functions, class instances), it is silently skipped during persistence. There is no warning.
+Only windows whose args are JSON-serializable and whose definition does not set `doNotPersist: true` are written to localStorage. If a window type stores non-serializable args (e.g. functions, class instances, luxon `DateTime`), it is silently skipped during persistence — so **set `doNotPersist: true` whenever args are non-serialisable**. There is no warning.
 
 ## Related
 
