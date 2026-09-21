@@ -7,14 +7,16 @@ describe('ImageUpload', () => {
     const { queryByText, container } = render(<ImageUpload />);
     expect(queryByText('Add Image')).not.toBeNull();
     expect(container.querySelector('[data-icon-type="add"]')).not.toBeNull();
-    expect(container.querySelector('image')).toBeNull();
+    expect(container.querySelector('img')).toBeNull();
   });
 
-  it('renders the image filling the frame when a value is provided', () => {
-    const { container } = render(<ImageUpload value="https://example.com/logo.png" />);
-    const image = container.querySelector('image') as HTMLElement | null;
+  it('renders an img with the value as its src when a value is provided', () => {
+    // A real <img> (not a CSS background) so URLs with parentheses/spaces render.
+    const url = 'https://ik.imagekit.io/x/Logo%20(Right).png';
+    const { container } = render(<ImageUpload value={url} />);
+    const image = container.querySelector('img') as HTMLImageElement | null;
     expect(image).not.toBeNull();
-    expect(image!.style.backgroundImage).toContain('https://example.com/logo.png');
+    expect(image!.getAttribute('src')).toBe(url);
     // The Add Image placeholder is not shown once there is a value.
     expect(container.querySelector('[data-icon-type="add"]')).toBeNull();
   });

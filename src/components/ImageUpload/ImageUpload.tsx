@@ -3,7 +3,6 @@ import type { MouseEvent } from 'react';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Flex } from '../Flex';
-import { Image } from '../Image';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
 import { Label } from '../Label';
@@ -61,13 +60,13 @@ const useStyles = createStyles({
   previewLight: { backgroundColor: '#ffffff' },
   previewDark: { backgroundColor: '#1f2937' },
   image: {
-    // Fill the (relative) frame — the Image renders as a background, so it needs explicit bounds
-    // or it collapses to 0x0 and nothing shows.
+    // A real <img> (not a CSS background) so URLs containing parentheses/spaces render — an
+    // unquoted `background-image: url(...)` is invalid CSS for such URLs and paints nothing.
     position: 'absolute',
     inset: 0,
-    backgroundSize: 'contain',
-    backgroundRepeat: 'no-repeat',
-    backgroundPosition: 'center',
+    width: '100%',
+    height: '100%',
+    objectFit: 'contain',
   },
   placeholder: {
     alignItems: 'center',
@@ -152,7 +151,7 @@ export const ImageUpload = createComponent('ImageUpload', ({
         aria-label={hasLabel ? `${label} image upload` : 'Image upload'}
       >
         {hasValue
-          ? <Image src={value} className={css.image} />
+          ? <img className={css.image} src={value} alt={hasLabel ? label : 'Uploaded image'} />
           : (
             <Flex tagName="image-upload-placeholder" isVertical className={css.placeholder} disableGrow>
               <Icon name="add" size="large" />

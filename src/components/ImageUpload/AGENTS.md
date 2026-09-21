@@ -40,7 +40,7 @@ import { ImageUpload } from '@anupheaus/react-ui';
 ## Architecture
 
 - Renders `label` (when non-empty) as a caption above the frame using the shared `Label` component.
-- The whole frame is clickable and opens the file dialog — to add an image when empty, or replace it when set. When empty it shows a plus (`add`) icon over an "Add Image" caption; when set it shows the image (filling the frame via an absolutely-positioned `Image` background) plus a red trash (`delete-list-item`) `Button` at the top-right that clears the value.
+- The whole frame is clickable and opens the file dialog — to add an image when empty, or replace it when set. When empty it shows a plus (`add`) icon over an "Add Image" caption; when set it shows the image (a real `<img>` with `object-fit: contain` filling the frame — not a CSS `background-image`, whose unquoted `url(...)` is invalid for URLs containing parentheses/spaces) plus a red trash (`delete-list-item`) `Button` at the top-right that clears the value.
 - Picking a file uses `useFileUploader`'s `selectFile()`/`FileUploader` pair (a hidden `<input type="file">`). The `FileUploader` is rendered as a sibling of (not inside) the clickable frame, so its programmatic `input.click()` does not bubble back into the frame's click handler and re-open the dialog.
 - The picked `File` is passed to `onUpload` (or `fileToDataUrl` by default); the resolved URL is emitted via `onChange`. The trash button clears via `onChange(undefined)` — `Button` stops click propagation so clearing never also opens the dialog.
 - Errors thrown by `onUpload` (or a `maxSizeBytes` violation) are surfaced via `useNotifications().showError` rather than thrown further.
