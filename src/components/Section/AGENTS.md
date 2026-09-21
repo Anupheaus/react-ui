@@ -14,7 +14,11 @@ A labelled content section with a decorative border that frames its children. Wh
 | `isVertical` | `boolean` | No | Lay children out vertically (forwarded to the inner `Flex`) |
 | `disableGrow` | `boolean` | No | Prevent the section from growing in its parent flex layout (applied to the outer `section` element and inner contents) |
 | `wide` | `boolean` | No | Set `width: 100%` on the inner `Flex` |
-| `maxHeight` | `number \| string \| boolean` | No | Max height; when `true` also enables `overflow: hidden` |
+| `maxHeight` | `number \| string \| boolean` | No | Max height; when `true` also sets `width: 100%` and `overflow: hidden` on the outer and inner `Flex` (fill + clip) |
+
+## Layout
+
+Both the outer `section` element and the inner `section-contents` always carry `min-width: 0`. This lets a child that manages its own horizontal overflow — a `Table` with resizable columns, a horizontal board — shrink to the available width so its own scroller takes the overflow, instead of forcing the section (and its ancestors) wider. `min-width: 0` only *permits* shrinking, so sections whose content already fits are unaffected. The heavier containment (`width: 100%` via `wide`, plus `overflow: hidden`) is still applied only when `maxHeight === true`.
 
 ## Usage
 

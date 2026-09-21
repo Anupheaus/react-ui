@@ -97,8 +97,13 @@ export const TabContent = createComponent('Tab', ({
     setIsFocused(newIndex === tabIndex);
   }));
 
+  // Default the content wrapper to min-width:0 so a child that manages its own horizontal overflow
+  // (a Table with resizable columns, a horizontal board) can shrink to the tab width and let its own
+  // scroller take the overflow, rather than forcing the tab — and its ancestors — wider. Resolved via
+  // `?? 0` so a caller can still opt out with an explicit minWidth without an undefined clobbering it.
+  const { minWidth: contentMinWidth, ...restContentProps } = contentProps ?? {};
   const content = (
-    <Flex tagName="tab-content-inner" isVertical className={join(css.tabContent, noPadding && 'no-padding', className)} {...contentProps}>
+    <Flex tagName="tab-content-inner" isVertical minWidth={contentMinWidth ?? 0} className={join(css.tabContent, noPadding && 'no-padding', className)} {...restContentProps}>
       {children}
     </Flex>
   );

@@ -56,6 +56,39 @@ describe('useTabs', () => {
     expect(result.current.Tab).not.toBeNull();
   });
 
+  describe('tab content wrapper min-width', () => {
+    // tab-content-inner defaults to min-width:0 so a child that manages its own horizontal overflow
+    // (a Table with resizable columns, a horizontal board) can shrink to the tab width and let its
+    // own scroller take the overflow, instead of forcing the whole tab — and its ancestors — wider.
+    function SingleTab({ minWidth }: { minWidth?: number }) {
+      const { Tabs, Tab } = useTabs();
+      return (
+        <Tabs>
+          <Tab label="A" minWidth={minWidth}>Content A</Tab>
+        </Tabs>
+      );
+    }
+
+    it('tab-content-inner has min-width: 0 by default', async () => {
+      const { container } = render(<SingleTab />);
+      await waitFor(() => {
+        const inner = container.querySelector('tab-content-inner') as HTMLElement | null;
+        expect(inner).not.toBeNull();
+        // jsdom serialises inline `min-width: 0` as the string '0'; parse so an unset value ('' → NaN) still fails.
+        expect(parseFloat(inner!.style.minWidth)).toBe(0);
+      });
+    });
+
+    it('a minWidth passed to Tab overrides the tab-content-inner default', async () => {
+      const { container } = render(<SingleTab minWidth={200} />);
+      await waitFor(() => {
+        const inner = container.querySelector('tab-content-inner') as HTMLElement | null;
+        expect(inner).not.toBeNull();
+        expect(inner!.style.minWidth).toBe('200px');
+      });
+    });
+  });
+
   describe('vertical orientation', () => {
     function VerticalTabs() {
       const { Tabs, Tab } = useTabs();

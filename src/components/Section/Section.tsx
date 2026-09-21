@@ -66,7 +66,7 @@ export const Section = createComponent('Section', ({
       className={css.section}
       maxHeight={maxHeight}
       wide={maxHeight === true}
-      minWidth={maxHeight === true ? 0 : undefined}
+      minWidth={0}
       disableOverflow={maxHeight === true}
       disableGrow={disableGrow && maxHeight !== true}
     >
@@ -81,7 +81,7 @@ export const Section = createComponent('Section', ({
         tagName="section-contents"
         disableGrow={disableGrow}
         wide={maxHeight === true}
-        minWidth={maxHeight === true ? 0 : undefined}
+        minWidth={0}
         disableOverflow={maxHeight === true}
         {...contentProps}
       />

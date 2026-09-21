@@ -27,6 +27,7 @@ This also means `ordinalPosition` works naturally — `Tabs` sorts the registere
 - **`Tab` must be a direct child of `Tabs`** — `Tab` reads `TabsContext` and throws `'Tab must be a child of Tabs'` if the context is not valid (`isValid === false`). Wrapping `Tab` in an intermediate component that does not forward the context will cause this error.
 - **Children are re-registered on every change** — `Tab` calls `upsertTab` in a `useLayoutEffect` that depends on `[children, label, className]`. If `children` is an inline JSX expression that creates a new reference on every render, `upsertTab` will fire on every parent render. Memoising the children passed to `Tab` prevents unnecessary re-registrations.
 - **`ordinalPosition` overrides DOM order** — the tabs are sorted by `ordinalPosition` (if provided) before rendering. A tab declared third in JSX order with `ordinalPosition={0}` will render first. If `ordinalPosition` is not set, insertion order is preserved.
+- **`tab-content-inner` defaults to `minWidth={0}`** — the content wrapper sets `min-width: 0` so a child that manages its own horizontal overflow (a `Table` with resizable columns, a horizontal board) can shrink to the tab width and let its own scroller take the overflow, instead of forcing the whole tab — and its ancestors — wider. It is applied as a `contentProps.minWidth ?? 0` default, so a tab that genuinely wants to push wider can override it with `minWidth` (via the `Tab` props, forwarded as `contentProps`) — while a `minWidth={undefined}` still falls back to `0`.
 
 ## Related
 
