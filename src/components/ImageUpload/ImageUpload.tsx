@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Flex } from '../Flex';
@@ -29,6 +29,8 @@ export interface ImageUploadProps {
   maxSizeBytes?: number;
   /** Caption rendered above the image frame. */
   label?: string;
+  /** Optional help content shown as a tooltip beside the label (requires `label`). */
+  helpText?: ReactNode;
   /** Class applied to the outer field wrapper. */
   className?: string;
   /** Frame width in pixels. */
@@ -94,6 +96,7 @@ export const ImageUpload = createComponent('ImageUpload', ({
   fileTypes = DEFAULT_FILE_TYPES,
   maxSizeBytes,
   label,
+  helpText,
   className,
   width = 160,
   height = 90,
@@ -140,7 +143,7 @@ export const ImageUpload = createComponent('ImageUpload', ({
 
   return (
     <Flex tagName="image-upload-field" isVertical className={join(css.imageUploadField, className)} disableGrow>
-      {hasLabel && <Label>{label}</Label>}
+      {hasLabel && <Label help={helpText}>{label}</Label>}
       <Flex
         tagName="image-upload"
         className={join(css.imageUpload, previewBackground === 'dark' ? css.previewDark : css.previewLight, isReadOnly && css.readOnly)}

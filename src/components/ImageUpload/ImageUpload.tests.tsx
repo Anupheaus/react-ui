@@ -55,4 +55,9 @@ describe('ImageUpload', () => {
     const { container } = render(<ImageUpload />);
     expect(container.querySelector('label')).toBeNull();
   });
+
+  it('renders a help affordance beside the label when helpText is provided', () => {
+    const { container } = render(<ImageUpload label="Light logo" helpText="A light foreground logo." />);
+    expect(container.querySelector('[data-icon-type="help"]')).not.toBeNull();
+  });
 });

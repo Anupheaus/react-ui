@@ -12,6 +12,7 @@ A generic image picker/preview component. It shows the current image inside a fi
 | `fileTypes` | `string[]` | No | Accepted MIME types / extensions for the file picker. Defaults to `['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']`. |
 | `maxSizeBytes` | `number` | No | Optional client-side size guard. Files larger than this are rejected with a notification before `onUpload` is called. |
 | `label` | `string` | No | Optional caption rendered above the frame via the shared `Label` component. Omitted (or empty) renders no caption. |
+| `helpText` | `ReactNode` | No | Optional help content shown as a tooltip beside the label (needs `label` to be shown). |
 | `className` | `string` | No | Additional CSS class applied to the root frame. |
 | `width` | `number` | No | Frame width in pixels. Defaults to `160`. |
 | `height` | `number` | No | Frame height in pixels. Defaults to `90`. |
