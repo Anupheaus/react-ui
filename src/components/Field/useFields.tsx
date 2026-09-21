@@ -69,7 +69,7 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
     
     if(newValue!==valueRef.current) valueRef.current = newValue;
     
-    const setValue = useBound((updatedValue: ValueType | undefined) => {      
+    const setValue = useBound((updatedValue: ValueType | undefined) => {
       const changes = onSet!(updatedValue ?? (is.function(defaultValue) ? defaultValue() : defaultValue) as ValueType);
       if((changes as AnyObject)[name]===undefined) {
         // remove the field from the target
@@ -78,7 +78,16 @@ function internalUseFields<SourceType>(target: (SourceType | undefined) | (() =>
         // add or update the field to the target
         set(currentTargetValue=>({ ...currentTargetValue, ...changes }) as SourceType);
       }
-    });    
+      // Reflect the change synchronously so a controlled input keeps its caret position. The observable
+      // onChange callback below also updates valueRef, but it runs out-of-render-phase (a microtask later);
+      // relying on it alone lets React restore the input to its stale value and replant the caret at the end.
+      const latestTarget = get();
+      const projectedValue = (latestTarget != null ? onGet!(latestTarget) : undefined) ?? (is.function(defaultValue) ? defaultValue() : defaultValue);
+      if (valueRef.current !== projectedValue) {
+        valueRef.current = projectedValue;
+        refresh();
+      }
+    });
 
     return {
       [name]: valueRef.current,
