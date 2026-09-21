@@ -1,6 +1,6 @@
 # ImageUpload
 
-A generic image picker/preview component. It shows the current image (or a placeholder) inside a fixed-size frame with Choose/Replace and Remove controls, and hands a picked `File` to a pluggable `onUpload` resolver that returns the URL to store. Designed for use as a `Field` component (e.g. editing a `logoUrl` string field), but works standalone.
+A generic image picker/preview component. It shows the current image inside a fixed-size frame; clicking anywhere on the frame opens the native file dialog to add or replace the image, and a small red trash button at the top-right clears it. When there is no image, the frame shows a plus icon and an "Add Image" caption, and clicking the whole area opens the dialog. Picked files are handed to a pluggable `onUpload` resolver that returns the URL to store. Designed for use as a `Field` component (e.g. editing a `logoUrl` string field), but works standalone.
 
 ## Props
 
@@ -40,11 +40,11 @@ import { ImageUpload } from '@anupheaus/react-ui';
 ## Architecture
 
 - Renders `label` (when non-empty) as a caption above the frame using the shared `Label` component.
-- Renders `Choose` when there is no `value`, or `Replace`/`Remove` when there is one.
-- Picking a file uses `useFileUploader`'s `selectFile()`/`FileUploader` pair (a hidden `<input type="file">`) to get a native file-picker dialog.
-- The picked `File` is passed to `onUpload` (or `fileToDataUrl` by default); the resolved URL is emitted via `onChange`.
+- The whole frame is clickable and opens the file dialog — to add an image when empty, or replace it when set. When empty it shows a plus (`add`) icon over an "Add Image" caption; when set it shows the image (filling the frame via an absolutely-positioned `Image` background) plus a red trash (`delete-list-item`) `Button` at the top-right that clears the value.
+- Picking a file uses `useFileUploader`'s `selectFile()`/`FileUploader` pair (a hidden `<input type="file">`). The `FileUploader` is rendered as a sibling of (not inside) the clickable frame, so its programmatic `input.click()` does not bubble back into the frame's click handler and re-open the dialog.
+- The picked `File` is passed to `onUpload` (or `fileToDataUrl` by default); the resolved URL is emitted via `onChange`. The trash button clears via `onChange(undefined)` — `Button` stops click propagation so clearing never also opens the dialog.
 - Errors thrown by `onUpload` (or a `maxSizeBytes` violation) are surfaced via `useNotifications().showError` rather than thrown further.
-- Respects `isReadOnly` from `UIState` — `Choose`/`Replace`/`Remove` are no-ops when read-only.
+- Respects `isReadOnly` from `UIState` — the frame click is a no-op and the trash button is hidden when read-only.
 
 ---
 

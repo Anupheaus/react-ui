@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import type { MouseEvent } from 'react';
 import { createComponent } from '../Component';
 import { createStyles } from '../../theme';
 import { Flex } from '../Flex';
@@ -13,6 +14,8 @@ import { useUIState } from '../../providers';
 import { fileToDataUrl } from './fileToDataUrl';
 
 const DEFAULT_FILE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+// Red used for the destructive clear-image control.
+const DELETE_ICON_COLOR = '#dc2626';
 
 export interface ImageUploadProps {
   /** Current image source — a hosted URL or a data: URL. */
@@ -25,9 +28,13 @@ export interface ImageUploadProps {
   fileTypes?: string[];
   /** Optional client-side size guard, in bytes. */
   maxSizeBytes?: number;
+  /** Caption rendered above the image frame. */
   label?: string;
+  /** Class applied to the outer field wrapper. */
   className?: string;
+  /** Frame width in pixels. */
   width?: number;
+  /** Frame height in pixels. */
   height?: number;
   /** Frame background for previewing logos designed for a light or dark surface. */
   previewBackground?: 'light' | 'dark';
@@ -46,24 +53,38 @@ const useStyles = createStyles({
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    cursor: 'pointer',
+  },
+  readOnly: {
+    cursor: 'default',
   },
   previewLight: { backgroundColor: '#ffffff' },
   previewDark: { backgroundColor: '#1f2937' },
   image: {
+    // Fill the (relative) frame — the Image renders as a background, so it needs explicit bounds
+    // or it collapses to 0x0 and nothing shows.
+    position: 'absolute',
+    inset: 0,
     backgroundSize: 'contain',
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
   },
   placeholder: {
-    opacity: 0.5,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 2,
+    opacity: 0.55,
   },
-  controls: {
+  placeholderText: {
+    fontSize: 13,
+    justifyContent: 'center',
+  },
+  deleteButton: {
     position: 'absolute',
-    bottom: 6,
-    right: 6,
-    gap: 4,
+    top: 4,
+    right: 4,
+    zIndex: 1,
+    backgroundColor: 'rgba(255,255,255,0.9)',
   },
 });
 
@@ -88,6 +109,8 @@ export const ImageUpload = createComponent('ImageUpload', ({
   const frameStyle = useInlineStyle(() => ({ width, height }), [width, height]);
 
   const resolver = useMemo(() => onUpload ?? fileToDataUrl, [onUpload]);
+  const hasValue = value != null && value.length > 0;
+  const hasLabel = label != null && label.length > 0;
 
   const handleChoose = useBound(async () => {
     if (isReadOnly || isUploading) return;
@@ -110,30 +133,39 @@ export const ImageUpload = createComponent('ImageUpload', ({
     }
   });
 
-  const handleRemove = useBound(() => {
+  // Button stops propagation before invoking this, so clearing never also opens the picker.
+  const handleRemove = useBound((_event: MouseEvent) => {
     if (isReadOnly) return;
     onChange?.(undefined);
   });
 
   return (
     <Flex tagName="image-upload-field" isVertical className={join(css.imageUploadField, className)} disableGrow>
-      {label != null && label.length > 0 && <Label>{label}</Label>}
+      {hasLabel && <Label>{label}</Label>}
       <Flex
         tagName="image-upload"
-        isVertical={false}
-        className={join(css.imageUpload, previewBackground === 'dark' ? css.previewDark : css.previewLight)}
+        className={join(css.imageUpload, previewBackground === 'dark' ? css.previewDark : css.previewLight, isReadOnly && css.readOnly)}
         style={frameStyle}
         disableGrow
+        onClick={handleChoose}
+        testId="image-upload"
+        aria-label={hasLabel ? `${label} image upload` : 'Image upload'}
       >
-        {value != null && value.length > 0
+        {hasValue
           ? <Image src={value} className={css.image} />
-          : <Flex tagName="image-upload-placeholder" className={css.placeholder}><Icon name="no-image" size="large" /></Flex>}
-        <FileUploader fileTypes={fileTypes} />
-        <Flex tagName="image-upload-controls" className={css.controls} disableGrow>
-          <Button variant="bordered" onClick={handleChoose}>{value != null && value.length > 0 ? 'Replace' : 'Choose'}</Button>
-          {value != null && value.length > 0 && <Button variant="bordered" onClick={handleRemove}>Remove</Button>}
-        </Flex>
+          : (
+            <Flex tagName="image-upload-placeholder" isVertical className={css.placeholder} disableGrow>
+              <Icon name="add" size="large" />
+              <Flex tagName="image-upload-placeholder-text" className={css.placeholderText} disableGrow>Add Image</Flex>
+            </Flex>
+          )}
+        {hasValue && !isReadOnly && (
+          <Button className={css.deleteButton} iconOnly onClick={handleRemove} aria-label="Remove image">
+            <Icon name="delete-list-item" color={DELETE_ICON_COLOR} size="small" />
+          </Button>
+        )}
       </Flex>
+      <FileUploader fileTypes={fileTypes} />
     </Flex>
   );
 });
