@@ -47,6 +47,7 @@ To find a component: scan the category that matches its role (e.g. layout contai
 | [Checkbox](Checkbox/AGENTS.md) | Checkbox input |
 | [Radio](Radio/AGENTS.md) | Radio button input |
 | [Signature](Signature/AGENTS.md) | Freehand signature capture — saves as a base64 PNG data URL |
+| [ImageUpload](ImageUpload/AGENTS.md) | Image picker with preview and choose/replace/remove controls |
 | [Markdown](Markdown/AGENTS.md) | Markdown editor and viewer with themed scrollbars and scroll shadows |
 | [Switch](Switch/AGENTS.md) | Toggle switch input |
 | [ToggleButtonGroup](ToggleButtonGroup/AGENTS.md) | Group of mutually exclusive toggle buttons |
