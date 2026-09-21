@@ -2,6 +2,7 @@ import type { Record } from '@anupheaus/common';
 import type { ComponentProps } from 'react';
 import { useMemo } from 'react';
 import type { TableColumn } from './TableModels';
+import { markDynamicFunction } from '../Component';
 import { TableRowActionColumn } from './TableRowActionColumn';
 import { createStyles } from '../../theme';
 import { resolveOpaqueTableBackground, resolveTableTheme } from './resolveTableTheme';
@@ -80,8 +81,13 @@ export function useColumns<RecordType extends Record>({
     const visibleColumns = providedColumns.filter(({ isVisible }) => isVisible !== false);
     const enhancedColumns = withTableActionsColumnStyles(visibleColumns, css.tableActionsCell);
     const hasActionsColumn = visibleColumns.some(column => column.id === TABLE_ACTIONS_COLUMN_ID);
-    if (hasActionsColumn) return enhancedColumns;
-    return enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove, editIcon }));
+    const finalColumns = hasActionsColumn
+      ? enhancedColumns
+      : enhancedColumns.concat(...addActionColumn({ css, removeLabel, unitName, onEdit, onRemove, editIcon }));
+    // `renderValue` closures legitimately change each render; register each so prop-comparison never warns
+    // about them, regardless of which component compares them or in what traversal order.
+    finalColumns.forEach(({ renderValue }) => { if (renderValue != null) markDynamicFunction(renderValue); });
+    return finalColumns;
   }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove, editIcon]);
 
   return {

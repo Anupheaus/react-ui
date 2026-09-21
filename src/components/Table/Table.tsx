@@ -189,4 +189,6 @@ export const Table = createComponent('Table', function <RecordType extends Recor
       </TableHoverContext.Provider>
     </Tag>
   );
-});
+  // `renderValue` is an intentionally-dynamic column render prop; whitelisting it here registers each
+  // instance so no Table subcomponent it flows into re-warns about its identity changing.
+}, { whitelistFunctions: ['renderValue'] });

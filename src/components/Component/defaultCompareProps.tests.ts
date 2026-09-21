@@ -138,6 +138,26 @@ describe('defaultCompareProps', () => {
       expect(makeCompare()(() => { }, 'notAFunction')).toBe(false);
       expect(warnSpy).not.toHaveBeenCalled();
     });
+
+    it('registers a whitelisted function so a later non-whitelisting comparator ignores it too', () => {
+      const nextFn = () => { };
+      // First comparator whitelists the prop — this registers `nextFn` as intentionally dynamic.
+      makeCompare({ whitelistFunctions: ['renderValue'] })(() => { }, nextFn, 'renderValue');
+      warnSpy.mockClear();
+      // A second comparator that does NOT whitelist it must still not warn, because the function is registered.
+      const result = makeCompare()(() => { }, nextFn, 'renderValue');
+      expect(result).toBe(false);
+      expect(warnSpy).not.toHaveBeenCalled();
+    });
+
+    it('still warns for a different (unregistered) function of the same property name', () => {
+      const registered = () => { };
+      makeCompare({ whitelistFunctions: ['renderValue'] })(() => { }, registered, 'renderValue');
+      warnSpy.mockClear();
+      // A brand-new function that was never registered should still warn.
+      makeCompare()(() => { }, () => { }, 'renderValue');
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('dates', () => {

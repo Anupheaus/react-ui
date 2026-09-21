@@ -152,7 +152,7 @@ export const TableHeader = createComponent('TableHeader', ({
 
         columnIndex={columnIndex}
 
-        onColumnWidthPersist={onColumnWidthPersist == null ? undefined : (width) => onColumnWidthPersist(column.id, width)}
+        onColumnWidthPersist={onColumnWidthPersist}
 
       />
 

@@ -1,5 +1,6 @@
 import '../../extensions/is';
 import { is, to } from '@anupheaus/common';
+import { isDynamicFunction, markDynamicFunction } from './dynamicFunctions';
 
 const primitiveTypes = new Set(['number', 'string', 'boolean']);
 
@@ -26,9 +27,12 @@ export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunct
     if (is.function(prevProps)) {
       if (is.function(newProps)) {
         if (prevProps === newProps) return true;
-        if (whitelistSet.has(propertyName)) return false;
+        // Whitelisting a prop here registers the function itself, so it stays whitelisted everywhere it
+        // flows next — descendant components need not whitelist it again (see dynamicFunctions).
+        if (whitelistSet.has(propertyName)) { markDynamicFunction(newProps); return false; }
+        if (isDynamicFunction(newProps)) return false;
         if (!suppressFunctionWarning) {
-           
+
           console.warn(`The function provided in property "${propertyName.toString()}" of "${name}" has changed, please use useBound or whitelist the ` +
             `function by adding the property "data-whitelist-functions=['${propertyName.toString()}]" to the props being handed into the "${name}" component ` +
             'or by setting it in the configuration of the component.', { topLevelProps, newProps, whitelistFunctions });

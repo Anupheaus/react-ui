@@ -47,7 +47,7 @@ const useStyles = createStyles(() => ({
 interface Props {
   column: TableColumn;
   columnIndex: number;
-  onColumnWidthPersist?(width: number): void;
+  onColumnWidthPersist?(columnId: string, width: number): void;
 }
 
 export const TableHeaderCell = createComponent('TableHeaderCell', ({
@@ -99,7 +99,7 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
 
   const onDragEnd = useBound((event: UseDragEvent) => {
     const newWidth = applyResizeWidth(event);
-    onColumnWidthPersist?.(newWidth);
+    onColumnWidthPersist?.(column.id, newWidth);
   });
 
   const { draggableProps, dragMovable } = useDrag({

@@ -73,22 +73,13 @@ export const TableRows = createComponent('TableRows', function <RecordType exten
 
   const handleOnRequest = useBound<ListOnRequest<RecordType>>((request, response) => {
     return onRequest(request, ({ requestId, records, total }) => {
-      const offset = request.pagination.offset ?? 0;
-      const items = records.map((record, recordIndex) => createTableRowListItem({
-        record,
-        ordinal: offset + recordIndex,
-        columns,
-      })) as ReactListItem<RecordType>[];
+      const items = records.map(record => createTableRowListItem(record)) as ReactListItem<RecordType>[];
       response({ requestId, items, total });
     });
   });
 
   const createSkeletonItem = useBound(({ index }: CreateSkeletonItemContext): ReactListItem<RecordType> => {
-    return createTableRowListItem({
-      record: createPlaceholderRecord(columns, index),
-      ordinal: index,
-      columns,
-    });
+    return createTableRowListItem(createPlaceholderRecord(columns, index));
   });
 
   const handleHorizontalScroll = useBound((event: OnScrollEventData) => {

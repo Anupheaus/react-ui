@@ -2,13 +2,13 @@ import type { Record } from '@anupheaus/common';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Tag } from '../Tag';
-import type { TableColumn } from './TableModels';
 import { TableCell } from './TableCell';
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
 import { createStyles } from '../../theme';
 import { UIState } from '../../providers';
 import { resolveOpaqueTableBackground, resolveTableTheme } from './resolveTableTheme';
 import { splitTableColumns } from './splitTableColumns';
+import { TableColumnsContext } from './TableColumnsContext';
 
 const useStyles = createStyles((theme) => {
   const { fields: { content: { normal } } } = theme;
@@ -44,15 +44,16 @@ const useStyles = createStyles((theme) => {
 interface Props<RecordType extends Record> {
   record?: RecordType;
   index: number;
-  columns: TableColumn[];
 }
 
 export const TableRow = createComponent('TableRow', <RecordType extends Record>({
   record,
   index,
-  columns,
 }: Props<RecordType>) => {
   const { css } = useStyles();
+  // Columns come from context (not a prop) so that a column change re-renders the mounted row directly,
+  // even when the list item's memo skips because its record is unchanged.
+  const columns = useContext(TableColumnsContext);
 
   const { dataColumns, actionsColumn, actionsColumnIndex } = useMemo(
     () => splitTableColumns(columns),
