@@ -9,6 +9,7 @@ import type { StepRecord, WizardProps } from '../WizardModels';
 import { WizardStepContent } from './WizardStepContent';
 import { WizardStepIndicator } from './WizardStepIndicator';
 import { WizardInlineShell } from './WizardInlineShell';
+import { splitWindowHeader } from '../../Windows/Window/splitWindowHeader';
 
 const useStyles = createStyles(({ wizard, windows: { content } }) => ({
   hidden: {
@@ -161,10 +162,13 @@ export const Wizard = createComponent('Wizard', ({
     isBackEnabled,
   }), [isNextEnabled, isBackEnabled]);
 
+  // The Header is lifted out of the steps/actions so it becomes the window (or inline shell) header rather than part of the body.
+  const { header, content } = splitWindowHeader(children);
+
   const slotIds = useRef<string[]>([]);
 
   const wrappedStepChildren = useMemo(() => {
-    const all = React.Children.toArray(children);
+    const all = React.Children.toArray(content);
     const stepKids = all.filter(c => React.isValidElement(c) && isStep(c)) as React.ReactElement[];
     return stepKids.map((child, index) => {
       const propId = (child.props as { id?: string }).id;
@@ -176,12 +180,12 @@ export const Wizard = createComponent('Wizard', ({
         </WizardStepIdContext.Provider>
       );
     });
-  }, [children]);
+  }, [content]);
 
   const otherChildren = useMemo(() => {
-    const all = React.Children.toArray(children);
+    const all = React.Children.toArray(content);
     return all.filter(c => !React.isValidElement(c) || !isStep(c));
-  }, [children]);
+  }, [content]);
 
   const renderedSteps = useMemo(() => steps.map(step => (
     <WizardStepContent key={step.id} stepId={step.id} onStep={step.onStep}>
@@ -221,6 +225,7 @@ export const Wizard = createComponent('Wizard', ({
         minWidth={minWidth}
         minHeight={minHeight}
         isLoading={isLoading}
+        header={header}
       >
         {body}
       </WizardInlineShell>
@@ -247,6 +252,7 @@ export const Wizard = createComponent('Wizard', ({
       onClosed={onClosed}
       onFocus={onFocus}
     >
+      {header}
       {body}
     </Window>
   );

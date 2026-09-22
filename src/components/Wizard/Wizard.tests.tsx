@@ -11,6 +11,7 @@ import { useDistributedState } from '../../hooks';
 import type { WizardContextProps, WizardEnabledContextProps, WizardNavigationUtils } from './WizardModels';
 import { WindowRenderContext } from '../Windows/WindowsContexts';
 import { WindowsManager } from '../Windows/WindowsManager';
+import { WindowHeader } from '../Windows/Window/WindowHeader';
 import type { DistributedState } from '../../hooks';
 
 // jsdom does not implement IntersectionObserver; stub it so Scroller mounts without errors
@@ -377,6 +378,54 @@ describe('Wizard inline mode', () => {
       </WizardRenderModeContext.Provider>
     );
     expect(await findByText('Inline Header Title')).toBeInTheDocument();
+  });
+});
+
+// ─── Wizard header ────────────────────────────────────────────────────────────
+
+describe('Wizard header', () => {
+  it('renders a Header declared among the steps as the window header, once and above the steps', async () => {
+    const { container, findByText } = render(
+      <WindowRenderContext.Provider value={wizardRenderContext}>
+        <Wizard title="Wizard title">
+          <WizardStep id="s1">Step One</WizardStep>
+          <WindowHeader title="Header title">header-extra</WindowHeader>
+        </Wizard>
+      </WindowRenderContext.Provider>
+    );
+    expect(await findByText('Step One')).toBeInTheDocument();
+    const titlebars = container.querySelectorAll('titlebar');
+    expect(titlebars).toHaveLength(1);
+    expect(titlebars[0].querySelector('titlebar-title')?.textContent).toBe('Header title');
+    expect(titlebars[0].querySelector('titlebar-content')?.textContent).toBe('header-extra');
+    expect(titlebars[0].compareDocumentPosition(container.querySelector('wizard-steps')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders a Header in an inline wizard, using renderTitle, without any window buttons', async () => {
+    const { container, findByText } = render(
+      <WizardRenderModeContext.Provider value={{ mode: 'inline' }}>
+        <Wizard title="Inline title">
+          <WindowHeader renderTitle={title => <b data-custom-title>[{title}]</b>} />
+          <WizardStep id="s1">Inline Step</WizardStep>
+        </Wizard>
+      </WizardRenderModeContext.Provider>
+    );
+    expect(await findByText('Inline Step')).toBeInTheDocument();
+    expect(container.querySelectorAll('titlebar')).toHaveLength(1);
+    expect(container.querySelector('titlebar [data-custom-title]')?.textContent).toBe('[Inline title]');
+    expect(container.querySelector('titlebar button')).toBeNull();
+  });
+
+  it('renders no header in an inline wizard with no Header, title or icon', async () => {
+    const { container, findByText } = render(
+      <WizardRenderModeContext.Provider value={{ mode: 'inline' }}>
+        <Wizard>
+          <WizardStep id="s1">Headerless Step</WizardStep>
+        </Wizard>
+      </WizardRenderModeContext.Provider>
+    );
+    expect(await findByText('Headerless Step')).toBeInTheDocument();
+    expect(container.querySelector('titlebar')).toBeNull();
   });
 });
 

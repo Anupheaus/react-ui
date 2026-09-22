@@ -53,6 +53,22 @@ function NestedComponent() {
 }
 ```
 
+### 4. Customise the header
+
+Wizard definitions receive `Header`, the same component windows and dialogs use — see [Customising the header](../Windows/AGENTS.md#5-customising-the-header) for its props. Declare it as a direct child of `Wizard`, alongside the steps and `Actions`:
+
+```tsx
+const MyWizard = createWizard('MyWizard', ({ Wizard, Header, Step, Actions }) => () => (
+  <Wizard title="Setup" width={500}>
+    <Header renderTitle={title => <strong>{title}</strong>}><HelpInfo>...</HelpInfo></Header>
+    <Step id="intro"><p>Welcome</p></Step>
+    <Actions />
+  </Wizard>
+));
+```
+
+`Wizard` lifts the `Header` out of its children before laying out the steps, so it is never treated as step or body content. In an **inline** wizard (`createInlineWizard`) the header has no window buttons and no drag handle, and — as before — no default header is shown unless there is a `title`, an `icon`, or a title set via `setTitle`; declaring a `Header` always shows one.
+
 ## Progress Indicator
 
 When `showProgress` is set on the `Wizard`, a panel is rendered to the left of the step content (and behind the action bar, full-height). Each step is represented by a circle:
@@ -122,6 +138,7 @@ The function passed to `createWizardStep` receives:
 | Util | Description |
 |------|-------------|
 | `Wizard` | The window-like container component |
+| `Header` | Customises the wizard header — see [Customise the header](#4-customise-the-header) |
 | `Step` | Inline step — takes `id?`, `label?`, and `children`. `label` is shown in the progress panel when `showProgress` is set. |
 | `Actions` | Auto Back/Next/Save toolbar — accepts `children` to prepend custom buttons |
 | `Action` | Custom action button (closes window with a value) |

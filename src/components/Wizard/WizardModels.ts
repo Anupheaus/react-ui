@@ -1,7 +1,7 @@
 // src/components/Wizard/WizardModels.ts
 import type { ComponentType, MutableRefObject, ReactNode } from 'react';
 import type { DistributedState } from '../../hooks';
-import type { WindowAction, WindowOkAction } from '../Windows/Window';
+import type { WindowAction, WindowHeader, WindowOkAction } from '../Windows/Window';
 import type { WizardActions } from './Wizard/WizardActions';
 
 export interface StepRecord {
@@ -88,6 +88,8 @@ export interface WizardProps {
 
 export interface WizardDefinitionUtils<CloseResponseType = string | undefined> extends WizardNavigationUtils {
   Wizard: ComponentType<WizardProps>;
+  /** Customises the wizard header; declare as a direct child of Wizard. When omitted, a default header is rendered. */
+  Header: typeof WindowHeader;
   Step: ComponentType<WizardStepProps>;
   Actions: typeof WizardActions;
   Action: typeof WindowAction;

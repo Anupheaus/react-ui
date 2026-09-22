@@ -4,6 +4,7 @@ import { useBound } from '../../hooks';
 import { createComponent } from '../Component';
 import { WindowAction } from '../Windows/Window/WindowAction';
 import { WindowOkAction } from '../Windows/Window/WindowOkAction';
+import { WindowHeader } from '../Windows/Window/WindowHeader';
 import { WindowRenderContext } from '../Windows/WindowsContexts';
 import type { WizardDefinition, WizardNavigationUtils } from './WizardModels';
 import { Wizard } from './Wizard/Wizard';
@@ -41,6 +42,7 @@ export const WizardContentComponent = createComponent('WizardContentComponent', 
   const utils = useMemo(() => ({
     id: windowId,
     Wizard: BoundWizard,
+    Header: WindowHeader,
     Step: WizardStep as any,
     Actions: WizardActions as any,
     Action: WindowAction,

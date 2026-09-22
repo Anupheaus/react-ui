@@ -78,6 +78,40 @@ export const InlineMode: Story = {
 };
 InlineMode.name = 'Inline (headless) Mode';
 
+// ── Custom header ────────────────────────────────────────────────────────────
+
+const CustomHeaderWizard = createWizard('CustomHeaderWizard', ({ Wizard, Header, Step, Actions }) => () => (
+  <Wizard title="Custom Header Wizard" showProgress width={620} height={420}>
+    <Header renderTitle={title => <strong>[{title}]</strong>}>
+      <Button variant="hover" size="small">Header button</Button>
+    </Header>
+    <Step id="first" label="First"><p>The Header is lifted out of the steps and rendered as the wizard header.</p></Step>
+    <Step id="second" label="Second"><p>Second step.</p></Step>
+    <Actions />
+  </Wizard>
+));
+
+const CustomHeaderStoryActions = createComponent('CustomHeaderStoryActions', () => {
+  const { openCustomHeaderWizard, InlineCustomHeaderWizard } = useWizard(CustomHeaderWizard, 'custom-header-1');
+  return (
+    <Flex isVertical gap={8}>
+      <Button onClick={() => openCustomHeaderWizard()}>Open as a window</Button>
+      <InlineCustomHeaderWizard />
+    </Flex>
+  );
+});
+
+export const CustomHeader: Story = {
+  render() {
+    return (
+      <StorybookComponent width={900} height={600} title="Custom Header">
+        <CustomHeaderStoryActions />
+        <Windows />
+      </StorybookComponent>
+    );
+  },
+};
+
 // ── External createWizardStep components ─────────────────────────────────────
 
 const DetailsStep = createWizardStep('DetailsStep', ({ id, setNextIsEnabled }) => {

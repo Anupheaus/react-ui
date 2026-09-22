@@ -1,13 +1,15 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import { useContext, useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { createStyles } from '../../../theme';
 import { useId } from '../../../hooks';
 import { UIState, useValidation } from '../../../providers';
 import { Flex } from '../../Flex';
 import { Tag } from '../../Tag';
-import { Titlebar } from '../../Titlebar';
 import { useFormObserver } from '../../Form';
-import { WindowContext } from '../../Windows/WindowsContexts';
+import type { WindowHeaderContextProps } from '../../Windows/WindowsContexts';
+import { WindowContext, WindowHeaderContext, WindowRenderContext } from '../../Windows/WindowsContexts';
+import { WindowHeader } from '../../Windows/Window/WindowHeader';
 import { WindowValidationProvider } from '../../Windows/Window/WindowValidationContext';
 
 const useStyles = createStyles(({ wizard, windows: { content } }) => ({
@@ -26,8 +28,13 @@ const useStyles = createStyles(({ wizard, windows: { content } }) => ({
   },
 }));
 
+/** An inline wizard cannot be dragged, so its header gets no drag-handle props. */
+const NO_DRAG_TARGET_PROPS: WindowHeaderContextProps['dragTargetProps'] = {};
+
 interface Props {
   className?: string;
+  /** The consumer's Header (lifted out of the Wizard's children); when omitted a default header is shown if there is a title or icon. */
+  header?: ReactElement;
   title?: ReactNode;
   icon?: ReactNode;
   isLoading?: boolean;
@@ -41,7 +48,7 @@ interface Props {
 /**
  * Chrome-less host for an inline wizard. Reproduces the content infrastructure that <Window>
  * provides (loading state, validation provider, form observer, validate section) plus an optional
- * header, but without any window chrome: no portal, no positioning, no drag/resize/maximize, and
+ * header (a WindowHeader with no buttons), but without any window chrome: no portal, no positioning, no drag/resize/maximize, and
  * no "preparing" transition. Fills its parent by default.
  */
 export const WizardInlineShell = createComponent('WizardInlineShell', ({
@@ -53,18 +60,24 @@ export const WizardInlineShell = createComponent('WizardInlineShell', ({
   height,
   minWidth,
   minHeight,
+  header,
   children,
 }: Props) => {
   const { css, join } = useStyles();
   const id = useId();
   const { ValidateSection, isValid } = useValidation();
   const { FormObserver } = useFormObserver();
+  const { title: runtimeTitle } = useContext(WindowRenderContext);
+  const headerContext = useMemo<WindowHeaderContextProps>(() => ({ title, icon, endAdornment: null, dragTargetProps: NO_DRAG_TARGET_PROPS }), [title, icon]);
+  const hasDefaultHeader = title != null || icon != null || runtimeTitle != null;
 
   const style: CSSProperties = { width, height, minWidth, minHeight };
 
   return (
     <Flex tagName="wizard-inline" isVertical className={join(css.inlineShell, className)} style={style}>
-      {(title != null || icon != null) && <Titlebar icon={icon} title={title} />}
+      <WindowHeaderContext.Provider value={headerContext}>
+        {header ?? (hasDefaultHeader && <WindowHeader />)}
+      </WindowHeaderContext.Provider>
       <UIState isLoading={isLoading}>
         <WindowValidationProvider onCheckIsValid={isValid}>
           <FormObserver>
