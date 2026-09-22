@@ -31,6 +31,8 @@ const MyDialog = createDialog('MyDialog', ({ Dialog, Content, Actions, OkButton,
 ));
 ```
 
+Dialog definitions also receive `Header` to customise the dialog's titlebar — see [Customising the header](../Windows/AGENTS.md#5-customising-the-header).
+
 ### 3. Open dialogs with useDialog
 
 Dialogs use a **single instance per hook**—the id is derived from the hook. Call `open(args)` with only the dialog args:

@@ -9,7 +9,11 @@ When `WindowsManager` decides to render an open window, it passes control to `Wi
 ## Contents
 
 ### Core component
-- `Window.tsx` — the draggable, resizable window shell. Renders the `Titlebar`, close/maximize/restore buttons, a `UIState` loading overlay, validation, a `FormObserver`, and the `children` content area. Connects all sub-hooks.
+- `Window.tsx` — the draggable, resizable window shell. Renders the header slot (the consumer's `WindowHeader` or a default one) with the close/maximize/restore buttons, a `UIState` loading overlay, validation, a `FormObserver`, and the `children` content area. Connects all sub-hooks.
+
+### Header
+- `WindowHeader.tsx` — the window's titlebar, exposed to definitions as `Header` (see [Customising the header](../AGENTS.md#5-customising-the-header)). Reads the Window's title, icon, drag props and buttons from `WindowHeaderContext`, which is also provided (with no buttons or drag props) by the Wizard's `WizardInlineShell` — see [Wizard/AGENTS.md](../../Wizard/AGENTS.md#4-customise-the-header).
+- `splitWindowHeader.ts` — separates a `WindowHeader` from `Window`'s children (looking through fragments) so `Window` can render it in the header slot. Returns the original children untouched when there is no header. Also used by `Wizard`, which lifts the Header out before laying out its steps.
 
 ### Content and actions
 - `WindowContent.tsx` — wraps children in a `Scroller` unless `disableScrolling` is set via `WindowContext`. The no-scroll path allows the window height to be driven by content measurement rather than the ResizeObserver path.
@@ -29,7 +33,8 @@ When `WindowsManager` decides to render an open window, it passes control to `Wi
 
 ```
 Window
-├── Titlebar (drag handle, title, window controls)
+├── WindowHeaderContext.Provider (title, icon, drag props, buttons)
+│   └── WindowHeader → Titlebar (consumer's Header hoisted from children, or a default one)
 ├── UIState (isLoading overlay)
 │   ├── WindowValidationProvider
 │   │   └── FormObserver (dirty tracking via useFormObserver)
@@ -50,6 +55,10 @@ Windows need to know their own dimensions before they become visible so they can
 4. On the next frame, remove `preparationClassName`. CSS transitions kick in: opacity 1, scale 1 → the window "pops in".
 
 This avoids a flash of incorrectly sized/positioned content.
+
+**The header is hoisted out of `children` rather than rendered where it is declared**
+
+`Window` always renders exactly one `WindowHeader`, so there is a single code path for the titlebar whether or not the consumer customises it. Hoisting keeps it above the content and outside the `UIState` loading overlay and validation/form wrappers, regardless of declaration order. `WindowHeaderContext` is provided only around the header slot, which is how a wrongly nested `Header` detects that it was not hoisted and throws.
 
 **`FormObserver` is embedded in every window**
 

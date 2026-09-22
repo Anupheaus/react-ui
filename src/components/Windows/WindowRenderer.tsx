@@ -4,7 +4,7 @@ import type { ComponentType } from 'react';
 import { createComponent } from '../Component';
 import type { WindowDefinitionUtils } from './WindowsModels';
 import { type WindowDefinition } from './WindowsModels';
-import { Window, WindowActions, WindowContent, WindowOkAction } from './Window';
+import { Window, WindowActions, WindowContent, WindowHeader, WindowOkAction } from './Window';
 import { WindowAction } from './Window/WindowAction';
 import type { WindowDefinitionState } from './InternalWindowModels';
 import { WindowsManager } from './WindowsManager';
@@ -33,6 +33,7 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
   const utils = useMemo<WindowDefinitionUtils<CloseResponseType>>(() => ({
     id: windowId,
     Window: WindowOrDialog,
+    Header: WindowHeader,
     Content: WindowContent,
     Actions: WindowActions,
     Action: WindowAction,

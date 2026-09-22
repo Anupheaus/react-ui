@@ -32,6 +32,8 @@ interface Props {
   title?: ReactNode;
   endAdornment?: ReactNode;
   children?: ReactNode;
+  /** Replaces the default title rendering (including its `titlebar-title` wrapper); receives the `title` prop. */
+  renderTitle?(title: ReactNode): ReactNode;
 }
 
 export const Titlebar = createComponent('Titlebar', ({
@@ -39,20 +41,24 @@ export const Titlebar = createComponent('Titlebar', ({
   icon,
   title,
   endAdornment,
+  renderTitle,
   children: rawChildren = null,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
   const children = Children.toArray(rawChildren)
     .map((child, index) => {
-      if (isValidElement(child)) return createElement(child.type, { key: `titlebar-item-${index}`, ...child.props });
+      // Text children are kept as-is; only elements are re-created with a stable key.
+      if (!isValidElement(child)) return child;
+      return createElement(child.type, { key: `titlebar-item-${index}`, ...child.props });
     })
     .removeNull();
 
   return (
     <Flex {...props} tagName="titlebar" className={join(css.titlebar, className)} valign="center" disableGrow>
       {icon}
-      {title != null && <Typography tagName="titlebar-title" className={css.title} valign="center">{title}</Typography>}
+      {renderTitle != null && renderTitle(title)}
+      {renderTitle == null && title != null && <Typography tagName="titlebar-title" className={css.title} valign="center">{title}</Typography>}
       <Flex tagName="titlebar-content" className={css.content} valign="center">{children}</Flex>
       {endAdornment != null && <Flex tagName="titlebar-end-adornment" className={css.endAdornment} disableGrow valign="center">{endAdornment}</Flex>}
     </Flex>

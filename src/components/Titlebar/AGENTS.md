@@ -9,7 +9,8 @@ A horizontal application or panel title bar with slots for a leading icon, a tit
 | `title` | `ReactNode` | No | Title text or element rendered as a `Typography` node |
 | `icon` | `ReactNode` | No | Leading icon placed before the title |
 | `endAdornment` | `ReactNode` | No | Trailing content pinned to the right edge (e.g. a `UserProfileMenu`) |
-| `children` | `ReactNode` | No | Content rendered in the flexible middle area between the title and end adornment |
+| `children` | `ReactNode` | No | Content rendered in the flexible middle area between the title and end adornment (text and elements) |
+| `renderTitle` | `(title: ReactNode) => ReactNode` | No | Replaces the default title rendering, including its `titlebar-title` `Typography` wrapper; receives `title` and is called even when `title` is null |
 | `className` | `string` | No | Additional CSS class for the titlebar container |
 
 ## Usage

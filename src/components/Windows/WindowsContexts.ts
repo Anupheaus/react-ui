@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { DOMAttributes, ReactNode } from 'react';
 import { createContext } from 'react';
 
 /** Provided by WindowRenderer. Consumed by Window, useWindow(), WindowAction. */
@@ -18,6 +18,20 @@ export interface WindowContextProps {
 }
 
 export const WindowContext = createContext<WindowContextProps>({});
+
+/** Provided by Window around its header slot only. Consumed by WindowHeader to render the titlebar with the window's wiring. */
+export interface WindowHeaderContextProps {
+  /** The `title` prop given to the Window; a Header `title` and a `setTitle` title both take precedence over it. */
+  title?: ReactNode;
+  /** The `icon` prop given to the Window; a Header `icon` takes precedence over it. */
+  icon?: ReactNode;
+  /** The window controls and maximize/restore/close buttons, pinned to the end of the titlebar. */
+  endAdornment: ReactNode;
+  /** Drag-handle props spread onto the titlebar so the window can be moved by it. */
+  dragTargetProps: Partial<DOMAttributes<HTMLElement>>;
+}
+
+export const WindowHeaderContext = createContext<WindowHeaderContextProps | undefined>(undefined);
 
 /** Provided by InternalWindows (Windows). Consumed by useWindow to resolve manager when managerId is omitted. */
 export const WindowsManagerContext = createContext<string | undefined>(undefined);

@@ -1,6 +1,6 @@
 import type { PromiseMaybe } from '@anupheaus/common';
 import type { ReactNode } from 'react';
-import { useContext, useLayoutEffect, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import useResizeObserver from 'use-resize-observer/polyfilled.js';
 import { useBound, useDOMRef } from '../../../hooks';
 import { createStyles } from '../../../theme';
@@ -11,9 +11,9 @@ import { Icon } from '../../Icon';
 import { useWindowDrag } from '../useWindowDrag';
 import { WindowResizer } from '../WindowResizer';
 import type { InitialWindowPosition } from '../WindowsModels';
-import { Titlebar } from '../../Titlebar';
 import { WindowsManager } from '../WindowsManager';
-import { WindowRenderContext, WindowContext } from '../WindowsContexts';
+import type { WindowHeaderContextProps } from '../WindowsContexts';
+import { WindowRenderContext, WindowContext, WindowHeaderContext } from '../WindowsContexts';
 import { DEFAULT_WINDOW_MIN_HEIGHT, DEFAULT_WINDOW_MIN_WIDTH } from '../WindowsConstants';
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
@@ -23,6 +23,8 @@ import { WindowValidationProvider } from './WindowValidationContext';
 import { useFormObserver } from '../../Form';
 import { useNotifications } from '../../Notifications';
 import { Tag } from '../../Tag';
+import { WindowHeader } from './WindowHeader';
+import { splitWindowHeader } from './splitWindowHeader';
 
 const useStyles = createStyles(({ windows: { window, content }, transitions }) => ({
   window: {
@@ -145,9 +147,6 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
     flex: 'auto',
     flexDirection: 'column',
   },
-  titlebar: {
-    zIndex: 1,
-  },
 }));
 
 interface Props {
@@ -198,8 +197,7 @@ export const Window = createComponent('Window', ({
   onClosed,
   onFocus,
 }: Props) => {
-  const { id: contextId, managerId, title: contextTitle } = useContext(WindowRenderContext);
-  const displayTitle = contextTitle ?? title;
+  const { id: contextId, managerId } = useContext(WindowRenderContext);
   const manager = WindowsManager.get(managerId);
   const id = providedId ?? contextId;
   const [state, setState] = useWindowState(manager, id, providedWidth, providedHeight);
@@ -246,6 +244,19 @@ export const Window = createComponent('Window', ({
 
   const shouldStopTransitions = isDragging || isResizing;
 
+  const { header = <WindowHeader />, content } = splitWindowHeader(children);
+  const headerContext = useMemo<WindowHeaderContextProps>(() => ({
+    title,
+    icon,
+    dragTargetProps,
+    endAdornment: (<>
+      {windowControls}
+      {!hideMaximize && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
+      {!hideMaximize && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
+      {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
+    </>),
+  }), [title, icon, dragTargetProps, windowControls, hideMaximize, isMaximized, hideCloseButton, maximizeWindow, restoreWindow, closeWindow]);
+
   const handleResizingStart = useBound(() => {
     setIsResizing(true);
     focus();
@@ -291,24 +302,15 @@ export const Window = createComponent('Window', ({
         ref={contentWrapperRef}
         className={css.windowContentWrapper}
       >
-        <Titlebar
-          {...dragTargetProps}
-          className={css.titlebar}
-          icon={icon}
-          title={displayTitle}
-          endAdornment={<>
-            {windowControls}
-            {!hideMaximize && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
-            {!hideMaximize && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
-            {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
-          </>}
-        />
+        <WindowHeaderContext.Provider value={headerContext}>
+          {header}
+        </WindowHeaderContext.Provider>
         <UIState isLoading={isLoading}>
           <WindowValidationProvider onCheckIsValid={isValid}>
             <FormObserver>
               <ValidateSection id={`window-validation-${id}`}>
                 <WindowContext.Provider value={{ disableScrolling }}>
-                  {children}
+                  {content}
                 </WindowContext.Provider>
               </ValidateSection>
             </FormObserver>

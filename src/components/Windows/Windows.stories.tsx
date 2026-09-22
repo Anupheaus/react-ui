@@ -6,6 +6,7 @@ import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import type { AnyFunction, PromiseMaybe } from '@anupheaus/common';
 import { Button } from '../Button';
+import { Icon } from '../Icon';
 import { createWindow } from './createWindow';
 import { useWindow } from './useWindow';
 import { useLayoutEffect } from 'react';
@@ -63,6 +64,22 @@ const WindowContentWithUtilities = createComponent('WindowContentWithUtilities',
     </Flex>
   );
 });
+
+const CustomHeaderWindow = createWindow('CustomHeaderWindow', ({ Window, Header, Content }) => (heading: string) => (
+  <Window title="Window title (overridden by Header)" icon={<Icon name="calendar" />}>
+    <Content>
+      <p>The Header is declared after the Content but is still rendered at the top.</p>
+      <p>Its title and icon are rendered via renderTitle and renderIcon, and the button sits between the title and the window buttons.</p>
+    </Content>
+    <Header
+      title={heading}
+      renderTitle={title => <strong>[{title}]</strong>}
+      renderIcon={icon => <Flex gap={2} disableGrow>{icon}<Icon name="tick" /></Flex>}
+    >
+      <Button variant="hover" size="small" onClick={() => console.log('Header button clicked')}>Header button</Button>
+    </Header>
+  </Window>
+));
 
 const WindowType2 = createWindow('WindowType2', ({ Window, Content, id }) => () => {
   const onFocus = useBound((isFocused: boolean) => {
@@ -175,6 +192,22 @@ export const UseWindowUtilities: Story = {
           <Button onClick={() => openWindowWithUtilities('my-dynamic-window', 'Initial Title')}>Open window</Button>
           <Windows />
         </Flex>
+      </StorybookComponent>
+    );
+  },
+};
+
+export const CustomHeader: Story = {
+  render() {
+    const { openCustomHeaderWindow } = useWindow(CustomHeaderWindow);
+
+    useLayoutEffect(() => {
+      openCustomHeaderWindow('custom-header', 'Custom header');
+    }, []);
+
+    return (
+      <StorybookComponent width={1200} height={600} title="Custom Header" showComponentBorders>
+        <Windows />
       </StorybookComponent>
     );
   },

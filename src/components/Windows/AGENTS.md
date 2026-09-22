@@ -113,6 +113,36 @@ Args are a **snapshot** taken at open time; the window will not re-read the open
 
 > **If any arg is non-serialisable — a function (e.g. a `save` callback), a class instance, a luxon `DateTime`, etc. — you MUST set `doNotPersist: true`.** Otherwise, with persistence enabled, the window is either silently dropped from storage or re-materialises on reload with broken args (a dead function reference, a plain object where a class instance was expected). A window is safe to persist only when every arg is plain JSON.
 
+### 5. Customising the header
+
+Definitions receive a `Header` component alongside `Window` and `Content`. `Header` is the single component that renders a window's titlebar: declare it as a **direct child** of `Window` (or `Dialog` / `Wizard`) to customise it, or leave it out and `Window` renders a default `<Header />` in the same place. Wherever you declare it among the children, it is always rendered at the top.
+
+```tsx
+const OrderWindow = createWindow('OrderWindow', ({ Window, Header, Content }) => (orderId: string) => (
+  <Window title="Order" icon={<Icon name="order" />}>
+    <Header
+      title={`Order ${orderId}`}
+      renderTitle={title => <Typography variant="heading">{title}</Typography>}
+      renderIcon={icon => <Badge value={3}>{icon}</Badge>}
+    >
+      <StatusTag orderId={orderId} />
+    </Header>
+    <Content>...</Content>
+  </Window>
+));
+```
+
+| `Header` prop | Type | Description |
+|---------------|------|-------------|
+| `title` | `ReactNode` | Overrides `Window`'s `title`. A title set via `useWindow().setTitle` still takes precedence. |
+| `icon` | `ReactNode` | Overrides `Window`'s `icon`. |
+| `renderTitle` | `(title: ReactNode) => ReactNode` | Replaces the title rendering (including its default `titlebar-title` wrapper); receives the resolved title. |
+| `renderIcon` | `(icon: ReactNode) => ReactNode` | Replaces the icon rendering; receives the resolved icon. |
+| `className` | `string` | Extra class on the titlebar. |
+| `children` | `ReactNode` | Rendered between the title and the window buttons. |
+
+The window controls (`windowControls`), maximize/restore and close buttons, and the drag handle always remain — `Header` cannot replace them. Hide the buttons with the existing `Window` props (`hideCloseButton`, `hideMaximizeButton`) or the `Dialog` `allow*` props.
+
 ## Props
 
 | Prop | Type | Description |
@@ -193,6 +223,10 @@ If `<Windows />` unmounts and remounts (e.g. during a route transition), all ope
 **Never render a `createWindow` component in JSX, and never feed a window via the opener's context**
 
 `createWindow` registers globally (like `createContext`), so a window opens purely through `useWindow(...).openX(...)`. Rendering the component yourself — `<MyWindow />`, or a `definitionId`-keyed "host" element inside the opener — mounts an extra renderer that shows the window as soon as that element mounts (a window appearing unbidden when its parent opens is the tell). It is also tempting to wrap that inline element in a context provider to feed the window data; that only appears to work because the element sits in the opener's tree. The real open instance renders at the `<Windows />` host, outside that tree, so the provider never reaches it — and a persisted window re-materialises with no providers at all. Pass data as **args** instead (see [Passing data to window content](#4-passing-data-to-window-content)).
+
+**`Header` must be a direct child of `Window` / `Dialog` / `Wizard`**
+
+`Window` finds the `Header` by scanning its own children (descending into fragments only) and hoists it into the header slot. A `Header` nested inside another component (e.g. inside `<Content>` or a wrapper component) is never found and throws `Header must be a direct child of a Window, Dialog or Wizard` when it renders. Declaring more than one `Header` also throws.
 
 **`doNotPersist: true` in `createWindow` options excludes a window type from localStorage**
 

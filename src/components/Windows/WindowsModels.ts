@@ -1,6 +1,6 @@
 import type { ComponentType, ReactNode } from 'react';
 import { is, type DeferredPromise } from '@anupheaus/common';
-import type { Window, WindowAction, WindowContent, WindowOkAction } from './Window';
+import type { Window, WindowAction, WindowContent, WindowHeader, WindowOkAction } from './Window';
 import type { ReactUIComponent } from '../Component';
 import type { ActionsToolbar } from '../ActionsToolbar';
 
@@ -49,6 +49,8 @@ export interface WindowEvents {
 export type InitialWindowPosition = 'center';
 
 export interface WindowDefinitionUtils<CloseResponseType = string | undefined> {
+  /** Customises the window header; declare as a direct child of Window. When omitted, a default header is rendered. */
+  Header: typeof WindowHeader;
   Content: typeof WindowContent;
   Actions: typeof ActionsToolbar;
   Window: typeof Window | ComponentType<any>;
