@@ -39,6 +39,12 @@ Used directly only when building custom input components. Consumer code typicall
 
 When loading, `Field` wraps its content in `NoSkeletons` and overlays a single content skeleton (`<Skeleton type="full" fill />`). The `fill` prop is required because `Field` gives that skeleton a `className` for border-radius, which would otherwise disable the absolute-fill behaviour and leave the skeleton at 0px — see [../Skeleton/AGENTS.md](../Skeleton/AGENTS.md). The skeleton fills the field container, which the (hidden but laid-out) content sizes.
 
+### Prop forwarding — closed by design
+
+`Field` forwards **only its own declared props** to the DOM element. It deliberately does **not** spread an open-ended rest of props onto the wrapper. Because every input in the library renders through `Field`, an open spread would let any wrapper that forgets to destructure its own props (`value`, `onChange`, `type`, `checked`, component config, …) leak them onto the DOM — landing as invalid attributes or, worse, a live `onChange` handler that fires with a raw `SyntheticEvent` (the bug fixed in `Slider`, and structurally prevented here).
+
+**If you need a new DOM pass-through** (e.g. `id`, `data-*`, an `aria-*` attribute on the wrapper), add it as an explicit named prop on `FieldProps`/`Props` and forward it by name — never reintroduce a `{...props}` spread onto the inner `Tag`. This guarantee is covered by `Field.tests.tsx`.
+
 ## `useFields` hook
 
 Binds a typed source object to field components, with deep change propagation.

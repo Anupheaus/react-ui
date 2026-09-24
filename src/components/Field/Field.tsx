@@ -174,7 +174,7 @@ export const Field = createComponent('Field', ({
   containerTooltip,
   onBlur,
   onContainerSelect,
-  ...props
+  style: providedStyle,
 }: Props) => {
   const { css, join, useInlineStyle, toPx } = useStyles();
   const { Ripple, rippleTarget } = useRipple();
@@ -263,12 +263,15 @@ export const Field = createComponent('Field', ({
   const style = useInlineStyle(() => ({
     minWidth: toPx(minWidth),
     minHeight: toPx(minHeight),
-    ...props.style,
-  }), [minWidth, minHeight, props.style]);
+    ...providedStyle,
+  }), [minWidth, minHeight, providedStyle]);
 
+  // Intentionally NOT spreading a rest of `props` onto the DOM element. Field is the single sink
+  // every input renders through, so forwarding an open-ended rest would let any wrapper that forgets
+  // to destructure its own props (value, onChange, type, config) leak them onto the DOM. Only the
+  // explicit props below are forwarded; add new pass-throughs by name, never via a spread.
   return (
     <Tag
-      {...props}
       name={tagName}
       className={join(css.field, width != null && 'is-set-width', height != null && 'is-set-height', fullHeight && 'full-height', disableOverflow && 'disable-overflow', className)}
       width={width ?? (wide === true ? '100%' : undefined)}
