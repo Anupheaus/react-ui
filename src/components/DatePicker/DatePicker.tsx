@@ -125,6 +125,13 @@ export const DatePicker = createComponent('DateTime', ({
   endAdornment,
   onNavigatePrevious,
   onNavigateNext,
+  // allowClear, labelEndAdornment and onDialogClosed are own props, not FieldProps. They are
+  // destructured here purely to keep them out of `props`: otherwise they are spread onto <Field>
+  // and land as stray attributes/handlers on its DOM wrapper. (allowClear is only a union
+  // discriminator for onChange's signature; the other two are not yet wired up.)
+  allowClear: _allowClear,
+  labelEndAdornment: _labelEndAdornment,
+  onDialogClosed: _onDialogClosed,
   ...props
 }: Props) => {
   const { css } = useStyles();
