@@ -34,6 +34,45 @@ describe('Slider', () => {
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ min: 25 }));
   });
 
+  // Keyboard (arrow keys) and synthetic value-setters drive the hidden range input directly; MUI
+  // forwards event.target.valueAsNumber verbatim, which is NaN for a non-numeric value. Simulate that
+  // by making the input report a NaN valueAsNumber, then changing its value so React's input value
+  // tracker fires onChange as it would in the browser.
+  const fireNonNumericChange = (input: HTMLInputElement, triggerValue: string): void => {
+    Object.defineProperty(input, 'valueAsNumber', { configurable: true, get: () => NaN });
+    fireEvent.change(input, { target: { value: triggerValue } });
+  };
+
+  it('never emits NaN when the range input reports a non-numeric value (single)', () => {
+    const onChange = vi.fn();
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} onChange={onChange} />);
+    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
+    fireNonNumericChange(input, '30');
+    const emitted = onChange.mock.calls.map(([value]) => value as number);
+    expect(emitted.some(Number.isNaN)).toBe(false);
+  });
+
+  it('only ever emits numeric values to onChange (single)', () => {
+    // Regression: type/value/onChange were spread onto the Field wrapper, so a bubbled DOM change
+    // event fired onChange with a raw SyntheticEvent instead of a number.
+    const onChange = vi.fn();
+    const { container } = render(<Slider type="single" value={50} min={0} max={100} onChange={onChange} />);
+    const input = container.querySelector('input[type="range"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '30' } });
+    onChange.mock.calls.forEach(([value]) => expect(typeof value).toBe('number'));
+  });
+
+  it('only ever emits { min, max } number pairs to onChange (range)', () => {
+    const onChange = vi.fn();
+    const { container } = render(<Slider type="range" value={{ min: 20, max: 80 }} min={0} max={100} onChange={onChange} />);
+    const inputs = container.querySelectorAll('input[type="range"]');
+    fireEvent.change(inputs[0], { target: { value: '30' } });
+    onChange.mock.calls.forEach(([value]) => {
+      expect(typeof value?.min).toBe('number');
+      expect(typeof value?.max).toBe('number');
+    });
+  });
+
   it('renders marks when showMarks is true', () => {
     const { container } = render(<Slider type="single" value={0} min={0} max={10} step={5} showMarks />);
     expect(container.querySelector('[class*="Slider-mark"]')).not.toBeNull();

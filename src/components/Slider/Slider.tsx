@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { is } from '@anupheaus/common';
 import Color from 'color';
 import { Slider as MuiSlider } from '@mui/material';
 import { createComponent } from '../Component';
@@ -195,6 +196,13 @@ export const Slider = createComponent('Slider', (props: Props) => {
   const { css, useInlineStyle } = useStyles();
 
   const {
+    // type, value and onChange are read back off `props` below (their discriminated-union types only
+    // correlate when accessed together via `props`). They are destructured here purely to keep them
+    // out of `fieldProps`: otherwise they are spread onto <Field> and end up on its DOM wrapper, whose
+    // bubbled change event would fire the consumer's onChange with a raw DOM event instead of a value.
+    type: _type,
+    value: _value,
+    onChange: _onChange,
     min = 0,
     max = 100,
     step = 1,
@@ -248,10 +256,16 @@ export const Slider = createComponent('Slider', (props: Props) => {
   const handleChange = useBound((_event: Event, newValue: number | number[]) => {
     setIsDragging(true);
     if (props.type === 'single') {
-      const clamped = Math.max(effectiveClampMin, Math.min(effectiveClampMax, newValue as number));
+      // MUI forwards the hidden range input's `valueAsNumber`, which is NaN when the input is driven
+      // by keyboard or a synthetic value-setter with a non-numeric value. NaN survives the clamp
+      // arithmetic below (Math.min/Math.max propagate it) and crashes downstream serialisation, so a
+      // non-numeric value is ignored rather than emitted.
+      if (!is.number(newValue)) return;
+      const clamped = Math.max(effectiveClampMin, Math.min(effectiveClampMax, newValue));
       props.onChange?.(clamped);
     } else {
       const [newMin, newMax] = newValue as [number, number];
+      if (!is.number(newMin) || !is.number(newMax)) return;
       props.onChange?.({
         min: Math.max(effectiveClampMin, newMin),
         max: Math.min(effectiveClampMax, newMax),
