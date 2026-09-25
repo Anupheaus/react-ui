@@ -291,10 +291,12 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     }
   }, [containerElement, itemHeight, items.length]);
 
+  // Re-window whenever the total changes too: items that arrive after the first request (a live query filling in)
+  // would otherwise stay outside the window sized for the first, smaller total.
   useLayoutEffect(() => {
     if (!itemHeightLockedRef.current || containerElement == null) return;
     requestItems();
-  }, [itemHeight, containerElement, requestItems]);
+  }, [itemHeight, containerElement, requestItems, total]);
 
   useLayoutEffect(() => {
     refreshShadowVisibility?.();
