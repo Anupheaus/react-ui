@@ -14,6 +14,7 @@ A full-page calendar component with month, week, and day views. It renders a lis
 | `label` | `ReactNode` | No | Label shown above the view. When omitted, the day view defaults it to the formatted viewing date. |
 | `onViewingDateChange` | `(date: Date) => void` | No | Called when a **touch** swipe navigates to a new period — left = next, right = previous, stepped by `view` (day → ±1 day, week → ±1 week, month → ±1 month). Only active in `onEntries` mode on touch devices. The parent applies the new date back to `viewingDate`. |
 | `className` | `string` | No | CSS class applied to the root element. |
+| `renderDayAdornment` | `(date: Date) => ReactNode` | No | Extra content for each day header — a badge, a count, a small button. Called once per visible day in every view. Return `undefined` for a day that needs nothing. |
 
 ### Week-view-only props
 
@@ -40,6 +41,35 @@ type CalendarWeekDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 const DEFAULT_CALENDAR_WEEK_DAYS: readonly CalendarWeekDay[] = [
   'mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun',
 ];
+```
+
+## CalendarDayAdornmentRenderer
+
+```ts
+type CalendarDayAdornmentRenderer = (date: Date) => ReactNode;
+```
+
+Renders extra content in a day's header. Where it lands per view:
+
+| View | Position |
+|------|----------|
+| Month | In the day cell's date row, to the **left** of the date number (the date stays hard right). |
+| Week | In the day column header, **under** the date. |
+| Day | Beside the view's label. |
+
+Return `undefined` for a day with nothing to show — the adornment element is then not rendered at all, so days
+without one are not given an empty box to lay out. Keep what you return small: a day cell is 100px tall and
+shares its width with the date.
+
+```tsx
+<Calendar
+  entries={entries}
+  viewingDate={viewingDate}
+  renderDayAdornment={date => {
+    const count = countFor(date);
+    return count === 0 ? undefined : <Badge content={count}><Button onSelect={open}>Tasks</Button></Badge>;
+  }}
+/>
 ```
 
 ## CalendarEntryRecord

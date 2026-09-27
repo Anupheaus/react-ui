@@ -38,3 +38,8 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 ---
 
 [← Back to Calendar](../AGENTS.md)
+
+## Day adornments
+
+The Calendar's `renderDayAdornment` prop is threaded down to here and rendered beside the view's label.
+It is called once per visible day; a day whose renderer returns `undefined` gets no adornment element at all.

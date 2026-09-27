@@ -2,13 +2,15 @@ import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
 import { CalendarUtils } from '../CalendarUtils';
-import type { CalendarWeekDay } from '../CalendarModels';
+import type { CalendarDayAdornmentRenderer, CalendarWeekDay } from '../CalendarModels';
+import { useMemo } from 'react';
 import { CalendarWeekViewUtils } from './CalendarWeekViewUtils';
 
 interface Props {
   className?: string;
   day: CalendarWeekDay;
   date: Date;
+  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 
 const useStyles = createStyles(({ calendar }) => ({
@@ -33,14 +35,23 @@ const useStyles = createStyles(({ calendar }) => ({
     fontSize: calendar.monthViewCellDateFontSize,
     fontWeight: calendar.monthViewCellDateFontWeight,
   },
+  dayAdornment: {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: 2,
+    minWidth: 0,
+  },
 }));
 
 export const CalendarWeekViewDayHeader = createComponent('CalendarWeekViewDayHeader', ({
   className,
   day,
   date,
+  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
+
+  const dayAdornment = useMemo(() => renderDayAdornment?.(date), [renderDayAdornment, date]);
 
   return (
     <Tag
@@ -57,6 +68,7 @@ export const CalendarWeekViewDayHeader = createComponent('CalendarWeekViewDayHea
       <Tag name="calendar-week-view-day-date" className={css.dayDate}>
         {date.getDate()}
       </Tag>
+      {dayAdornment != null && <Tag name="calendar-week-view-day-adornment" className={css.dayAdornment}>{dayAdornment}</Tag>}
     </Tag>
   );
 });

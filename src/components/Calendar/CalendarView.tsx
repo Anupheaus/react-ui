@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { createComponent } from '../Component';
-import type { CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
+import type { CalendarDayAdornmentRenderer, CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
 import { CalendarMonthView } from './MonthView';
 import { CalendarWeekView } from './WeekView';
 import { CalendarDayView } from './DayView';
@@ -15,15 +15,16 @@ interface Props {
   endHour?: number;
   hourHeight?: number;
   label?: ReactNode;
+  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 
 /** Renders the month/week/day view for a single date — the unit a carousel panel shows. */
 export const CalendarView = createComponent('CalendarView', ({
-  view, viewingDate, entries, onSelect, weekDays, startHour, endHour, hourHeight, label,
+  view, viewingDate, entries, onSelect, weekDays, startHour, endHour, hourHeight, label, renderDayAdornment,
 }: Props) => {
   switch (view) {
     case 'month':
-      return <CalendarMonthView label={label} entries={entries} viewingDate={viewingDate} />;
+      return <CalendarMonthView label={label} entries={entries} viewingDate={viewingDate} renderDayAdornment={renderDayAdornment} />;
     case 'week':
       return (
         <CalendarWeekView
@@ -35,6 +36,7 @@ export const CalendarView = createComponent('CalendarView', ({
           startHour={startHour}
           endHour={endHour}
           hourHeight={hourHeight}
+          renderDayAdornment={renderDayAdornment}
         />
       );
     case 'day':
@@ -47,6 +49,7 @@ export const CalendarView = createComponent('CalendarView', ({
           startHour={startHour}
           endHour={endHour}
           hourHeight={hourHeight}
+          renderDayAdornment={renderDayAdornment}
         />
       );
     default:

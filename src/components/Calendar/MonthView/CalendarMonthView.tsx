@@ -2,7 +2,7 @@ import { createStyles } from '../../../theme';
 import { getCalendarGridLineColor } from '../CalendarGridLineColor';
 import { Tag } from '../../Tag';
 import { Label } from '../../Label';
-import type { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarDayAdornmentRenderer, CalendarEntryRecord } from '../CalendarModels';
 import { DateTime } from 'luxon';
 import { useMemo } from 'react';
 import type { ReactNode } from 'react';
@@ -14,6 +14,7 @@ interface Props {
   label?: ReactNode;
   viewingDate: Date;
   entries: readonly CalendarEntryRecord[];
+  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 const useStyles = createStyles(({ calendar, fields: { content: { normal } } }) => {
   const gridLineColor = getCalendarGridLineColor(normal);
@@ -52,6 +53,7 @@ export const CalendarMonthView = createComponent('CalendarMonthView', ({
   label,
   viewingDate,
   entries,
+  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
   const [firstDate, endDate] = CalendarMonthViewUtils.findFirstDateFor(viewingDate);
@@ -67,9 +69,9 @@ export const CalendarMonthView = createComponent('CalendarMonthView', ({
     const entriesForDay = CalendarMonthViewUtils.getEntriesForDate(monthEntries, cellDate, dayIndex);
     const dehighlightDate = cellDate.getMonth() !== viewingDate.getMonth();
     return (
-      <CalendarMonthViewCell key={index} className={css.gridCellBorder} viewingDate={viewingDate} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} />
+      <CalendarMonthViewCell key={index} className={css.gridCellBorder} viewingDate={viewingDate} dayIndex={dayIndex} cellDate={cellDate} entries={entriesForDay} dehighlightDate={dehighlightDate} renderDayAdornment={renderDayAdornment} />
     );
-  }), [firstDate, viewingDate]);
+  }), [firstDate, viewingDate, renderDayAdornment]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const monthGrid = (
     <Tag name="calendar-month-view" className={css.monthView}>
