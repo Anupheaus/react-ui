@@ -3,9 +3,10 @@ import type { InternalDropDownProps } from '../InternalDropDown';
 import { InternalDropDown } from '../InternalDropDown';
 import { useBound } from '../../hooks';
 import { Chip } from './Chip';
-import type { ReactListItem } from '../../models';
-import { useMemo } from 'react';
 import { createStyles } from '../../theme';
+
+/** A non-empty value keeps InternalDropDown treating the field as filled; the chips themselves are rendered by renderSelectedValue. */
+const SELECTION_ID = 'chips-selection';
 
 const useStyles = createStyles(() => ({
   chip: {
@@ -29,21 +30,26 @@ export const Chips = createComponent('Chips', function <T extends string = strin
     onChange?.([...(value ?? []), id].distinct());
   });
 
-  const renderedChips = useMemo<ReactListItem>(() => ({
-    id: 'fake',
-    text: '',
-    label: (<>{(value ?? []).map(itemId => {
-      const item = props.values?.findById(itemId);
-      return (
-        <Chip key={itemId} id={itemId} value={item} className={css.chip} onDelete={handleDelete} />
-      );
-    })}</>),
-  }), [value, props.values]);
+  /**
+   * The selected people, rendered as chips.
+   *
+   * Passed through `renderSelectedValue` rather than as a synthetic `values` entry: `InternalDropDown`
+   * resolves its `value` with `values.findById`, so anything not in the option list resolves to nothing and
+   * the field renders blank. `renderSelectedValue` runs whatever that lookup returned, which is what a
+   * multi-select needs — its selection is a list, never one of the options.
+   */
+  const renderChips = useBound(() => (<>{(value ?? []).map(itemId => {
+    const item = props.values?.findById(itemId);
+    return (
+      <Chip key={itemId} id={itemId} value={item} className={css.chip} onDelete={handleDelete} />
+    );
+  })}</>));
 
   return (
     <InternalDropDown
       {...props}
-      value={renderedChips.id}
+      value={SELECTION_ID}
+      renderSelectedValue={renderChips}
       tagName="chips"
       onChange={handleSelected}
     />
