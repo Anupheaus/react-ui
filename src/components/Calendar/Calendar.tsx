@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import type { CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
+import type { CalendarDayAdornmentRenderer, CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
 import { CalendarEntrySelectionProvider } from './CalendarEntrySelectionProvider';
 import { CalendarEntryHighlightProvider } from './CalenderEntryHighlightProvider';
 import { createStyles } from '../../theme';
@@ -42,6 +42,8 @@ interface Props {
   startHour?: number;
   endHour?: number;
   hourHeight?: number;
+  /** Extra content for each day header — a badge, a count, a small button. See {@link CalendarDayAdornmentRenderer}. */
+  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 
 export const Calendar = createComponent('Calendar', ({
@@ -57,6 +59,7 @@ export const Calendar = createComponent('Calendar', ({
   endHour,
   hourHeight,
   label,
+  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
 
@@ -80,9 +83,10 @@ export const Calendar = createComponent('Calendar', ({
       startHour={startHour}
       endHour={endHour}
       hourHeight={hourHeight}
+      renderDayAdornment={renderDayAdornment}
       label={date.getTime() === viewingDate.getTime() ? label : undefined}
     />
-  ), [view, resolvedEntries, onSelect, weekDays, startHour, endHour, hourHeight, label, viewingDate.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
+  ), [view, resolvedEntries, onSelect, weekDays, startHour, endHour, hourHeight, label, renderDayAdornment, viewingDate.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = isCarousel
     ? (
@@ -103,6 +107,7 @@ export const Calendar = createComponent('Calendar', ({
         startHour={startHour}
         endHour={endHour}
         hourHeight={hourHeight}
+        renderDayAdornment={renderDayAdornment}
         label={label}
       />
     );

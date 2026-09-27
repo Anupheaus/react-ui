@@ -1,7 +1,7 @@
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
 import { Scroller } from '../../Scroller';
-import type { CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarDayAdornmentRenderer, CalendarEntryRecord } from '../CalendarModels';
 import { CalendarDayViewHours } from './CalendarDayViewHours';
 import { createStyles } from '../../../theme';
 import { CalendarDayViewEntries } from './CalendarDayViewEntries';
@@ -16,6 +16,9 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal } } }) => ({
     ...normal,
     flex: 'auto',
   },
+  header: {
+    alignItems: 'center',
+  },
 }));
 
 interface Props {
@@ -26,6 +29,7 @@ interface Props {
   hourHeight?: number;
   startHour?: number;
   endHour?: number;
+  renderDayAdornment?: CalendarDayAdornmentRenderer;
   onSelect(entry: CalendarEntryRecord): void;
 }
 
@@ -38,6 +42,7 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   startHour: rawStartHour,
   endHour: rawEndHour,
   onSelect,
+  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
   const calendarDayViewElementRef = useRef<HTMLDivElement | null>(null);
@@ -47,6 +52,8 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
     () => label ?? viewingDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
     [label, viewingDate],
   );
+
+  const dayAdornment = useMemo(() => renderDayAdornment?.(viewingDate), [renderDayAdornment, viewingDate]);
 
   const { startHour, endHour } = useMemo(
     () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour),
@@ -61,7 +68,10 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
 
   return (
     <Flex tagName="calendar-day-view" className={join(css.dayView, className)} gap={4} maxHeight isVertical>
-      <Label>{resolvedLabel}</Label>
+      <Flex tagName="calendar-day-view-header" className={css.header} gap={8} disableGrow>
+        <Label>{resolvedLabel}</Label>
+        {dayAdornment}
+      </Flex>
       <Flex tagName="calendar-day-view-scrolling-area" ref={calendarDayViewElementRef} maxHeight disableOverflow>
         <Scroller scrollTo={scrollTo}>
           <CalendarDayViewHours hourHeight={hourHeight} startHour={startHour} endHour={endHour} />

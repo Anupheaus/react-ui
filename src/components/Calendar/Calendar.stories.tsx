@@ -7,6 +7,8 @@ import type { CalendarEntryRecord } from './CalendarModels';
 import { DateTime } from 'luxon';
 import type { IconName } from '../Icon';
 import { UIState } from '../../providers';
+import { Tag } from '../Tag';
+import type { ReactNode } from 'react';
 
 type TypedCalendarEntryRecord = Omit<CalendarEntryRecord, 'icon'> & { icon?: IconName };
 
@@ -400,6 +402,48 @@ export const MonthViewDefault: Story = createStory({
   ),
 });
 MonthViewDefault.name = 'Month View — Default';
+
+/** A count on the days that have something extra to say — the shape a task or reminder badge takes. */
+const DAY_COUNTS: { [isoDate: string]: number } = {
+  '2025-06-10': 3,
+  '2025-06-12': 1,
+  '2025-06-18': 7,
+};
+
+function renderDayCount(date: Date): ReactNode {
+  const count = DAY_COUNTS[DateTime.fromJSDate(date).toISODate() ?? ''];
+  if (count == null) return undefined;
+  return <Tag name="story-day-count">{`${count} ${count === 1 ? 'task' : 'tasks'}`}</Tag>;
+}
+
+export const MonthViewDayAdornments: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <Calendar
+      label="June 2025"
+      entries={monthViewEntries}
+      viewingDate={VIEWING_DATE}
+      renderDayAdornment={renderDayCount}
+    />
+  ),
+});
+MonthViewDayAdornments.name = 'Month View — Day Adornments';
+
+export const WeekViewDayAdornments: Story = createStory({
+  width: 900,
+  height: 520,
+  render: () => (
+    <Calendar
+      view="week"
+      label="Week of 9 June 2025"
+      entries={weekViewEntries}
+      viewingDate={VIEWING_DATE}
+      renderDayAdornment={renderDayCount}
+    />
+  ),
+});
+WeekViewDayAdornments.name = 'Week View — Day Adornments';
 
 export const MonthViewEmpty: Story = createStory({
   width: 720,

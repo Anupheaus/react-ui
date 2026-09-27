@@ -36,3 +36,8 @@ The timed-schedule week view for the `Calendar` component. Renders one column pe
 ---
 
 [← Back to Calendar](../AGENTS.md)
+
+## Day adornments
+
+The Calendar's `renderDayAdornment` prop is threaded down to here and rendered in the day column header, under the date.
+It is called once per visible day; a day whose renderer returns `undefined` gets no adornment element at all.
