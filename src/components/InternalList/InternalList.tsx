@@ -200,9 +200,11 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     if (innerTotal === 0 || itemHeight === 0) return [null, null];
     const headerStyle = { height: `${offset * itemHeight}px` };
     const footerStyle = { height: `${Math.max(0, innerTotal - offset - limit) * itemHeight}px` };
+    // Never shrink: the scroller's content is a height-bounded flex column, and a shrinkable spacer collapses to 0px —
+    // the scroller then spans only the rows already drawn, so the rest can never be scrolled to or requested (sc-722).
     return [
-      <Flex key="header" tagName="lazy-load-header" style={headerStyle} disableGrow />,
-      <Flex key="footer" tagName="lazy-load-footer" style={footerStyle} disableGrow />
+      <Flex key="header" tagName="lazy-load-header" style={headerStyle} disableGrow disableShrink />,
+      <Flex key="footer" tagName="lazy-load-footer" style={footerStyle} disableGrow disableShrink />
     ];
   }, [itemHeight, total, offset, limit]);
 

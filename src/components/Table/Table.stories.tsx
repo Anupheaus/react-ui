@@ -6,6 +6,7 @@ import { faker } from '@faker-js/faker';
 import { useBound } from '../../hooks';
 import { useMemo, useState } from 'react';
 import { to } from '@anupheaus/common';
+import { expect, waitFor } from 'storybook/test';
 
 interface DemoRecord {
   id: string;
@@ -346,5 +347,39 @@ export const TableWithRequestError: Story = createStory({
       throw new Error('Failed to load records from the server');
     });
     return <Table columns={localColumns} unitName="person" onRequest={handleRequest} />;
+  },
+});
+
+interface NumberedRow {
+  id: string;
+  name: string;
+}
+
+const numberedColumns: TableColumn<NumberedRow>[] = [{ id: 'name', field: 'name', label: 'Name', type: 'string', width: 200 }];
+const numberedRows: NumberedRow[] = new Array(79).fill(0).map((_, index) => ({ id: `row-${index + 1}`, name: `Row ${index + 1}` }));
+
+/**
+ * Far more rows than fit on screen: scrolling to the bottom must reach the last one. The spacers above and below the
+ * rendered window give the scroller its full height; if they shrink, the scroller only spans the rows already drawn and
+ * the rest are never requested (a Vision user could not see their newest devices, sc-722).
+ */
+export const ScrollsToTheLastRow: Story = createStory({
+  width: 600,
+  height: 400,
+  render: () => {
+    const handleRequest = useBound<TableOnRequest<NumberedRow>>(async ({ requestId, pagination: { offset = 0, limit } }, response) => {
+      response({ requestId, records: numberedRows.slice(offset, offset + limit), total: numberedRows.length });
+    });
+    return <Table columns={numberedColumns} unitName="row" onRequest={handleRequest} />;
+  },
+  play: async ({ canvas, canvasElement }) => {
+    await canvas.findByText('Row 1');
+    const scroller = canvasElement.querySelector<HTMLElement>('table-rows scroller-container');
+    await expect(scroller).not.toBeNull();
+    // Each scroll to the bottom lets the list request the next window, so keep going until the last row is drawn.
+    await waitFor(() => {
+      scroller!.scrollTop = scroller!.scrollHeight;
+      expect(canvas.getByText('Row 79')).toBeInTheDocument();
+    }, { timeout: 5000 });
   },
 });

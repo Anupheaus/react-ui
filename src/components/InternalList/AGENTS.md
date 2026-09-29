@@ -123,6 +123,7 @@ The footer bar (Add button, item count, summary, error) is provided by the sibli
 3. It calculates `requestOffset` and `requestLimit` from the viewport height, locked row height, and current scroll position.
 4. It calls `request(...)` which ultimately invokes `onRequest`.
 5. Header/footer spacers are sized to `offset * itemHeight` and `(total - offset - limit) * itemHeight` respectively, so the scroll bar reflects the full dataset even though only a slice is in the DOM.
+6. **The spacers must never shrink** (`disableGrow disableShrink`). They sit in the scroller's height-bounded flex column; a shrinkable spacer collapses to 0px, the scroller then spans only the rows already drawn, and nothing past the first window can be scrolled to or requested. `Table`'s `ScrollsToTheLastRow` story guards this in a real browser — jsdom has no layout (and never renders the spacers, as `itemHeight` stays 0), so a vitest test cannot.
 
 ---
 
