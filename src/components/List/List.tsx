@@ -11,6 +11,7 @@ import type { InternalListActions, InternalListProps } from '../InternalList';
 import { InternalList } from '../InternalList';
 import type { InternalListFooterProps } from '../InternalList/InternalListFooter';
 import { InternalListFooter } from '../InternalList/InternalListFooter';
+import { ListEmptyMessage } from '../InternalList/ListEmptyMessage';
 import type { UseActions } from '../../hooks';
 import { useBound } from '../../hooks';
 import { Flex } from '../Flex';
@@ -22,7 +23,7 @@ export type ListOnRequest<T = void> = Required<ListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 
-export type ListProps<T = void, V extends string | string[] = string | string[]> = Omit<InternalListProps<T>, 'actions'> & Pick<InternalListFooterProps, 'addLabel' | 'addTooltip' | 'summary' | 'hideRecordCount'> & {
+export type ListProps<T = void, V extends string | string[] = string | string[]> = Omit<InternalListProps<T>, 'actions'> & Pick<InternalListFooterProps, 'addLabel' | 'addTooltip' | 'summary' | 'hideRecordCount' | 'totalSuffix' | 'filter' | 'onFilter' | 'activeFilterCount' | 'filterTooltip'> & {
   className?: string;
   containerClassName?: string;
   contentClassName?: string;
@@ -49,6 +50,8 @@ export type ListProps<T = void, V extends string | string[] = string | string[]>
   onAdd?(event: MouseEvent | KeyboardEvent): PromiseMaybe<T | void>;
   value?: V;
   onChange?: V extends string[] ? (newValue: string[]) => void : (newValue: string) => void;
+  /** Shown in the body when the list has no items — what it is for and what to do next. */
+  emptyMessage?: ReactNode;
 };
 
 const useStyles = createStyles(({ list }, { gap }) => ({
@@ -62,6 +65,7 @@ const useStyles = createStyles(({ list }, { gap }) => ({
   },
   fieldContent: {
     flexDirection: 'column',
+    position: 'relative',
   },
   listContent: {
     minHeight: 0,
@@ -92,10 +96,16 @@ export const List = createComponent('List', function <T = void, V extends string
   addLabel,
   summary,
   hideRecordCount,
+  totalSuffix,
+  filter,
+  onFilter,
+  activeFilterCount,
+  filterTooltip,
   unitName = 'item',
   onAdd,
   onRequest,
   onError,
+  emptyMessage,
   ...props
 }: ListProps<T, V>) {
   const { css: listCss } = useListStyles();
@@ -144,7 +154,7 @@ export const List = createComponent('List', function <T = void, V extends string
     if (is.array(value) || (maxSelectableItems ?? 0) > 1) onChange?.(newSelectedItems as never); else onChange?.(newSelectedItems[0] as never);
   });
 
-  const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null;
+  const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null || filter != null || onFilter != null;
 
   return (
     <Field
@@ -186,6 +196,7 @@ export const List = createComponent('List', function <T = void, V extends string
         selectedItemIds={selectedItemIds}
         maxSelectableItems={maxSelectableItems}
       />
+      {emptyMessage != null && total === 0 && <ListEmptyMessage>{emptyMessage}</ListEmptyMessage>}
       {showFooter && (
         <UIState isLoading={total == null && onRequest != null}>
           <InternalListFooter
@@ -194,6 +205,11 @@ export const List = createComponent('List', function <T = void, V extends string
             error={requestError}
             summary={summary}
             hideRecordCount={hideRecordCount}
+            totalSuffix={totalSuffix}
+            filter={filter}
+            onFilter={onFilter}
+            activeFilterCount={activeFilterCount}
+            filterTooltip={filterTooltip}
             onAdd={onAdd != null ? handleAdd : undefined}
             addLabel={addLabel}
             addTooltip={addTooltip}

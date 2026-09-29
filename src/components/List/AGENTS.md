@@ -27,6 +27,12 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `unitName` | `string` | No | Unit name for the item count in the footer (e.g. `'item'`). Defaults to `'item'`. Pass `undefined` with `hideRecordCount` to suppress the footer. |
 | `summary` | `ReactNode` | No | Optional content rendered in the footer between the spacer and the count. |
 | `hideRecordCount` | `boolean` | No | Suppresses the total count display in the footer. |
+| `totalSuffix` | `ReactNode` | No | Words after the count — `3 tasks` + `assigned to you`, `4 appointments` + `(1 cancelled)`. |
+| `filter` | `ListFilter<F>` | No | Filtering with fields the footer shows in its own dialog (see **Filtering** below). Shows the Filter button. |
+| `onFilter` | `() => PromiseMaybe<void>` | No | Called when the Filter button is pressed — for a screen with its own filter dialog. Shows the Filter button. |
+| `activeFilterCount` | `number` | No | The Filter button's badge; no badge at 0. Defaults to `filter.countActive(filter.value)`. |
+| `filterTooltip` | `ReactNode` | No | The Filter button's tooltip; `"Filter"` when absent. |
+| `emptyMessage` | `ReactNode` | No | Shown centred in the body when the list has no items — what it is for and what to do next. |
 | `onDelete` | `(event: ListItemEvent<T>) => void` | No | Called when an item's delete button is activated. |
 | `adornments` | `ReactNode` | No | Extra controls rendered in the top-right corner of the field container. |
 | `stickyHeader` | `ReactNode` | No | Content placed in the sticky header above the scrollable area (hides on scroll down). |

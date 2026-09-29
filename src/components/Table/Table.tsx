@@ -1,4 +1,5 @@
 import { createComponent } from '../Component';
+import type { ReactNode } from 'react';
 import { useMemo, useRef, useState } from 'react';
 import { Tag } from '../Tag';
 import { createStyles } from '../../theme';
@@ -8,6 +9,7 @@ import type { TableHeaderActions } from './TableHeader';
 import { TableHeader } from './TableHeader';
 import type { InternalListFooterProps } from '../InternalList/InternalListFooter';
 import { InternalListFooter } from '../InternalList/InternalListFooter';
+import { ListEmptyMessage } from '../InternalList/ListEmptyMessage';
 import { resolveTableTheme } from './resolveTableTheme';
 import type { TableRowsProps } from './TableRows';
 import { TableRows } from './TableRows';
@@ -52,7 +54,7 @@ const useStyles = createStyles((theme) => {
 });
 
 type UseColumnsProps<RecordType extends Record> = Parameters<typeof useColumns<RecordType>>[0];
-interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel' | 'editIcon' | 'canRemove'>, Pick<InternalListFooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel' | 'addTooltip'> {
+interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordType>, 'onEdit' | 'onRemove' | 'removeLabel' | 'editIcon' | 'canRemove'>, Pick<InternalListFooterProps, 'onAdd' | 'summary' | 'hideRecordCount' | 'addLabel' | 'addTooltip' | 'totalSuffix' | 'filter' | 'onFilter' | 'activeFilterCount' | 'filterTooltip'> {
   className?: string;
   records?: RecordType[];
   columns: TableColumn<RecordType>[];
@@ -61,6 +63,8 @@ interface Props<RecordType extends Record> extends Pick<UseColumnsProps<RecordTy
   actions?: UseActions<TableActions>;
   onRequest: TableRowsProps<RecordType>['onRequest'];
   persistenceKey?: string;
+  /** Shown in the body when the table has no rows — what it is for and what to do next. */
+  emptyMessage?: ReactNode;
 }
 
 export const Table = createComponent('Table', function <RecordType extends Record>({
@@ -80,7 +84,13 @@ export const Table = createComponent('Table', function <RecordType extends Recor
   hideRecordCount,
   addLabel,
   addTooltip,
+  totalSuffix,
+  filter,
+  onFilter,
+  activeFilterCount,
+  filterTooltip,
   persistenceKey,
+  emptyMessage,
 }: Props<RecordType>) {
   const { css, join } = useStyles();
   const { columns } = useColumns<RecordType>({ providedColumns, unitName, removeLabel, onEdit, onRemove, editIcon, canRemove });
@@ -172,6 +182,7 @@ export const Table = createComponent('Table', function <RecordType extends Recor
               delayRendering={delayRenderingRows}
               isInitialLoading={totalRecords == null}
             />
+            {emptyMessage != null && totalRecords === 0 && !recordsLoading && <ListEmptyMessage>{emptyMessage}</ListEmptyMessage>}
             <UIState isLoading={recordsLoading}>
               <InternalListFooter
                 total={totalRecords}
@@ -182,6 +193,11 @@ export const Table = createComponent('Table', function <RecordType extends Recor
                 onAdd={onAdd}
                 addLabel={addLabel}
                 addTooltip={addTooltip}
+                totalSuffix={totalSuffix}
+                filter={filter}
+                onFilter={onFilter}
+                activeFilterCount={activeFilterCount}
+                filterTooltip={filterTooltip}
                 footerClassName={css.tableFooter}
               />
             </UIState>

@@ -12,6 +12,9 @@ import { useScroller } from '../Scroller/useScroller';
 import { Flex } from '../Flex';
 import { Text } from '../Text';
 import { Scroller } from '../Scroller';
+import { Dialogs } from '../Dialog/Dialogs';
+import { Checkbox } from '../Checkbox';
+import type { ListFilter } from '../InternalList/ListFilterDialog';
 
 function ScrollPositionLabel() {
   const { scrollTop } = useScroller();
@@ -404,6 +407,36 @@ export const InlineListWithTooMuchContentInsideScrollableContainer: Story = crea
           />
         </Flex>
       </Scroller>
+    );
+  },
+});
+
+/** The footer's Filter button with its own dialog: the fields edit a draft, Apply/Clear/Cancel, and a badge of active filters. */
+export const ListWithFilter: Story = createStory<ListDefault>({
+  args: {
+    label: 'List',
+  },
+  parameters: { test: { skipScreenshot: true } },
+  width: 360,
+  height: 360,
+  render: () => {
+    const [isShortOnly, setIsShortOnly] = useState(false);
+    const items = isShortOnly ? staticItems.filter(({ text }) => text.length < 10) : staticItems;
+    const filter: ListFilter<{ isShortOnly: boolean }> = {
+      value: { isShortOnly },
+      defaultValue: { isShortOnly: false },
+      onChange: ({ isShortOnly: value }) => setIsShortOnly(value),
+      countActive: ({ isShortOnly: value }) => (value ? 1 : 0),
+      title: 'Filter Items',
+      renderFields: (draft, setDraft) => (
+        <Checkbox label="Only short names" value={draft.isShortOnly} onChange={value => setDraft({ isShortOnly: value })} />
+      ),
+    };
+
+    return (
+      <Dialogs>
+        <List label="Items" items={items} filter={filter} totalSuffix={isShortOnly ? 'with short names' : undefined} fullHeight />
+      </Dialogs>
     );
   },
 });
