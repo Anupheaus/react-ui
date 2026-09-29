@@ -165,7 +165,8 @@ interface Props {
   disableScrolling?: boolean;
   /**
    * Grow the window when its content grows past it (up to the space available), instead of scrolling the new content
-   * inside the size it opened at. Dialogs do this by default; a window the user can resize does not need to.
+   * inside the size it opened at, and give that growth back when the content goes. Stops once the user resizes it.
+   * Dialogs the user cannot resize do this by default.
    */
   fitToContent?: boolean;
   children?: ReactNode;
@@ -216,6 +217,8 @@ export const Window = createComponent('Window', ({
   const isDraggable = !disableDrag && !isMaximized && !isMobile;
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
   const [isResizing, setIsResizing] = useState(false);
+  // Once the user resizes the window its size is theirs: fitToContent never changes it again.
+  const [hasUserResized, setHasUserResized] = useState(false);
   const { ValidateSection, isValid } = useValidation();
   const { FormObserver, getIsDirty } = useFormObserver();
   const { showError } = useNotifications();
@@ -248,6 +251,7 @@ export const Window = createComponent('Window', ({
   });
   useFitWindowToContent({
     isEnabled: fitToContent && !disableScrolling && preparationClassName == null && isMaximized !== true && !isMobile,
+    hasUserResized,
     windowElementRef,
     setState,
   });
@@ -271,6 +275,7 @@ export const Window = createComponent('Window', ({
 
   const handleResizingStart = useBound(() => {
     setIsResizing(true);
+    setHasUserResized(true);
     focus();
   });
 
