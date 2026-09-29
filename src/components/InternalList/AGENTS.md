@@ -142,12 +142,46 @@ The footer bar (Add button, item count, summary, error) is provided by the sibli
 | `onAdd` | `() => PromiseMaybe<void>` | No | If provided, renders an Add button on the left. |
 | `addLabel` | `string` | No | Text shown beside the Add icon. |
 | `addTooltip` | `ReactNode` | No | Tooltip content for the Add button. |
+| `totalSuffix` | `ReactNode` | No | Words after the count — `3 tasks` + `assigned to you`, `4 appointments` + `(1 cancelled)`. |
+| `filter` | `ListFilter<F>` | No | Filtering with fields the footer shows in its own dialog (see **Filtering** below). Shows the Filter button. |
+| `onFilter` | `() => PromiseMaybe<void>` | No | Called when the Filter button is pressed — for a screen with its own filter dialog. Shows the Filter button. |
+| `activeFilterCount` | `number` | No | The Filter button's badge; no badge at 0. Defaults to `filter.countActive(filter.value)`. |
+| `filterTooltip` | `ReactNode` | No | The Filter button's tooltip; `"Filter"` when absent. |
 | `footerClassName` | `string` | No | Extra class applied to the footer root — used by `Table` to apply its themed background colour. |
 
 ### Layout
 
 ```
-[ Add button ] [ error (if any) ] [ ─── spacer ─── ] [ summary (if any) ] [ N unit(s) ]
+[ Add button ] [ error (if any) ] [ ─── spacer ─── ] [ summary (if any) ] [ Filter (badge) ] [ N unit(s) suffix ]
+```
+
+### Filtering
+
+Every list and table filters the same way: a **Filter** button (funnel icon and the word) just left of the count,
+with a badge showing how many filters are active (no badge when none are). It shows only when the screen filters:
+
+- **`filter`** — the screen gives its fields; the footer opens its own dialog (`ListFilterDialog`): the fields edit a
+  draft of `value`, **Apply** hands the draft to `onChange`, **Clear** hands `defaultValue` to `onChange`, **Cancel**
+  (or the close button) changes nothing. `countActive(value)` gives the badge; `title` the dialog's title
+  (e.g. `"Filter Tasks"`).
+- **`onFilter`** + **`activeFilterCount`** — the screen opens its own filter dialog.
+
+Both may be given: `onFilter` runs first, then the dialog opens. The dialog needs a mounted `<Dialogs>`.
+
+```tsx
+<Table
+  columns={columns}
+  onRequest={onRequest}
+  unitName="task"
+  filter={{
+    value: filters,
+    defaultValue: DEFAULT_FILTERS,
+    onChange: setFilters,
+    countActive: countFilters,
+    title: 'Filter Tasks',
+    renderFields: (draft, setDraft) => <Checkbox label="Only late tasks" value={draft.isLateOnly} onChange={isLateOnly => setDraft({ ...draft, isLateOnly })} />,
+  }}
+/>
 ```
 
 ---

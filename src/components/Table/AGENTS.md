@@ -32,6 +32,9 @@ A data table component that supports **request-based (lazy) loading**, configura
 | `actions` | `UseActions<TableActions>` | Optional. Exposes table actions to the parent. |
 | `className` | `string` | Optional. Root class. |
 | `persistenceKey` | `string` | Optional. When provided, table settings (e.g. column widths) are persisted to `localStorage` under this key. Omit to disable persistence. |
+| `emptyMessage` | `ReactNode` | Optional. Shown centred in the body when there are no rows — what the table is for and what to do next. |
+| `filter` / `onFilter` / `activeFilterCount` / `filterTooltip` / `totalSuffix` | | Optional. The footer's Filter button and the words after the count — see [InternalListFooter](../InternalList/AGENTS.md#filtering). |
+| column `width` | | A column given no width is `DEFAULT_TABLE_COLUMN_WIDTH` (200) wide, never the few pixels its header measured while loading. |
 
 ### Persistence
 

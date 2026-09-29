@@ -5,7 +5,7 @@ import {
   FiAlertCircle, FiCheck, FiChevronRight, FiColumns, FiHelpCircle, FiImage, FiMaximize, FiMinimize, FiMinus, FiPlus, FiRefreshCw, FiX,
   FiEye, FiEyeOff, FiChevronDown, FiLock, FiCalendar, FiEdit2, FiMoreVertical, FiUser, FiCopy, FiArrowUp, FiArrowDown,
   FiSliders, FiMail, FiPhone, FiTrash2, FiAlertTriangle,
-  FiChevronLeft
+  FiChevronLeft, FiFilter
 } from 'react-icons/fi/index.js';
 import { MdBusinessCenter, MdOutlineCopyAll, MdOutlineSick } from 'react-icons/md/index.js';
 import type { IconType } from '../../theme';
@@ -53,6 +53,7 @@ export const LocalIconDefinitions = {
   'arrow-up': FiArrowUp,
   'arrow-down': FiArrowDown,
   'filters': FiSliders,
+  'list-filter': FiFilter,
   'email': FiMail,
   'phone': FiPhone,
   'delete-list-item': FiTrash2,

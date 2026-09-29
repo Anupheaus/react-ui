@@ -1,5 +1,11 @@
 export const TABLE_ACTIONS_COLUMN_ID = 'table-actions';
 
+/**
+ * The width of a column given none: enough for a name or a title. Without it the column took whatever width its header
+ * cell measured while the table was loading, which could be a few pixels ("N."), squashing every value in it.
+ */
+export const DEFAULT_TABLE_COLUMN_WIDTH = 200;
+
 /** Matches `TableRows` container `borderWidth`. Offsets header padding when aligning with the body scroller. */
 export const TABLE_BODY_BORDER_WIDTH = 1;
 

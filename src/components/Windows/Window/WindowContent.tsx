@@ -15,6 +15,8 @@ const useStyles = createStyles(({ windows: { content } }) => ({
   },
   contentInner: {
     padding: content.active.padding,
+    // Content never widens the window past its own edge: a wide child scrolls or wraps inside it instead.
+    minWidth: 0,
 
     '&.no-padding': {
       padding: 0,
