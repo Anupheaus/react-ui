@@ -17,6 +17,7 @@ When `WindowsManager` decides to render an open window, it passes control to `Wi
 
 ### Content and actions
 - `WindowContent.tsx` — wraps children in a `Scroller` unless `disableScrolling` is set via `WindowContext`. The no-scroll path allows the window height to be driven by content measurement rather than the ResizeObserver path.
+- `useFitWindowToContent.ts` / `fitWindowToContent.ts` — with `fitToContent` (Dialogs set it by default), once the window has sized itself it watches its content scroller and grows the window by however much the content overflows, up to its host's size, re-centred. It never shrinks. Off while maximised, on mobile (a bottom sheet already fits its content) and with `disableScrolling`.
 - `WindowAction.tsx` — a single action button rendered in the window's bottom action bar. Reads `WindowRenderContext` to expose `close()` to the action.
 - `WindowActions.tsx` — the bottom action bar container. Renders a `Flex` row of `WindowAction` children above the window content.
 - `WindowOkAction.tsx` — a pre-built "OK" action that validates the window contents before closing.

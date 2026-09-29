@@ -10,6 +10,9 @@ import { createDialog } from './createDialog';
 import { useDialog } from './useDialog';
 import { useConfirmationDialog } from './useConfirmationDialog';
 import type { ReactNode } from 'react';
+import { useMemo, useState } from 'react';
+import { DropDown } from '../DropDown';
+import { Radio } from '../Radio';
 
 const meta: Meta<typeof DialogType> = {
   component: DialogType,
@@ -104,3 +107,54 @@ export const MobileBottomSheet: Story = {
     );
   },
 };
+
+const PRODUCT_TYPES = [{ id: 'roller', text: 'Roller Blind' }, { id: 'vertical', text: 'Vertical Blind' }];
+const TUBE_SIZES = [{ id: '25', text: '25mm' }, { id: '32', text: '32mm' }, { id: '40', text: '40mm' }, { id: '45', text: '45mm' }];
+
+/** Content that grows after the dialog opens: picking a type adds fields. The dialog grows to fit them (sc-693). */
+const GrowingContent = () => {
+  const [type, setType] = useState<string>();
+  const [tube, setTube] = useState<string>();
+  const [chain, setChain] = useState<string>();
+  const extraFields = useMemo(() => (type == null ? null : (
+    <>
+      <Radio label="Tube size" values={TUBE_SIZES} value={tube} onChange={setTube} isHorizontal />
+      <Radio label="Chain side" values={[{ id: 'left', text: 'Left' }, { id: 'right', text: 'Right' }]} value={chain} onChange={setChain} isHorizontal />
+      <DropDown label="Fabric range" values={PRODUCT_TYPES} />
+    </>
+  )), [type, tube, chain]);
+  return (
+    <Flex isVertical gap={8}>
+      <DropDown label="Product type" values={PRODUCT_TYPES} value={type} onChange={setType} />
+      {extraFields}
+    </Flex>
+  );
+};
+
+const GrowingDialogDefinition = createDialog('GrowingDialog', ({ Dialog, Content, Actions, OkButton }) => () => (
+  <Dialog title="Add a product" minWidth={420}>
+    <Content>
+      <GrowingContent />
+    </Content>
+    <Actions>
+      <OkButton />
+    </Actions>
+  </Dialog>
+));
+
+export const ContentThatGrows: Story = {
+  args: {},
+  render: () => {
+    const { openGrowingDialog } = useDialog(GrowingDialogDefinition);
+    const onOpen = useBound(() => { void openGrowingDialog(); });
+    return (
+      <Flex tagName="dialog-test" valign="top" align="left" isVertical>
+        <Button onClick={onOpen}>Open</Button>
+        <StorybookComponent width={1200} height={600} showComponentBorders>
+          <Dialogs />
+        </StorybookComponent>
+      </Flex>
+    );
+  },
+};
+ContentThatGrows.name = 'Content that grows after opening';

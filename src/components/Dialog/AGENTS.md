@@ -74,3 +74,7 @@ if (confirmed) {
 ---
 
 [← Back to Components](../AGENTS.md)
+
+## Content that grows
+
+A dialog grows with its content: when fields appear after it has opened (a choice adds them), it grows to show them, up to the size of the screen, and scrolls only beyond that (`Window`'s `fitToContent`, on for every `Dialog`). Pass `disableFitToContent` to keep the size it opened at. See the "Content that grows after opening" story.

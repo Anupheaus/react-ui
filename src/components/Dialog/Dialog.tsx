@@ -9,6 +9,8 @@ export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximize
   allowDrag?: boolean;
   allowResize?: boolean;
   disableBlurBackground?: boolean;
+  /** Keep the size the dialog opens at even when its content grows (it then scrolls). By default a dialog grows to fit. */
+  disableFitToContent?: boolean;
 }
 
 const useStyles = createStyles({
@@ -25,6 +27,7 @@ export const Dialog = createComponent('Dialog', ({
   allowDrag = false,
   allowResize = false,
   disableBlurBackground: _ignored,
+  disableFitToContent = false,
   ...props
 }: Props) => {
   const { css, join } = useStyles();
@@ -38,6 +41,7 @@ export const Dialog = createComponent('Dialog', ({
       hideCloseButton={!allowCloseButton}
       disableDrag={!allowDrag}
       disableResize={!allowResize}
+      fitToContent={!disableFitToContent}
     />
   );
 
