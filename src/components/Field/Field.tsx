@@ -33,7 +33,7 @@ function validateAdornments(adornments: ReactNode | ReactNode[]): boolean {
   return true;
 }
 
-const useStyles = createStyles(({ pseudoClasses, fields: { content: { normal, active } } }, { applyTransition }) => ({
+const useStyles = createStyles(({ pseudoClasses, text, fields: { content: { normal, active, readOnly } } }, { applyTransition }) => ({
   field: {
     display: 'flex',
     flexGrow: 0,
@@ -59,6 +59,9 @@ const useStyles = createStyles(({ pseudoClasses, fields: { content: { normal, ac
   },
   fieldContainer: {
     backgroundColor: normal.backgroundColor,
+    // The field draws its own background, so it sets its own text colour too: inherited, a field in a dark window
+    // header showed its value white on its light background.
+    color: normal.textColor ?? text.color,
     borderColor: normal.borderColor,
     borderRadius: normal.borderRadius,
     display: 'flex',
@@ -79,6 +82,7 @@ const useStyles = createStyles(({ pseudoClasses, fields: { content: { normal, ac
 
     [pseudoClasses.active]: {
       borderColor: active.borderColor,
+      color: active.textColor,
     },
   },
   fieldContent: {
@@ -94,6 +98,7 @@ const useStyles = createStyles(({ pseudoClasses, fields: { content: { normal, ac
   },
   isReadOnly: {
     userSelect: 'none',
+    color: readOnly.textColor,
   },
   toolbarAtEnd: {
     borderRadius: 0,

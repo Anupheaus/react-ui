@@ -3,6 +3,9 @@ import { createStorybookComponentStates } from '../../Storybook/createStorybookC
 import { useState } from 'react';
 import { DropDown } from './DropDown';
 import type { ListItem } from '@anupheaus/common';
+import { Text } from '../Text';
+import { Flex } from '../Flex';
+import { createStyles } from '../../theme';
 
 const meta: Meta<typeof DropDown> = {
   component: DropDown,
@@ -39,3 +42,28 @@ const waitForStoryReady = async () => {
 export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
 UIStates.name = 'UI States';
 UIStates.play = waitForStoryReady;
+
+const useDarkBackgroundStyles = createStyles({
+  darkHeader: {
+    backgroundColor: '#2f3a4a',
+    color: 'white',
+    padding: 16,
+  },
+});
+
+/** Fields own their colours: on a dark header that sets white text, the value still reads dark on the light field. */
+export const OnADarkBackground: Story = {
+  render: () => {
+    const { css } = useDarkBackgroundStyles();
+    const [value, setValue] = useState<string | undefined>('1');
+    const [text, setText] = useState('Some text');
+    return (
+      <Flex className={css.darkHeader} gap={16}>
+        <DropDown label="Version" value={value} onChange={setValue} values={options} />
+        <Text label="Name" value={text} onChange={setText} />
+      </Flex>
+    );
+  },
+};
+OnADarkBackground.name = 'On a dark background';
+OnADarkBackground.play = waitForStoryReady;

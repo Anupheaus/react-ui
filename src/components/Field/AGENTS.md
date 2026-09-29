@@ -115,3 +115,7 @@ function MyForm() {
 ---
 
 [← Back to Components](../AGENTS.md)
+
+## Colours
+
+A field owns its colours. The container takes its background and border from `theme.fields.content`, and its text colour from `theme.fields.content.normal.textColor`, falling back to `theme.text.color` (with `active`/`readOnly` overrides). It never inherits `color` from where it is placed, so a field in a dark window header still shows its value dark on its light background (see the DropDown story "On a dark background").
