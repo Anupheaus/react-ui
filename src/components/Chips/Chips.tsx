@@ -50,6 +50,7 @@ export const Chips = createComponent('Chips', function <T extends string = strin
       {...props}
       value={SELECTION_ID}
       renderSelectedValue={renderChips}
+      selectionCount={value?.length ?? 0}
       tagName="chips"
       onChange={handleSelected}
     />
