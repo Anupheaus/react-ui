@@ -28,6 +28,10 @@ const useStyles = createStyles(({ calendar, fields: { content: { normal } } }) =
   },
   monthView: {
     display: 'grid',
+    // Fill the calendar: with no label the grid is a flex item of the calendar's row, where it would otherwise
+    // size to its content and leave an empty strip beside it. border-box keeps its border inside that width.
+    width: '100%',
+    boxSizing: 'border-box',
     gridTemplateColumns: 'repeat(7, 1fr)',
     gridGap: 1,
     minWidth: 400,

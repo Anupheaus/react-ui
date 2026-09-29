@@ -403,6 +403,19 @@ export const MonthViewDefault: Story = createStory({
 });
 MonthViewDefault.name = 'Month View — Default';
 
+/** No label, in a container much wider than the grid needs: the seven columns share the full width (sc-675). */
+export const MonthViewWideContainer: Story = createStory({
+  width: 1400,
+  height: 600,
+  render: () => (
+    <Calendar
+      entries={monthViewEntries}
+      viewingDate={VIEWING_DATE}
+    />
+  ),
+});
+MonthViewWideContainer.name = 'Month View — Wide Container';
+
 /** A count on the days that have something extra to say — the shape a task or reminder badge takes. */
 const DAY_COUNTS: { [isoDate: string]: number } = {
   '2025-06-10': 3,
