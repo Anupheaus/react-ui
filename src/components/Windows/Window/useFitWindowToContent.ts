@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { WindowState } from '../WindowsModels';
 import { fitWindowToContent } from './fitWindowToContent';
 
@@ -32,13 +32,20 @@ function measureContentHeight(content: HTMLElement): number {
  * in, so the new content shows rather than scrolling in a strip the size of the dialog's first render.
  */
 export function useFitWindowToContent({ isEnabled, windowElementRef, setState }: Props): void {
+  // setState changes identity every render; the observers read the latest through a ref rather than re-subscribing.
+  const setStateRef = useRef(setState);
+  setStateRef.current = setState;
+  // The height the window opened at, taken once: it is the floor it never shrinks below.
+  const openedHeightRef = useRef<number>();
+
   useEffect(() => {
     if (!isEnabled) return;
     const windowElement = windowElementRef.current;
     const scrollerContainer = windowElement?.querySelector<HTMLElement>(CONTENT_SCROLLER_SELECTOR);
     const content = scrollerContainer?.querySelector<HTMLElement>(':scope > scroller-content');
     if (windowElement == null || scrollerContainer == null || content == null) return;
-    const openedHeight = windowElement.offsetHeight;
+    openedHeightRef.current ??= windowElement.offsetHeight;
+    const openedHeight = openedHeightRef.current;
 
     const fitToContent = () => {
       const space = windowElement.parentElement;
@@ -49,13 +56,20 @@ export function useFitWindowToContent({ isEnabled, windowElementRef, setState }:
         space: { width: space.clientWidth, height: space.clientHeight },
         openedHeight,
       });
-      if (fit != null) setState(fit);
+      if (fit != null) setStateRef.current(fit);
     };
 
     // The content box and what is in it: a child that grows wider overflows without resizing the content box itself.
-    const observer = new ResizeObserver(fitToContent);
-    observer.observe(content);
-    Array.from(content.children).forEach(child => observer.observe(child));
-    return () => observer.disconnect();
-  }, [isEnabled, windowElementRef, setState]);
+    const resizeObserver = new ResizeObserver(fitToContent);
+    resizeObserver.observe(content);
+    Array.from(content.children).forEach(child => resizeObserver.observe(child));
+    // Content that gets shorter resizes nothing — the scroller keeps it stretched to the window — so fields coming and
+    // going is watched for too.
+    const mutationObserver = new MutationObserver(fitToContent);
+    mutationObserver.observe(content, { childList: true, subtree: true });
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [isEnabled, windowElementRef]);
 }
