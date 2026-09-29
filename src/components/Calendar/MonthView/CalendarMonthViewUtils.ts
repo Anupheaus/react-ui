@@ -19,6 +19,8 @@ function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: 
         for (let row = 1; row <= validEntriesForToday.length + 1; row++) {
           if (usedRows.includes(row)) continue;
           monthEntry.renderedOnRow = row;
+          // Taken now, so the day's next entry goes on the row below rather than on top of this one.
+          usedRows.push(row);
           break;
         }
       });
@@ -29,8 +31,9 @@ function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: 
 
 function findFirstDateFor(date: Date): [Date, Date] {
   const firstOfTheMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstDay = firstOfTheMonth.getDay();
-  const firstDate = DateTime.fromJSDate(firstOfTheMonth).minus({ days: firstDay }).toJSDate();
+  // getDay() counts from Sunday (0); the grid's columns run MON–SUN, so count days back to the Monday.
+  const daysSinceMonday = (firstOfTheMonth.getDay() + 6) % 7;
+  const firstDate = DateTime.fromJSDate(firstOfTheMonth).minus({ days: daysSinceMonday }).toJSDate();
   const endDate = DateTime.fromJSDate(firstDate).plus({ days: 35 }).toJSDate();
   return [firstDate, endDate];
 }

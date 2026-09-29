@@ -11,6 +11,8 @@ A multi-select input that renders selected items as removable chip tokens inside
 | `onChange` | `(values: T[]) => void` | No | Called with the updated selection after an item is added or removed. |
 | *(InternalDropDownProps)* | | | All `InternalDropDown` props are forwarded (e.g. `label`, `error`, `disabled`, `readOnly`, `placeholder`). |
 
+**Validation.** Like every field, Chips is required unless `isOptional` is set: a required Chips field is invalid ("Please select a value") until at least one chip is chosen. It passes its selection count to `InternalDropDown` (`selectionCount`), because its selection is a list rather than one of `values`; an optional Chips field therefore offers no "N/A" option — an empty selection already means none.
+
 ## Usage
 
 ```tsx

@@ -47,7 +47,7 @@ interface HarnessProps {
 // test can invoke it after `isTruncated` has settled.
 function Harness({ onSelect, truncated, clickRef }: HarnessProps) {
   const stubbed = useRef(false);
-  const { target, onClick } = useCalendarEntryExpand('some long entry title', '#fff', onSelect);
+  const { target, onClick } = useCalendarEntryExpand({ content: 'some long entry title', color: '#fff', onSelect });
   clickRef.current = onClick;
   return (
     <div

@@ -10,6 +10,7 @@ import { calendarDayUtils } from './CalendarDayUtils';
 import type { ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
 import { Label } from '../../Label';
+import { useLocale } from '../../../providers/LocaleProvider';
 
 const useStyles = createStyles(({ surface: { asAContainer: { normal } } }) => ({
   dayView: {
@@ -45,12 +46,13 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
+  const { formatDate } = useLocale();
   const calendarDayViewElementRef = useRef<HTMLDivElement | null>(null);
 
-  // Default the header to the viewing date when no explicit label is supplied.
+  // Default the header to the viewing date ("Monday 28 September" in en-GB), in the app's locale, not the machine's.
   const resolvedLabel = useMemo(
-    () => label ?? viewingDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
-    [label, viewingDate],
+    () => label ?? formatDate(viewingDate, { format: 'cccc d MMMM' }),
+    [label, viewingDate, formatDate],
   );
 
   const dayAdornment = useMemo(() => renderDayAdornment?.(viewingDate), [renderDayAdornment, viewingDate]);

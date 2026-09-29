@@ -60,6 +60,12 @@ export interface InternalDropDownProps extends FieldProps {
 interface Props extends InternalDropDownProps {
   tagName: string;
   renderSelectedValue?(value: ReactListItem | undefined): ReactNode;
+  /**
+   * Set by a multi-select (`Chips`), whose selection is a list rather than one of `values`: how many items are
+   * selected. Required validation then checks that at least one is, and an optional field offers no "N/A" option,
+   * because an empty selection already means none.
+   */
+  selectionCount?: number;
 }
 
 const defaultOnFilterValues = (values: ReactListItem[]) => values;
@@ -76,12 +82,17 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   renderSelectedValue,
   onChange,
   onBlur,
+  selectionCount,
   ...props
 }: Props) {
   const { css, join } = useStyles();
   const { isReadOnly } = useUIState();
   const { response: rawValues, isLoading: isLoadingValues } = useAsync(() => onFilterValues(providedValues ?? []), [providedValues, onFilterValues]);
-  const values = useMemo(() => addOptionalItemTo(rawValues, isOptional, optionalItemLabel), [rawValues, isOptional, optionalItemLabel]);
+  const isMultiSelect = selectionCount != null;
+  const values = useMemo(
+    () => (isMultiSelect ? rawValues ?? [] : addOptionalItemTo(rawValues, isOptional, optionalItemLabel)),
+    [rawValues, isOptional, optionalItemLabel, isMultiSelect],
+  );
   const value = useMemo(() => values.findById(providedValue ?? optionalItemKey), [providedValue, values]);
   const anchorRef = useRef<HTMLElement | null>(null);
   const { target: resizeTarget, width } = useOnResize({ observeWidthOnly: true });
@@ -108,7 +119,9 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     setIsOpen();
   });
 
-  const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(value, !isOptional, requiredMessage));
+  // A multi-select's value never resolves to one of the options, so it is the selection count that must be present.
+  const requiredValue = isMultiSelect ? (selectionCount > 0 ? selectionCount : undefined) : value;
+  const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(requiredValue, !isOptional, requiredMessage));
 
   const handleClosed = useBound(() => {
     enableErrors();

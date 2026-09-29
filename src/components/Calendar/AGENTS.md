@@ -82,6 +82,7 @@ interface CalendarEntryRecord {
   isAllDay?: boolean;
   isBusy?: boolean;
   title?: ReactNode;          // omit or pass '' while loading; Typography shows a random-width skeleton
+  monthTitle?: ReactNode;     // one-line summary for month chips (e.g. "09:30 Mrs Smith"); hover shows `title`
   description?: ReactNode;
   color?: string;           // hex/CSS colour used to tint the entry chip
   icon?: IconName;          // icon shown inside the entry chip
@@ -93,6 +94,8 @@ interface CalendarEntryRecord {
 ## Entry rendering and expand-on-truncation
 
 Entries render their `title` as multi-line content clipped to the entry box. Day and week entries are sized by their duration (taller entries fit more lines); month entries are a fixed-height pill. Content that overflows the box is clipped.
+
+**Month summaries.** A month chip is one 19px line, so an entry whose `title` is a multi-line card can give the month view a `monthTitle` instead: the chip shows it on one line with an ellipsis, and hovering always shows the full `title` in the overlay below (`useCalendarEntryExpand({ …, isSummary: true })`). Without one the chip shows `title`. Day and week views always show `title`.
 
 When an entry's content is truncated (it doesn't fit the box), hovering the entry shows an in-place overlay anchored over it. The overlay starts at the entry's rendered width/height and grows to fit the full content, while being kept within the viewport (it is a MUI `Popover`). When the content fully fits, no overlay appears. This is automatic — there is no prop to enable it — and applies to the day, week, and month views.
 

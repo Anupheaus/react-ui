@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { useMemo } from 'react';
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
+import { Tag } from '../../Tag';
 import { Icon } from '../../Icon';
 import { createStyles } from '../../../theme';
 import { useBound } from '../../../hooks';
@@ -11,6 +12,7 @@ import { CalendarUtils } from '../CalendarUtils';
 import { useCalendarEntryHighlighting } from '../CalenderEntryHighlightProvider';
 import { useCalendarEntryExpand } from '../useCalendarEntryExpand';
 import { CalendarMonthViewUtils } from './CalendarMonthViewUtils';
+import { MONTH_ENTRY_HEIGHT, getMonthEntryTop } from './CalendarMonthViewLayout';
 
 interface Props {
   entry: CalendarEntryRecord;
@@ -20,7 +22,6 @@ interface Props {
   dayIndex: number;
 }
 
-const MONTH_ENTRY_HEIGHT = 19;
 
 const useStyles = createStyles(({ surface: { shadows } }, { applyTransition }) => ({
   cellEntry: {
@@ -68,6 +69,14 @@ const useStyles = createStyles(({ surface: { shadows } }, { applyTransition }) =
     fontSize: 11,
     lineHeight: 1.3,
   },
+  // A month summary is one line, centred in the chip and cut short with an ellipsis; the full title is a hover away.
+  entrySummary: {
+    flex: '1 1 auto',
+    minWidth: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+  },
 }));
 
 export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCellEntry', ({
@@ -87,13 +96,14 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
   const spanWidth = `calc(${widthInDays} * 100% + ${widthInDays - 1}px)`;
   const showIconAndTitle = CalendarMonthViewUtils.shouldShowEntryLabel(entry, cellDate, dayIndex, viewingDate);
   const entryColor = entry.color ?? theme.paletteColours[renderedOnRow % theme.paletteColours.length]!;
-  const { target, onMouseEnter: expandEnter, onMouseLeave: expandLeave, overlay } = useCalendarEntryExpand(entry.title, entryColor);
+  const hasSummary = entry.monthTitle != null;
+  const { target, onMouseEnter: expandEnter, onMouseLeave: expandLeave, overlay } = useCalendarEntryExpand({ content: entry.title, color: entryColor, isSummary: hasSummary });
 
   const handleMouseEnter = useBound(() => { highlight(); expandEnter(); });
   const handleMouseLeave = useBound(() => { dehighlight(); expandLeave(); });
 
   const cellEntryStyle = useMemo<CSSProperties>(() => ({
-    top: renderedOnRow * 20,
+    top: getMonthEntryTop(renderedOnRow),
     minWidth: spanWidth,
     width: spanWidth,
   }), [renderedOnRow, spanWidth]);
@@ -125,7 +135,7 @@ export const CalendarMonthViewCellEntry = createComponent('CalendarMonthViewCell
         {showIconAndTitle && entry.icon != null && <Icon name={entry.icon} size="small" />}
         {showIconAndTitle && (
           <Flex tagName="calendar-month-cell-entry-title-wrapper" className={css.entryTitleWrapper}>
-            {entry.title}
+            {hasSummary ? <Tag name="calendar-month-cell-entry-summary" className={css.entrySummary}>{entry.monthTitle}</Tag> : entry.title}
           </Flex>
         )}
       </Flex>

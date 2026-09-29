@@ -13,7 +13,10 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
 - `CalendarMonthViewCell.tsx` — a single day cell. Shows the day number and a list of `CalendarMonthViewCellEntry` chips for entries on that day. Receives `dehighlightDate` when the cell belongs to the previous or next month.
 - `CalendarMonthViewCellEntry.tsx` — a single entry chip inside a day cell. Uses the same chip styling as the day/week views (solid background colour, light shadow, 8px rounded corners, 11px title) plus an optional `icon`. The icon and title appear on the entry start day and on Monday continuations when the event began in a previous month relative to `viewingDate`; other week-row continuations show the coloured bar only. Multi-day segments round only the visible start/end edges. Entry titles use `Typography` so empty-title loading skeletons still render.
 
+**Chips.** A day cell's header row (the date and any day adornment) is a fixed `MONTH_CELL_HEADER_HEIGHT`, and chips stack below it, one per `renderedOnRow`, so none covers the date. A chip shows the entry's `monthTitle` when it has one — on one line, ellipsised, with the full `title` in the hover overlay — and `title` otherwise. When a day has more rows of chips than fit (`MONTH_VISIBLE_ROWS`, 3), its last row says "+N more" instead.
+
 ### Models and utilities
+- `CalendarMonthViewLayout.ts` — the cell's geometry (`MONTH_CELL_HEIGHT`, `MONTH_CELL_HEADER_HEIGHT`, `MONTH_ROW_HEIGHT`, `MONTH_VISIBLE_ROWS`), `getMonthEntryTop(row)` and `fitMonthCellEntries(entries)` (the chips that fit, and how many are hidden).
 - `CalendarMonthViewModels.ts` — internal types for the month view (grouped entry records per cell).
 - `CalendarMonthViewUtils.ts` — calendar math helpers:
   - `findFirstDateFor(viewingDate)` — returns `[firstDate, endDate]` where `firstDate` is the Monday of the week containing the 1st of the month

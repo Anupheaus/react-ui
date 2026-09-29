@@ -18,6 +18,7 @@ import { DEFAULT_WINDOW_MIN_HEIGHT, DEFAULT_WINDOW_MIN_WIDTH } from '../WindowsC
 import { useWindowEvents } from './useWindowEvents';
 import { useWindowState } from './useWindowState';
 import { useWindowDimensions } from './useWindowDimensions';
+import { useFitWindowToContent } from './useFitWindowToContent';
 import { UIState, useValidation } from '../../../providers';
 import { WindowValidationProvider } from './WindowValidationContext';
 import { useFormObserver } from '../../Form';
@@ -162,6 +163,12 @@ interface Props {
   disableDrag?: boolean;
   disableResize?: boolean;
   disableScrolling?: boolean;
+  /**
+   * Grow the window when its content grows past it (up to the space available), instead of scrolling the new content
+   * inside the size it opened at, and give that growth back when the content goes. Stops once the user resizes it.
+   * Dialogs the user cannot resize do this by default.
+   */
+  fitToContent?: boolean;
   children?: ReactNode;
   minWidth?: string | number;
   minHeight?: string | number;
@@ -186,6 +193,7 @@ export const Window = createComponent('Window', ({
   disableDrag = false,
   disableResize = false,
   disableScrolling = false,
+  fitToContent = false,
   windowControls = null,
   width: providedWidth,
   height: providedHeight,
@@ -209,6 +217,8 @@ export const Window = createComponent('Window', ({
   const isDraggable = !disableDrag && !isMaximized && !isMobile;
   const { ref: resizeTarget, height: actualHeight, width: actualWidth } = useResizeObserver();
   const [isResizing, setIsResizing] = useState(false);
+  // Once the user resizes the window its size is theirs: fitToContent never changes it again.
+  const [hasUserResized, setHasUserResized] = useState(false);
   const { ValidateSection, isValid } = useValidation();
   const { FormObserver, getIsDirty } = useFormObserver();
   const { showError } = useNotifications();
@@ -239,6 +249,12 @@ export const Window = createComponent('Window', ({
     windowElementRef, wantingToBeMaximized: providedIsMaximized, initialPosition, setState,
     contentWrapperRef, disableScrolling,
   });
+  useFitWindowToContent({
+    isEnabled: fitToContent && !disableScrolling && preparationClassName == null && isMaximized !== true && !isMobile,
+    hasUserResized,
+    windowElementRef,
+    setState,
+  });
   const windowElementTarget = useDOMRef([windowElementRef, resizeTarget, dragMovableTarget]);
   const { isVisible } = useWindowEvents({ manager, windowElementRef, id, onClosing, onClosed, onFocus });
 
@@ -259,6 +275,7 @@ export const Window = createComponent('Window', ({
 
   const handleResizingStart = useBound(() => {
     setIsResizing(true);
+    setHasUserResized(true);
     focus();
   });
 

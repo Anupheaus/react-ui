@@ -74,3 +74,7 @@ if (confirmed) {
 ---
 
 [← Back to Components](../AGENTS.md)
+
+## Content that grows
+
+A dialog grows with its content: when fields appear after it has opened (a choice adds them), it grows to show them, up to the size of the screen, and scrolls only beyond that; when they go again it shrinks back, never below the size it opened at (`Window`'s `fitToContent`, on for every `Dialog`). A resizable dialog (`allowResize`) does not fit to its content (its size is the user's), and no dialog is fitted again once the user has resized it; it only ever gives back height it grew by, so a dialog whose list fills it is never shrunk. Pass `disableFitToContent` to keep the size it opened at (or `false` to fit a resizable one). See the "Content that grows after opening" story.
