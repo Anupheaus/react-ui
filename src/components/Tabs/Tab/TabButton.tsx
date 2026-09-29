@@ -25,6 +25,9 @@ const useStyles = createStyles(({ tabs: { button } = {}, buttons: { default: { n
     },
     tabButtonHorizontal: {
       borderRadius: `${borderRadius} ${borderRadius} 0 0 !important`,
+      // Keep each tab its natural width; the strip wraps when they do not all fit.
+      flexShrink: 0,
+      whiteSpace: 'nowrap',
 
       '&::after': {
         position: 'absolute',

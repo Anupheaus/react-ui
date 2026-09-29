@@ -24,6 +24,10 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
       borderBottomStyle: 'solid',
       borderBottomWidth: stripWidth,
       borderBottomColor: stripColor,
+      // More tabs than fit the width wrap onto another row rather than being clipped off the edge, never squashed.
+      minWidth: 0,
+      flexShrink: 0,
+      flexWrap: 'wrap',
 
       '&::before': {
         content: '""',
@@ -63,7 +67,13 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
         display: 'none',
       },
     },
+    // The tabs take the width they are given rather than the width of their widest content (a strip of many tabs, a
+    // wide table), so a window's content never runs past its right edge.
+    tabs: {
+      minWidth: 0,
+    },
     tabsContent: {
+      minWidth: 0,
       display: 'grid',
       position: 'relative',
       gridTemplateColumns: '1fr',
@@ -167,7 +177,7 @@ export const TabsComponent = createComponent('Tabs', ({
   );
 
   return (
-    <Flex tagName="tabs" isVertical={orientation !== 'vertical'} className={className} maxHeight>
+    <Flex tagName="tabs" isVertical={orientation !== 'vertical'} className={join(css.tabs, className)} maxHeight>
       <Tag name="hidden" className={css.hidden}>
         <TabsContext.Provider value={context}>
           {children}

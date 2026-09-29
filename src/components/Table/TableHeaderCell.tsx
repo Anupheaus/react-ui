@@ -9,7 +9,7 @@ import { createStyles } from '../../theme';
 import { useGetTableColumnWidth, useIsManualTableColumnWidth, useSetTableColumnWidth } from './TableColumnWidths';
 import { useTableActionsColumnWidth } from './TableActionsColumnWidthContext';
 import { MIN_TABLE_COLUMN_WIDTH, TableHeaderCellResizeHandle } from './TableHeaderCellResizeHandle';
-import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
+import { DEFAULT_TABLE_COLUMN_WIDTH, TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 import { useTableActionsColumnShadowStyles } from './tableActionsColumnStyles';
 import { Flex } from '../Flex';
 import { useUIState } from '../../providers';
@@ -65,7 +65,7 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
   const isManualWidth = useIsManualTableColumnWidth(columnIndex);
   const isTableActionsColumn = column.id === TABLE_ACTIONS_COLUMN_ID;
   const isResizable = column.isResizable === true && !isTableActionsColumn;
-  const width = isTableActionsColumn ? actionsColumnWidth : columnWidth ?? column.width;
+  const width = isTableActionsColumn ? actionsColumnWidth : columnWidth ?? column.width ?? DEFAULT_TABLE_COLUMN_WIDTH;
 
   const style = useInlineStyle(() => ({
     width,

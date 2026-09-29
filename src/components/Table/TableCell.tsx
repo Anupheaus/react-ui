@@ -8,7 +8,7 @@ import type { AnyObject, Record } from '@anupheaus/common';
 import { TableCellValue } from './TableCellValue';
 import { useGetTableColumnWidth } from './TableColumnWidths';
 import { useTableActionsColumnWidth } from './TableActionsColumnWidthContext';
-import { TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
+import { DEFAULT_TABLE_COLUMN_WIDTH, TABLE_ACTIONS_COLUMN_ID } from './tableConstants';
 
 interface Props {
   column: TableColumn;
@@ -58,7 +58,7 @@ export const TableCell = createComponent('TableCell', ({
   const columnWidth = useGetTableColumnWidth(columnIndex);
   const actionsColumnWidth = useTableActionsColumnWidth();
   const isActionsColumn = column.id === TABLE_ACTIONS_COLUMN_ID;
-  const width = isActionsColumn ? actionsColumnWidth : columnWidth ?? column.width;
+  const width = isActionsColumn ? actionsColumnWidth : columnWidth ?? column.width ?? DEFAULT_TABLE_COLUMN_WIDTH;
 
   const content = useMemo(() => {
     if (column.renderValue) {
