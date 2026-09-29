@@ -142,3 +142,24 @@ describe('useLocale — formatPercentage', () => {
     expect(formatted).toContain('%');
   });
 });
+
+describe('useLocale — formatDate uses the provider locale, not the locale the date carries', () => {
+  // A date made on a US machine, or by a second copy of Luxon in the bundle that LocaleProvider never set, carries
+  // en-US, where a short date reads 9/28/26. The provider's locale must decide how it is shown, not the date's.
+  const usDate = () => DateTime.fromISO('2026-09-28T09:30:00Z', { zone: 'utc', locale: 'en-US' });
+
+  it('formats a short date day first for en-GB', () => {
+    const { result } = renderHook(() => useLocale(), { wrapper });
+    expect(result.current.formatDate(usDate(), { type: 'short', mode: 'date' })).toBe('28/09/2026');
+  });
+
+  it('formats a short date and time day first, on the 24-hour clock, for en-GB', () => {
+    const { result } = renderHook(() => useLocale(), { wrapper });
+    expect(result.current.formatDate(usDate(), { type: 'short', mode: 'datetime' })).toBe('28/09/2026, 09:30');
+  });
+
+  it('names the day and month in the provider locale for a custom format', () => {
+    const { result } = renderHook(() => useLocale(), { wrapper });
+    expect(result.current.formatDate(usDate(), { format: 'ccc d MMM' })).toBe('Mon 28 Sept');
+  });
+});

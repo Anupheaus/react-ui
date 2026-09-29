@@ -27,7 +27,9 @@ export function useLocale() {
   });
 
   const formatDate = useBound((date: DateTime | Date | string | undefined, props?: FormatDateProps): string | undefined => {
-    const luxonDate = toDate(date);
+    // The provider's locale decides, not the one the date carries: a date made by another copy of Luxon, or on a
+    // machine whose default is en-US, would otherwise show as 9/28/26 in an en-GB app.
+    const luxonDate = toDate(date)?.setLocale(settings.locale);
     if (luxonDate == null) return;
     if (is.not.empty(props?.format)) return luxonDate.toFormat(props.format);
     const type = props?.type ?? 'long';

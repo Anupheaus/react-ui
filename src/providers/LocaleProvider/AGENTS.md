@@ -39,6 +39,8 @@ formatNumber(9876, 2);                                    // e.g. '9,876.00'
 formatPercentage(0.42, 1);                                // e.g. '42.0%'
 ```
 
+`formatDate` always formats in the provider's `locale` (it calls `setLocale(settings.locale)` on the date first), whatever locale the date itself carries — a date created on a machine whose default is en-US, or by a second copy of Luxon in the bundle that `LocaleProvider` never configured, still shows day first in an en-GB app.
+
 ---
 
 [← Back to Providers](../AGENTS.md)
