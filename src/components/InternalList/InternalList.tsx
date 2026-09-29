@@ -354,7 +354,8 @@ export const InternalList = createComponent('InternalList', function <T = void>(
         fullHeight={fullHeight}
         useParentContext={useParentScrollContext}
         headerContent={headerContent}
-        style={{ paddingTop: stickyHeaderHeight }}
+        // No sticky header, no room for one: a header that has gone (an empty-list message once items arrive) leaves no gap.
+        style={{ paddingTop: headerContent == null ? undefined : stickyHeaderHeight }}
       >
         {header}
         <InternalListContextProvider deleteTooltip={deleteTooltip} onDelete={onDelete} onActiveChange={handleActiveChange} onSelectChange={handleSelectChange}>
