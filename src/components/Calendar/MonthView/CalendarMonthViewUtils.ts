@@ -31,8 +31,9 @@ function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: 
 
 function findFirstDateFor(date: Date): [Date, Date] {
   const firstOfTheMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-  const firstDay = firstOfTheMonth.getDay();
-  const firstDate = DateTime.fromJSDate(firstOfTheMonth).minus({ days: firstDay }).toJSDate();
+  // getDay() counts from Sunday (0); the grid's columns run MON–SUN, so count days back to the Monday.
+  const daysSinceMonday = (firstOfTheMonth.getDay() + 6) % 7;
+  const firstDate = DateTime.fromJSDate(firstOfTheMonth).minus({ days: daysSinceMonday }).toJSDate();
   const endDate = DateTime.fromJSDate(firstDate).plus({ days: 35 }).toJSDate();
   return [firstDate, endDate];
 }
