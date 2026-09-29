@@ -98,7 +98,21 @@ interface ExpandResult {
   overlay: ReactNode;
 }
 
-export function useCalendarEntryExpand(content: ReactNode, color: string, onSelect?: () => void): ExpandResult {
+/** What `useCalendarEntryExpand` expands. */
+export interface CalendarEntryExpandOptions {
+  /** What the expanded overlay shows: the entry's full title. */
+  content: ReactNode;
+  color: string;
+  /** Called when the entry (or, on touch, its expanded overlay) is chosen. */
+  onSelect?(): void;
+  /**
+   * The entry shows a summary of `content` rather than `content` itself (a month chip's `monthTitle`), so hovering
+   * always expands it — not only when what it shows is cut off.
+   */
+  isSummary?: boolean;
+}
+
+export function useCalendarEntryExpand({ content, color, onSelect, isSummary = false }: CalendarEntryExpandOptions): ExpandResult {
   const elementRef = useRef<HTMLElement | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [isHovered, setIsHovered] = useState(false);
@@ -134,7 +148,7 @@ export function useCalendarEntryExpand(content: ReactNode, color: string, onSele
     event.stopPropagation();
     // Touch + truncated: first tap only expands; the popup (which now covers the entry) is what
     // gets tapped to select. Everything else selects immediately.
-    if (isTouchEnvironment && isTruncated) { open(); return; }
+    if (isTouchEnvironment && (isTruncated || isSummary)) { open(); return; }
     onSelect?.();
   });
 
@@ -142,7 +156,7 @@ export function useCalendarEntryExpand(content: ReactNode, color: string, onSele
 
   useOnUnmount(() => { if (closeTimer.current != null) clearTimeout(closeTimer.current); });
 
-  const overlay = (isTruncated && isHovered && elementRef.current != null)
+  const overlay = ((isTruncated || isSummary) && isHovered && elementRef.current != null)
     ? (
       <CalendarEntryExpandOverlay
         anchor={elementRef.current}

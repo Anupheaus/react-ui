@@ -6,8 +6,9 @@ import { CalendarUtils } from '../CalendarUtils';
 import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 import type { CalendarDayAdornmentRenderer } from '../CalendarModels';
-
-const cellSize = 100;
+import {
+  MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, MONTH_VISIBLE_ROWS, fitMonthCellEntries, getMonthEntryTop,
+} from './CalendarMonthViewLayout';
 
 interface Props {
   className?: string;
@@ -22,8 +23,8 @@ const useStyles = createStyles(({ calendar }) => ({
   cell: {
     position: 'relative',
     width: '100%',
-    height: cellSize,
-    padding: '2px 4px',
+    height: MONTH_CELL_HEIGHT,
+    padding: `${MONTH_CELL_PADDING_TOP}px 4px`,
     boxSizing: 'border-box',
   },
   dehighlightCell: {
@@ -37,6 +38,9 @@ const useStyles = createStyles(({ calendar }) => ({
   },
   cellDate: {
     display: 'flex',
+    // A fixed height, so the entry chips can start below it and never cover the date or its adornment.
+    height: MONTH_CELL_HEADER_HEIGHT,
+    boxSizing: 'border-box',
     alignItems: 'center',
     gap: 4,
     fontSize: calendar.monthViewCellDateFontSize,
@@ -52,6 +56,23 @@ const useStyles = createStyles(({ calendar }) => ({
     display: 'flex',
     alignItems: 'center',
     minWidth: 0,
+    maxHeight: MONTH_CELL_HEADER_HEIGHT,
+  },
+  // Takes the last row of chips on a busy day.
+  moreEntries: {
+    position: 'absolute',
+    left: 6,
+    right: 6,
+    top: getMonthEntryTop(MONTH_VISIBLE_ROWS),
+    height: MONTH_ENTRY_HEIGHT,
+    display: 'flex',
+    alignItems: 'center',
+    fontSize: 11,
+    fontWeight: 600,
+    opacity: 0.75,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
   },
 }));
 
@@ -68,7 +89,8 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
 
   const dayAdornment = useMemo(() => renderDayAdornment?.(cellDate), [renderDayAdornment, cellDate]);
 
-  const renderedEntries = useMemo(() => entries.map(({ renderedOnRow, entry }) => (
+  const { visibleEntries, hiddenCount } = useMemo(() => fitMonthCellEntries(entries), [entries]);
+  const renderedEntries = useMemo(() => visibleEntries.map(({ renderedOnRow, entry }) => (
     <CalendarMonthViewCellEntry
       key={entry.id}
       entry={entry}
@@ -77,7 +99,7 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
       renderedOnRow={renderedOnRow}
       dayIndex={dayIndex}
     />
-  )), [entries, cellDate, dayIndex, viewingDate]);
+  )), [visibleEntries, cellDate, dayIndex, viewingDate]);
 
   return (
     <Tag
@@ -94,6 +116,7 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
         {cellDate.getDate()}
       </Tag>
       {renderedEntries}
+      {hiddenCount > 0 && <Tag name="calendar-month-view-cell-more" className={css.moreEntries}>+{hiddenCount} more</Tag>}
     </Tag>
   );
 });

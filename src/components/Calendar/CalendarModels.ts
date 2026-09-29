@@ -28,6 +28,12 @@ export interface CalendarEntryRecord {
   isAllDay?: boolean;
   isBusy?: boolean;
   title?: ReactNode;
+  /**
+   * A one-line summary for the month view, where a chip is a single 19px line (e.g. "09:30 Mrs Smith"). The chip shows
+   * it on one line, cut short with an ellipsis, and hovering shows the full `title`. Falls back to `title`. The day
+   * and week views always show `title`.
+   */
+  monthTitle?: ReactNode;
   description?: ReactNode;
   color?: string;
   icon?: IconName;

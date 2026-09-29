@@ -19,6 +19,8 @@ function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: 
         for (let row = 1; row <= validEntriesForToday.length + 1; row++) {
           if (usedRows.includes(row)) continue;
           monthEntry.renderedOnRow = row;
+          // Taken now, so the day's next entry goes on the row below rather than on top of this one.
+          usedRows.push(row);
           break;
         }
       });

@@ -65,7 +65,7 @@ const CalendarDayViewEntry = createComponent('CalendarDayViewEntry', ({
 }: DayEntryProps) => {
   const { css } = useStyles();
   const handleSelect = useBound(() => onSelect(entry));
-  const { target, onMouseEnter, onMouseLeave, onClick, overlay } = useCalendarEntryExpand(entry.title, color, handleSelect);
+  const { target, onMouseEnter, onMouseLeave, onClick, overlay } = useCalendarEntryExpand({ content: entry.title, color, onSelect: handleSelect });
   return (
     <Flex tagName="calendar-day-view-entry" className={css.entry} style={{ top, height, left, width }}>
       <Flex

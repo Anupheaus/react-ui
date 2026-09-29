@@ -416,6 +416,37 @@ export const MonthViewWideContainer: Story = createStory({
 });
 MonthViewWideContainer.name = 'Month View — Wide Container';
 
+const APPOINTMENT_CARD = (name: string) => (
+  <div>
+    <strong>{name}</strong>
+    <div>14 Lubowitz Street, Burton Croft, Apt. 089</div>
+    <div>Customer is interested in blackout rollers for the nursery and two bedrooms.</div>
+  </div>
+);
+
+const summaryMonthViewEntries = toCalendarEntries([
+  { id: 's1', title: APPOINTMENT_CARD('Mrs Smith'), monthTitle: '09:30 Mrs Smith', startDate: DateTime.fromISO('2025-06-10T09:30').toJSDate(), endDate: DateTime.fromISO('2025-06-10T10:30').toJSDate(), color: '#9ADDFB' },
+  { id: 's2', title: APPOINTMENT_CARD('Mr Bartholomew-Worthington'), monthTitle: '11:00 Mr Bartholomew-Worthington of Lubowitz Street', startDate: DateTime.fromISO('2025-06-10T11:00').toJSDate(), endDate: DateTime.fromISO('2025-06-10T12:00').toJSDate(), color: '#99D5CF' },
+  { id: 's3', title: APPOINTMENT_CARD('Ms Jones'), monthTitle: '13:00 Ms Jones', startDate: DateTime.fromISO('2025-06-10T13:00').toJSDate(), endDate: DateTime.fromISO('2025-06-10T14:00').toJSDate(), color: '#FDE69C' },
+  { id: 's4', title: APPOINTMENT_CARD('Dr Patel'), monthTitle: '15:00 Dr Patel', startDate: DateTime.fromISO('2025-06-10T15:00').toJSDate(), endDate: DateTime.fromISO('2025-06-10T16:00').toJSDate(), color: '#C2B0E2' },
+  { id: 's5', title: APPOINTMENT_CARD('Mr Brown'), monthTitle: '16:30 Mr Brown', startDate: DateTime.fromISO('2025-06-10T16:30').toJSDate(), endDate: DateTime.fromISO('2025-06-10T17:00').toJSDate(), color: '#FDBCA7' },
+  { id: 's6', title: APPOINTMENT_CARD('Mrs Green'), monthTitle: '10:00 Mrs Green', startDate: DateTime.fromISO('2025-06-12T10:00').toJSDate(), endDate: DateTime.fromISO('2025-06-12T11:00').toJSDate(), color: '#9ADDFB' },
+]);
+
+/** Entries with a one-line month summary (hover for the full card), a long summary, and a busy day showing "+N more". */
+export const MonthViewSummaries: Story = createStory({
+  width: 900,
+  height: 600,
+  render: () => (
+    <Calendar
+      label="June 2025"
+      entries={summaryMonthViewEntries}
+      viewingDate={VIEWING_DATE}
+    />
+  ),
+});
+MonthViewSummaries.name = 'Month View — Summaries and Busy Day';
+
 /** A count on the days that have something extra to say — the shape a task or reminder badge takes. */
 const DAY_COUNTS: { [isoDate: string]: number } = {
   '2025-06-10': 3,
