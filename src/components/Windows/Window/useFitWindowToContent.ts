@@ -14,7 +14,21 @@ interface Props {
 }
 
 /**
- * Grows a window when its content grows past it — a dialog that gains fields after a choice — up to the space it sits
+ * The content's own height: the scroller stretches it to fill the window, so for a moment it is measured unstretched.
+ * Read synchronously, before the browser paints, so nothing flickers.
+ */
+function measureContentHeight(content: HTMLElement): number {
+  const { minHeight, flex } = content.style;
+  content.style.minHeight = '0px';
+  content.style.flex = 'none';
+  const height = content.offsetHeight;
+  content.style.minHeight = minHeight;
+  content.style.flex = flex;
+  return height;
+}
+
+/**
+ * Fits a window to its content — growing when the content grows past it, shrinking when it gets shorter — a dialog that gains fields after a choice — up to the space it sits
  * in, so the new content shows rather than scrolling in a strip the size of the dialog's first render.
  */
 export function useFitWindowToContent({ isEnabled, windowElementRef, setState }: Props): void {
@@ -24,20 +38,22 @@ export function useFitWindowToContent({ isEnabled, windowElementRef, setState }:
     const scrollerContainer = windowElement?.querySelector<HTMLElement>(CONTENT_SCROLLER_SELECTOR);
     const content = scrollerContainer?.querySelector<HTMLElement>(':scope > scroller-content');
     if (windowElement == null || scrollerContainer == null || content == null) return;
+    const openedHeight = windowElement.offsetHeight;
 
-    const growToFit = () => {
+    const fitToContent = () => {
       const space = windowElement.parentElement;
       if (space == null) return;
       const fit = fitWindowToContent({
         window: { width: windowElement.offsetWidth, height: windowElement.offsetHeight },
-        overflow: { x: scrollerContainer.scrollWidth - scrollerContainer.clientWidth, y: scrollerContainer.scrollHeight - scrollerContainer.clientHeight },
+        overflow: { x: scrollerContainer.scrollWidth - scrollerContainer.clientWidth, y: measureContentHeight(content) - scrollerContainer.clientHeight },
         space: { width: space.clientWidth, height: space.clientHeight },
+        openedHeight,
       });
       if (fit != null) setState(fit);
     };
 
     // The content box and what is in it: a child that grows wider overflows without resizing the content box itself.
-    const observer = new ResizeObserver(growToFit);
+    const observer = new ResizeObserver(fitToContent);
     observer.observe(content);
     Array.from(content.children).forEach(child => observer.observe(child));
     return () => observer.disconnect();
