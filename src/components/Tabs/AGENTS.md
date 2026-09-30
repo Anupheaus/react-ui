@@ -28,7 +28,7 @@ function MyComponent() {
 | `className` | `string` | No | Additional CSS class for the container |
 | `alwaysShowTabs` | `boolean` | No | Show the tab button bar even when there is only one tab or all tabs lack labels (default: `false`) |
 | `orientation` | `'horizontal' \| 'vertical'` | No | Layout direction: `'horizontal'` places tabs above content (default); `'vertical'` places tabs on the left with up/down slide animation |
-| `variant` | `'tabs' \| 'navigation'` | No | `'tabs'` (default) is a standard tab strip. `'navigation'` renders a mobile-style nav bar — equal-width icon-over-label buttons; the strip sits at the **bottom** for `horizontal` orientation or as a **left rail** for `vertical`. Pair each `Tab` with an `icon`. |
+| `variant` | `'tabs' \| 'navigation'` | No | `'tabs'` (default) is a standard tab strip. `'navigation'` renders a mobile-style nav bar — equal-width icon-over-label buttons; the strip sits at the **bottom** for `horizontal` orientation or as a **left rail** for `vertical`. Pair each `Tab` with an `icon`. A bottom bar keeps toasts above it (`useKeepNotificationsAbove`, see [Notifications](../Notifications/AGENTS.md)). |
 | `onChange` | `(index: number) => void` | No | Called when the active tab changes |
 
 ## Tab Props

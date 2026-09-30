@@ -6,6 +6,7 @@ import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
 import { Tag } from '../Tag';
+import { useKeepNotificationsAbove } from '../Notifications';
 import type { TabsContextProps, UpsertTabProps } from './TabsContext';
 import { TabsContext } from './TabsContext';
 import { TabButton, TabContent } from './Tab';
@@ -162,8 +163,11 @@ export const TabsComponent = createComponent('Tabs', ({
     ? (orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtonsNav)
     : (orientation === 'vertical' ? css.tabsButtonsVertical : css.tabsButtons);
 
+  // A bottom navigation bar keeps toasts above it, so a toast never covers the app's navigation.
+  const buttonsStripRef = useKeepNotificationsAbove<HTMLDivElement>(isBottomNav && !isTabsHidden);
+
   const buttonsStrip = (
-    <Flex tagName="tabs-buttons" isVertical={orientation === 'vertical'} disableGrow className={join(buttonsClassName, isTabsHidden && 'is-hidden')}>
+    <Flex ref={buttonsStripRef} tagName="tabs-buttons" isVertical={orientation === 'vertical'} disableGrow className={join(buttonsClassName, isTabsHidden && 'is-hidden')}>
       <UIState isReadOnly={false}>
         {renderedTabButtons}
       </UIState>
