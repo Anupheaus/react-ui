@@ -176,7 +176,9 @@ export class WindowsManager {
     }
     const events = this.#events.get(id);
     if (events?.closing != null) return;
-    if (events?.opening != null) return events.opening.then(() => this.focus(id));
+    // A focus is applied the moment it is asked for, even while the window is still opening. Deferring it until the
+    // opening finished let a stale focus land later and push a window opened in the meantime (e.g. "Add task" pressed
+    // in a window that had only just opened or been restored) behind the window it was opened from.
     if (events?.focusing != null) return events.focusing;
     const ids = this.#windows.ids();
     if (ids.last() === id) return;
