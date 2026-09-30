@@ -87,8 +87,9 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   });
 
   const ManagerContext = managerType === 'windows' ? WindowsManagerContext : DialogsManagerContext;
+  // The host clips its windows (disableOverflow) so a window dragged partly out of it never makes the page scroll.
   const overlayFlex = (
-    <Flex tagName="windows" id={managerId} className={className} isVertical>
+    <Flex tagName="windows" id={managerId} className={className} isVertical disableOverflow>
       {!childrenAsSibling ? children : null}
       <WindowsContentRenderer managerId={managerId} managerType={managerType} />
     </Flex>
