@@ -6,14 +6,22 @@ A toast notification system built on `react-hot-toast`. `NotificationsProvider` 
 
 | Export | Description |
 |--------|-------------|
-| `NotificationsProvider` | Component — mounts the `react-hot-toast` `<Toaster>` at the bottom-centre of the viewport. |
+| `NotificationsProvider` | Component — mounts the `react-hot-toast` `<Toaster>` at the bottom-centre of the viewport, lifted above anything docked at the bottom (see below). |
 | `useNotifications` | Hook — returns functions for showing typed toast messages. |
+| `useKeepNotificationsAbove` | Hook — keeps toasts clear of an element docked at the bottom of the screen. `Tabs variant="navigation"` uses it for its bottom bar; use it for any other bottom bar. |
 
 ---
 
 ## NotificationsProvider
 
-Wrap your application (or the portion of it that needs notifications) once with this provider. It renders a `<Toaster position="bottom-center">` from `react-hot-toast` and passes children through unchanged.
+Wrap your application (or the portion of it that needs notifications) once with this provider. It renders a `<Toaster position="bottom-center">` from `react-hot-toast` and passes children through.
+
+**Toasts never cover a bottom navigation bar.** The Toaster sits 16px above the bottom of the viewport — or 16px above the tallest element docked there that reported itself through `useKeepNotificationsAbove` (the `NotificationsInsetContext`). A horizontal `Tabs variant="navigation"` does so automatically, so on a phone every toast rises above the app's navigation bar while it is on screen, follows its height through a rotation or resize, and drops back when it unmounts. An element only counts while its bottom edge is at the bottom of the viewport.
+
+```tsx
+const barRef = useKeepNotificationsAbove<HTMLDivElement>(isBarShown);
+return <Flex ref={barRef} tagName="my-bottom-bar">…</Flex>;
+```
 
 ### Props
 
