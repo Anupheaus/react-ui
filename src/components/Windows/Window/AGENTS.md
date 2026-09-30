@@ -25,7 +25,8 @@ When `WindowsManager` decides to render an open window, it passes control to `Wi
 ### State and lifecycle hooks
 - `useWindowState.ts` — bridges component state with `WindowsManager`. Initialises from `manager.get(id)`, subscribes to external state changes (manager broadcast), and mirrors local state back via `manager.updateStateWithoutNotifications`. Returns `[state, setState]`.
 - `useWindowEvents.ts` — manages the open/close animation lifecycle. Drives the `is-visible` CSS class and calls `onClosing`/`onClosed` callbacks at the right moments. Returns `{ isVisible }`.
-- `useWindowDimensions.ts` — the window sizing and preparation phase. During preparation (`preparing` → `prepared` CSS classes), measures content width/height and applies them as inline styles. After preparation, dimensions change only via user resize. Returns `{ style, preparationClassName, allowIsMaximized }`.
+- `useWindowDimensions.ts` — the window sizing and preparation phase. During preparation (`preparing` → `prepared` CSS classes), measures content width/height and applies them as inline styles, then keeps the window inside its host (`keepWindowInsideHost`). It also tracks the host's size (on mount and browser resize) to cap `minWidth` / `minHeight` at it. After preparation, dimensions change only via user resize. Returns `{ style, preparationClassName, allowIsMaximized }`.
+- `keepWindowInsideHost.ts` — pure placement rules: `keepWindowInsideHost(placement, host)` caps a window's px size at the host's and moves it so it is wholly inside (title bar and bottom buttons visible); `capMinSizeToHost(min, available)` caps a minimum size. String (CSS) values and an unmeasured (0 × 0) host are left alone.
 
 ### Validation
 - `WindowValidationContext.tsx` — provides a `WindowValidationProvider` that bridges `useValidation` (from `ValidationProvider`) into the window. Exposes `onCheckIsValid` so `WindowOkAction` can gate close on validation passing.

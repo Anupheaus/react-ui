@@ -9,7 +9,7 @@ import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 import type { CalendarDayAdornmentRenderer } from '../CalendarModels';
 import {
-  MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, fitMonthCellEntries, getMonthEntryTop, getMonthVisibleRows,
+  MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, fitMonthCellEntries, getMonthEntryTop, getMonthVisibleRows,
 } from './CalendarMonthViewLayout';
 
 interface Props {
@@ -27,6 +27,14 @@ const useStyles = createStyles(({ calendar }) => ({
     width: '100%',
     // No height of its own: it fills its week row, which the grid sizes (see CalendarMonthView).
     minHeight: 0,
+    // An invisible spacer below the date row giving the cell its preferred MONTH_CELL_HEIGHT. It only counts where the
+    // calendar's height is unbounded (the rows then size to their content); a bounded calendar shares out its height.
+    '&::after': {
+      content: '""',
+      display: 'block',
+      height: MONTH_CELL_HEIGHT - MONTH_CELL_PADDING_TOP - MONTH_CELL_HEADER_HEIGHT,
+      pointerEvents: 'none',
+    },
     padding: `${MONTH_CELL_PADDING_TOP}px 4px`,
     boxSizing: 'border-box',
   },

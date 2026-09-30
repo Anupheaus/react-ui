@@ -154,6 +154,12 @@ The window controls (`windowControls`), maximize/restore and close buttons, and 
 | `localStorageKey` | `string` | When provided, persists window state to localStorage. Omit to disable persistence. |
 | `onChange` | `(states) => void` | Called when window states change. |
 
+## Stacking and placement
+
+- **A newly opened window always comes to the front and takes focus**, including one opened from within another window (e.g. an "Add task" button). `WindowsManager.focus` applies a focus the moment it is asked for — even while that window is still opening — so a press that focuses the opener can never land after, and on top of, the window it opened.
+- **A window opens wholly inside its host.** While it opens, its size (default, measured or remembered) is capped at the host's and it is moved so its title bar and bottom buttons are on screen — which also pulls back a remembered position that is now off screen (saved on a bigger or another monitor). Its `minWidth` / `minHeight` are capped at the host's size too, because CSS lets a minimum beat `max-width` / `max-height: 100%`. See `keepWindowInsideHost` in [Window/AGENTS.md](./Window/AGENTS.md).
+- **The host clips its windows** (`overflow: hidden`), so a window — even one dragged partly out — never makes the page scroll.
+
 ## Persistence
 
 Persistence is **disabled by default**. Pass `localStorageKey` to enable:

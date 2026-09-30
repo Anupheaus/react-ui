@@ -94,7 +94,7 @@ describe('CalendarMonthView — short calendar', () => {
 
     const grid = container.querySelector('calendar-month-view') as HTMLElement;
     const cell = container.querySelector('calendar-month-view-cell') as HTMLElement;
-    expect(getComputedStyle(grid).gridTemplateRows).toBe('auto repeat(5, minmax(66px, 100px))');
+    expect(getComputedStyle(grid).gridTemplateRows).toBe('auto repeat(5, minmax(66px, 1fr))');
     expect(getComputedStyle(cell).height).not.toBe('100px');
   });
 

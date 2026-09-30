@@ -11,6 +11,9 @@ export interface WindowPlacement {
   height?: number | string;
 }
 
+/** The gap, in px, left between a window pulled back inside its host and the host's edge, so its shadow and corners show. */
+const PULLED_BACK_EDGE_GAP = 16;
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), Math.max(min, max));
 }
@@ -33,12 +36,17 @@ export function capMinSizeToHost(minSize: number | string, available: number | u
 function keepEdgeInside(position: number | string | undefined, size: number | string | undefined, available: number): number | string | undefined {
   if (typeof position !== 'number') return position;
   const knownSize = typeof size === 'number' ? size : 0;
-  return clamp(position, 0, available - knownSize);
+  const furthest = available - knownSize;
+  if (position >= 0 && position <= furthest) return position;
+  // Pulled back: clear of the edge when there is room for the gap on both sides, flush when there is not.
+  const gap = furthest >= PULLED_BACK_EDGE_GAP * 2 ? PULLED_BACK_EDGE_GAP : 0;
+  return clamp(position, gap, furthest - gap);
 }
 
 /**
  * The placement a window opens at so it is wholly inside the space it sits in (its windows host): no bigger than the
- * host, and moved (never resized further) so that its title bar and its bottom action bar are both on screen. Used
+ * host, and moved (never resized further) so that its title bar and its bottom action bar are both on screen. A window
+ * that had to be moved is left a 16px gap from the edge it came back over, when there is room for it. Used
  * when a window opens, for its default size and for a size or position remembered from an earlier session (which may
  * have been on a bigger or another monitor).
  *

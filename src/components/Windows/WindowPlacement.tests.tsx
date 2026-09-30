@@ -128,12 +128,12 @@ describe('window placement', () => {
     expect(getRenderedPlacement()).toMatchObject({ left: 0, top: 0, width: 1024, height: 560 });
   });
 
-  it('pulls a remembered position that is now off screen back inside the host', async () => {
+  it('pulls a remembered position that is now off screen back inside the host, clear of its edges', async () => {
     persistWindow({ x: 1900, y: 1000, width: 400, height: 300 });
     render(<Windows localStorageKey={STORAGE_KEY} />);
     await settleOpening();
 
-    expect(getRenderedPlacement()).toMatchObject({ left: 624, top: 260, width: 400, height: 300 });
+    expect(getRenderedPlacement()).toMatchObject({ left: 608, top: 244, width: 400, height: 300 });
   });
 
   it('keeps a remembered placement that already fits exactly where it was', async () => {

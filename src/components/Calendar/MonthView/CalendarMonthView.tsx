@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
 import { CalendarMonthViewCell } from './CalendarMonthViewCell';
 import { CalendarMonthViewUtils } from './CalendarMonthViewUtils';
 import { createComponent } from '../../Component';
-import { MONTH_CELL_HEIGHT, MONTH_CELL_MIN_HEIGHT } from './CalendarMonthViewLayout';
+import { MONTH_CELL_MIN_HEIGHT } from './CalendarMonthViewLayout';
 
 interface Props {
   label?: ReactNode;
@@ -35,9 +35,10 @@ const useStyles = createStyles(({ calendar, fields: { content: { normal } } }) =
     width: '100%',
     boxSizing: 'border-box',
     gridTemplateColumns: 'repeat(7, 1fr)',
-    // The five week rows share the height the calendar has: full-size when there is room, down to the smallest cell
-    // that still shows one chip and "+N more" in a short window, so the last week is never clipped out of sight.
-    gridTemplateRows: `auto repeat(5, minmax(${MONTH_CELL_MIN_HEIGHT}px, ${MONTH_CELL_HEIGHT}px))`,
+    // The five week rows share the height the calendar has, down to the smallest cell that still shows one chip and
+    // "+N more" in a short window, so the last week is never clipped out of sight. Where the calendar's height is not
+    // bounded, each row takes its cell's preferred MONTH_CELL_HEIGHT (see the cell's spacer).
+    gridTemplateRows: `auto repeat(5, minmax(${MONTH_CELL_MIN_HEIGHT}px, 1fr))`,
     flex: 'auto',
     minHeight: 0,
     gridGap: 1,
