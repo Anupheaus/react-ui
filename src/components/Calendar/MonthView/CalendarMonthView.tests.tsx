@@ -1,5 +1,17 @@
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 import { Calendar } from '../Calendar';
+
+/** The height a browser lays each day cell out at; undefined = not measured (jsdom has no layout). */
+let laidOutCellHeight: number | undefined;
+
+vi.mock('use-resize-observer/polyfilled.js', () => ({
+  default: () => ({ ref: () => undefined, width: undefined, height: laidOutCellHeight }),
+}));
+
+beforeEach(() => {
+  laidOutCellHeight = undefined;
+});
 
 // The month grid fills the width it is given: as a row flex item it used to size to its content, leaving an empty
 // strip down the right of a wide calendar window (sc-675). Its seven columns share that width equally.
@@ -67,5 +79,39 @@ describe('CalendarMonthView — chips', () => {
 
     expect(container.querySelectorAll('calendar-month-cell-entry')).toHaveLength(2);
     expect(getByText('+3 more')).toBeTruthy();
+  });
+});
+
+// Five fixed 100px week rows did not fit a short calendar window, so its last week was clipped out of sight (sc-715).
+// The rows now share the height the calendar has, down to a minimum that still fits one chip and "+N more".
+
+describe('CalendarMonthView — short calendar', () => {
+  const at = (day: number, hour: number) => new Date(2026, 8, day, hour);
+  const anEntry = (id: string, day: number) => ({ id, startDate: at(day, 9), endDate: at(day, 10), title: `Entry ${id}` });
+
+  it('shares the height between the five week rows instead of fixing each at 100px', () => {
+    const { container } = render(<Calendar view="month" viewingDate={VIEWING_DATE} entries={[]} />);
+
+    const grid = container.querySelector('calendar-month-view') as HTMLElement;
+    const cell = container.querySelector('calendar-month-view-cell') as HTMLElement;
+    expect(getComputedStyle(grid).gridTemplateRows).toBe('auto repeat(5, minmax(66px, 1fr))');
+    expect(getComputedStyle(cell).height).not.toBe('100px');
+  });
+
+  it('shows one chip and "+N more" on a busy day when the rows are at their smallest', () => {
+    laidOutCellHeight = 66;
+    const busyDay = ['a', 'b', 'c'].map(id => anEntry(id, 15));
+    const { container, getByText } = render(<Calendar view="month" viewingDate={VIEWING_DATE} entries={busyDay} />);
+
+    expect(container.querySelectorAll('calendar-month-cell-entry')).toHaveLength(1);
+    expect(getByText('+2 more')).toBeTruthy();
+  });
+
+  it('puts "+N more" on the last row that fits the cell', () => {
+    laidOutCellHeight = 66;
+    const busyDay = ['a', 'b', 'c'].map(id => anEntry(id, 15));
+    const { getByText } = render(<Calendar view="month" viewingDate={VIEWING_DATE} entries={busyDay} />);
+
+    expect(parseFloat(getByText('+2 more').style.top)).toBe(46);
   });
 });

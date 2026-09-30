@@ -1,5 +1,7 @@
 import { createStyles } from '../../../theme';
+import type { CSSProperties } from 'react';
 import { useMemo } from 'react';
+import useResizeObserver from 'use-resize-observer/polyfilled.js';
 import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { CalendarUtils } from '../CalendarUtils';
@@ -7,7 +9,7 @@ import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 import type { CalendarDayAdornmentRenderer } from '../CalendarModels';
 import {
-  MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, MONTH_VISIBLE_ROWS, fitMonthCellEntries, getMonthEntryTop,
+  MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, fitMonthCellEntries, getMonthEntryTop, getMonthVisibleRows,
 } from './CalendarMonthViewLayout';
 
 interface Props {
@@ -23,7 +25,16 @@ const useStyles = createStyles(({ calendar }) => ({
   cell: {
     position: 'relative',
     width: '100%',
-    height: MONTH_CELL_HEIGHT,
+    // No height of its own: it fills its week row, which the grid sizes (see CalendarMonthView).
+    minHeight: 0,
+    // An invisible spacer below the date row giving the cell its preferred MONTH_CELL_HEIGHT. It only counts where the
+    // calendar's height is unbounded (the rows then size to their content); a bounded calendar shares out its height.
+    '&::after': {
+      content: '""',
+      display: 'block',
+      height: MONTH_CELL_HEIGHT - MONTH_CELL_PADDING_TOP - MONTH_CELL_HEADER_HEIGHT,
+      pointerEvents: 'none',
+    },
     padding: `${MONTH_CELL_PADDING_TOP}px 4px`,
     boxSizing: 'border-box',
   },
@@ -58,12 +69,11 @@ const useStyles = createStyles(({ calendar }) => ({
     minWidth: 0,
     maxHeight: MONTH_CELL_HEADER_HEIGHT,
   },
-  // Takes the last row of chips on a busy day.
+  // Takes the last row of chips that fits on a busy day (its top is set from the cell's height).
   moreEntries: {
     position: 'absolute',
     left: 6,
     right: 6,
-    top: getMonthEntryTop(MONTH_VISIBLE_ROWS),
     height: MONTH_ENTRY_HEIGHT,
     display: 'flex',
     alignItems: 'center',
@@ -89,7 +99,11 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
 
   const dayAdornment = useMemo(() => renderDayAdornment?.(cellDate), [renderDayAdornment, cellDate]);
 
-  const { visibleEntries, hiddenCount } = useMemo(() => fitMonthCellEntries(entries), [entries]);
+  // The week rows share the calendar's height, so how many rows of chips fit follows the height this cell gets.
+  const { ref: cellRef, height: cellHeight } = useResizeObserver<HTMLElement>();
+  const visibleRows = getMonthVisibleRows(cellHeight);
+  const { visibleEntries, hiddenCount } = useMemo(() => fitMonthCellEntries(entries, visibleRows), [entries, visibleRows]);
+  const moreEntriesStyle = useMemo<CSSProperties>(() => ({ top: getMonthEntryTop(visibleRows) }), [visibleRows]);
   const renderedEntries = useMemo(() => visibleEntries.map(({ renderedOnRow, entry }) => (
     <CalendarMonthViewCellEntry
       key={entry.id}
@@ -104,6 +118,7 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   return (
     <Tag
       name="calendar-month-view-cell"
+      ref={cellRef}
       className={join(
         css.cell,
         dehighlightDate && css.dehighlightCell,
@@ -116,7 +131,7 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
         {cellDate.getDate()}
       </Tag>
       {renderedEntries}
-      {hiddenCount > 0 && <Tag name="calendar-month-view-cell-more" className={css.moreEntries}>+{hiddenCount} more</Tag>}
+      {hiddenCount > 0 && <Tag name="calendar-month-view-cell-more" className={css.moreEntries} style={moreEntriesStyle}>+{hiddenCount} more</Tag>}
     </Tag>
   );
 });
