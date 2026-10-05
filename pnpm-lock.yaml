@@ -35,8 +35,8 @@ importers:
   .:
     dependencies:
       '@anupheaus/common':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.14
+        version: 0.2.14
       '@emotion/react':
         specifier: ^11.11.1
         version: 11.14.0(@types/react@18.3.28)(react@18.3.1)
@@ -224,8 +224,8 @@ packages:
   '@adobe/css-tools@4.4.4':
     resolution: {integrity: sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==}
 
-  '@anupheaus/common@0.2.0':
-    resolution: {integrity: sha512-5HlH3JL6qICzduir1mcnC5SKNjxN/rM6a0hPHGOBEGKXAB3+4hgtT34KbMdFUHLSqQbL7FEAdy5cnm79LL4hSA==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.2.0/b4fa4012b7abcd8bef6c199b0f23586caa0f786f}
+  '@anupheaus/common@0.2.14':
+    resolution: {integrity: sha512-v7lAJijLRxvXm29WNPNrMvaroibRqkIQu8RY10PGbkXOsbiuBO13w/0wVQre195Y4c3jzLZqZqG0ifkSl0QV2A==, tarball: https://npm.pkg.github.com/download/@anupheaus/common/0.2.14/f2faa96a65bae556f1263e52d54b9ae38cf35d31}
 
   '@babel/code-frame@7.29.0':
     resolution: {integrity: sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw==}
@@ -5688,7 +5688,7 @@ snapshots:
 
   '@adobe/css-tools@4.4.4': {}
 
-  '@anupheaus/common@0.2.0':
+  '@anupheaus/common@0.2.14':
     dependencies:
       fast-equals: 6.0.3
       inflection: 3.0.2
