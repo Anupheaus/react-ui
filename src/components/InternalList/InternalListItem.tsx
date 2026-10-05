@@ -6,7 +6,7 @@ import { ReactListItem } from '../../models';
 import { createComponent } from '../Component';
 import { UIState, useUIState } from '../../providers';
 import { useRipple } from '../Ripple';
-import { useAsync, useBound } from '../../hooks';
+import { useAsync, useBound, useId } from '../../hooks';
 import { Flex } from '../Flex';
 import type { MouseEvent } from 'react';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -20,6 +20,10 @@ import { Checkbox } from '../Checkbox';
 import { Expander } from '../Expander';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
+
+/** Beside the option, not below it, so the tooltip never covers the next option; and quick, so it follows the pointer down the list. */
+const TOOLTIP_PLACEMENT = 'right';
+const TOOLTIP_ENTER_DELAY = 100;
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -102,6 +106,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
   onSelectedItemsChange,
 }: Props<T>) {
   const { css, join } = useStyles();
+  const descriptionId = useId();
   const { deleteTooltip, onSelectChange, onActiveChange, onDelete } = useInternalListContext<T>();
   let { isReadOnly } = useUIState();
   const { Ripple, rippleTarget } = useRipple();
@@ -237,25 +242,31 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
       </>);
     }
 
+    const { tooltip } = item;
+    const hasTooltip = tooltip != null && tooltip !== '';
     content = (
-      <Flex
-        gap="fields"
-        tagName="list-item"
-        ref={rippleTarget}
-        className={join(css.listItem, isLoading && 'is-loading', isReadOnly && 'is-read-only', isClickable && 'is-clickable', item.className)}
-        allowFocus
-        disableGrow
-        disableShrink
-        onClick={click}
-        onFocus={focus}
-        onBlur={blur}
-      >
-        <Ripple stayWithinContainer isDisabled={item.disableRipple} />
-        <Flex tagName="list-item-content" gap="fields" valign="center" wide className={css.listItemContent}>
-          {content}
+      <Tooltip content={tooltip} placement={TOOLTIP_PLACEMENT} enterDelay={TOOLTIP_ENTER_DELAY}>
+        <Flex
+          gap="fields"
+          tagName="list-item"
+          ref={rippleTarget}
+          className={join(css.listItem, isLoading && 'is-loading', isReadOnly && 'is-read-only', isClickable && 'is-clickable', item.className)}
+          allowFocus
+          disableGrow
+          disableShrink
+          aria-describedby={hasTooltip ? descriptionId : undefined}
+          onClick={click}
+          onFocus={focus}
+          onBlur={blur}
+        >
+          {hasTooltip && <Tag name="list-item-description" id={descriptionId} hidden>{tooltip}</Tag>}
+          <Ripple stayWithinContainer isDisabled={item.disableRipple} />
+          <Flex tagName="list-item-content" gap="fields" valign="center" wide className={css.listItemContent}>
+            {content}
+          </Flex>
+          {actions}
         </Flex>
-        {actions}
-      </Flex>
+      </Tooltip>
     );
 
     if (isExpandable) {
