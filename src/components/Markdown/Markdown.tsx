@@ -1,4 +1,6 @@
 import MDEditor from '@uiw/react-md-editor';
+import type { MDEditorProps } from '@uiw/react-md-editor';
+import rehypeSanitize from 'rehype-sanitize';
 import Color from 'color';
 import { useEffect, useRef, useState } from 'react';
 import { createAnimationKeyFrame, createStyles } from '../../theme';
@@ -20,6 +22,13 @@ const scrollPromptAnimation = createAnimationKeyFrame({
   '90%': { opacity: '0', transform: 'translateY(0)' },
   '100%': { opacity: '0', transform: 'translateY(0)' },
 });
+
+/**
+ * The preview renders raw HTML (the editor enables rehype-raw), so an iframe, script, event handler or javascript: link in
+ * the markdown would run same-origin. rehype-sanitize (GitHub's default schema) runs after rehype-raw and strips them from
+ * both the read-only preview and the live preview pane. Callers should still sanitise what they store; this is defence in depth.
+ */
+const PREVIEW_OPTIONS: MDEditorProps['previewOptions'] = { rehypePlugins: [[rehypeSanitize]] };
 
 const useStyles = createStyles(({ scrollbars: { thumb, track }, text, shadows, markdown }, { applyTransition }) => {
   const scrollbars = {
@@ -243,6 +252,7 @@ export const Markdown = createComponent('Markdown', ({
           hideToolbar
           visibleDragbar={false}
           preview={isReadOnly ? 'preview' : 'live'}
+          previewOptions={PREVIEW_OPTIONS}
           data-color-mode={colorMode}
         />
         <div className={join(css.shadow, css.shadowTop, shadowAtTop && 'is-visible')} />
