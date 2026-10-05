@@ -21,7 +21,7 @@ Each component calls `createStyles(stylesOrDelegate)` at module level to get a `
 | `mergeThemes` | Deep-merges a `DeepPartial<Theme>` override onto a base `Theme`, returning a new merged theme object. |
 | `createAnimationKeyFrame` | Converts a CSS keyframe definition object into a `tss-react` `keyframes` string for use in styles. |
 | `colors` | Utility object with `lighten(color, pct)` and `darken(color, pct)` helpers backed by the `color` library. |
-| `DefaultTheme` | The default `Theme` implementation — use directly or pass to `mergeThemes` as a base. |
+| `DefaultTheme` | The default `Theme` implementation — use directly or pass to `mergeThemes` as a base. Besides `text`, it has three status text themes — `error` (red), `warning` (amber) and `success` (green) — each AA-readable on white; use them for state colouring, and keep words beside the colour. |
 
 ## Usage
 

@@ -83,6 +83,19 @@ export const DefaultTheme: Theme = {
     weight: 400,
     color: '#b71313',
   },
+  // Both pass WCAG AA (4.5:1) as text on white: #8a5300 is 6.2:1 and #1b6e20 is 6.1:1.
+  warning: {
+    family: 'Roboto',
+    size: 14,
+    weight: 400,
+    color: '#8a5300',
+  },
+  success: {
+    family: 'Roboto',
+    size: 14,
+    weight: 400,
+    color: '#1b6e20',
+  },
   fields: {
     label: {
       normal: {
