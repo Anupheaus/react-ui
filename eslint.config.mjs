@@ -28,7 +28,7 @@ export default tseslint.config(
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-wrapper-object-types': 'off',
-      // Severities aligned with the team standard (legacy .eslintrc.js + ci-templates/eslint/react):
+      // Severities aligned with the team standard (legacy .eslintrc.js + agents/ci-templates/eslint/react):
       // these patterns (createComponent factories, namespace models, Function types) are intentional,
       // and rules-of-hooks is noisy against them — kept as warn/off rather than blocking CI.
       '@typescript-eslint/no-namespace': 'off',

@@ -24,7 +24,7 @@ jobs:
       packages: read
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -44,7 +44,7 @@ jobs:
       packages: read
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -65,7 +65,7 @@ jobs:
       packages: read
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -86,7 +86,7 @@ jobs:
       packages: read
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -109,7 +109,7 @@ jobs:
       statuses: write
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -149,7 +149,7 @@ jobs:
       packages: read
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
@@ -182,7 +182,7 @@ jobs:
       packages: write
     steps:
       - name: Setup pnpm, node, and install
-        uses: Anupheaus/ci-templates/.github/actions/pnpm-setup@v1
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
         with:
           pnpm-version: ${{ env.PNPM_VERSION }}
           node-version: ${{ env.NODE_VERSION }}
