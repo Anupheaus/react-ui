@@ -8,6 +8,8 @@ import { blankTooltipContext, TooltipContext } from './TooltipContext';
 interface Props {
   children: ReactNode;
 }
+const DEFAULT_ENTER_DELAY = 300;
+
 const useStyles = createStyles(({ tooltip }) => ({
   muiPopper: {
     maxWidth: '60%',
@@ -29,7 +31,7 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
   children = null,
 }: Props) => {
   const { css, join } = useStyles();
-  const { content, className, showArrow = false, debug = false, persist = false } = useContext(TooltipContext);
+  const { content, className, showArrow = false, debug = false, persist = false, placement, enterDelay = DEFAULT_ENTER_DELAY } = useContext(TooltipContext);
   const isEmpty = content == null || content === '';
 
   const tooltipClasses = useMemo<ComponentProps<typeof MuiTooltip>['classes']>(() => ({
@@ -52,8 +54,9 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
         classes={tooltipClasses}
         title={content}
         arrow={showArrow}
-        enterDelay={300}
-        enterNextDelay={300}
+        placement={placement}
+        enterDelay={enterDelay}
+        enterNextDelay={enterDelay}
         leaveDelay={debug ? 600000 : undefined}
       >
         {child}

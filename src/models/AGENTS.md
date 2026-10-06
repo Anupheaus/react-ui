@@ -13,7 +13,7 @@ Core item type used by every list, table, and grid component in the library.
 - `ReactListItem<DataType, SubItemType>` — extends `ListItem` from `@anupheaus/common` (`{ id, text, ordinal? }`). Key fields:
   - `label?: ReactNode` — rendered label; if absent, `text` is used
   - `iconName?: IconName` — icon shown alongside the label
-  - `tooltip?: ReactNode` — tooltip on hover
+  - `tooltip?: ReactNode` — explains the item: shown beside it on hover or keyboard focus, and linked to it with `aria-describedby` for screen readers (not shown when `renderItem` draws the whole row)
   - `isSelected?: boolean` — controlled selection state
   - `isSelectable?: boolean` — whether selection is permitted for this item
   - `isExpanded?: boolean` — expanded state for items with sub-items
