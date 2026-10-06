@@ -8,7 +8,7 @@ import { UIState, useUIState } from '../../providers';
 import { useRipple } from '../Ripple';
 import { useAsync, useBound } from '../../hooks';
 import { Flex } from '../Flex';
-import type { MouseEvent } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { Button } from '../Button';
 import { Icon } from '../Icon';
@@ -20,6 +20,11 @@ import { Checkbox } from '../Checkbox';
 import { Expander } from '../Expander';
 import { Tag } from '../Tag';
 import { Tooltip } from '../Tooltip';
+
+/** The keys that activate a focused clickable row, as they do a button. */
+const ACTIVATION_KEYS = ['Enter', ' '];
+/** Controls that own the keys typed into them, so a key pressed there is never the row's. */
+const KEY_OWNING_ELEMENTS = 'input, textarea, select, button, a, [contenteditable="true"]';
 
 const useStyles = createStyles(({ pseudoClasses, list: { item } }, { applyTransition, valueOf }) => {
   const activeValues = valueOf(item).using('active', 'normal');
@@ -206,6 +211,14 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
     onClick?.(newEvent);
   });
 
+  // Goes through the real click so a keyboard press and a mouse press take exactly the same path.
+  const keyDown = useBound((event: KeyboardEvent<HTMLElement>) => {
+    if (!isClickable || isLoading || !ACTIVATION_KEYS.includes(event.key)) return;
+    if (event.target instanceof Element && event.target.closest(KEY_OWNING_ELEMENTS) != null) return;
+    event.preventDefault();
+    event.currentTarget.click();
+  });
+
   const clickExpandableIcon = useBound((event: MouseEvent) => {
     if (!isExpandable) return;
     event.stopPropagation();
@@ -247,6 +260,7 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         disableGrow
         disableShrink
         onClick={click}
+        onKeyDown={keyDown}
         onFocus={focus}
         onBlur={blur}
       >
