@@ -2,24 +2,24 @@ import { createComponent } from '../../Component';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
 import { CalendarUtils } from '../CalendarUtils';
-import type { CalendarDayAdornmentRenderer, CalendarWeekDay } from '../CalendarModels';
-import { useMemo } from 'react';
+import type { CalendarWeekDay } from '../CalendarModels';
+import { CalendarDayCountButton } from '../CalendarDayCountButton';
 import { CalendarWeekViewUtils } from './CalendarWeekViewUtils';
 
 interface Props {
   className?: string;
   day: CalendarWeekDay;
   date: Date;
-  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 
 const useStyles = createStyles(({ calendar }) => ({
   header: {
     display: 'flex',
     flex: '1 1 0',
-    flexDirection: 'column',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
     minWidth: 0,
     padding: '0px 8px 2px',
     boxSizing: 'border-box',
@@ -35,10 +35,12 @@ const useStyles = createStyles(({ calendar }) => ({
     fontSize: calendar.monthViewCellDateFontSize,
     fontWeight: calendar.monthViewCellDateFontWeight,
   },
-  dayAdornment: {
+  // The day name over its date, hard right; the day's count button takes the far left of the header.
+  dayTitle: {
     display: 'flex',
-    alignItems: 'center',
-    marginTop: 2,
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    marginLeft: 'auto',
     minWidth: 0,
   },
 }));
@@ -47,11 +49,8 @@ export const CalendarWeekViewDayHeader = createComponent('CalendarWeekViewDayHea
   className,
   day,
   date,
-  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
-
-  const dayAdornment = useMemo(() => renderDayAdornment?.(date), [renderDayAdornment, date]);
 
   return (
     <Tag
@@ -62,13 +61,15 @@ export const CalendarWeekViewDayHeader = createComponent('CalendarWeekViewDayHea
         className,
       )}
     >
-      <Tag name="calendar-week-view-day-name" className={css.dayName}>
-        {CalendarWeekViewUtils.getDayLabel(day)}
+      <CalendarDayCountButton date={date} />
+      <Tag name="calendar-week-view-day-title" className={css.dayTitle}>
+        <Tag name="calendar-week-view-day-name" className={css.dayName}>
+          {CalendarWeekViewUtils.getDayLabel(day)}
+        </Tag>
+        <Tag name="calendar-week-view-day-date" className={css.dayDate}>
+          {date.getDate()}
+        </Tag>
       </Tag>
-      <Tag name="calendar-week-view-day-date" className={css.dayDate}>
-        {date.getDate()}
-      </Tag>
-      {dayAdornment != null && <Tag name="calendar-week-view-day-adornment" className={css.dayAdornment}>{dayAdornment}</Tag>}
     </Tag>
   );
 });

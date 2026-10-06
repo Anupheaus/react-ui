@@ -10,7 +10,7 @@ function onRow(renderedOnRow: number): CalendarMonthEntryRecord {
 }
 
 describe('getMonthEntryTop', () => {
-  it('starts the first row of chips below the cell header, so no chip covers the date or its adornment', () => {
+  it('starts the first row of chips below the cell header, so no chip covers the date or the count', () => {
     expect(getMonthEntryTop(1)).toBe(MONTH_CELL_PADDING_TOP + MONTH_CELL_HEADER_HEIGHT);
   });
 

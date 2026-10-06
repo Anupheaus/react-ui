@@ -37,7 +37,6 @@ The timed-schedule week view for the `Calendar` component. Renders one column pe
 
 [← Back to Calendar](../AGENTS.md)
 
-## Day adornments
+## Day count
 
-The Calendar's `renderDayAdornment` prop is threaded down to here and rendered in the day column header, under the date.
-It is called once per visible day; a day whose renderer returns `undefined` gets no adornment element at all.
+The Calendar's `getDayCount` is shown here as the day's count button (`CalendarDayCountButton`), far **left** of the day column header, before the day name and date. See the Calendar `AGENTS.md`.

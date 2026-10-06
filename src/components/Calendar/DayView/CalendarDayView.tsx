@@ -1,7 +1,9 @@
 import { createComponent } from '../../Component';
 import { Flex } from '../../Flex';
+import { Tag } from '../../Tag';
 import { Scroller } from '../../Scroller';
-import type { CalendarDayAdornmentRenderer, CalendarEntryRecord } from '../CalendarModels';
+import type { CalendarEntryRecord } from '../CalendarModels';
+import { CalendarDayCountButton } from '../CalendarDayCountButton';
 import { CalendarDayViewHours } from './CalendarDayViewHours';
 import { createStyles } from '../../../theme';
 import { CalendarDayViewEntries } from './CalendarDayViewEntries';
@@ -19,6 +21,11 @@ const useStyles = createStyles(({ surface: { asAContainer: { normal } } }) => ({
   },
   header: {
     alignItems: 'center',
+    width: '100%',
+  },
+  // The day's count button sits at the far right of the title row.
+  dayCount: {
+    marginLeft: 'auto',
   },
 }));
 
@@ -30,7 +37,6 @@ interface Props {
   hourHeight?: number;
   startHour?: number;
   endHour?: number;
-  renderDayAdornment?: CalendarDayAdornmentRenderer;
   onSelect(entry: CalendarEntryRecord): void;
 }
 
@@ -43,7 +49,6 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   startHour: rawStartHour,
   endHour: rawEndHour,
   onSelect,
-  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
   const { formatDate } = useLocale();
@@ -54,8 +59,6 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
     () => label ?? formatDate(viewingDate, { format: 'cccc d MMMM' }),
     [label, viewingDate, formatDate],
   );
-
-  const dayAdornment = useMemo(() => renderDayAdornment?.(viewingDate), [renderDayAdornment, viewingDate]);
 
   const { startHour, endHour } = useMemo(
     () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour),
@@ -72,7 +75,9 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
     <Flex tagName="calendar-day-view" className={join(css.dayView, className)} gap={4} maxHeight isVertical>
       <Flex tagName="calendar-day-view-header" className={css.header} gap={8} disableGrow>
         <Label>{resolvedLabel}</Label>
-        {dayAdornment}
+        <Tag name="calendar-day-view-day-count" className={css.dayCount}>
+          <CalendarDayCountButton date={viewingDate} />
+        </Tag>
       </Flex>
       <Flex tagName="calendar-day-view-scrolling-area" ref={calendarDayViewElementRef} maxHeight disableOverflow>
         <Scroller scrollTo={scrollTo}>

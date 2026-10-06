@@ -39,7 +39,6 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 
 [← Back to Calendar](../AGENTS.md)
 
-## Day adornments
+## Day count
 
-The Calendar's `renderDayAdornment` prop is threaded down to here and rendered beside the view's label.
-It is called once per visible day; a day whose renderer returns `undefined` gets no adornment element at all.
+The Calendar's `getDayCount` is shown here as the day's count button (`CalendarDayCountButton`), at the far **right** of the title row, after the view's label. See the Calendar `AGENTS.md`.

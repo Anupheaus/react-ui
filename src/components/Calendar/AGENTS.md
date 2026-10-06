@@ -14,7 +14,8 @@ A full-page calendar component with month, week, and day views. It renders a lis
 | `label` | `ReactNode` | No | Label shown above the view. When omitted, the day view defaults it to the formatted viewing date. |
 | `onViewingDateChange` | `(date: Date) => void` | No | Called when a **touch** swipe navigates to a new period — left = next, right = previous, stepped by `view` (day → ±1 day, week → ±1 week, month → ±1 month). Only active in `onEntries` mode on touch devices. The parent applies the new date back to `viewingDate`. |
 | `className` | `string` | No | CSS class applied to the root element. |
-| `renderDayAdornment` | `(date: Date) => ReactNode` | No | Extra content for each day header — a badge, a count, a small button. Called once per visible day in every view. Return `undefined` for a day that needs nothing. |
+| `getDayCount` | `(date: Date) => CalendarDayCount \| undefined` | No | A count button in each day's header (see below). Called once per visible day in every view; return `undefined` (or a count of 0) for a day with nothing to show. It must change identity whenever what it counts changes, or the counts are not redrawn. |
+| `onDayCountSelect` | `(date: Date) => void` | No | Called with the day when its count button is pressed. |
 
 ### Week-view-only props
 
@@ -43,32 +44,39 @@ const DEFAULT_CALENDAR_WEEK_DAYS: readonly CalendarWeekDay[] = [
 ];
 ```
 
-## CalendarDayAdornmentRenderer
+## Day counts (`getDayCount`)
 
 ```ts
-type CalendarDayAdornmentRenderer = (date: Date) => ReactNode;
+interface CalendarDayCount {
+  count: number;                  // 0 or less shows no button at all
+  tone?: 'normal' | 'alert';      // alert = the theme's error colour
+  tooltip?: string;               // hover + keyboard focus, and the button's accessible name
+}
+type CalendarDayCountGetter = (date: Date) => CalendarDayCount | undefined;
 ```
 
-Renders extra content in a day's header. Where it lands per view:
+The calendar draws a small button showing just the number, and places it per view:
 
 | View | Position |
 |------|----------|
-| Month | In the day cell's date row, to the **left** of the date number (the date stays hard right). |
-| Week | In the day column header, **under** the date. |
-| Day | Beside the view's label. |
+| Month | Far **left** of the day cell's top row; the date stays far right and the chips start below the row. |
+| Week | Far **left** of the day column header, before the day name and date. |
+| Day | Far **right** of the day title. |
 
-Return `undefined` for a day with nothing to show — the adornment element is then not rendered at all, so days
-without one are not given an empty box to lay out. Keep what you return small: a day cell is 100px tall and
-shares its width with the date.
+The calendar knows nothing about what is counted (tasks, reminders...): the consumer says so in `tooltip` ("You have 3 tasks due on this day"),
+which is also the button's accessible name, so write it as a sentence. Pressing the button calls `onDayCountSelect(date)`. Numbers up to 99 fit.
+The button is shared by the three views (`CalendarDayCountButton`), reading the getter and the select handler from `CalendarDayCountContext`, which `Calendar` provides.
+This replaces the earlier `renderDayAdornment` (arbitrary content in the header), which nothing else used.
 
 ```tsx
 <Calendar
   entries={entries}
   viewingDate={viewingDate}
-  renderDayAdornment={date => {
-    const count = countFor(date);
-    return count === 0 ? undefined : <Badge content={count}><Button onSelect={open}>Tasks</Button></Badge>;
+  getDayCount={date => {
+    const { total, overdue } = tasksOn(date);
+    return total === 0 ? undefined : { count: total, tone: overdue > 0 ? 'alert' : 'normal', tooltip: `You have ${total} tasks due on this day` };
   }}
+  onDayCountSelect={openTasksFor}
 />
 ```
 

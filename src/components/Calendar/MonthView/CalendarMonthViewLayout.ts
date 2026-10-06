@@ -6,7 +6,7 @@ export const MONTH_CELL_HEIGHT = 100;
 /** Space above a cell's header row, in px (the cell's top padding). */
 export const MONTH_CELL_PADDING_TOP = 2;
 
-/** Height of a cell's header row (the date and any day adornment), in px. Entry chips start below it. */
+/** Height of a cell's header row (the day's count and the date), in px. Entry chips start below it. */
 export const MONTH_CELL_HEADER_HEIGHT = 24;
 
 /** Height of one entry chip, in px. */

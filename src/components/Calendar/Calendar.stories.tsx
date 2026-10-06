@@ -3,12 +3,10 @@ import { fn } from 'storybook/test';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { createStory } from '../../Storybook/createStory';
 import { Calendar } from './Calendar';
-import type { CalendarEntryRecord } from './CalendarModels';
+import type { CalendarDayCount, CalendarEntryRecord } from './CalendarModels';
 import { DateTime } from 'luxon';
 import type { IconName } from '../Icon';
 import { UIState } from '../../providers';
-import { Tag } from '../Tag';
-import type { ReactNode } from 'react';
 
 type TypedCalendarEntryRecord = Omit<CalendarEntryRecord, 'icon'> & { icon?: IconName };
 
@@ -447,20 +445,26 @@ export const MonthViewSummaries: Story = createStory({
 });
 MonthViewSummaries.name = 'Month View — Summaries and Busy Day';
 
-/** A count on the days that have something extra to say — the shape a task or reminder badge takes. */
-const DAY_COUNTS: { [isoDate: string]: number } = {
-  '2025-06-10': 3,
-  '2025-06-12': 1,
-  '2025-06-18': 7,
+/** A count on the days that have something to say: the shape a task or reminder count takes. One day is overdue (alert). */
+const DAY_COUNTS: { [isoDate: string]: { count: number; isAlert?: boolean } } = {
+  '2025-06-10': { count: 3, isAlert: true },
+  '2025-06-12': { count: 1 },
+  '2025-06-18': { count: 99 },
 };
 
-function renderDayCount(date: Date): ReactNode {
-  const count = DAY_COUNTS[DateTime.fromJSDate(date).toISODate() ?? ''];
-  if (count == null) return undefined;
-  return <Tag name="story-day-count">{`${count} ${count === 1 ? 'task' : 'tasks'}`}</Tag>;
+function getDayCount(date: Date): CalendarDayCount | undefined {
+  const dayCount = DAY_COUNTS[DateTime.fromJSDate(date).toISODate() ?? ''];
+  if (dayCount == null) return undefined;
+  const { count, isAlert } = dayCount;
+  return {
+    count,
+    tone: isAlert === true ? 'alert' : 'normal',
+    tooltip: `You have ${count} ${count === 1 ? 'task' : 'tasks'} due on this day${isAlert === true ? ', 2 of them overdue' : ''}`,
+  };
 }
 
-export const MonthViewDayAdornments: Story = createStory({
+/** Month: the count is far left of the cell's top row, the date stays far right and the chips start below. */
+export const MonthViewDayCounts: Story = createStory({
   width: 720,
   height: 480,
   render: () => (
@@ -468,13 +472,14 @@ export const MonthViewDayAdornments: Story = createStory({
       label="June 2025"
       entries={monthViewEntries}
       viewingDate={VIEWING_DATE}
-      renderDayAdornment={renderDayCount}
+      getDayCount={getDayCount}
     />
   ),
 });
-MonthViewDayAdornments.name = 'Month View — Day Adornments';
+MonthViewDayCounts.name = 'Month View — Day Counts';
 
-export const WeekViewDayAdornments: Story = createStory({
+/** Week: the count is far left of the day title, before the day name and date. */
+export const WeekViewDayCounts: Story = createStory({
   width: 900,
   height: 520,
   render: () => (
@@ -483,11 +488,26 @@ export const WeekViewDayAdornments: Story = createStory({
       label="Week of 9 June 2025"
       entries={weekViewEntries}
       viewingDate={VIEWING_DATE}
-      renderDayAdornment={renderDayCount}
+      getDayCount={getDayCount}
     />
   ),
 });
-WeekViewDayAdornments.name = 'Week View — Day Adornments';
+WeekViewDayCounts.name = 'Week View — Day Counts';
+
+/** Day: the count is far right of the day title. */
+export const DayViewDayCount: Story = createStory({
+  width: 720,
+  height: 480,
+  render: () => (
+    <Calendar
+      view="day"
+      entries={weekViewEntries}
+      viewingDate={VIEWING_DATE}
+      getDayCount={getDayCount}
+    />
+  ),
+});
+DayViewDayCount.name = 'Day View — Day Count';
 
 export const MonthViewEmpty: Story = createStory({
   width: 720,
