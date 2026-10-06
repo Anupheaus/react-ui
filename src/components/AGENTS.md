@@ -50,6 +50,7 @@ To find a component: scan the category that matches its role (e.g. layout contai
 | [ImageUpload](ImageUpload/AGENTS.md) | Image picker with preview and choose/replace/remove controls |
 | [Markdown](Markdown/AGENTS.md) | Markdown editor and viewer with themed scrollbars and scroll shadows |
 | [Switch](Switch/AGENTS.md) | Toggle switch input |
+| [SettingRow](SettingRow/AGENTS.md) | One setting: name and description on the left, its control (e.g. a Switch) on the right |
 | [ToggleButtonGroup](ToggleButtonGroup/AGENTS.md) | Group of mutually exclusive toggle buttons |
 | [InternalText](InternalText/AGENTS.md) | Internal base text input used by Text, Password, Email, etc. |
 
