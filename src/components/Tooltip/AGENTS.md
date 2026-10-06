@@ -17,6 +17,8 @@ Wraps any single child element with a hover tooltip powered by MUI. `Tooltip` se
 | `showArrow` | `boolean` | No | Shows a small arrow pointing at the target element. Defaults to `false`. |
 | `persist` | `boolean` | No | Keeps the MUI tooltip mounted even when `content` is empty (useful for debugging layouts). Defaults to `false`. |
 | `debug` | `boolean` | No | Extends the tooltip hide delay to 10 minutes so it stays visible while inspecting. Defaults to `false`. |
+| `placement` | MUI `placement` | No | Side of the target the tooltip opens on (`'right'`, `'top-start'`, ...). Defaults to below. |
+| `enterDelay` | `number` | No | Milliseconds before the tooltip shows. Defaults to `300`. |
 | `className` | `string` | No | CSS class applied to the MUI popper element. |
 | `children` | `ReactNode` | No | Content rendered inside the tooltip provider. Must ultimately contain a `TooltipRenderer` (or a component that uses one) with a single non-Fragment child. |
 
