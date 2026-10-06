@@ -75,6 +75,7 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
     },
     tabsContent: {
       minWidth: 0,
+      minHeight: 0,
       display: 'grid',
       position: 'relative',
       gridTemplateColumns: '1fr',
