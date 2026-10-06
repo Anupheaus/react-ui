@@ -16,7 +16,8 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
     opacity: 0,
     transitionDuration: '400ms',
     transitionTimingFunction: 'ease',
-    overflow: 'hidden',
+    // Clipped, not hidden, so focus inside never scrolls the tab itself (see `tabsContent` in Tabs.tsx).
+    overflow: 'clip',
     pointerEvents: 'none',
     zIndex: -1,
 

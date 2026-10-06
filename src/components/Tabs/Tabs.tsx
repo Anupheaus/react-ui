@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, UIEvent } from 'react';
 import { useMemo, useState } from 'react';
 import type { DistributedState } from '../../hooks';
 import { useBound, useDistributedState } from '../../hooks';
@@ -79,7 +79,10 @@ const useStyles = createStyles(({ tabs: { buttons } = {}, buttons: { default: { 
       position: 'relative',
       gridTemplateColumns: '1fr',
       flexGrow: 1,
-      overflow: 'hidden',
+      // `clip`, not `hidden`: a hidden box is still a scroll container, and the browser scrolls it sideways to reveal a control that
+      // takes focus (opening a drop-down, tabbing) — by the 50px the neighbouring tab sits beside this one — which shifted the whole
+      // tab and showed the neighbour at its edge. A clipped box cannot be scrolled at all.
+      overflow: 'clip',
     },
   };
 });
@@ -174,8 +177,14 @@ export const TabsComponent = createComponent('Tabs', ({
     </Flex>
   );
 
+  // A browser without `overflow: clip` falls back to hidden, which scrolls to reveal focus: put it straight back.
+  const keepContentInPlace = useBound((event: UIEvent<HTMLElement>) => {
+    const { currentTarget } = event;
+    if (currentTarget.scrollLeft !== 0 || currentTarget.scrollTop !== 0) currentTarget.scrollTo(0, 0);
+  });
+
   const contentTag = (
-    <Tag name="tabs-content" className={css.tabsContent}>
+    <Tag name="tabs-content" className={css.tabsContent} onScroll={keepContentInPlace}>
       {renderedTabs}
     </Tag>
   );

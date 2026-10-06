@@ -10,7 +10,7 @@ The internal components that implement the `Tab` registration-and-rendering patt
 
 - `Tab.tsx` — the `<Tab>` component. On mount, calls `upsertTab` via `TabsContext` to register its props (label, children, className, ordinalPosition, etc.). **Returns `null`** — it produces no DOM output. On unmount, calls `removeTab` to deregister. Re-registers whenever `children`, `label`, or `className` change.
 - `TabButton.tsx` — renders the clickable tab button in the button bar. Receives `orientation` to apply either a bottom-strip (horizontal) or right-strip (vertical) active indicator. Not rendered by `Tab` — rendered by `Tabs` from the registered data.
-- `TabContent.tsx` — renders the tab content panel. Hidden when not active; applies left/right slide (horizontal) or up/down slide (vertical) CSS transitions. Not rendered by `Tab` — rendered by `Tabs` from the registered data.
+- `TabContent.tsx` — renders the tab content panel. Hidden when not active; applies left/right slide (horizontal) or up/down slide (vertical) CSS transitions. The tab and the `tabs-content` area that holds the tabs use `overflow: clip`, not `hidden` (sc-1935): a hidden box is still a scroll container, so focus inside a tab (a drop-down opening, tabbing) made the browser scroll it sideways by the slide offset, shifting the tab and showing its neighbour. `Tabs` also puts `tabs-content` straight back to 0,0 on any scroll, for a browser without `clip`. Not rendered by `Tab` — rendered by `Tabs` from the registered data.
 - `index.ts` — re-exports `TabComponent` as `Tab`, and exports `TabProps`, `TabButtonProps`, `TabContentProps`.
 
 ## Decision rationale
