@@ -67,3 +67,18 @@ export const OnADarkBackground: Story = {
 };
 OnADarkBackground.name = 'On a dark background';
 OnADarkBackground.play = waitForStoryReady;
+
+const optionsWithTooltips: ListItem[] = [
+  { id: 'outstanding', text: 'Outstanding', tooltip: 'Anything still owed: unpaid and part-paid invoices together' },
+  { id: 'unpaid', text: 'Unpaid', tooltip: 'Nothing paid yet' },
+  { id: 'part-paid', text: 'Part paid', tooltip: 'Some paid, some still owing' },
+  { id: 'all', text: 'All (no tooltip)' },
+] as ListItem[];
+
+/** Open the list and point at, or arrow down to, an option: it explains itself beside it. */
+export const OptionTooltips: Story = {
+  render: () => {
+    const [value, setValue] = useState<string | undefined>('outstanding');
+    return <DropDown label="Status" value={value} onChange={setValue} values={optionsWithTooltips} width={200} />;
+  },
+};

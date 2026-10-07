@@ -61,6 +61,7 @@ export * from './Selector';
 export * from './Expander';
 export * from './Matrix';
 export * from './Switch';
+export * from './SettingRow';
 export * from './Slider';
 export * from './Section';
 export * from './SimpleList';
