@@ -12,7 +12,7 @@ When `WindowsManager` decides to render an open window, it passes control to `Wi
 - `Window.tsx` — the draggable, resizable window shell. Renders the header slot (the consumer's `WindowHeader` or a default one) with the close/maximize/restore buttons, a `UIState` loading overlay, validation, a `FormObserver`, and the `children` content area. Connects all sub-hooks.
 
 ### Header
-- `WindowHeader.tsx` — the window's titlebar, exposed to definitions as `Header` (see [Customising the header](../AGENTS.md#5-customising-the-header)). Reads the Window's title, icon, drag props and buttons from `WindowHeaderContext`, which is also provided (with no buttons or drag props) by the Wizard's `WizardInlineShell` — see [Wizard/AGENTS.md](../../Wizard/AGENTS.md#4-customise-the-header).
+- `WindowHeader.tsx` — the window's titlebar, exposed to definitions as `Header` (see [Customising the header](../AGENTS.md#5-customising-the-header)). Reads the Window's title, icon, drag props and buttons from `WindowHeaderContext`, which is also provided (with no buttons or drag props) by the Wizard's `WizardInlineShell` — see [Wizard/AGENTS.md](../../Wizard/AGENTS.md#4-customise-the-header). Its titlebar wraps when crowded (`wrapWhenCrowded`, see [Titlebar](../../Titlebar/AGENTS.md)): on a phone-width window the title and the close button stay on the first row and header actions go on a row below.
 - `splitWindowHeader.ts` — separates a `WindowHeader` from `Window`'s children (looking through fragments) so `Window` can render it in the header slot. Returns the original children untouched when there is no header. Also used by `Wizard`, which lifts the Header out before laying out its steps.
 
 ### Content and actions
