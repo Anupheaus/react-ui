@@ -28,6 +28,7 @@ All other [`FieldProps`](../Field/AGENTS.md) are also accepted.
 
 - **Editing** — when not in a read-only `UIState`, renders a live split-pane editor (markdown source on the left, rendered preview on the right). The toolbar and drag bar are always hidden. ⚠️ **The editable mode has not been fully tested and its design has not been finalised.**
 - **Read-only** — when inside a `UIState` with `isReadOnly`, renders the markdown as a rendered preview only (no editor pane).
+- **Sanitised preview** — the preview allows raw HTML, so both the read-only preview and the live preview pane run `rehype-sanitize` (GitHub's default schema) after it. Iframes, scripts, event-handler attributes and `javascript:` links are stripped; headings, lists, emphasis, tables, code and http(s), mailto and tel links still render. This is defence in depth: callers should still sanitise markdown they store.
 - **Scroll shadows** — top and bottom shadows appear via `IntersectionObserver` as the user scrolls, matching the `Scroller` component's behaviour.
 - **Scroll prompt** — when `showScrollPrompt` is `true`, a bouncing chevron is rendered at the bottom of the content. It animates on a looping fade-in/bounce/fade-out cycle until the user scrolls to the bottom, at which point it is removed permanently. If the user has not yet reached the bottom when the parent form is validated, a validation error is shown.
 - **Theme integration** — font family, text colour, and background are taken from the active theme. The editor adapts automatically to light or dark themes.
