@@ -70,3 +70,7 @@ See [AGENTS.md](AGENTS.md) for instructions on working in this codebase.
 ## License
 
 Apache-2.0
+
+## Documentation
+
+Architecture decisions, patterns and coding standards are indexed in [docs/README.md](docs/README.md).
