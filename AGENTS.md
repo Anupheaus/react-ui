@@ -46,3 +46,6 @@ Always use `createStyles` and `className` to apply styles to elements. Never use
 - **Windows** (`src/components/Windows/AGENTS.md`): Draggable windows, `useWindow`, `createWindow`, persistence.
 - **Dialogs** (`src/components/Dialog/AGENTS.md`): Modal dialogs, `useDialog`, `createDialog`, `useConfirmationDialog`.
 
+## Architecture docs
+
+Read [docs/README.md](docs/README.md) before architecture-sensitive work. It lists every decision, pattern and coding standard with a one-line summary; open only the docs relevant to your task. Don't edit files under `docs/` by hand: architectural decisions go to the Architect agent, which updates them.
