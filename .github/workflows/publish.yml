@@ -159,7 +159,7 @@ jobs:
       - name: Run Storybook tests
         env:
           STORYBOOK_COVERAGE: 1
-        run: pnpm run storybook:build --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci --coverage"
+        run: pnpm run storybook:build --quiet && npx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" "npx http-server storybook-static --port 6006 --silent" "npx wait-on tcp:127.0.0.1:6006 && test-storybook --ci --coverage --index-json"
 
       - name: Upload Storybook coverage to Codecov
         uses: codecov/codecov-action@v4
