@@ -93,7 +93,7 @@ jobs:
           node-auth-token: ${{ secrets.GITHUB_TOKEN }}
           install-args: '--no-frozen-lockfile'
       - name: Security audit
-        run: pnpm audit --audit-level=critical
+        run: pnpm audit --audit-level=high
 
   # ── TEST (parallel) ─────────────────────────────────────────────────────────
   Test-Vitest:
