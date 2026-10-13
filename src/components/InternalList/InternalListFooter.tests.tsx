@@ -49,6 +49,22 @@ function renderInApp(children: React.ReactNode) {
 
 const filterButton = () => screen.getByTestId('list-filter-button');
 const badge = () => document.querySelector('.MuiBadge-badge:not(.MuiBadge-invisible)');
+/** The dialog the footer opened — the only window rendered in this test. */
+const dialogWindow = () => document.querySelector('window');
+
+/**
+ * jsdom runs no CSS transitions, so the `transitionend` a browser sends when a window's fade-out ends never arrives.
+ * A closed dialog is only then taken out of the DOM by the Windows manager's 4-second fallback, which is what made this
+ * case race its 5-second budget on CI. Send that event as the browser would — repeating it, since the manager only
+ * begins waiting for it once the close is under way — so the close is decided by the code under test, not by a timer.
+ */
+function endDialogFadeOut() {
+  const element = dialogWindow();
+  if (element == null) return;
+  const event = new Event('transitionend');
+  Object.assign(event, { propertyName: 'opacity' });
+  element.dispatchEvent(event);
+}
 
 describe('InternalListFooter filter', () => {
   it('shows no Filter button when the screen gives no filtering', () => {
@@ -91,12 +107,19 @@ describe('InternalListFooter filter', () => {
     fireEvent.click(filterButton());
     fireEvent.click(await screen.findByText('Only late tasks'));
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    await waitFor(() => expect(screen.queryByText('Only late tasks')).toBeNull(), { timeout: 5_000 });
+    await waitFor(() => {
+      endDialogFadeOut();
+      expect(dialogWindow()).toBeNull();
+    }, { timeout: 5_000 });
     expect(screen.getByTestId('applied').textContent).toBe('late only');
 
     fireEvent.click(filterButton());
     fireEvent.click(await screen.findByTestId('list-filter-clear'));
-    await waitFor(() => expect(screen.getByTestId('applied').textContent).toBe('all'));
+    expect(screen.getByTestId('applied').textContent).toBe('all');
+    await waitFor(() => {
+      endDialogFadeOut();
+      expect(dialogWindow()).toBeNull();
+    }, { timeout: 5_000 });
   });
 
   it('adds words after the count', () => {
