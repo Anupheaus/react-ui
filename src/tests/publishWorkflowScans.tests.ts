@@ -112,6 +112,29 @@ function getNestedEntries(job: WorkflowJob, indent: number, key: string): string
   return entries;
 }
 
+/**
+ * The entries of the `with:` block of the step named `stepName`, in the job that contains it.
+ * Pinned to one step on purpose: a `fetch-depth` anywhere in the job would not help the
+ * scanner, so the guard must prove it is the setup step that requests it.
+ */
+function getStepInputs(job: WorkflowJob, stepName: string): string[] {
+  const jobLines = getJobLines(job);
+  const stepIndex = jobLines.indexOf(`      - name: ${stepName}`);
+  if (stepIndex < 0) throw new Error(`Job "${job.id}" in ${workflowPath} has no step named "${stepName}"`);
+
+  const inputs: string[] = [];
+  let inWith = false;
+  for (const line of jobLines.slice(stepIndex + 1)) {
+    if (line.startsWith('      - ')) break;
+    if (line === '        with:') {
+      inWith = true;
+      continue;
+    }
+    if (inWith && line.startsWith('          ')) inputs.push(line.trim());
+  }
+  return inputs;
+}
+
 /** The value of a step `key: value` line, e.g. `exit-code: '1'` inside the scanner step. */
 function getStepInput(job: WorkflowJob, key: string): string {
   const inputLine = getJobLines(job).find(line => line.trim().startsWith(`${key}:`));
@@ -147,10 +170,22 @@ describe('Publish workflow secret and vulnerability scans', () => {
     }
   });
 
+  it('fetches the full history the scan range needs', () => {
+    const job = getJob('Validate-Secrets');
+    // pnpm-setup defaults to fetch-depth 1 (DOC-021), so the base sha of the range is not in
+    // a pull request's merge-ref checkout, nor in a push's HEAD-only checkout: the range then
+    // resolves to nothing and the job passes without scanning a single commit.
+    expect(getStepInputs(job, 'Setup pnpm, node, and install')).toContain("fetch-depth: '0'");
+    // The scanner step itself must not be where the depth is set, i.e. the guard above is
+    // actually reading the setup step and not the first `with:` block in the job.
+    expect(getStepInputs(job, 'Secret detection (TruffleHog)')).not.toContain("fetch-depth: '0'");
+  });
+
   it('scans the pull-request or push range for verified credentials', () => {
     const job = getJob('Validate-Secrets');
     expect(job.text).toContain('uses: trufflesecurity/trufflehog@main');
-    expect(getStepInput(job, 'base')).toBe('${{ github.event.before || github.event.pull_request.base.sha }}');
+    const scanInputs = getStepInputs(job, 'Secret detection (TruffleHog)');
+    expect(scanInputs).toContain('base: ${{ github.event.before || github.event.pull_request.base.sha }}');
     expect(getStepInput(job, 'head')).toBe('HEAD');
     // A finding only fails the job when the credential is confirmed live, so a placeholder or
     // a fixture value does not block a pull request.
