@@ -39,6 +39,8 @@ overrides:
   webpack-dev-middleware@<7.4.6: 7.4.6
   braces@<=3.0.3: npm:@cekrem/braces@3.0.4
 
+pnpmfileChecksum: sha256-ccNINq1uCqjNiIcNsh3+W/jH//yEi3xpwnjjg67xnOM=
+
 importers:
 
   .:
