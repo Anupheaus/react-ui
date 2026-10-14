@@ -95,6 +95,69 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=critical
 
+  # A committed credential must not merge green. TruffleHog scans only the commits the
+  # pull request (or push) adds, and --only-verified fails the job only for a credential it
+  # has confirmed is live, so a placeholder or a test fixture does not block the pipeline.
+  Validate-Secrets:
+    name: Secret detection
+    concurrency:
+      group: validate-secrets-${{ github.ref }}
+      cancel-in-progress: true
+    needs: Prepare
+    runs-on: ubuntu-latest
+    # Own guard, as the Test-Storybook job has (sc-477): the scanner itself is seconds and
+    # the install dominates, but a stuck job must not run to GitHub's 6-hour default.
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
+        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
+      - name: Secret detection (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          base: ${{ github.event.before || github.event.pull_request.base.sha }}
+          head: HEAD
+          extra_args: --only-verified
+
+  # A dependency below the audit threshold (pnpm audit --audit-level=critical) still has to
+  # fail here: this scans the installed tree on the filesystem, HIGH and CRITICAL, and
+  # ignore-unfixed keeps an advisory with no fix from blocking the pull request.
+  Validate-Trivy:
+    name: Filesystem security scan
+    concurrency:
+      group: validate-trivy-${{ github.ref }}
+      cancel-in-progress: true
+    needs: Prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Setup pnpm, node, and install
+        uses: Anupheaus/agents/ci-templates/actions/pnpm-setup@v1
+        with:
+          pnpm-version: ${{ env.PNPM_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
+          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          install-args: '--no-frozen-lockfile'
+      - name: Filesystem security scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
   # ── TEST (parallel) ─────────────────────────────────────────────────────────
   Test-Vitest:
     name: Vitest Tests
