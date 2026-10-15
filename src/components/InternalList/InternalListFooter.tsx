@@ -25,6 +25,13 @@ const useStyles = createStyles((theme) => {
       userSelect: 'none',
       ...toolbar,
       boxShadow: 'none',
+      // Too narrow for the buttons and the count side by side (a window on a phone): the count goes on a second row, whole,
+      // rather than being cut off. Nothing wraps while they fit.
+      flexWrap: 'wrap',
+      rowGap: 4,
+    },
+    total: {
+      whiteSpace: 'nowrap',
     },
     errorContent: {
       color: error.color,
@@ -148,7 +155,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
       {filterButton}
 
       {!hideRecordCount && unitName != null && (
-        <Flex tagName="internal-list-footer-total" disableGrow valign="center">
+        <Flex tagName="internal-list-footer-total" className={css.total} disableGrow disableShrink valign="center">
           <Skeleton type="text">{formatNumber(total ?? 100)}</Skeleton>&nbsp;
           <Skeleton type="text">{to.plural(unitName, total ?? 100)}</Skeleton>
           {totalSuffix != null && <>&nbsp;<Skeleton type="text">{totalSuffix}</Skeleton></>}

@@ -54,6 +54,7 @@ export const WindowHeader = createComponent('WindowHeader', ({
       icon={renderIcon == null ? icon : renderIcon(icon)}
       title={title}
       renderTitle={renderTitle}
+      wrapWhenCrowded
       endAdornment={endAdornment}
     >
       {children}
