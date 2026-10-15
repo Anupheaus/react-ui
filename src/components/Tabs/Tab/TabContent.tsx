@@ -16,7 +16,11 @@ const useStyles = createStyles(({ windows: { content: { active: contentActive } 
     opacity: 0,
     transitionDuration: '400ms',
     transitionTimingFunction: 'ease',
-    overflow: 'hidden',
+    // Clipped, not hidden, so focus inside never scrolls the tab itself (see `tabsContent` in Tabs.tsx).
+    overflow: 'clip',
+    // `hidden` also let a flex or grid item shrink below its content (its automatic minimum size is 0); `clip` does not, so say so.
+    minWidth: 0,
+    minHeight: 0,
     pointerEvents: 'none',
     zIndex: -1,
 

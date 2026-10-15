@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, renderHook, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { useTabs } from './useTabs';
 
 class MockIntersectionObserver {
@@ -170,6 +171,56 @@ describe('useTabs', () => {
         expect(tabEls[0].className).not.toContain('slide-up');
         expect(tabEls[1].className).toContain('is-visible');
       });
+    });
+  });
+  // Moving focus inside a tab (opening a drop-down, tabbing) made the browser scroll the clipped tab area sideways by the 50px the
+  // neighbouring tab sits beside it, shifting the tab and showing the neighbour at its edge (sc-1935).
+  describe('focus inside a tab', () => {
+    function TwoTabs() {
+      const { Tabs, Tab } = useTabs();
+      return (
+        <Tabs>
+          <Tab label="A"><input aria-label="field" /></Tab>
+          <Tab label="B">Content B</Tab>
+        </Tabs>
+      );
+    }
+
+    const tabsContentOf = async (container: HTMLElement) => {
+      await waitFor(() => expect(container.querySelector('tabs-content tab')).not.toBeNull());
+      return container.querySelector('tabs-content') as HTMLElement;
+    };
+
+    it('clips the tab area rather than leaving it scrollable, so focus cannot move it', async () => {
+      const { container } = render(<TwoTabs />);
+      const tabsContent = await tabsContentOf(container);
+
+      expect(getComputedStyle(tabsContent).overflow).toBe('clip');
+      expect(getComputedStyle(container.querySelector('tabs-content tab') as HTMLElement).overflow).toBe('clip');
+    });
+
+    it('puts the tab area straight back if a browser scrolls it sideways anyway', async () => {
+      const { container } = render(<TwoTabs />);
+      const tabsContent = await tabsContentOf(container);
+      const scrollTo = vi.fn();
+      Object.defineProperty(tabsContent, 'scrollTo', { configurable: true, value: scrollTo });
+      Object.defineProperty(tabsContent, 'scrollLeft', { configurable: true, value: 50 });
+
+      fireEvent.scroll(tabsContent);
+
+      expect(scrollTo).toHaveBeenCalledWith(0, 0);
+    });
+
+    it('leaves the tab area alone when it has not moved', async () => {
+      const { container } = render(<TwoTabs />);
+      const tabsContent = await tabsContentOf(container);
+      const scrollTo = vi.fn();
+      Object.defineProperty(tabsContent, 'scrollTo', { configurable: true, value: scrollTo });
+
+      fireEvent.focus(container.querySelector('input') as HTMLElement);
+      fireEvent.scroll(tabsContent);
+
+      expect(scrollTo).not.toHaveBeenCalled();
     });
   });
 });
