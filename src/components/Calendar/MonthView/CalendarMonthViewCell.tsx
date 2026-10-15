@@ -7,7 +7,7 @@ import { Tag } from '../../Tag';
 import { CalendarUtils } from '../CalendarUtils';
 import { CalendarMonthViewCellEntry } from './CalendarMonthViewCellEntry';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
-import type { CalendarDayAdornmentRenderer } from '../CalendarModels';
+import { CalendarDayCountButton } from '../CalendarDayCountButton';
 import {
   MONTH_CELL_HEADER_HEIGHT, MONTH_CELL_HEIGHT, MONTH_CELL_PADDING_TOP, MONTH_ENTRY_HEIGHT, fitMonthCellEntries, getMonthEntryTop, getMonthVisibleRows,
 } from './CalendarMonthViewLayout';
@@ -19,7 +19,6 @@ interface Props {
   dayIndex: number;
   entries: CalendarMonthEntryRecord[];
   dehighlightDate: boolean;
-  renderDayAdornment?: CalendarDayAdornmentRenderer;
 }
 const useStyles = createStyles(({ calendar }) => ({
   cell: {
@@ -49,7 +48,7 @@ const useStyles = createStyles(({ calendar }) => ({
   },
   cellDate: {
     display: 'flex',
-    // A fixed height, so the entry chips can start below it and never cover the date or its adornment.
+    // A fixed height, so the entry chips can start below it and never cover the date or the day's count.
     height: MONTH_CELL_HEADER_HEIGHT,
     boxSizing: 'border-box',
     alignItems: 'center',
@@ -59,15 +58,9 @@ const useStyles = createStyles(({ calendar }) => ({
     cursor: 'default',
     justifyContent: 'flex-end',
   },
-  // The date stays hard right; an adornment takes the space to its left rather than pushing it around.
-  cellDateWithAdornment: {
-    justifyContent: 'space-between',
-  },
-  dayAdornment: {
-    display: 'flex',
-    alignItems: 'center',
-    minWidth: 0,
-    maxHeight: MONTH_CELL_HEADER_HEIGHT,
+  // The date stays hard right; the day's count button takes the far left rather than pushing it around.
+  cellDateNumber: {
+    marginLeft: 'auto',
   },
   // Takes the last row of chips that fits on a busy day (its top is set from the cell's height).
   moreEntries: {
@@ -93,11 +86,8 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
   dayIndex,
   entries,
   dehighlightDate,
-  renderDayAdornment,
 }: Props) => {
   const { css, join } = useStyles();
-
-  const dayAdornment = useMemo(() => renderDayAdornment?.(cellDate), [renderDayAdornment, cellDate]);
 
   // The week rows share the calendar's height, so how many rows of chips fit follows the height this cell gets.
   const { ref: cellRef, height: cellHeight } = useResizeObserver<HTMLElement>();
@@ -126,9 +116,9 @@ export const CalendarMonthViewCell = createComponent('CalendarMonthViewCell', ({
         className,
       )}
     >
-      <Tag name="calendar-month-view-cell-date" className={join(css.cellDate, dayAdornment != null && css.cellDateWithAdornment, dehighlightDate && css.dehighlightDate)}>
-        {dayAdornment != null && <Tag name="calendar-month-view-day-adornment" className={css.dayAdornment}>{dayAdornment}</Tag>}
-        {cellDate.getDate()}
+      <Tag name="calendar-month-view-cell-date" className={join(css.cellDate, dehighlightDate && css.dehighlightDate)}>
+        <CalendarDayCountButton date={cellDate} />
+        <Tag name="calendar-month-view-cell-date-number" className={css.cellDateNumber}>{cellDate.getDate()}</Tag>
       </Tag>
       {renderedEntries}
       {hiddenCount > 0 && <Tag name="calendar-month-view-cell-more" className={css.moreEntries} style={moreEntriesStyle}>+{hiddenCount} more</Tag>}

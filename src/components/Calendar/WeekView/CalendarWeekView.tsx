@@ -8,7 +8,7 @@ import { Scroller } from '../../Scroller';
 import { Tag } from '../../Tag';
 import { createStyles } from '../../../theme';
 import { getCalendarGridLineColor } from '../CalendarGridLineColor';
-import type { CalendarDayAdornmentRenderer, CalendarEntryRecord, CalendarWeekDay } from '../CalendarModels';
+import type { CalendarEntryRecord, CalendarWeekDay } from '../CalendarModels';
 import { CalendarDayViewHours } from '../DayView/CalendarDayViewHours';
 import { calendarDayUtils } from '../DayView/CalendarDayUtils';
 import { CalendarWeekViewDayColumn } from './CalendarWeekViewDayColumn';
@@ -92,7 +92,6 @@ interface Props {
   hourHeight?: number;
   startHour?: number;
   endHour?: number;
-  renderDayAdornment?: CalendarDayAdornmentRenderer;
   onSelect(entry: CalendarEntryRecord): void;
 }
 
@@ -113,7 +112,6 @@ export const CalendarWeekView = createComponent('CalendarWeekView', ({
   startHour: rawStartHour,
   endHour: rawEndHour,
   onSelect,
-  renderDayAdornment,
 }: Props) => {
   const { css, join, useInlineStyle } = useStyles();
   const calendarWeekViewElementRef = useRef<HTMLDivElement | null>(null);
@@ -158,8 +156,8 @@ export const CalendarWeekView = createComponent('CalendarWeekView', ({
   }, [viewingDate, hourHeight, startHour]);
 
   const renderedDayHeaders = useMemo(() => weekDayDates.map(({ day, date }) => (
-    <CalendarWeekViewDayHeader key={day} className={css.gridCellBorder} day={day} date={date} renderDayAdornment={renderDayAdornment} />
-  )), [weekDayDates, css.gridCellBorder, renderDayAdornment]);
+    <CalendarWeekViewDayHeader key={day} className={css.gridCellBorder} day={day} date={date} />
+  )), [weekDayDates, css.gridCellBorder]);
 
   const renderedDayColumns = useMemo(() => weekDayDates.map(({ day, date }) => (
     <CalendarWeekViewDayColumn
