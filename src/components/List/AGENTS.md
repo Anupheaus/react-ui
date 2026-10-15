@@ -103,6 +103,7 @@ const [selected, setSelected] = useState<string[]>([]);
 - Translates the `value` / `onChange` pattern into `selectedItemIds` / `onSelectedItemsChange`.
 - Adds the Add button lifecycle (calls `onAdd`, then re-enables validation errors).
 - Intercepts `onRequest` and `onError` to capture `total` and request errors for the footer.
+- Counts the footer total from `items.length` when given static `items` — never from the rows loaded so far, which are only the drawn window of a long list. A list that pages via `onRequest` shows the server's `total`.
 - Renders an **`InternalListFooter`** below the `InternalList` showing the Add button, item count, and optional summary. The footer is always visible when `unitName` is set (default `'item'`). Use `hideRecordCount` to suppress the count.
 
 All `onRequest` / virtualisation behaviour is handled entirely by `InternalList`. Refer to [InternalList](../InternalList/AGENTS.md) for the virtualisation and request contract details.

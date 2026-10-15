@@ -106,6 +106,7 @@ export const List = createComponent('List', function <T = void, V extends string
   onRequest,
   onError,
   emptyMessage,
+  items,
   ...props
 }: ListProps<T, V>) {
   const { css: listCss } = useListStyles();
@@ -114,7 +115,9 @@ export const List = createComponent('List', function <T = void, V extends string
   const { validate } = useValidation({ id: `list-${label}` });
   const [hasItems, setHasItems] = useState(false);
   const [hasSelectedItems, setHasSelectedItems] = useState(false);
-  const [total, setTotal] = useState<number | undefined>();
+  const [requestTotal, setRequestTotal] = useState<number | undefined>();
+  // A list given every item up front counts them all: the rows loaded so far are only the drawn window (sc-2502).
+  const total = onRequest == null ? (items?.length ?? 0) : requestTotal;
   const [requestError, setRequestError] = useState<Error | undefined>();
   const value = 'value' in props ? props.value : undefined;
   const onChange = 'onChange' in props ? props.onChange : undefined;
@@ -128,7 +131,7 @@ export const List = createComponent('List', function <T = void, V extends string
 
   const handleRequest = useBound(async (request: UseDataRequest, response: (data: UseDataResponse<ReactListItem<T>>) => void) => {
     await onRequest?.(request, (data) => {
-      setTotal(data.total);
+      setRequestTotal(data.total);
       setRequestError(undefined);
       response(data);
     });
@@ -144,9 +147,8 @@ export const List = createComponent('List', function <T = void, V extends string
     () => onChange != null && isOptional !== true && !hasSelectedItems ? (selectionRequiredMessage ?? ((maxSelectableItems ?? 0) > 1 ? 'Please select at least one item' : 'Please select an item')) : undefined,
   );
 
-  const handleItemsChanged = useBound((items: ReactListItem<T>[]) => {
-    setHasItems(items.length > 0);
-    if (onRequest == null) setTotal(items.length);
+  const handleItemsChanged = useBound((loadedItems: ReactListItem<T>[]) => {
+    setHasItems(loadedItems.length > 0);
   });
 
   const changeSelectedItems = useBound((newSelectedItems: string[]) => {
@@ -185,6 +187,7 @@ export const List = createComponent('List', function <T = void, V extends string
         tagName="list-content"
         className={css.listContent}
         {...props}
+        items={items}
         deleteTooltip={deleteTooltip}
         onRequest={onRequest != null ? handleRequest : undefined}
         onError={handleError}
