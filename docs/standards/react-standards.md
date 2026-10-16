@@ -2,7 +2,7 @@
 
 > React rules: one component per file, no inline JSX callbacks, styles, maps or object props.
 >
-> Status: accepted · Version 2
+> Status: accepted · Epics: EP-10 · Version 3
 
 ## React-specific preferences
 
