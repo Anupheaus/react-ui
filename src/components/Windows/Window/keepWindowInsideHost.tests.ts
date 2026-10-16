@@ -2,6 +2,8 @@ import type { WindowPlacement } from './keepWindowInsideHost';
 import { keepWindowInsideHost } from './keepWindowInsideHost';
 
 const HOST = { width: 1024, height: 560 };
+/** The windows host beside Vision's sidebar on a 1366-wide screen. */
+const LAPTOP_HOST = { width: 1262, height: 560 };
 
 interface PlacementCase {
   name: string;
@@ -43,6 +45,20 @@ describe('keepWindowInsideHost', () => {
 
   it.each(placementsNotYetKnown)('handles $name', ({ placement, expected }) => {
     expect(keepWindowInsideHost(placement, HOST)).toEqual(expected);
+  });
+
+  // Vision sc-3365: a '75%' window held at its 1230px min-width, remembered centred on a 1920 screen (x=227), reopened on a
+  // 1366 one (host 1262 wide). Counting the CSS size as nothing left it at x=227, 195px off the right edge.
+  const drawnCases: PlacementCase[] = [
+    { name: 'a remembered CSS-sized window drawn wider than the room right of it', placement: { x: 227, y: 40, width: '75%', height: '85%', drawn: { width: 1230, height: 476 } }, expected: { x: 16, y: 40, width: '75%', height: '85%' } },
+    { name: 'a CSS-sized window drawn taller than the room below it', placement: { x: 0, y: 300, width: '50%', height: '85%', drawn: { width: 500, height: 476 } }, expected: { x: 0, y: 68, width: '50%', height: '85%' } },
+    { name: 'a CSS-sized window drawn wider than the host (flush left)', placement: { x: 120, y: 0, width: '75%', height: 300, drawn: { width: 1400, height: 300 } }, expected: { x: 0, y: 0, width: '75%', height: 300 } },
+    { name: 'a CSS-sized window that fits where it is', placement: { x: 100, y: 20, width: '50%', height: '50%', drawn: { width: 512, height: 280 } }, expected: { x: 100, y: 20, width: '50%', height: '50%' } },
+    { name: 'a CSS-sized window not drawn yet (kept inside by its corner)', placement: { x: 2000, y: 10, width: '75%', height: '85%' }, expected: { x: 1246, y: 10, width: '75%', height: '85%' } },
+  ];
+
+  it.each(drawnCases)('keeps $name inside by its drawn size', ({ placement, expected }) => {
+    expect(keepWindowInsideHost(placement, LAPTOP_HOST)).toEqual(expected);
   });
 
   it.each([{ width: 0, height: 0 }, { width: 0, height: 560 }, { width: 1024, height: 0 }])('leaves the placement alone when the host is not laid out (%o)', host => {
