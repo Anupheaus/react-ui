@@ -93,7 +93,7 @@ jobs:
           node-auth-token: ${{ secrets.GITHUB_TOKEN }}
           install-args: '--no-frozen-lockfile'
       - name: Security audit
-        run: pnpm audit --audit-level=critical
+        run: pnpm audit --audit-level=high
 
   # A committed credential must not merge green. TruffleHog scans only the commits the
   # pull request (or push) adds, and --only-verified fails the job only for a credential it

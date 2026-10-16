@@ -237,7 +237,8 @@ describe('Publish workflow secret and vulnerability scans', () => {
     expect(getJob('Prepare').text).toContain(PNPM_SETUP_ACTION);
     expect(getJob('Validate-TypeCheck').text).toContain('run: pnpm run typecheck');
     expect(getJob('Validate-Lint').text).toContain('run: pnpm run lint');
-    expect(getJob('Validate-Audit').text).toContain('run: pnpm audit --audit-level=critical');
+    // The level is owned by the audit gate (EP-6/TK-5 raised it to high); this guard keeps the job's own step.
+    expect(getJob('Validate-Audit').text).toContain('run: pnpm audit --audit-level=high');
     expect(getJob('Test-Vitest').text).toContain('run: pnpm run test:ci');
     // The master-only gate keeps its condition and its validate/test dependencies.
     const publishJob = getJob('Publish');
