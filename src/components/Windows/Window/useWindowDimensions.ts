@@ -119,8 +119,13 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     // Open wholly inside the host: a default or remembered size bigger than the screen, or a remembered position that
     // is now off it (e.g. saved on another monitor), would otherwise leave the title bar or the buttons out of reach.
     const host = measureHost(windowElementRef);
+    // A CSS size ('75%') is kept inside by the size it is drawn at, so in a laid-out host placing it waits until that
+    // has been measured (an unlaid-out host, e.g. jsdom, places nothing anyway).
+    const isHostLaidOut = host != null && host.width > 0 && host.height > 0;
+    const isDrawnSizeNeeded = isHostLaidOut && (typeof width === 'string' || typeof height === 'string');
+    const isDrawnSizeKnown = (actualWidth ?? 0) > 0 && (actualHeight ?? 0) > 0;
     if (host != null) {
-      const placement: WindowPlacement = { x, y, width, height };
+      const placement: WindowPlacement = { x, y, width, height, drawn: { width: actualWidth, height: actualHeight } };
       const fitted = keepWindowInsideHost(placement, host);
       PLACEMENT_KEYS.forEach(key => {
         if (fitted[key] !== placement[key]) stateChanges[key] = fitted[key];
@@ -128,7 +133,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
       ({ x, y, width, height } = fitted);
     }
     batchUpdates(() => {
-      if (width != null && height != null && x != null && y != null) setInitialDimensionsHaveBeenSet(true);
+      if (width != null && height != null && x != null && y != null && (!isDrawnSizeNeeded || isDrawnSizeKnown)) setInitialDimensionsHaveBeenSet(true);
       if (Object.keys(stateChanges).length > 0) setState(stateChanges);
     });
   }); // do after every render
