@@ -14,6 +14,10 @@ const useStyles = createStyles(({ chips: { chip }, pseudoClasses }, tools) => ({
     fontSize: chip.normal.textSize,
     fontWeight: chip.normal.textWeight,
     padding: chip.normal.padding,
+    // A name stays on one line: in a field only one row tall a wrapped name is clipped in half, so a long list runs off
+    // the edge of the field instead.
+    whiteSpace: 'nowrap',
+    flexShrink: 0,
     userSelect: 'none',
     cursor: 'pointer',
     ...tools.applyTransition('background-color'),

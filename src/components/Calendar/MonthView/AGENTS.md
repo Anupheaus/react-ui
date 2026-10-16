@@ -42,7 +42,6 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
 
 [← Back to Calendar](../AGENTS.md)
 
-## Day adornments
+## Day count
 
-The Calendar's `renderDayAdornment` prop is threaded down to here and rendered in the day cell's date row, to the left of the date number.
-It is called once per visible day; a day whose renderer returns `undefined` gets no adornment element at all.
+The Calendar's `getDayCount` is shown here as the day's count button (`CalendarDayCountButton`), far **left** of the day cell's date row, with the date number staying far right. See the Calendar `AGENTS.md`.

@@ -269,6 +269,10 @@ export interface Theme {
   text: TextTheme;
   fonts?: FontFace[];
   error: TextTheme;
+  /** Text that says "take care" (amber). Pair it with words — colour alone is not enough. */
+  warning: TextTheme;
+  /** Text that says "all is well" (green). Pair it with words — colour alone is not enough. */
+  success: TextTheme;
   fields: {
     label: {
       normal: FieldLabelTheme;

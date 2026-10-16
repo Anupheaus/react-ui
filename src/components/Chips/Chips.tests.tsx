@@ -67,3 +67,13 @@ describe('Chips — validation', () => {
     expect(screen.queryByText('N/A')).toBeNull();
   });
 });
+
+describe('Chips — selection arriving after the first render', () => {
+  it('shows the chips of a selection that was empty when the field first rendered', () => {
+    const { rerender } = render(<Chips label="People" values={PEOPLE} value={[]} isOptional />);
+
+    rerender(<Chips label="People" values={PEOPLE} value={['alice']} isOptional />);
+
+    expect(screen.getByText('Alice')).toBeTruthy();
+  });
+});

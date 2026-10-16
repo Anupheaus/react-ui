@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { useCallback, useMemo } from 'react';
 import { createComponent } from '../Component';
 import { Tag } from '../Tag';
-import type { CalendarDayAdornmentRenderer, CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
+import type { CalendarDayCountGetter, CalendarEntryRecord, CalendarWeekDay } from './CalendarModels';
+import { CalendarDayCountContext, type CalendarDayCountContextValue } from './CalendarDayCountContext';
 import { CalendarEntrySelectionProvider } from './CalendarEntrySelectionProvider';
 import { CalendarEntryHighlightProvider } from './CalenderEntryHighlightProvider';
 import { createStyles } from '../../theme';
@@ -42,8 +43,13 @@ interface Props {
   startHour?: number;
   endHour?: number;
   hourHeight?: number;
-  /** Extra content for each day header — a badge, a count, a small button. See {@link CalendarDayAdornmentRenderer}. */
-  renderDayAdornment?: CalendarDayAdornmentRenderer;
+  /**
+   * A count button in each day's header: month, far left of the cell's top row (the date stays far right); week, far left
+   * of the day title; day, far right of the title. Nothing is drawn for a day it returns `undefined` or 0 for. See {@link CalendarDayCountGetter}.
+   */
+  getDayCount?: CalendarDayCountGetter;
+  /** Called with the day when its count button is pressed. */
+  onDayCountSelect?(date: Date): void;
 }
 
 export const Calendar = createComponent('Calendar', ({
@@ -59,7 +65,8 @@ export const Calendar = createComponent('Calendar', ({
   endHour,
   hourHeight,
   label,
-  renderDayAdornment,
+  getDayCount,
+  onDayCountSelect,
 }: Props) => {
   const { css, join } = useStyles();
 
@@ -83,10 +90,9 @@ export const Calendar = createComponent('Calendar', ({
       startHour={startHour}
       endHour={endHour}
       hourHeight={hourHeight}
-      renderDayAdornment={renderDayAdornment}
       label={date.getTime() === viewingDate.getTime() ? label : undefined}
     />
-  ), [view, resolvedEntries, onSelect, weekDays, startHour, endHour, hourHeight, label, renderDayAdornment, viewingDate.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
+  ), [view, resolvedEntries, onSelect, weekDays, startHour, endHour, hourHeight, label, viewingDate.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = isCarousel
     ? (
@@ -107,17 +113,20 @@ export const Calendar = createComponent('Calendar', ({
         startHour={startHour}
         endHour={endHour}
         hourHeight={hourHeight}
-        renderDayAdornment={renderDayAdornment}
-        label={label}
+          label={label}
       />
     );
+
+  const dayCountContext = useMemo<CalendarDayCountContextValue>(() => ({ getDayCount, onDayCountSelect }), [getDayCount, onDayCountSelect]);
 
   return (
     <CalendarEntryHighlightProvider>
       <CalendarEntrySelectionProvider>
-        <Tag name="calendar" className={join(css.calendar, className)}>
-          {content}
-        </Tag>
+        <CalendarDayCountContext.Provider value={dayCountContext}>
+          <Tag name="calendar" className={join(css.calendar, className)}>
+            {content}
+          </Tag>
+        </CalendarDayCountContext.Provider>
       </CalendarEntrySelectionProvider>
     </CalendarEntryHighlightProvider>
   );

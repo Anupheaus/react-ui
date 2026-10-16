@@ -2,12 +2,23 @@ import type { ReactNode } from 'react';
 import type { IconName } from '../Icon';
 
 /**
- * Renders extra content in a day's header — a badge, a count, a small button.
- *
- * Called once per visible day in every view, with that day's date. Return `undefined` for a day that needs
- * nothing, so days without an adornment are not given an empty element to lay out.
+ * What a day's count button shows (`Calendar`'s `getDayCount`). The calendar draws the button and places it per view;
+ * what is being counted is the consumer's business.
  */
-export type CalendarDayAdornmentRenderer = (date: Date) => ReactNode;
+export interface CalendarDayCount {
+  /** How many. A day with none (0 or less) shows no button at all. */
+  count: number;
+  /** `alert` draws the button in the theme's error colour: something on that day needs attention. Defaults to `normal`. */
+  tone?: 'normal' | 'alert';
+  /** Said on hover and keyboard focus, and the button's accessible name, so say what the number counts ("You have 3 tasks due on this day"). */
+  tooltip?: string;
+}
+
+/**
+ * The count for a day, or `undefined` for a day with nothing to show. Called once per visible day in every view; the
+ * function must change identity whenever what it counts changes, or the counts are not redrawn.
+ */
+export type CalendarDayCountGetter = (date: Date) => CalendarDayCount | undefined;
 
 export type CalendarWeekDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
 
