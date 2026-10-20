@@ -4,7 +4,7 @@ import { AssistiveLabel } from './AssistiveLabel';
 import { createStorybookComponentStates } from '../../Storybook/createStorybookComponentStates';
 import { createStory } from '../../Storybook/createStory';
 import { Flex } from '../Flex';
-import { Text } from '../Text';
+import { AssistiveLabelPhoneForm, LONG_ERROR } from './AssistiveLabelPhoneForm';
 
 const meta: Meta<typeof AssistiveLabel> = {
   component: AssistiveLabel,
@@ -24,45 +24,40 @@ const waitForStoryReady = async () => {
   await new Promise(r => setTimeout(r, 200));
 };
 
-// The width a field would give it: the label wraps to its host's width, so in the harness's shrink-to-fit box it would
-// wrap after every character
-export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true, width: 200 });
+export const UIStates: Story = createStorybookComponentStates({ ...config, includeError: true });
 UIStates.name = 'UI States';
 UIStates.play = waitForStoryReady;
 
-/** The narrowest phone a form is used on. */
-const PHONE_WIDTH = 320;
-const LONG_ERROR = 'This reason is far too long to fit on one line of a small phone, so it must wrap onto several lines '
-  + 'inside the field rather than push the form wider than the screen.';
-// One unbroken run (a pasted link or code) has nowhere to break, so it must wrap mid-word too
-const LONG_UNBROKEN_HINT = 'https://example.com/a-very-long-link-pasted-into-the-notes-without-any-spaces-at-all';
+async function expectMessagesWrapInsidePhone(phone: HTMLElement): Promise<void> {
+  await expect(phone.scrollWidth).toBeLessThanOrEqual(phone.clientWidth);
+  const phoneRight = phone.getBoundingClientRect().right;
+  const labels = Array.from(phone.querySelectorAll<HTMLElement>('assistive-label'));
+  await expect(labels).toHaveLength(3);
+  for (const label of labels) {
+    await expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(phoneRight);
+    // It wrapped: one line is about one font size tall, so more than one and a half means two lines or more
+    const fontSize = parseFloat(getComputedStyle(label).fontSize);
+    await expect(label.getBoundingClientRect().height).toBeGreaterThan(fontSize * 1.5);
+  }
+}
 
 /**
- * A long error and a long unbroken hint under fields on a 320px phone: each message wraps inside its field and nothing
- * scrolls sideways. Sized to its text (`max-content`), the message pushed the form wider than the screen (Vision sc-2955).
+ * Long messages under fields on 320, 360 and 375px phones: a long error and a long unbroken hint in a form's column, and
+ * a long error under a field in a shrink-to-fit box. Each wraps inside the phone and nothing scrolls sideways. Sized to
+ * its text (`max-content`), the message pushed the form wider than the screen (Vision sc-2955).
  */
 export const WrapsLongMessageOnPhone: Story = createStory<typeof AssistiveLabel>({
-  width: PHONE_WIDTH,
   render: () => (
-    <Flex isVertical gap="fields">
-      <Text label="Reason" value="" error={LONG_ERROR} wide />
-      <Text label="Link" value="" assistiveHelp={LONG_UNBROKEN_HINT} wide />
+    <Flex gap={24} valign="top" disableGrow>
+      <AssistiveLabelPhoneForm width={320} />
+      <AssistiveLabelPhoneForm width={360} />
+      <AssistiveLabelPhoneForm width={375} />
     </Flex>
   ),
   play: async ({ canvas, canvasElement }) => {
-    await canvas.findByText(LONG_ERROR);
-    const content = canvasElement.querySelector<HTMLElement>('storybook-content');
-    await expect(content).not.toBeNull();
-    await expect(content!.scrollWidth).toBeLessThanOrEqual(content!.clientWidth);
-    const labels = Array.from(canvasElement.querySelectorAll<HTMLElement>('assistive-label'));
-    await expect(labels).toHaveLength(2);
-    const contentRight = content!.getBoundingClientRect().right;
-    for (const label of labels) {
-      await expect(label.scrollWidth).toBeLessThanOrEqual(label.clientWidth);
-      await expect(label.getBoundingClientRect().right).toBeLessThanOrEqual(contentRight);
-      // It wrapped: one line is about one font size tall, so more than one and a half means two lines or more
-      const fontSize = parseFloat(getComputedStyle(label).fontSize);
-      await expect(label.getBoundingClientRect().height).toBeGreaterThan(fontSize * 1.5);
-    }
+    await canvas.findAllByText(LONG_ERROR);
+    const phones = Array.from(canvasElement.querySelectorAll<HTMLElement>('phone-screen'));
+    await expect(phones).toHaveLength(3);
+    for (const phone of phones) await expectMessagesWrapInsidePhone(phone);
   },
 });
