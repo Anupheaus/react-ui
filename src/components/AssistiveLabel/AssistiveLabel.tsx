@@ -16,7 +16,13 @@ const useStyles = createStyles(({ assistiveLabel: { normal }, text }) => ({
     fontWeight: normal.fontWeight,
     color: normal.color ?? text.color,
     cursor: 'default',
-    width: 'max-content',
+    // The message wraps inside the width its field is given, long unbroken words included: sized to its text
+    // (`max-content`) it pushed a form on a 320px phone wider than the screen and the form scrolled sideways.
+    // `anywhere` (not `break-word`) also lowers the label's minimum width, so it never holds its field open either.
+    minWidth: 0,
+    maxWidth: '100%',
+    whiteSpace: 'normal',
+    overflowWrap: 'anywhere',
   },
   isError: {
     color: normal.errorTextColor,
