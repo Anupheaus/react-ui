@@ -15,6 +15,7 @@ import { Scroller } from '../Scroller';
 import { Dialogs } from '../Dialog/Dialogs';
 import { Checkbox } from '../Checkbox';
 import type { ListFilter } from '../InternalList/ListFilterDialog';
+import { expect, waitFor } from 'storybook/test';
 
 function ScrollPositionLabel() {
   const { scrollTop } = useScroller();
@@ -289,6 +290,38 @@ export const ListFooterCountOnly: Story = createStory<ListDefault>({
   render: () => (
     <List label="People" items={staticItems.slice(0, 5)} />
   ),
+});
+
+const thirtyChanges = new Array(30).fill(0).map((_, index): ReactListItem => ({ id: `change-${index + 1}`, text: `Change ${index + 1}`, ordinal: index }));
+
+/**
+ * A long list given every item up front, in a space that shows about ten rows: the footer counts all thirty, before any
+ * scrolling and after scrolling to the end and back. It used to count only the rows drawn so far ("23 changes", sc-2502).
+ */
+export const CountsEveryItemBeforeScrolling: Story = createStory<ListDefault>({
+  parameters: { test: { skipScreenshot: true } },
+  width: 280,
+  height: 400,
+  render: () => (
+    <List label="Changes" items={thirtyChanges} unitName="change" fullHeight />
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    await canvas.findByText('Change 1');
+    await expect(canvas.getByText('30 changes')).toBeInTheDocument();
+    const scroller = canvasElement.querySelector<HTMLElement>('list-content scroller-container');
+    await expect(scroller).not.toBeNull();
+    // Each scroll to the bottom lets the list request the next window, so keep going until the last row is drawn.
+    await waitFor(() => {
+      scroller!.scrollTop = scroller!.scrollHeight;
+      expect(canvas.getByText('Change 30')).toBeInTheDocument();
+    }, { timeout: 5000 });
+    await expect(canvas.getByText('30 changes')).toBeInTheDocument();
+    await waitFor(() => {
+      scroller!.scrollTop = 0;
+      expect(canvas.getByText('Change 1')).toBeInTheDocument();
+    }, { timeout: 5000 });
+    await expect(canvas.getByText('30 changes')).toBeInTheDocument();
+  },
 });
 
 export const ListFooterWithAddLabel: Story = createStory<ListDefault>({
