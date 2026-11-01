@@ -274,24 +274,42 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     }
   });
 
+  // The row height is not final when the first row appears: rows are held back by delayRenderingItems, and a row is
+  // shorter while its data is still loading. So keep measuring (on every render of the rows and whenever the content
+  // resizes) rather than locking the first value, otherwise the fallback / loading height sticks and the spacers
+  // (and so the scroll height) are sized wrongly.
+  const itemHeightRef = useRef(itemHeight);
+  itemHeightRef.current = itemHeight;
   useLayoutEffect(() => {
-    if (containerElement == null || itemHeightLockedRef.current || items.length === 0) return;
-    const measuredRowHeight = measureVirtualListItemHeight(containerElement);
-    if (measuredRowHeight == null) return;
+    if (containerElement == null || items.length === 0) return;
+    const measure = () => {
+      const measuredRowHeight = measureVirtualListItemHeight(containerElement);
+      if (measuredRowHeight == null) return;
 
-    const normalizedItemHeight = Math.max(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK, measuredRowHeight);
-    itemHeightLockedRef.current = true;
+      const currentItemHeight = itemHeightRef.current;
+      const normalizedItemHeight = Math.max(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK, measuredRowHeight);
+      const wasLocked = itemHeightLockedRef.current;
+      itemHeightLockedRef.current = true;
+      if (normalizedItemHeight === currentItemHeight) {
+        if (!wasLocked) requestItems();
+        return;
+      }
 
-    if (normalizedItemHeight !== itemHeight && containerElement.scrollTop > 0 && itemHeight > 0) {
-      const adjustedScrollTop = Math.round(containerElement.scrollTop * (normalizedItemHeight / itemHeight));
-      lastScrollTopRef.current = adjustedScrollTop;
-      containerElement.scrollTop = adjustedScrollTop;
-    }
-
-    if (normalizedItemHeight !== itemHeight) {
+      if (containerElement.scrollTop > 0 && currentItemHeight > 0) {
+        const adjustedScrollTop = Math.round(containerElement.scrollTop * (normalizedItemHeight / currentItemHeight));
+        lastScrollTopRef.current = adjustedScrollTop;
+        containerElement.scrollTop = adjustedScrollTop;
+      }
+      itemHeightRef.current = normalizedItemHeight;
       setItemHeight(normalizedItemHeight);
-    }
-  }, [containerElement, itemHeight, items.length]);
+    };
+    measure();
+    const contentElement = containerElement.querySelector('scroller-content');
+    if (contentElement == null) return;
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(contentElement);
+    return () => resizeObserver.disconnect();
+  }, [containerElement, items.length, renderedItems]);
 
   // Re-window whenever the total changes too: items that arrive after the first request (a live query filling in)
   // would otherwise stay outside the window sized for the first, smaller total.
