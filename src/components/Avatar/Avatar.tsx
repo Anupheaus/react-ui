@@ -107,7 +107,7 @@ export const Avatar = createComponent('Avatar', ({
 
   const gravatarImage = emailAddress ? (
     <img
-      src={`https://www.gravatar.com/avatar/${MD5(emailAddress)}?s=24&d=404`}
+      src={`https://www.gravatar.com/avatar/${MD5(emailAddress.trim().toLowerCase())}?s=24&d=404`}
       className={join(css.gravatarImage, gravatarImageVisible && 'is-visible')}
       onLoad={setGravatarImageVisible}
     />
