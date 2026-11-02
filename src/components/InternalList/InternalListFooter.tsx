@@ -74,6 +74,8 @@ export interface InternalListFooterProps {
   /** The Filter button's tooltip; "Filter" when absent. */
   filterTooltip?: ReactNode;
   footerClassName?: string;
+  /** Extra controls at the start of the footer, after the Add button — for example a switch that narrows the list. */
+  footerContent?: ReactNode;
 }
 
 export const InternalListFooter = createComponent('InternalListFooter', ({
@@ -91,6 +93,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
   activeFilterCount: providedActiveFilterCount,
   filterTooltip = 'Filter',
   footerClassName,
+  footerContent,
 }: InternalListFooterProps) => {
   const { css, join } = useStyles();
   const { formatNumber } = useLocale();
@@ -136,6 +139,12 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
     <Flex tagName="internal-list-footer" className={join(css.footer, footerClassName)} valign="center" wide>
 
       {addButton}
+
+      {footerContent != null && (
+        <Flex tagName="internal-list-footer-content" disableGrow valign="center">
+          {footerContent}
+        </Flex>
+      )}
 
       {error != null && (
         <Flex tagName="internal-list-footer-error" tooltip={error.message} className={css.errorContent} gap={8} valign="center" disableGrow>

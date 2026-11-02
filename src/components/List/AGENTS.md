@@ -32,6 +32,7 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `onFilter` | `() => PromiseMaybe<void>` | No | Called when the Filter button is pressed — for a screen with its own filter dialog. Shows the Filter button. |
 | `activeFilterCount` | `number` | No | The Filter button's badge; no badge at 0. Defaults to `filter.countActive(filter.value)`. |
 | `filterTooltip` | `ReactNode` | No | The Filter button's tooltip; `"Filter"` when absent. |
+| `footerContent` | `ReactNode` | No | Extra controls at the start of the footer, after the Add button — for example a switch that narrows the list. Shows the footer. |
 | `emptyMessage` | `ReactNode` | No | Shown centred in the body when the list has no items — what it is for and what to do next. |
 | `onDelete` | `(event: ListItemEvent<T>) => void` | No | Called when an item's delete button is activated. |
 | `adornments` | `ReactNode` | No | Extra controls rendered in the top-right corner of the field container. |

@@ -23,7 +23,7 @@ export type ListOnRequest<T = void> = Required<ListProps<T>>['onRequest'];
 
 export type ListActions = InternalListActions;
 
-export type ListProps<T = void, V extends string | string[] = string | string[]> = Omit<InternalListProps<T>, 'actions'> & Pick<InternalListFooterProps, 'addLabel' | 'addTooltip' | 'summary' | 'hideRecordCount' | 'totalSuffix' | 'filter' | 'onFilter' | 'activeFilterCount' | 'filterTooltip'> & {
+export type ListProps<T = void, V extends string | string[] = string | string[]> = Omit<InternalListProps<T>, 'actions'> & Pick<InternalListFooterProps, 'addLabel' | 'addTooltip' | 'summary' | 'hideRecordCount' | 'totalSuffix' | 'filter' | 'onFilter' | 'activeFilterCount' | 'filterTooltip' | 'footerContent'> & {
   className?: string;
   containerClassName?: string;
   contentClassName?: string;
@@ -101,6 +101,7 @@ export const List = createComponent('List', function <T = void, V extends string
   onFilter,
   activeFilterCount,
   filterTooltip,
+  footerContent,
   unitName = 'item',
   onAdd,
   onRequest,
@@ -156,7 +157,7 @@ export const List = createComponent('List', function <T = void, V extends string
     if (is.array(value) || (maxSelectableItems ?? 0) > 1) onChange?.(newSelectedItems as never); else onChange?.(newSelectedItems[0] as never);
   });
 
-  const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null || filter != null || onFilter != null;
+  const showFooter = onAdd != null || (!hideRecordCount && unitName != null) || summary != null || requestError != null || filter != null || onFilter != null || footerContent != null;
 
   return (
     <Field
@@ -213,6 +214,7 @@ export const List = createComponent('List', function <T = void, V extends string
             onFilter={onFilter}
             activeFilterCount={activeFilterCount}
             filterTooltip={filterTooltip}
+            footerContent={footerContent}
             onAdd={onAdd != null ? handleAdd : undefined}
             addLabel={addLabel}
             addTooltip={addTooltip}
