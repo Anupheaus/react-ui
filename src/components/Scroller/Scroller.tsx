@@ -130,7 +130,8 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
 }));
 
 export interface ScrollerActions {
-  scrollTo(scrollTo: number | 'bottom'): void;
+  /** Scrolls to a position or the bottom, animated by default; pass `'instant'` to jump there with no animation (a long list). */
+  scrollTo(scrollTo: number | 'bottom', behavior?: 'smooth' | 'instant'): void;
   refreshShadowVisibility(): void;
 }
 
@@ -224,10 +225,10 @@ export const Scroller = createComponent('Scroller', ({
     isRenderingRef.current = false;
   });
 
-  const scrollToFunc = (value: number | 'bottom' | undefined): void => {
+  const scrollToFunc = (value: number | 'bottom' | undefined, behavior: 'smooth' | 'instant' = 'smooth'): void => {
     const element = scrollerContainerElementRef.current;
     if (element == null || value == null) return;
-    element.scrollTo({ top: value === 'bottom' ? element.scrollHeight + 500 : value, behavior: 'smooth' });
+    element.scrollTo({ top: value === 'bottom' ? element.scrollHeight + 500 : value, behavior });
   };
 
   const updateShadowVisibility = useBound((element: HTMLDivElement) => {
