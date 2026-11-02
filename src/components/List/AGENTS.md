@@ -42,7 +42,7 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `fullHeight` | `boolean` | No | Expands the list to fill its parent's height. |
 | `minHeight` | `FlexProps['minHeight']` | No | Minimum height of the inner list. Defaults to `130`. |
 | `padding` | `number` | No | Additional padding inside the field container. |
-| `borderless` | `boolean` | No | Removes the field border. |
+| `borderless` | `boolean` | No | Removes the field's border and rounded corners, so the list sits flush in its panel. |
 | `delayRenderingItems` | `boolean` | No | Defers item rendering by ~100 ms after mount. |
 | `actions` | `UseActions<ListActions>` | No | Ref-style callback to receive a `ListActions` handle (`refresh`, `scrollTo`). |
 | `className` | `string` | No | Class applied to the outermost field element. |

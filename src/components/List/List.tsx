@@ -76,6 +76,7 @@ export const List = createComponent('List', function <T = void, V extends string
   className,
   containerClassName,
   contentClassName,
+  borderless,
   label,
   isOptional,
   isRequiredMessage,
@@ -165,7 +166,7 @@ export const List = createComponent('List', function <T = void, V extends string
       label={label}
       help={help}
       className={join(listCss.list, fullHeight && 'full-height', className)}
-      containerClassName={join(listCss.listContainer, containerClassName)}
+      containerClassName={join(listCss.listContainer, borderless && listCss.listContainerBorderless, containerClassName)}
       containerAdornments={adornments != null && (
         <Flex tagName="list-actions" gap={4} valign="center" className={css.adornments}>
           {adornments}
