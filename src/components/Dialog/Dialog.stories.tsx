@@ -202,3 +202,30 @@ export const ContentThatArrivesLater: Story = {
   },
 };
 ContentThatArrivesLater.name = 'Content that arrives after a delay';
+
+const WideDialogDefinition = createDialog('WideDialog', ({ Dialog, Content, Actions, OkButton }) => () => (
+  <Dialog title="A wide dialog" width={900} minWidth={600} allowCloseButton allowDrag>
+    <Content>Opened wide; narrow the browser and it comes back on screen.</Content>
+    <Actions>
+      <OkButton />
+    </Actions>
+  </Dialog>
+));
+
+/** The space for windows follows the browser width: narrowing the browser brings an open window back on screen. */
+export const NarrowedBrowser: Story = {
+  args: {},
+  render: () => {
+    const { openWideDialog } = useDialog(WideDialogDefinition);
+    const onOpen = useBound(() => { void openWideDialog(); });
+    return (
+      <Flex tagName="dialog-test" valign="top" align="left" isVertical>
+        <Button onClick={onOpen}>Open</Button>
+        <div style={{ position: 'relative', width: 'calc(100vw - 32px)', height: 500 }}>
+          <Dialogs />
+        </div>
+      </Flex>
+    );
+  },
+};
+NarrowedBrowser.name = 'Window kept on screen when the browser is narrowed';

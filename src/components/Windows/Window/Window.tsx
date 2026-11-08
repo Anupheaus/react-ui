@@ -247,7 +247,7 @@ export const Window = createComponent('Window', ({
   const { style, preparationClassName, allowIsMaximized } = useWindowDimensions({
     state, minWidth, minHeight, windowIndex, actualWidth, actualHeight,
     windowElementRef, wantingToBeMaximized: providedIsMaximized, initialPosition, setState,
-    contentWrapperRef, disableScrolling,
+    contentWrapperRef, disableScrolling, isPlacedByHost: isMobile,
   });
   useFitWindowToContent({
     isEnabled: fitToContent && !disableScrolling && preparationClassName == null && isMaximized !== true && !isMobile,
