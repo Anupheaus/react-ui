@@ -2,6 +2,10 @@
 
 A radio button group that renders a list of mutually exclusive options. Supports horizontal and vertical layouts, validation, and the standard `Field` decorators (label, help, error, assistive text).
 
+## Accessibility
+
+The group is `role="radiogroup"` named by its label (and described by its error or help text); each option is `role="radio"` with `aria-checked`. The group is one tab stop (the chosen option, or the first while none is chosen) and the arrow keys move to the next or previous option and choose it, wrapping at the ends.
+
 ## Props
 
 | Prop | Type | Required | Description |

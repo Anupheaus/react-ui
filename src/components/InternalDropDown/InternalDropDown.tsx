@@ -2,7 +2,7 @@ import type { PopoverOrigin, PopoverProps } from '@mui/material';
 import { Popover } from '@mui/material';
 import type { FocusEvent, ReactNode } from 'react';
 import { useMemo, useRef } from 'react';
-import { useAsync, useBooleanState, useBound, useDOMRef, useOnResize } from '../../hooks';
+import { useAsync, useBooleanState, useBound, useDOMRef, useId, useOnResize } from '../../hooks';
 import type { ListItemEvent } from '../../models';
 import { ReactListItem } from '../../models';
 import { createStyles } from '../../theme';
@@ -10,7 +10,8 @@ import { Button } from '../Button';
 import { createComponent } from '../Component';
 import { Icon } from '../Icon';
 import type { FieldProps } from '../Field';
-import { Field } from '../Field';
+import { Field, useFieldAria } from '../Field';
+import { Tag } from '../Tag';
 import { UIState, useUIState, useValidation } from '../../providers';
 import type { PromiseMaybe } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
@@ -43,6 +44,10 @@ const useStyles = createStyles(({ pseudoClasses, menu: { normal } }) => ({
   },
   dropDownListContent: {
     overflow: 'hidden',
+  },
+  // Only there to carry an id for the open button's name; it must not change how the value is laid out.
+  selectedValue: {
+    display: 'contents',
   },
 }));
 
@@ -123,6 +128,13 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
   const requiredValue = isMultiSelect ? (selectionCount > 0 ? selectionCount : undefined) : value;
   const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(requiredValue, !isOptional, requiredMessage));
 
+  const shownError = props.error ?? error;
+  const valueId = useId();
+  const { ids: ariaIds, controlProps: ariaProps } = useFieldAria({ label: props.label, error: shownError, assistiveHelp: props.assistiveHelp });
+  // The button is the drop-down's one focusable control and has no text of its own: it is named by the field's label and
+  // then the value, so a screen reader says "Colour, Red, button" rather than "button".
+  const buttonLabelledBy = ariaProps['aria-labelledby'] == null ? valueId : `${ariaProps['aria-labelledby']} ${valueId}`;
+
   const handleClosed = useBound(() => {
     enableErrors();
     setIsClosed();
@@ -135,12 +147,19 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
 
   const endAdornments = useMemo(() => (
     <>
-      <Button key="dropdown-open" onSelect={openDropDown}>
+      <Button
+        key="dropdown-open"
+        aria-labelledby={buttonLabelledBy}
+        aria-describedby={ariaProps['aria-describedby']}
+        aria-invalid={ariaProps['aria-invalid']}
+        aria-haspopup="listbox"
+        onSelect={openDropDown}
+      >
         <Icon name="dropdown" />
       </Button>
       {providedEndAdornments}
     </>
-  ), [providedEndAdornments, openDropDown]);
+  ), [providedEndAdornments, openDropDown, buttonLabelledBy, ariaProps]);
 
   const anchorOrigin = useMemo<PopoverOrigin>(() => ({
     horizontal: 'right',
@@ -165,7 +184,8 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
     <UIState isLoading={isLoadingValues}>
       <Field
         {...props}
-        error={props.error ?? error}
+        error={shownError}
+        ariaIds={ariaIds}
         isOptional={isOptional}
         ref={innerRef}
         className={join(css.dropDown, props.className)}
@@ -174,7 +194,7 @@ export const InternalDropDown = createComponent('InternalDropDown', function <T 
         onContainerSelect={openDropDown}
         onBlur={handleOnBlur}
       >
-        {selectedValue}
+        <Tag name="dropdown-selected-value" id={valueId} className={css.selectedValue}>{selectedValue}</Tag>
         <Popover
           open={isOpen}
           anchorEl={anchorRef.current}

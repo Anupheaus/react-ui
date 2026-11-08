@@ -26,6 +26,7 @@ import { useNotifications } from '../../Notifications';
 import { Tag } from '../../Tag';
 import { WindowHeader } from './WindowHeader';
 import { splitWindowHeader } from './splitWindowHeader';
+import { useModalWindow } from './useModalWindow';
 
 const useStyles = createStyles(({ windows: { window, content }, transitions }) => ({
   window: {
@@ -169,6 +170,12 @@ interface Props {
    * Dialogs the user cannot resize do this by default.
    */
   fitToContent?: boolean;
+  /**
+   * Make the window a modal dialog: a screen reader is told it is a dialog, named by its title, with the page behind it
+   * unavailable; focus moves into it when it opens, Tab stays inside it, and focus goes back to where it was when it
+   * closes. `Dialog` sets this; a plain window does not.
+   */
+  isModal?: boolean;
   children?: ReactNode;
   minWidth?: string | number;
   minHeight?: string | number;
@@ -194,6 +201,7 @@ export const Window = createComponent('Window', ({
   disableResize = false,
   disableScrolling = false,
   fitToContent = false,
+  isModal = false,
   windowControls = null,
   width: providedWidth,
   height: providedHeight,
@@ -257,6 +265,7 @@ export const Window = createComponent('Window', ({
   });
   const windowElementTarget = useDOMRef([windowElementRef, resizeTarget, dragMovableTarget]);
   const { isVisible } = useWindowEvents({ manager, windowElementRef, id, onClosing, onClosed, onFocus });
+  const modalProps = useModalWindow({ windowElementRef, windowId: id, isModal });
 
   const shouldStopTransitions = isDragging || isResizing;
 
@@ -299,6 +308,8 @@ export const Window = createComponent('Window', ({
       ref={windowElementTarget}
       tagName="window"
       data-window-id={id}
+      {...modalProps}
+      allowFocus={isModal ? false : undefined}
       isVertical
       fixedSize
       className={join(

@@ -9,6 +9,8 @@ import { createStyles } from '../../theme';
 import { useUIState } from '../../providers';
 
 interface Props {
+  /** Goes on the label's text only (not its help icon), so a control can name itself from it with `aria-labelledby`. */
+  id?: string;
   className?: string;
   help?: ReactNode;
   isOptional?: boolean;
@@ -66,6 +68,7 @@ const useStyles = createStyles(({ fields: { label } }) => ({
 }));
 
 export const Label = createComponent('Label', ({
+  id,
   className,
   help,
   wide = false,
@@ -92,6 +95,7 @@ export const Label = createComponent('Label', ({
             <NoSkeletons>
               <Tag
                 name="label-text"
+                id={id}
                 className={join(css.labelText, onClick != null && !isReadOnly && css.isClickable)}
                 onMouseDown={onClick != null ? stopPropagation : undefined}
                 onClick={handleClick}

@@ -11,6 +11,8 @@ import { useBooleanState, useBound, useDOMRef, useOnUnmount } from '../../hooks'
 import { createStyles } from '../../theme';
 import { Toolbar } from '../Toolbar';
 import { Tooltip } from '../Tooltip';
+import type { FieldAriaIds } from './useFieldAria';
+import { useFieldAria } from './useFieldAria';
 
 export interface FieldProps {
   className?: string;
@@ -119,6 +121,11 @@ const useStyles = createStyles(({ pseudoClasses, text, fields: { content: { norm
 
 interface Props extends FieldProps {
   tagName: string;
+  /**
+   * The ids the label text and the message carry when the component rendering the control has already tied the control to
+   * them (see `useFieldAria`). Left out, the field makes its own, which nothing then points at.
+   */
+  ariaIds?: FieldAriaIds;
   containerClassName?: string;
   containerStyle?: CSSProperties;
   contentClassName?: string;
@@ -146,6 +153,7 @@ interface Props extends FieldProps {
 
 export const Field = createComponent('Field', ({
   tagName,
+  ariaIds: providedAriaIds,
   className,
   containerClassName,
   containerStyle,
@@ -182,6 +190,8 @@ export const Field = createComponent('Field', ({
   style: providedStyle,
 }: Props) => {
   const { css, join, useInlineStyle, toPx } = useStyles();
+  const { ids: ownAriaIds } = useFieldAria({ label, error, assistiveHelp });
+  const { labelId, messageId } = providedAriaIds ?? ownAriaIds;
   const { Ripple, rippleTarget } = useRipple();
   const containerRef = useDOMRef([ref, rippleTarget]);
   const { isLoading, isReadOnly } = useUIState();
@@ -283,9 +293,9 @@ export const Field = createComponent('Field', ({
       height={height}
       style={style}
     >
-      <Label isOptional={hideOptionalLabel ? false : isOptional} help={help}>{label}</Label>
+      <Label id={labelId} isOptional={hideOptionalLabel ? false : isOptional} help={help}>{label}</Label>
       {wrapContent(children)}
-      <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
+      <AssistiveLabel id={messageId} error={error}>{assistiveHelp}</AssistiveLabel>
       {containerAdornments}
     </Tag>
   );

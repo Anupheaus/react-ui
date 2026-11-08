@@ -5,6 +5,8 @@ import { Tag } from '../Tag';
 import { Error, is } from '@anupheaus/common';
 
 interface Props {
+  /** Goes on the message text, so a control can point at it with `aria-describedby`. */
+  id?: string;
   className?: string;
   error?: ReactNode | globalThis.Error;
   children?: ReactNode;
@@ -43,6 +45,7 @@ const useStyles = createStyles(({ assistiveLabel: { normal }, text }) => ({
 }));
 
 export const AssistiveLabel = createComponent('AssistiveLabel', ({
+  id,
   className,
   error,
   children = null,
@@ -68,7 +71,16 @@ export const AssistiveLabel = createComponent('AssistiveLabel', ({
         error != null && css.isError,
         className,
       )}>
-      <Tag name="assistive-label-text" className={css.text}>{children ?? <>&nbsp;</>}</Tag>
+      {/* The error and the help text are different elements (keyed), so an error appearing is a new live region and is announced. */}
+      <Tag
+        key={error != null ? 'error' : 'help'}
+        name="assistive-label-text"
+        id={id}
+        role={error != null ? 'alert' : undefined}
+        className={css.text}
+      >
+        {children ?? <>&nbsp;</>}
+      </Tag>
     </Tag>
   );
 });

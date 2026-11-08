@@ -110,18 +110,24 @@ const useStyles = createStyles(({ fields: { content: { normal } }, radio, pseudo
 interface Props {
   item: ReactListItem;
   state: DistributedState<string>;
+  /** Every option of the group, in order: the first one is the tab stop while none of them is chosen. */
+  optionIds: string[];
 }
 
 export const RadioOption = createComponent('RadioOption', ({
   item,
   state,
+  optionIds,
 }: Props) => {
   const { isLoading, isReadOnly } = useUIState();
   const { css, join } = useStyles();
   const { rippleTarget, Ripple } = useRipple();
   const { set, getAndObserve } = useDistributedState(state);
 
-  const isSelected = getAndObserve() === item.id;
+  const selectedId = getAndObserve();
+  const isSelected = selectedId === item.id;
+  // Tab reaches the group once, on the chosen option (or the first while none is chosen); arrow keys move within it.
+  const isTabStop = isSelected || (optionIds[0] === item.id && (selectedId == null || !optionIds.includes(selectedId)));
 
   const handleClick = useBound(() => {
     if (isReadOnly || isLoading) return;
@@ -137,7 +143,8 @@ export const RadioOption = createComponent('RadioOption', ({
   });
 
   return (
-    <Flex ref={rippleTarget} tagName="radio" valign="center" align="left" disableGrow className={join(isReadOnly ? css.radioReadOnly : css.radio, isLoading && css.isLoading)} gap={4} allowFocus
+    <Flex ref={rippleTarget} tagName="radio" valign="center" align="left" disableGrow className={join(isReadOnly ? css.radioReadOnly : css.radio, isLoading && css.isLoading)} gap={4} allowFocus={isTabStop}
+      role="radio" aria-checked={isSelected} aria-disabled={isReadOnly || isLoading ? true : undefined}
       onClickCapture={handleClick} onKeyUp={handleKeyUp}>
       <Tag name="radio-graphic-container" className={css.radioGraphicContainer}>
         <Ripple stayWithinContainer ignoreMouseCoords containerClassName={css.ripple} />
