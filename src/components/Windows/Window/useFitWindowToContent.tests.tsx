@@ -24,6 +24,8 @@ interface Sizes {
   viewport: number;
   /** The content's own height when it is not stretched. */
   naturalHeight: number;
+  /** The height the window is drawn at right now; it differs from `window.height` while the window animates to a new height. */
+  drawnHeight?: number;
 }
 
 function defineSize(element: HTMLElement, name: string, read: () => number): void {
@@ -44,6 +46,7 @@ function buildWindow(sizes: Sizes): HTMLElement {
     windowElement.style.height = `${sizes.window.height}px`;
   };
   applyWindowSize();
+  defineSize(windowElement, 'offsetHeight', () => sizes.drawnHeight ?? sizes.window.height);
   const container = windowElement.querySelector('scroller-container') as HTMLElement;
   const content = windowElement.querySelector('scroller-content') as HTMLElement;
   defineSize(container, 'clientHeight', () => sizes.viewport);
@@ -93,6 +96,22 @@ describe('useFitWindowToContent', () => {
     contentChanged();
 
     expect(setState).toHaveBeenLastCalledWith(expect.objectContaining({ height: 380 }));
+  });
+
+  it('measures against the height the window is animating to, so it does not overshoot and chase its own transition', () => {
+    const sizes: Sizes = { window: { width: 420, height: 150 }, viewport: 63, naturalHeight: 63 };
+    const { setState } = renderFit(buildWindow(sizes), sizes);
+    sizes.naturalHeight = 331;
+    contentChanged();
+    expect(setState).toHaveBeenLastCalledWith(expect.objectContaining({ height: 418 }));
+    setState.mockClear();
+
+    // Part-way through the transition the window is drawn at 200, so its content area still shows 113 of the 331.
+    sizes.drawnHeight = 200;
+    sizes.viewport = 113;
+    contentChanged();
+
+    expect(setState).not.toHaveBeenCalled();
   });
 
   it('never shrinks a dialog whose full-height list is shorter than it', () => {

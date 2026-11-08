@@ -36,10 +36,12 @@ interface Props {
   setState(changes: Partial<WindowState>): void;
   contentWrapperRef?: RefObject<HTMLElement>;
   disableScrolling?: boolean;
+  /** The window is placed by the layout, not by its state (a phone's bottom sheet), so it is never moved back on screen. */
+  isPlacedByHost?: boolean;
 }
 
 export function useWindowDimensions({ state: { x, y, width, height, isMaximized }, minWidth, minHeight, windowIndex, actualWidth, actualHeight,
-  wantingToBeMaximized, windowElementRef, initialPosition, setState, contentWrapperRef, disableScrolling = false }: Props) {
+  wantingToBeMaximized, windowElementRef, initialPosition, setState, contentWrapperRef, disableScrolling = false, isPlacedByHost = false }: Props) {
   const [initialDimensionsHaveBeenSet, setInitialDimensionsHaveBeenSet] = useState(false);
   const [preparationClassName, setPreparationClassName] = useState<string | undefined>('preparing');
   const isUnmounted = useOnUnmount();
@@ -67,6 +69,20 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     minHeight: capMinSizeToHost(minHeight ?? DEFAULT_WINDOW_MIN_HEIGHT, hostSize?.height),
     zIndex: windowIndex + 1,
   }), [x, y, width, height, minWidth, minHeight, windowIndex, hostSize]);
+
+  // The space for windows shrank (browser narrowed, tablet turned, window snapped): bring a window that no longer fits
+  // back on screen. A window that still fits is not touched, and a maximised one (or a phone bottom sheet) is not placed
+  // by its state at all.
+  useEffect(() => {
+    if (preparationClassName !== undefined || isMaximized === true || isPlacedByHost || hostSize == null) return;
+    const placement: WindowPlacement = { x, y, width, height, drawn: { width: actualWidth, height: actualHeight } };
+    const fitted = keepWindowInsideHost(placement, hostSize);
+    const stateChanges: Partial<WindowState> = {};
+    PLACEMENT_KEYS.forEach(key => {
+      if (fitted[key] !== placement[key]) stateChanges[key] = fitted[key];
+    });
+    if (Object.keys(stateChanges).length > 0) setState(stateChanges);
+  }, [hostSize]);
 
   const minWidthNum = toPx(minWidth, DEFAULT_WINDOW_MIN_WIDTH);
   const minHeightNum = toPx(minHeight, DEFAULT_WINDOW_MIN_HEIGHT);

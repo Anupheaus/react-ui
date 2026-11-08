@@ -1,6 +1,8 @@
 import { Switch as MuiSwitch } from '@mui/material';
 import { createComponent } from '../Component';
 import { Field, type FieldProps } from '../Field';
+import { Flex } from '../Flex';
+import { AssistiveLabel } from '../AssistiveLabel';
 import { useBound } from '../../hooks';
 import { createStyles } from '../../theme';
 import { useUIState } from '../../providers';
@@ -24,6 +26,11 @@ const useStyles = createStyles(({ switch: { normal: switchNormal, active: switch
       },
     },
   },
+  rightLabel: {
+    cursor: 'pointer',
+    userSelect: 'none',
+    whiteSpace: 'nowrap',
+  },
   isChecked: {
     '& span.MuiSwitch-track': {
       backgroundColor: `${switchChecked.backgroundColor} !important`,
@@ -42,14 +49,20 @@ const useStyles = createStyles(({ switch: { normal: switchNormal, active: switch
   },
 }));
 
+/** Where the label sits: `above` the switch (the field default) or `right` of it on the same line. */
+export type SwitchLabelPosition = 'above' | 'right';
+
 interface Props extends FieldProps {
   value?: boolean;
   onChange?(value: boolean): void;
+  /** Defaults to `above`. `right` puts the label beside the switch; pressing it toggles the switch too. */
+  labelPosition?: SwitchLabelPosition;
 }
 
 export const Switch = createComponent('Switch', ({
   value,
   onChange,
+  labelPosition = 'above',
   ...props
 }: Props) => {
   const { css, join } = useStyles();
@@ -58,10 +71,12 @@ export const Switch = createComponent('Switch', ({
   // this guard a disabled-looking switch still fires onChange (matches how Checkbox does it).
   const toggle = useBound(() => { if (isReadOnly) return; onChange?.(!value); });
 
-  return (
+  const { label, assistiveHelp, error } = props;
+
+  const field = (fieldProps: FieldProps) => (
     <Field
       tagName="switch"
-      {...props}
+      {...fieldProps}
       noContainer
     >
       <MuiSwitch
@@ -71,5 +86,18 @@ export const Switch = createComponent('Switch', ({
         className={join(css.switch, value === true && css.isChecked)}
       />
     </Field>
+  );
+
+  if (labelPosition !== 'right' || label == null) return field(props);
+
+  return (
+    <Flex tagName="switch-with-label" isVertical disableGrow>
+      <Flex tagName="switch-with-label-row" valign="center" gap={4} disableGrow>
+        {field({ ...props, label: undefined, assistiveHelp: false, error: undefined })}
+        <span className={css.rightLabel} onClick={toggle}>{label}</span>
+      </Flex>
+      {/* Under the switch and its label together, so the row stays centred and the text spans both. */}
+      <AssistiveLabel error={error}>{assistiveHelp}</AssistiveLabel>
+    </Flex>
   );
 });

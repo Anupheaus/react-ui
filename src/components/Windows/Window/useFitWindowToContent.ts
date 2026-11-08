@@ -70,9 +70,16 @@ export function useFitWindowToContent({ isEnabled, hasUserResized, windowElement
       const canShrink = grownHeightRef.current != null && windowSize.height === grownHeightRef.current;
       // Growing needs only the overflow; giving growth back needs the content's own, unstretched height.
       const contentHeight = canShrink ? measureContentHeight(content) : scrollerContainer.scrollHeight;
+      // The window animates to a new height, so its content area is measured part-way there. Measure against where it is
+      // heading, or the fit chases its own transition (growing past the content, then shrinking back to where it began).
+      const drawnHeight = windowElement.offsetHeight;
+      const heightStillToAnimate = drawnHeight > 0 ? windowSize.height - drawnHeight : 0;
       const fit = fitWindowToContent({
         window: windowSize,
-        overflow: { x: scrollerContainer.scrollWidth - scrollerContainer.clientWidth, y: contentHeight - scrollerContainer.clientHeight },
+        overflow: {
+          x: scrollerContainer.scrollWidth - scrollerContainer.clientWidth,
+          y: contentHeight - (scrollerContainer.clientHeight + heightStillToAnimate),
+        },
         space: { width: space.clientWidth, height: space.clientHeight },
         openedHeight,
         canShrink,

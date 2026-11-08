@@ -148,6 +148,7 @@ The footer bar (Add button, item count, summary, error) is provided by the sibli
 | `onFilter` | `() => PromiseMaybe<void>` | No | Called when the Filter button is pressed — for a screen with its own filter dialog. Shows the Filter button. |
 | `activeFilterCount` | `number` | No | The Filter button's badge; no badge at 0. Defaults to `filter.countActive(filter.value)`. |
 | `filterTooltip` | `ReactNode` | No | The Filter button's tooltip; `"Filter"` when absent. |
+| `footerContent` | `ReactNode` | No | Extra controls at the start of the footer, after the Add button. |
 | `footerClassName` | `string` | No | Extra class applied to the footer root — used by `Table` to apply its themed background colour. |
 
 ### Layout

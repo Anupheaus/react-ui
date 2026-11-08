@@ -13,4 +13,11 @@ export const useListStyles = createStyles({
     flexGrow: 1,
     flexShrink: 1,
   },
+  // Doubled so it beats the field's own border, including its hover and focus colours.
+  listContainerBorderless: {
+    '&&': {
+      borderWidth: 0,
+      borderRadius: 0,
+    },
+  },
 });

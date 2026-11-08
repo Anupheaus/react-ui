@@ -144,6 +144,67 @@ describe('window placement', () => {
     expect(getRenderedPlacement()).toMatchObject({ left: 120, top: 80, width: 400, height: 300 });
   });
 
+  describe('when the space for windows shrinks after the window opened', () => {
+    async function narrowHostTo(width: number): Promise<void> {
+      hostSize = { ...hostSize, width };
+      await act(async () => {
+        window.dispatchEvent(new Event('resize'));
+        await vi.advanceTimersByTimeAsync(100);
+      });
+    }
+
+    it('makes a window wider than the new space as wide as the space, flush with its left edge', async () => {
+      persistWindow({ x: 300, y: 80, width: 600, height: 300 });
+      render(<Windows localStorageKey={STORAGE_KEY} />);
+      await settleOpening();
+
+      await narrowHostTo(375);
+
+      expect(getRenderedPlacement()).toMatchObject({ left: 0, top: 80, width: 375, height: 300 });
+    });
+
+    it('moves a window that runs past the new right edge back, clear of the edge, without resizing it', async () => {
+      persistWindow({ x: 300, y: 80, width: 600, height: 300 });
+      render(<Windows localStorageKey={STORAGE_KEY} />);
+      await settleOpening();
+
+      await narrowHostTo(800);
+
+      expect(getRenderedPlacement()).toMatchObject({ left: 184, top: 80, width: 600, height: 300 });
+    });
+
+    it('leaves a window that still fits exactly where it was', async () => {
+      persistWindow({ x: 120, y: 80, width: 400, height: 300 });
+      render(<Windows localStorageKey={STORAGE_KEY} />);
+      await settleOpening();
+
+      await narrowHostTo(700);
+
+      expect(getRenderedPlacement()).toMatchObject({ left: 120, top: 80, width: 400, height: 300 });
+    });
+
+    it('leaves a window on screen and usable when the space grows again', async () => {
+      persistWindow({ x: 300, y: 80, width: 600, height: 300 });
+      render(<Windows localStorageKey={STORAGE_KEY} />);
+      await settleOpening();
+      await narrowHostTo(375);
+
+      await narrowHostTo(1024);
+
+      expectWhollyInsideHost(getRenderedPlacement());
+    });
+
+    it('leaves a maximised window to fill the space', async () => {
+      persistWindow({ x: 0, y: 0, width: 1024, height: 560, isMaximized: true });
+      render(<Windows localStorageKey={STORAGE_KEY} />);
+      await settleOpening();
+
+      await narrowHostTo(375);
+
+      expect(getRenderedPlacement()).toMatchObject({ left: 0, top: 0, width: 1024, height: 560 });
+    });
+  });
+
   it('never lets a window scroll the page: the host clips anything outside it', () => {
     render(<Windows />);
     const host = document.getElementById(WINDOWS_DEFAULT_ID) as HTMLElement;
