@@ -14,6 +14,7 @@ A boolean toggle rendered as a Material UI switch, wrapped in the standard `Fiel
 | `assistiveHelp` | `ReactNode` | No | Secondary help text |
 | `wide` | `boolean` | No | Grow to fill available width |
 | `width` | `string \| number` | No | Explicit width |
+| `labelPosition` | `'above' \| 'right'` | No | Where the label sits. Defaults to `'above'`; `'right'` puts it beside the switch, and pressing it toggles the switch |
 | `onChange` | `(value: boolean) => void` | No | Called with the new state when the user toggles the switch |
 
 ## Usage

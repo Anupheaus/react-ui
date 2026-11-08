@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { Button } from '../Button';
 import { createComponent } from '../Component';
-import { usePopupMenu } from '../Menu';
+import { Menu as MenuComponent, usePopupMenu } from '../Menu';
 import { Avatar } from '../Avatar';
 import type { ListItemClickEvent, ReactListItem } from '../../models';
 
@@ -10,6 +10,9 @@ interface Props extends Omit<ComponentProps<typeof Avatar>, 'initials'> {
   items: ReactListItem[];
   /** When true, shows only the Avatar without the display name text — useful in compact / mobile layouts. */
   iconOnly?: boolean;
+  /** Where the menu opens relative to the button; defaults to hanging below it, right-aligned. Use bottomRight + bottomLeft to pop out beside it. */
+  targetAnchorPosition?: ComponentProps<typeof MenuComponent>['targetAnchorPosition'];
+  menuAnchorPosition?: ComponentProps<typeof MenuComponent>['menuAnchorPosition'];
   onClick?(event: ListItemClickEvent): void;
 }
 
@@ -17,6 +20,8 @@ export const UserProfileMenu = createComponent('UserProfileMenu', ({
   displayName,
   items,
   iconOnly,
+  targetAnchorPosition,
+  menuAnchorPosition = 'topRight',
   onClick,
   ...props
 }: Props) => {
@@ -27,6 +32,6 @@ export const UserProfileMenu = createComponent('UserProfileMenu', ({
       <Avatar {...props} displayName={displayName} />
       {!iconOnly && displayName}
     </Button>
-    <Menu menuAnchorPosition="topRight" offsetPosition={0} useWidthOfTargetElement items={items} onClick={onClick} />
+    <Menu targetAnchorPosition={targetAnchorPosition} menuAnchorPosition={menuAnchorPosition} offsetPosition={0} useWidthOfTargetElement items={items} onClick={onClick} />
   </>);
 });

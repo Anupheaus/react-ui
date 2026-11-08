@@ -32,6 +32,7 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `onFilter` | `() => PromiseMaybe<void>` | No | Called when the Filter button is pressed — for a screen with its own filter dialog. Shows the Filter button. |
 | `activeFilterCount` | `number` | No | The Filter button's badge; no badge at 0. Defaults to `filter.countActive(filter.value)`. |
 | `filterTooltip` | `ReactNode` | No | The Filter button's tooltip; `"Filter"` when absent. |
+| `footerContent` | `ReactNode` | No | Extra controls at the start of the footer, after the Add button — for example a switch that narrows the list. Shows the footer. |
 | `emptyMessage` | `ReactNode` | No | Shown centred in the body when the list has no items — what it is for and what to do next. |
 | `onDelete` | `(event: ListItemEvent<T>) => void` | No | Called when an item's delete button is activated. |
 | `adornments` | `ReactNode` | No | Extra controls rendered in the top-right corner of the field container. |
@@ -41,7 +42,7 @@ A higher-level virtualised list component that wraps `InternalList` inside a `Fi
 | `fullHeight` | `boolean` | No | Expands the list to fill its parent's height. |
 | `minHeight` | `FlexProps['minHeight']` | No | Minimum height of the inner list. Defaults to `130`. |
 | `padding` | `number` | No | Additional padding inside the field container. |
-| `borderless` | `boolean` | No | Removes the field border. |
+| `borderless` | `boolean` | No | Removes the field's border and rounded corners, so the list sits flush in its panel. |
 | `delayRenderingItems` | `boolean` | No | Defers item rendering by ~100 ms after mount. |
 | `actions` | `UseActions<ListActions>` | No | Ref-style callback to receive a `ListActions` handle (`refresh`, `scrollTo`). |
 | `className` | `string` | No | Class applied to the outermost field element. |
