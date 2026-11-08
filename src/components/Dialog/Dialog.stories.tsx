@@ -10,7 +10,7 @@ import { createDialog } from './createDialog';
 import { useDialog } from './useDialog';
 import { useConfirmationDialog } from './useConfirmationDialog';
 import type { ReactNode } from 'react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DropDown } from '../DropDown';
 import { Radio } from '../Radio';
 
@@ -158,3 +158,47 @@ export const ContentThatGrows: Story = {
   },
 };
 ContentThatGrows.name = 'Content that grows after opening';
+
+/** Content that arrives some time after the dialog opens (results loading from a server): the dialog grows when it lands. */
+const DelayedContent = ({ delayMs }: { delayMs: number }) => {
+  const [isShown, setIsShown] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsShown(true), delayMs);
+    return () => clearTimeout(timer);
+  }, [delayMs]);
+  return (
+    <Flex tagName="delayed-content" isVertical gap={8}>
+      <div>Searching for an order</div>
+      {isShown && [1, 2, 3, 4, 5, 6].map(n => <div key={n} data-testid={`delayed-row-${n}`} style={{ height: 40 }}>Result {n}</div>)}
+    </Flex>
+  );
+};
+
+const DelayedDialogDefinition = createDialog('DelayedDialog', ({ Dialog, Content, Actions, OkButton }) => (delayMs: number) => (
+  <Dialog title="Find an order" minWidth={420}>
+    <Content>
+      <DelayedContent delayMs={delayMs} />
+    </Content>
+    <Actions>
+      <OkButton />
+    </Actions>
+  </Dialog>
+));
+
+export const ContentThatArrivesLater: Story = {
+  args: {},
+  render: () => {
+    const { openDelayedDialog } = useDialog(DelayedDialogDefinition);
+    const delayMs = Number(new URLSearchParams(window.location.search).get('delay') ?? 300);
+    const onOpen = useBound(() => { void openDelayedDialog(delayMs); });
+    return (
+      <Flex tagName="dialog-test" valign="top" align="left" isVertical>
+        <Button onClick={onOpen}>Open</Button>
+        <StorybookComponent width={1200} height={600} showComponentBorders>
+          <Dialogs />
+        </StorybookComponent>
+      </Flex>
+    );
+  },
+};
+ContentThatArrivesLater.name = 'Content that arrives after a delay';
