@@ -4,20 +4,51 @@ function getOffset(date: Date, hourHeight: number, startHour: number) {
   return Math.round((hours * hourHeight) + (mins * (hourHeight / 60)) - (startHour * hourHeight));
 }
 
+type RangeEntry = { startDate: Date; endDate?: Date };
+
+/**
+ * The parts of `entries` the hour range must cover. An entry that stays inside one day counts as it always did,
+ * whichever day is shown. An entry that runs past midnight counts only for the part that falls on each of `days`
+ * (so the part after midnight reaches 00:00, and the evening part reaches the end of the day); on a day it does
+ * not touch it counts for nothing. With no `days` given the whole entry counts.
+ */
+function getRangeSegments(entries: readonly RangeEntry[], days?: readonly Date[]): { startHour: number; endHour: number }[] {
+  const segments: { startHour: number; endHour: number }[] = [];
+  const toEndHour = (date: Date) => date.getHours() + (date.getMinutes() > 0 ? 1 : 0);
+  for (const entry of entries) {
+    const end = entry.endDate ?? entry.startDate;
+    const endOfStartDay = new Date(entry.startDate.getFullYear(), entry.startDate.getMonth(), entry.startDate.getDate(), 23, 59, 59, 999);
+    const crossesMidnight = days != null && end.getTime() > endOfStartDay.getTime();
+    if (!crossesMidnight) {
+      segments.push({ startHour: entry.startDate.getHours(), endHour: entry.endDate == null ? 0 : toEndHour(entry.endDate) });
+      continue;
+    }
+    for (const day of days) {
+      const startOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate());
+      const endOfDay = new Date(day.getFullYear(), day.getMonth(), day.getDate(), 23, 59, 59, 999);
+      if (entry.startDate.getTime() > endOfDay.getTime() || end.getTime() <= startOfDay.getTime()) continue;
+      const segmentStart = entry.startDate.getTime() < startOfDay.getTime() ? startOfDay : entry.startDate;
+      const segmentEnd = end.getTime() > endOfDay.getTime() ? endOfDay : end;
+      segments.push({ startHour: segmentStart.getHours(), endHour: toEndHour(segmentEnd) });
+    }
+  }
+  return segments;
+}
+
 function getEffectiveHourRange(
-  entries: readonly { startDate: Date; endDate?: Date }[],
+  entries: readonly RangeEntry[],
   rawStartHour?: number,
   rawEndHour?: number,
+  days?: readonly Date[],
 ): { startHour: number; endHour: number } {
   const providedStartHour = rawStartHour == null ? 0 : Math.between(rawStartHour, 0, 23);
   const providedEndHour = rawEndHour == null ? 24 : Math.between(rawEndHour, 1, 24);
 
-  if (entries.length === 0) return { startHour: providedStartHour, endHour: providedEndHour };
+  const segments = getRangeSegments(entries, days);
+  if (segments.length === 0) return { startHour: providedStartHour, endHour: providedEndHour };
 
-  const earliestAppointmentHour = entries.map(entry => entry.startDate.getHours()).min();
-  let lastAppointmentHour = entries
-    .map(entry => (entry.endDate?.getHours() ?? 0) + ((entry.endDate?.getMinutes() ?? 0) > 0 ? 1 : 0))
-    .max();
+  const earliestAppointmentHour = segments.map(segment => segment.startHour).min();
+  let lastAppointmentHour = segments.map(segment => segment.endHour).max();
   if (lastAppointmentHour > 24) lastAppointmentHour = 24;
 
   return {

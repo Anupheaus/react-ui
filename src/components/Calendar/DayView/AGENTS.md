@@ -25,6 +25,7 @@ The timed-schedule day view for the `Calendar` component. Renders entries as pos
 
 ## Ambiguities and gotchas
 
+- **An entry that runs past midnight counts only for the part on the day(s) shown** — `getEffectiveHourRange(entries, start, end, days)` takes the shown day(s); the after-midnight part reaches 00:00 on the next day, the evening part reaches the end of the day on the day it starts, and the entry counts for nothing on a day it does not touch. Entries inside one day count as before.
 - **`startHour`/`endHour` are treated as hints, not hard limits** — if any entry's start or end time falls outside the provided range, the range is silently expanded to include it. The provided values are only used when no entries fall outside them.
 - **`scrollTo` is computed from `calendarDayViewElementRef.current`** — this is a `useMemo` that reads a DOM element. The initial value is `0` because the ref is not yet populated on the first render; the scroll only applies after the element mounts. This is intentional (avoids a `useEffect` flash).
 - **`hourHeight` defaults to 60** — one pixel per minute. Changing `hourHeight` scales everything (hours, entry heights, scroll offsets) proportionally because all calculations multiply by `hourHeight`.

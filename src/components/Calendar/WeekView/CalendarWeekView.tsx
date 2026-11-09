@@ -126,8 +126,8 @@ export const CalendarWeekView = createComponent('CalendarWeekView', ({
   ), [entries, weekDayDates]);
 
   const { startHour, endHour } = useMemo(
-    () => calendarDayUtils.getEffectiveHourRange(weekEntries, rawStartHour, rawEndHour),
-    [weekEntries, rawStartHour, rawEndHour],
+    () => calendarDayUtils.getEffectiveHourRange(weekEntries, rawStartHour, rawEndHour, weekDayDates.map(({ date }) => date)),
+    [weekEntries, rawStartHour, rawEndHour, weekDayDates],
   );
 
   const gridHeight = (endHour - startHour) * hourHeight;

@@ -61,8 +61,8 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
   );
 
   const { startHour, endHour } = useMemo(
-    () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour),
-    [rawStartHour, rawEndHour, entries],
+    () => calendarDayUtils.getEffectiveHourRange(entries, rawStartHour, rawEndHour, [viewingDate]),
+    [rawStartHour, rawEndHour, entries, viewingDate],
   );
 
   const scrollTo = useMemo(() => {
