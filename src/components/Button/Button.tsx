@@ -105,7 +105,6 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
         backgroundColor: 'transparent',
         backgroundImage: 'none',
         boxShadow: 'none',
-        pointerEvents: 'none',
         '& > *:not(skeleton)': {
           opacity: 0,
         },
