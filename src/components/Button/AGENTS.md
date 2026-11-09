@@ -54,7 +54,8 @@ import { Button, ButtonGroup } from '@anupheaus/react-ui';
 
 ## Architecture
 
-- Clicks are suppressed while `isReadOnly` or `isLoading` context states are active (provided by `UIState`).
+- Clicks are suppressed while `isReadOnly` or `isLoading` context states are active (provided by `UIState`), and while the button's own promise is still pending.
+- A held button (`isLoading`, or its own promise pending) reports `aria-disabled="true"`, never the native `disabled` attribute, and is never `visibility: hidden`: it keeps its name, its place in the tab order and its focus. While `isLoading` its face is drawn see-through under the skeleton instead. A button that is not held has no `aria-disabled`.
 - When `onClick` or `onSelect` returns a Promise, the button renders a `<Skeleton useAnimatedBorder>` overlay until the promise settles.
 - Ripple effect is applied via `useRipple` and is suppressed in read-only/loading states.
 - `ButtonGroup` provides a `ButtonContext` to its children; the context is currently empty but reserved for future shared state.
