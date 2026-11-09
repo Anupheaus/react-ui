@@ -101,10 +101,11 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
       // A held button (loading) shows its skeleton in place of its face, but stays in the accessibility tree and the tab
       // order: `visibility: hidden` would remove its name and its focus, so the face is made see-through instead.
       '&.is-loading': {
-        color: 'transparent',
-        backgroundColor: 'transparent',
-        backgroundImage: 'none',
-        boxShadow: 'none',
+        // !important: the variants' own state rules (active, read-only) are more specific and would show a block under the skeleton
+        color: 'transparent !important',
+        backgroundColor: 'transparent !important',
+        backgroundImage: 'none !important',
+        boxShadow: 'none !important',
         '& > *:not(skeleton)': {
           opacity: 0,
         },
@@ -237,9 +238,13 @@ export const Button = createComponent('Button', ({
     if (!is.promise(clickResult) && !is.promise(selectResult)) return;
     useAnimatedBorderEffectRef.current = true;
     update();
-    await Promise.all([clickResult, selectResult]);
-    useAnimatedBorderEffectRef.current = false;
-    update();
+    try {
+      await Promise.all([clickResult, selectResult]);
+    } finally {
+      // Released whether the action finished or failed, so a rejected action never leaves the button held for good
+      useAnimatedBorderEffectRef.current = false;
+      update();
+    }
   });
 
   return (

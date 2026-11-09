@@ -100,3 +100,41 @@ describe('Button held while it works', () => {
     expect(onSelect).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('Button held: rejected action and look', () => {
+  it('is released again when its action rejects, so it is never held for good', async () => {
+    const onSelect = vi.fn(() => Promise.reject(new Error('the server said no')));
+    // The button lets the rejection reach the host as before; this test is the host, so it takes it
+    const runnerListeners = process.listeners('unhandledRejection');
+    process.removeAllListeners('unhandledRejection');
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    try {
+      render(<Host onSelect={onSelect} />);
+      await act(async () => { fireEvent.click(sendButton()); });
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 10)); });
+      expect(sendButton()).not.toHaveAttribute('aria-disabled', 'true');
+      await act(async () => { fireEvent.click(sendButton()); });
+      await act(async () => { await new Promise(resolve => setTimeout(resolve, 10)); });
+      expect(onSelect).toHaveBeenCalledTimes(2);
+      expect(unhandled).toHaveBeenCalledTimes(2);
+    } finally {
+      process.removeAllListeners('unhandledRejection');
+      runnerListeners.forEach(listener => process.on('unhandledRejection', listener));
+    }
+  });
+
+  it('draws no face of its own under the skeleton: every background and border rule for a loading button is !important', () => {
+    render(<Host onSelect={() => undefined} isHeld />);
+    const button = sendButton();
+    const loadingClass = Array.from(button.classList).find(name => name.includes('react-ui-button'));
+    expect(button.className).toContain('is-loading');
+    const rules = Array.from(document.styleSheets).flatMap(sheet => Array.from(sheet.cssRules)).map(rule => rule.cssText);
+    const loadingRule = rules.find(text => text.includes('.is-loading') && text.includes('background-color'));
+    expect(loadingClass, 'the button has its styled class').toBeDefined();
+    expect(loadingRule, 'there is a rule for a loading button').toBeDefined();
+    for (const property of ['background-color', 'background-image', 'box-shadow', 'color']) {
+      expect(loadingRule, `${property} is !important`).toMatch(new RegExp(`(^|[ {;])${property}: [^;]*!important`));
+    }
+  });
+});
