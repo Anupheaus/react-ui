@@ -1,5 +1,6 @@
 import type { Preview } from '@storybook/react-webpack5';
 import { StorybookDeviceDecorator } from '../src/Storybook/StorybookDeviceDecorator';
+import { expectShortMessagesOnOneLine } from '../src/Storybook/expectShortMessagesOnOneLine';
 
 const preview: Preview = {
   parameters: {
@@ -28,6 +29,7 @@ const preview: Preview = {
     },
   },
   decorators: [StorybookDeviceDecorator],
+  afterEach: [expectShortMessagesOnOneLine],
 };
 
 export default preview;

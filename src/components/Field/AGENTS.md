@@ -39,6 +39,15 @@ Used directly only when building custom input components. Consumer code typicall
 
 When loading, `Field` wraps its content in `NoSkeletons` and overlays a single content skeleton (`<Skeleton type="full" fill />`). The `fill` prop is required because `Field` gives that skeleton a `className` for border-radius, which would otherwise disable the absolute-fill behaviour and leave the skeleton at 0px — see [../Skeleton/AGENTS.md](../Skeleton/AGENTS.md). The skeleton fills the field container, which the (hidden but laid-out) content sizes.
 
+### Accessibility — tying the control to its label and message
+
+`Field` draws the label and the error/help message but does not own the control, so the component that renders the control (`InternalText`, `InternalDropDown`, `Radio`) ties them together with `useFieldAria({ label, error, assistiveHelp })`:
+
+- spread the returned `controlProps` (`aria-labelledby`, `aria-describedby`, `aria-invalid`) onto the focusable control, and
+- pass the returned `ids` to `Field` as `ariaIds`, so the label text and the message carry the ids the control points at.
+
+An error sets `aria-invalid` and renders its message in a `role="alert"` element, so it is announced when it appears; help text is read when the control gets focus. A field with no label or no message gets no `aria-labelledby` / `aria-describedby` rather than a dangling id. `Field` makes its own ids when `ariaIds` is not passed, which nothing then points at.
+
 ### Prop forwarding — closed by design
 
 `Field` forwards **only its own declared props** to the DOM element. It deliberately does **not** spread an open-ended rest of props onto the wrapper. Because every input in the library renders through `Field`, an open spread would let any wrapper that forgets to destructure its own props (`value`, `onChange`, `type`, `checked`, component config, …) leak them onto the DOM — landing as invalid attributes or, worse, a live `onChange` handler that fires with a raw `SyntheticEvent` (the bug fixed in `Slider`, and structurally prevented here).

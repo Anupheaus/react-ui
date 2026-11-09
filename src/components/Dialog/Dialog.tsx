@@ -3,7 +3,7 @@ import { Window } from '../Windows/Window';
 import { createStyles } from '../../theme';
 import type { ComponentProps } from 'react';
 
-export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximizeButton' | 'hideCloseButton' | 'disableDrag' | 'disableResize' | 'initialPosition'> {
+export interface Props extends Omit<ComponentProps<typeof Window>, 'hideMaximizeButton' | 'hideCloseButton' | 'disableDrag' | 'disableResize' | 'initialPosition' | 'isModal'> {
   allowMaximizeButton?: boolean;
   allowCloseButton?: boolean;
   allowDrag?: boolean;
@@ -40,6 +40,7 @@ export const Dialog = createComponent('Dialog', ({
     <Window
       {...props}
       initialPosition={'center'}
+      isModal
       contentClassName={join(css.dialogContent, props.contentClassName)}
       hideMaximizeButton={!allowMaximizeButton}
       hideCloseButton={!allowCloseButton}

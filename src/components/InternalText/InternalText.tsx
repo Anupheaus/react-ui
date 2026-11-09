@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound, useDOMRef } from '../../hooks';
 import type { FieldProps } from '../Field';
-import { Field } from '../Field';
+import { Field, useFieldAria } from '../Field';
 import { useInputStyles } from './InputStyles';
 import { useUIState, useValidation } from '../../providers';
 import { Scroller } from '../Scroller';
@@ -94,6 +94,9 @@ export const InternalText = createComponent('InternalText', function <T = unknow
 
   const { error, enableErrors } = validate(({ validateRequired }) => validateRequired(value, !isOptional, requiredMessage));
 
+  const shownError = props.error ?? error;
+  const { ids: ariaIds, controlProps: ariaProps } = useFieldAria({ label: props.label, error: shownError, assistiveHelp: props.assistiveHelp });
+
   const handleOnBlur = useBound((event: FocusEvent<HTMLInputElement>) => {
     enableErrors();
     onBlur?.(event);
@@ -146,6 +149,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
         rows={multiline}
         disabled={isReadOnly}
         placeholder={placeholder}
+        {...ariaProps}
       />
     </Scroller>
     : <input
@@ -164,10 +168,11 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       disabled={isReadOnly}
       placeholder={placeholder}
       {...passwordManagerAttributes}
+      {...ariaProps}
     />;
 
   return (
-    <Field {...props} containerClassName={containerClassName} isOptional={isOptional} error={props.error ?? error} tagName={tagName} containerStyle={style}>
+    <Field {...props} containerClassName={containerClassName} isOptional={isOptional} error={shownError} ariaIds={ariaIds} tagName={tagName} containerStyle={style}>
       {inputOrTextArea}
     </Field>
   );

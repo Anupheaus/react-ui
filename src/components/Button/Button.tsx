@@ -23,6 +23,11 @@ export interface ButtonProps {
   children?: ReactNode;
   testId?: string;
   'aria-label'?: string;
+  /** Names the button from other elements on the page, such as a drop-down's label, instead of from its own (empty) content. */
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
+  'aria-haspopup'?: boolean | 'listbox';
+  'aria-invalid'?: boolean;
   onClick?(event: MouseEvent): PromiseMaybe<unknown>;
   onSelect?(event: MouseEvent | KeyboardEvent): PromiseMaybe<void>;
 }
@@ -200,6 +205,10 @@ export const Button = createComponent('Button', ({
   style,
   testId,
   'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
+  'aria-haspopup': ariaHasPopup,
+  'aria-invalid': ariaInvalid,
   onClick,
   onSelect,
 }: ButtonProps) => {
@@ -244,6 +253,10 @@ export const Button = createComponent('Button', ({
       onClick={handleClick}
       testId={testId}
       aria-label={ariaLabel}
+      aria-labelledby={ariaLabelledBy}
+      aria-describedby={ariaDescribedBy}
+      aria-haspopup={ariaHasPopup}
+      aria-invalid={ariaInvalid}
     >
       <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />
       <NoSkeletons>

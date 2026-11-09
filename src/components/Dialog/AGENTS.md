@@ -4,6 +4,10 @@
 
 The Dialogs component renders modal dialogs. It uses the same window infrastructure as Windows but with dialog-specific styling and behavior (e.g., overlay, blur). Each `useDialog` hook instance manages a single dialog instance.
 
+## Accessibility
+
+Every dialog (made with `createDialog`, `useDialog` or `Dialog` directly) is a modal dialog: `role="dialog"`, `aria-modal="true"`, named (`aria-labelledby`) by its title. When it opens, focus moves to its first control (unless a control inside has already taken it); Tab and Shift+Tab cycle through the dialog's own controls only; closing returns focus to the control that opened it. This comes from `Window`'s `isModal` prop (`Windows/Window/useModalWindow.ts`), which `Dialog` always sets; a plain `Window` is unchanged.
+
 ## Usage
 
 ### 1. Mount the Dialogs component
