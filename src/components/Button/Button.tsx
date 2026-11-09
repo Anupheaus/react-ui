@@ -98,8 +98,17 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
         cursor: 'default',
       },
 
+      // A held button (loading) shows its skeleton in place of its face, but stays in the accessibility tree and the tab
+      // order: `visibility: hidden` would remove its name and its focus, so the face is made see-through instead.
       '&.is-loading': {
-        visibility: 'hidden',
+        color: 'transparent',
+        backgroundColor: 'transparent',
+        backgroundImage: 'none',
+        boxShadow: 'none',
+        pointerEvents: 'none',
+        '& > *:not(skeleton)': {
+          opacity: 0,
+        },
       },
 
       '&.left-align': {
@@ -223,7 +232,7 @@ export const Button = createComponent('Button', ({
 
   const handleClick = useBound(async (event: MouseEvent) => {
     event.stopPropagation();
-    if (isLoading || isReadOnly) return;
+    if (isLoading || isReadOnly || useAnimatedBorderEffectRef.current) return;
     const clickResult = onClick?.(event);
     const selectResult = onSelect?.(event);
     if (!is.promise(clickResult) && !is.promise(selectResult)) return;
@@ -257,6 +266,8 @@ export const Button = createComponent('Button', ({
       aria-describedby={ariaDescribedBy}
       aria-haspopup={ariaHasPopup}
       aria-invalid={ariaInvalid}
+      // Held while it works: announced as disabled but still focusable (never the native `disabled`, which drops focus)
+      aria-disabled={isLoading || useAnimatedBorderEffectRef.current ? true : undefined}
     >
       <Ripple className={join(css.ripple, `variant-${variant}`)} isDisabled={isReadOnly || isLoading} />
       <NoSkeletons>
