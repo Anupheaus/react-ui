@@ -151,3 +151,40 @@ export const UIStatesAsHoverVariantWithIconOnly: Story = createStorybookComponen
 );
 UIStatesAsHoverVariantWithIconOnly.name = 'UI States as Hover Variant with Icon Only';
 UIStatesAsHoverVariantWithIconOnly.play = waitForStoryReady;
+
+const HELD_VARIANTS: NonNullable<ComponentProps<typeof Button>['variant']>[] = ['default', 'bordered', 'hover'];
+const TRANSPARENT = /^(transparent|rgba\(0, 0, 0, 0\))$/;
+
+/**
+ * A held button (working, cannot be pressed) shows only its skeleton: no block, image or shadow of its own under it, in every
+ * variant, at rest and with the pointer over it. Read from the browser's computed style (jsdom has no specificity), so a later
+ * style rule that brought the block back would fail here.
+ */
+export const HeldDrawsNoFaceOfItsOwn: Story = {
+  render: () => (
+    <UIState isLoading>
+      {HELD_VARIANTS.map(variant => (
+        <div key={variant} style={{ padding: 8 }}>
+          <Button variant={variant} testId={`held-${variant}`}>Held {variant}</Button>
+        </div>
+      ))}
+    </UIState>
+  ),
+  play: async ({ canvas, userEvent }) => {
+    await waitForStoryReady();
+    for (const variant of HELD_VARIANTS) {
+      // Still read by its name, as a button that cannot be pressed
+      const button = canvas.getByRole('button', { name: `Held ${variant}` });
+      await expect(button).toHaveAttribute('aria-disabled', 'true');
+      for (const hovering of [false, true]) {
+        if (hovering) await userEvent.hover(button);
+        const style = getComputedStyle(button);
+        await expect(style.backgroundColor, `${variant} background-color (hovering: ${hovering})`).toMatch(TRANSPARENT);
+        await expect(style.backgroundImage, `${variant} background-image (hovering: ${hovering})`).toBe('none');
+        await expect(style.boxShadow, `${variant} box-shadow (hovering: ${hovering})`).toBe('none');
+        await expect(style.color, `${variant} colour (hovering: ${hovering})`).toMatch(TRANSPARENT);
+      }
+    }
+  },
+};
+HeldDrawsNoFaceOfItsOwn.name = 'Held draws no face of its own';
