@@ -275,7 +275,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   const itemHeightChangeCountRef = useRef(0);
   useLayoutEffect(() => {
     itemHeightChangeCountRef.current = 0;
-  }, [items.length]);
+  }, [total]);
   useLayoutEffect(() => {
     if (containerElement == null || items.length === 0) return;
     const measure = () => {

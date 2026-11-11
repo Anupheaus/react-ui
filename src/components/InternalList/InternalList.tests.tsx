@@ -11,9 +11,12 @@ import { List } from '../List';
 // after a few changes it holds its height until its items change.
 
 const LIST_HEIGHT = 400;
-const ROW_COUNT = 60;
+/** Far more rows than the list ever draws at once, so some are always left below the window. */
+const ROW_COUNT = 300;
 /** How many times the rows' height is changed in a row: far more than the list may follow. */
 const MEASURE_COUNT = 40;
+/** Long enough for the list's debounced row requests to land. */
+const SETTLE_MS = 400;
 
 const resizeCallbacks: Array<() => void> = [];
 
@@ -45,7 +48,7 @@ afterEach(() => {
 
 const listOf = (count: number) => <ThemeProvider theme={DefaultTheme}><Dialogs><List label="Changes" items={buildItems(count)} fullHeight /></Dialogs></ThemeProvider>;
 
-/** The space the list keeps for the rows below the window: it moves whenever the list changes its row height. */
+/** The space the list keeps for the rows below its window: it moves whenever the list changes its row height. */
 const footerHeight = (): string => (document.querySelector('lazy-load-footer') as HTMLElement).style.height;
 
 /** The rows now measure `height` and the list's content has resized, as it does when the rows' text wraps differently. */
@@ -76,15 +79,26 @@ describe('InternalList when its measured row height keeps changing', () => {
     const { rerender } = render(listOf(ROW_COUNT));
     await screen.findByText('Row 0');
     for (let measure = 0; measure < MEASURE_COUNT; measure += 1) await resizeRowsTo(measure % 2 === 0 ? 100 : 20);
-    await resizeRowsTo(60);
-    const held = footerHeight();
-    await resizeRowsTo(80);
-    expect(footerHeight()).toBe(held);
+    // Let the list's own debounced requests for rows finish, so only the row height can move the footer.
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, SETTLE_MS)); });
+    // Held: more measures change nothing.
+    const held = new Set<string>();
+    for (let measure = 0; measure < 6; measure += 1) {
+      await resizeRowsTo(measure % 2 === 0 ? 100 : 20);
+      held.add(footerHeight());
+    }
+    expect(held.size).toBe(1);
 
     rerender(listOf(ROW_COUNT - 10));
     await screen.findByText('Row 0');
-    await resizeRowsTo(80);
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, SETTLE_MS)); });
+    await resizeRowsTo(100);
+    const followed = new Set<string>();
+    for (let measure = 0; measure < 6; measure += 1) {
+      await resizeRowsTo(measure % 2 === 0 ? 20 : 100);
+      followed.add(footerHeight());
+    }
 
-    expect(footerHeight()).not.toBe(held);
+    expect(followed.size).toBeGreaterThan(1);
   });
 });
