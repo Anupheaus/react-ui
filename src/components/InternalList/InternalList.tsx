@@ -21,16 +21,7 @@ import { InternalListItem } from './InternalListItem';
 import { StickyHideHeader } from '../StickyHideHeader';
 import { measureVerticalScrollbarWidth } from '../Scroller/measureVerticalScrollbarWidth';
 
-const VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK = 18;
-
-function measureVirtualListItemHeight(scrollerContainer: HTMLDivElement): number | undefined {
-  const scrollerContent = scrollerContainer.querySelector('scroller-content');
-  if (scrollerContent == null) return undefined;
-  const row = scrollerContent.querySelector('table-row, list-item, list-item-with-sub-items');
-  if (row == null) return undefined;
-  const height = Math.ceil(row.getBoundingClientRect().height);
-  return height > 0 ? height : undefined;
-}
+import { measureVirtualListItemHeight, resolveVirtualListItemHeight, VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK } from './virtual-list-item-height';
 
 const useStyles = createStyles(({ list: { normal, active, readOnly }, pseudoClasses, text }) => ({
   internalList: {
@@ -280,6 +271,11 @@ export const InternalList = createComponent('InternalList', function <T = void>(
   // (and so the scroll height) are sized wrongly.
   const itemHeightRef = useRef(itemHeight);
   itemHeightRef.current = itemHeight;
+  // Counts the height changes since the items last changed; the count caps them (see resolveVirtualListItemHeight).
+  const itemHeightChangeCountRef = useRef(0);
+  useLayoutEffect(() => {
+    itemHeightChangeCountRef.current = 0;
+  }, [total]);
   useLayoutEffect(() => {
     if (containerElement == null || items.length === 0) return;
     const measure = () => {
@@ -287,13 +283,14 @@ export const InternalList = createComponent('InternalList', function <T = void>(
       if (measuredRowHeight == null) return;
 
       const currentItemHeight = itemHeightRef.current;
-      const normalizedItemHeight = Math.max(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK, measuredRowHeight);
+      const normalizedItemHeight = resolveVirtualListItemHeight({ measuredHeight: measuredRowHeight, currentHeight: currentItemHeight, changeCount: itemHeightChangeCountRef.current });
       const wasLocked = itemHeightLockedRef.current;
       itemHeightLockedRef.current = true;
       if (normalizedItemHeight === currentItemHeight) {
         if (!wasLocked) requestItems();
         return;
       }
+      itemHeightChangeCountRef.current += 1;
 
       if (containerElement.scrollTop > 0 && currentItemHeight > 0) {
         const adjustedScrollTop = Math.round(containerElement.scrollTop * (normalizedItemHeight / currentItemHeight));
