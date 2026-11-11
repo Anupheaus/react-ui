@@ -46,6 +46,11 @@ describe('resolveVirtualListItemHeight', () => {
     expect(resolveVirtualListItemHeight({ measuredHeight: 34, currentHeight: 36, changeCount: 1 })).toBe(36);
   });
 
+  it('replaces the fallback guess with a real height that is only a little taller (19px rows are not kept at 18px)', () => {
+    expect(resolveVirtualListItemHeight({ measuredHeight: 19, currentHeight: 18, changeCount: 0 })).toBe(19);
+    expect(resolveVirtualListItemHeight({ measuredHeight: 20, currentHeight: 18, changeCount: 0 })).toBe(20);
+  });
+
   it('adopts a clearly different height (loading rows replaced by real rows)', () => {
     expect(resolveVirtualListItemHeight({ measuredHeight: 60, currentHeight: 36, changeCount: 1 })).toBe(60);
   });

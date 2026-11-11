@@ -40,6 +40,8 @@ export function resolveVirtualListItemHeight({ measuredHeight, currentHeight, ch
   const normalizedHeight = Math.max(VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK, measuredHeight);
   if (normalizedHeight === currentHeight) return currentHeight;
   if (changeCount >= MAX_HEIGHT_CHANGES) return currentHeight;
+  // The fallback is a guess, not a measure of real rows, so the first measure replaces it whatever the difference.
+  if (currentHeight === VIRTUAL_LIST_ITEM_HEIGHT_FALLBACK) return normalizedHeight;
   const isSmallDifference = currentHeight > 0 && Math.abs(normalizedHeight - currentHeight) / currentHeight <= HEIGHT_CHANGE_TOLERANCE;
   return isSmallDifference ? currentHeight : normalizedHeight;
 }
