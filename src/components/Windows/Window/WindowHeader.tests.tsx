@@ -84,6 +84,11 @@ describe('Window header', () => {
     expect(container.querySelector('titlebar-content')?.textContent).toBe('header-child');
   });
 
+  it('names the close button "Close", so a screen reader does not announce just "button"', () => {
+    const { container, getByRole } = render(<Harness><Window title="Base title"><WindowContent>body</WindowContent></Window></Harness>);
+    expect(getCloseButton(container)).toBe(getByRole('button', { name: 'Close' }));
+  });
+
   it('uses the Header title in preference to the Window title', () => {
     const { container } = render(<Harness><Window title="Base title"><WindowHeader title="Header title" /></Window></Harness>);
     expect(container.querySelector('titlebar-title')?.textContent).toBe('Header title');

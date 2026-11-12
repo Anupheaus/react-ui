@@ -278,7 +278,7 @@ export const Window = createComponent('Window', ({
       {windowControls}
       {!hideMaximize && !isMaximized && <Button variant="hover" onClick={maximizeWindow} size="small"><Icon name="window-maximize" size="small" /></Button>}
       {!hideMaximize && isMaximized && <Button variant="hover" size="small" onClick={restoreWindow}><Icon name="window-restore" size="small" /></Button>}
-      {!hideCloseButton && <Button variant="hover" size="small" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
+      {!hideCloseButton && <Button variant="hover" size="small" aria-label="Close" onClick={closeWindow}><Icon name="window-close" size="small" /></Button>}
     </>),
   }), [title, icon, dragTargetProps, windowControls, hideMaximize, isMaximized, hideCloseButton, maximizeWindow, restoreWindow, closeWindow]);
 
