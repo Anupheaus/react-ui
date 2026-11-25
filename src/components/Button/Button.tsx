@@ -55,7 +55,9 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
     borderRadius: variant.normal.borderRadius,
 
     [pseudoClasses.active]: {
-      backgroundColor: variant.active.backgroundColor ?? variant.normal.backgroundColor,
+      // darken the normal background (rather than swapping to the theme's active colour)
+      backgroundColor: variant.normal.backgroundColor,
+      backgroundImage: 'linear-gradient(rgba(0 0 0 / 15%), rgba(0 0 0 / 15%))',
       color: variant.active.textColor ?? variant.normal.textColor,
       boxShadow: (variant.active.borderColor ?? variant.normal.borderColor) == null ? 'none' : `inset 0 0 0 1px ${variant.active.borderColor ?? variant.normal.borderColor}`,
       borderRadius: variant.active.borderRadius ?? variant.normal.borderRadius,
@@ -141,8 +143,8 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
         padding: '6px 8px',
       },
       '&.is-icon-only': {
-        width: 30,
-        height: 30,
+        width: 36,
+        height: 36,
         padding: 0,
       },
 
@@ -152,8 +154,8 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
           padding: '12px 18px',
         },
         '&.is-icon-only': {
-          width: 40,
-          height: 40,
+          width: 44,
+          height: 44,
           padding: 0,
           ...iconOnly,
         },
@@ -165,8 +167,8 @@ const useStyles = createStyles(({ text, buttons: { default: defaultButton, borde
 
       '&.is-icon-only': {
         padding: '1px 2px',
-        width: 20,
-        height: 20,
+        width: 24,
+        height: 24,
       },
     },
     size_variant_large: {
