@@ -125,6 +125,11 @@ const useStyles = createStyles(({ windows: { window, content }, transitions }) =
       boxShadow: window.inactive.shadow ?? window.active.shadow,
       filter: window.inactive.filter ?? window.active.filter,
 
+      // declared after `.is-maximized`, so without this the unfocused radius wins over the squared corners
+      '&.is-maximized': {
+        borderRadius: 0,
+      },
+
       '& window-content': {
         backgroundColor: content.inactive.backgroundColor ?? content.active.backgroundColor,
         color: content.inactive.textColor ?? content.active.textColor,
