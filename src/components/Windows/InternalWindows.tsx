@@ -7,7 +7,7 @@ import { WindowsManager } from './WindowsManager';
 import { WindowsContentRenderer } from './WindowsContentRenderer';
 import { DialogsManagerContext, WindowsManagerContext } from './WindowsContexts';
 import { isSimpleArgs } from './WindowsUtils';
-import { useId, useOnChange, useOnUnmount, useStorage, useUpdatableState } from '../../hooks';
+import { useId, useOnChange, useStorage, useUpdatableState } from '../../hooks';
 
 export type ManagerType = 'windows' | 'dialogs';
 
@@ -47,6 +47,15 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   );
   const lastOnChangeRef = useRef<StateType[]>(states);
 
+  // Hold the manager while mounted. A layout effect, declared before the others here, so a Windows replaced in the same
+  // commit has already released it (layout cleanups of removed components run before new layout effects) and its windows
+  // have gone before this one's are added. The passive cleanup this replaces ran only after, and cleared and unregistered
+  // the manager the new Windows had just filled.
+  useLayoutEffect(() => {
+    WindowsManager.claim(managerId, instanceId, managerType);
+    return () => WindowsManager.release(managerId, instanceId);
+  }, [managerId]);
+
   const updateSavedStates = (newStates: StateType[]) => {
     const savableStates = newStates.mapWithoutNull(state => {
       const { isPersistable = true, args } = state;
@@ -80,11 +89,6 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
     if (newStates == null || lastOnChangeRef.current === newStates) return;
     manager.add(newStates);
   }, [Object.hash(providedStates ?? (persistenceEnabled ? localStorage : []) ?? [])]);
-
-  useOnUnmount(() => {
-    manager.clear();
-    WindowsManager.remove(managerId);
-  });
 
   const ManagerContext = managerType === 'windows' ? WindowsManagerContext : DialogsManagerContext;
   // The host clips its windows (disableOverflow) so a window dragged partly out of it never makes the page scroll.

@@ -22,17 +22,20 @@ export class WindowsManager {
     this.#events = new Records();
     this.#disabledNotifications = false;
     this.#id = id;
-    this.#instanceId = instanceId;
+    this.#renderedBy = new Set([instanceId]);
+    this.#owners = new Set();
   }
 
   #windows: Records<WindowState>;
   #events: Records<WindowEvents>;
   #disabledNotifications: boolean;
   #id: string;
-  #instanceId: string;
+  /** Windows components that have rendered with this manager but not yet mounted (see `claim`). */
+  #renderedBy: Set<string>;
+  /** Mounted Windows components holding this manager: never more than one. */
+  #owners: Set<string>;
 
   public get entries() { return this.#windows.toArray(); }
-  public get instanceId() { return this.#instanceId; }
   public get id() { return this.#id; }
 
   public static get(id: string) {
@@ -50,17 +53,13 @@ export class WindowsManager {
   }
 
   public static getOrCreate(id: string, instanceId: string, type: ManagerType) {
-    const defaultId = this.getDefaultManagerId(type);
-    const isDefault = id === defaultId;
 
+    // Rendering never refuses a second Windows with the same id: when an app swaps one screen for another in one render,
+    // the new Windows renders while the old one is still mounted, and takes the manager over once the old one has gone.
+    // Two mounted at once are refused when the second mounts (`claim`).
     const existingManager = windowManagers.get(id);
     if (existingManager != null) {
-      if (existingManager.instanceId !== instanceId) {
-        const componentName = type === 'windows' ? 'Windows' : 'Dialogs';
-        throw new Error(isDefault
-          ? `Two ${componentName} components cannot both be default. Provide an explicit id to one or both.`
-          : `A Windows component with id "${id}" already exists.`);
-      }
+      if (!existingManager.#owners.has(instanceId)) existingManager.#renderedBy.add(instanceId);
       return existingManager;
     }
 
@@ -73,6 +72,38 @@ export class WindowsManager {
     windowManagers.set(id, newManager);
     managerTypes.set(id, type);
     return newManager;
+  }
+
+  /**
+   * Called by a Windows component as it mounts (in a layout effect, so after any Windows it replaced in the same commit has
+   * released the manager). Throws when another mounted Windows already holds this id.
+   */
+  public static claim(id: string, instanceId: string, type: ManagerType): WindowsManager {
+    const manager = windowManagers.get(id) ?? this.getOrCreate(id, instanceId, type);
+    const otherOwner = Array.from(manager.#owners).find(owner => owner !== instanceId);
+    if (otherOwner != null) {
+      const componentName = type === 'windows' ? 'Windows' : 'Dialogs';
+      throw new Error(id === this.getDefaultManagerId(type)
+        ? `Two ${componentName} components cannot both be default. Provide an explicit id to one or both.`
+        : `A Windows component with id "${id}" already exists.`);
+    }
+    manager.#renderedBy.delete(instanceId);
+    manager.#owners.add(instanceId);
+    windowManagers.set(id, manager);
+    managerTypes.set(id, type);
+    return manager;
+  }
+
+  /**
+   * Called by a Windows component as it unmounts (in a layout effect's cleanup). Its windows go with it; the manager stays
+   * registered when another Windows has already rendered with it and is about to claim it, and is removed otherwise.
+   */
+  public static release(id: string, instanceId: string): void {
+    const manager = windowManagers.get(id);
+    if (manager == null || !manager.#owners.delete(instanceId)) return;
+    manager.clear();
+    if (manager.#owners.size > 0 || manager.#renderedBy.size > 0) return;
+    this.remove(id);
   }
 
   public static remove(id: string) {
