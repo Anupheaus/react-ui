@@ -27,7 +27,9 @@ export const ValidateSection = createComponent('ValidateSection', ({
   highlightErrorsCallbacks,
   children,
 }: Props) => {
-  const id = providedId ?? useId();
+  // Always call useId so the hook order does not depend on whether an id was provided.
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
   const errors = useRef(new Records<ValidationRecord>()).current;
 
   useLayoutEffect(() => {
@@ -48,11 +50,13 @@ export const ValidateSection = createComponent('ValidateSection', ({
         invalidSections.remove(id);
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- subscribe once on mount; the records, collection and id are fixed for this section
   }, []);
 
   useEffect(() => () => {
     hookErrors.remove(errors.ids());
     invalidSections.remove(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount-only cleanup of what this section contributed
   }, []);
 
   const context = useMemo<ValidationContextProps>(() => ({
@@ -61,6 +65,7 @@ export const ValidateSection = createComponent('ValidateSection', ({
     errors,
     invalidSections,
     highlightErrorsCallbacks,
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the other members are stable for the owning useValidation's lifetime
   }), [id]);
 
   return (

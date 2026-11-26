@@ -7,7 +7,7 @@ import type { ValidationRecord, ValidationTools } from './ValidationModels';
 import type { ValidateSectionProps } from './ValidateSection';
 import { ValidateSection as ValidateSectionComponent } from './ValidateSection';
 import { useBound, useCallbacks, useForceUpdate, useId } from '../../hooks';
-import { subscribeToParentValidation } from './subscribeToParentValidation';
+import { useParentValidationSubscription } from './useParentValidationSubscription';
 import { useUIState } from '../UIStateProvider';
 
 function createTools(): ValidationTools {
@@ -35,7 +35,7 @@ export function useValidation(props?: UseValidationProps | string) {
   const { isReadOnly } = useUIState();
   const effectivelyReadOnly = isReadOnly && !forceEnable;
 
-  subscribeToParentValidation(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
+  useParentValidationSubscription(errors, invalidSections, highlightErrorsCallbacks, errorsAreHighlightedRef);
 
   const highlightValidationErrors = useBound(() => {
     if (errorsAreHighlightedRef.current === true) return;
@@ -45,11 +45,13 @@ export function useValidation(props?: UseValidationProps | string) {
 
   const ValidateSection = useMemo(() => createComponent('ValidateSection', (props: ValidateSectionProps) => (
     <ValidateSectionComponent {...props} errors={errors} invalidSections={invalidSections} highlightErrorsCallbacks={highlightErrorsCallbacks} />
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- created once; errors, invalidSections and the callbacks are stable for this hook's lifetime
   )), []);
 
   const getInvalidSections = useBound(() => invalidSections.get());
 
-  const validate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
+  // A hook by contract: callers invoke validate() during render, so it is named as one here and exposed as `validate`.
+  const useValidate = (...delegates: ((tools: ValidationTools) => PromiseMaybe<ReactNode | void>)[]) => {
     const validateId = useId();
     const [highlight, setHighlight] = useState(false);
     const update = useForceUpdate();
@@ -103,7 +105,7 @@ export function useValidation(props?: UseValidationProps | string) {
     highlightValidationErrors,
     /* Using isValid will enable the error highlighting */
     isValid,
-    validate,
+    validate: useValidate,
     getErrors,
   };
 }

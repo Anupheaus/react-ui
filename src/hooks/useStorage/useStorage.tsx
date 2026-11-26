@@ -22,14 +22,22 @@ function getFromStorage<T>(key: string, defaultValue: Props<T>['defaultValue'] |
   }
 }
 
-function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => T, disabled?: boolean) {
-  const hasKey = disabled ? false : (key in storage);
+function getStorages(type: Props<unknown>['type']) {
+  const firstStorage: Storage | undefined = type === 'local' ? window.localStorage : window.sessionStorage;
+  const secondStorage: Storage | undefined = type === 'both' ? window.localStorage : undefined;
+  if (!firstStorage && !secondStorage) throw new Error('No browser storage available.');
+  return { firstStorage, secondStorage };
+}
+
+/** A missing storage behaves as disabled, so this hook can be called unconditionally for every storage slot. */
+function useStorageState<T>(key: string, storage: Storage | undefined, defaultValue?: () => T, isDisabled?: boolean) {
+  const hasKey = isDisabled || storage == null ? false : (key in storage);
   const [state, internalSetState] = useState<T | undefined>(() =>
-    disabled ? undefined : getFromStorage<T>(key, defaultValue, storage),
+    isDisabled || storage == null ? undefined : getFromStorage<T>(key, defaultValue, storage),
   );
 
   const setState = useBound((param: SetStateAction<T | undefined>) => {
-    if (disabled) return;
+    if (isDisabled || storage == null) return;
     internalSetState(prevState => {
       const newState = typeof (param) === 'function' ? (param as (prevState: T | undefined) => T | undefined)(prevState) : param;
       if (newState == null) {
@@ -48,40 +56,27 @@ function useStorageState<T>(key: string, storage: Storage, defaultValue?: () => 
 export function useStorage<T>(key: string, propsOrDefaultValue?: Props<T>['defaultValue'] | Props<T>) {
   const { defaultValue, type = 'local', disabled = false } = typeof (propsOrDefaultValue) === 'function'
     ? { defaultValue: propsOrDefaultValue } : propsOrDefaultValue ?? {};
-  const firstStorage = type === 'local' ? window.localStorage : window.sessionStorage;
-  const secondStorage = type === 'both' ? window.localStorage : undefined;
+  const { firstStorage, secondStorage } = getStorages(type);
   const batchUpdates = useBatchUpdates();
 
-  let state: T | undefined;
-  let setState: Dispatch<SetStateAction<T | undefined>> | undefined;
-  let firstSetState: Dispatch<SetStateAction<T | undefined>> | undefined;
-  let hasState = false;
-
-  if (!firstStorage && !secondStorage) throw new Error('No browser storage available.');
-
-  if (firstStorage) {
-    const { hasKey, state: innerState, setState: innerSetState } = useStorageState(key, firstStorage, defaultValue, disabled);
-    state = innerState;
-    firstSetState = setState = innerSetState;
-    if (hasKey) hasState = true;
-  }
-
-  if (secondStorage) {
-    const { state: innerState, setState: innerSetState } = useStorageState(key, secondStorage, defaultValue, disabled);
-    setState = useBound((param: SetStateAction<T | undefined>) => {
-      if (disabled) return;
-      batchUpdates(() => {
-        firstSetState?.(param);
-        innerSetState(param);
-      });
+  // Both slots are always called so the hook order cannot change if `type` changes between renders; an absent storage is a no-op slot.
+  const { hasKey: firstHasKey, state: firstState, setState: firstSetState } = useStorageState(key, firstStorage, defaultValue, disabled);
+  const { state: secondState, setState: secondSetState } = useStorageState(key, secondStorage, defaultValue, disabled);
+  const setBothStates = useBound((param: SetStateAction<T | undefined>) => {
+    if (disabled) return;
+    batchUpdates(() => {
+      if (firstStorage != null) firstSetState(param);
+      secondSetState(param);
     });
-    if (!hasState) state = innerState;
-  }
+  });
+
+  const state = secondStorage == null || firstHasKey ? firstState : secondState;
+  const setState: Dispatch<SetStateAction<T | undefined>> = secondStorage == null ? firstSetState : setBothStates;
 
   return {
     state: state,
     get isInSessionStorage() { return !disabled && key in window.sessionStorage; },
     get isInLocalStorage() { return !disabled && key in window.localStorage; },
-    setState: setState!,
+    setState,
   };
 }

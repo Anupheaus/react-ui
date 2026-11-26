@@ -21,9 +21,9 @@ export function useFormObserver() {
     }
   });
 
-  const FormObserver = useMemo(() => createComponent('FormObserver', ({
+  const FormObserver = useMemo(() => createComponent('FormObserver', function FormObserver({
     children,
-  }: Props) => {
+  }: Props) {
 
     const context = useMemo<FormObserverContextProps>(() => ({
       isReal: true,
@@ -36,7 +36,7 @@ export function useFormObserver() {
         {children}
       </FormObserverContext.Provider>
     );
-  }), []);
+  }), [getIsDirty, setIsDirty]);
 
 
   return {

@@ -5,7 +5,7 @@ import { useOnUnmount } from '../../hooks/useOnUnmount';
 import type { RippleConfig, RippleState } from './RippleModels';
 import { useUIState } from '../../providers';
 
-export function createRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
+export function useRippleEventHandler(setState: (delegate: (currentState: RippleState) => RippleState) => void, rippleConfig: DistributedStateApi<RippleConfig>) {
   const unhookRef = useRef<() => void>(() => void 0);
   const isUnmounted = useOnUnmount();
   const { isReadOnly } = useUIState();

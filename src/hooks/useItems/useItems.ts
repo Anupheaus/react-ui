@@ -6,7 +6,7 @@ import type { FullPagination } from './UseItemsModels';
 import { useForceUpdate } from '../useForceUpdate';
 import { useDebounce } from '../useDebounce';
 import type { UseActions } from '../useActions';
-import { makeOnRequest } from './makeOnRequest';
+import { useOnRequest } from './useOnRequest';
 import type { ReactListItem } from '../../models';
 import type { CreateSkeletonItemContext } from './useItemsUtils';
 import { clearResponse, ensureSelectedItemsPersist, updateStateWithSkeletons, updateWithResponse } from './useItemsUtils';
@@ -42,7 +42,9 @@ export function useItems<T = void>({ initialLimit = 20, items, actions, onReques
     stateRef.current.total = undefined;
     await makeRequest(lastPaginationRequestRef.current);
   };
-  const request = (onRequest ?? makeOnRequest(items, refresh));
+  // Called every render so hook order never depends on onRequest; the items-change refresh only applies when it serves the requests.
+  const defaultRequest = useOnRequest(items, () => { if (onRequest == null) refresh(); });
+  const request = onRequest ?? defaultRequest;
   const asyncRequests = useRef(new Set<string>()).current;
   const currentRequestIdRef = useRef<string>('');
   const lastPaginationRequestRef = useRef<FullPagination>({ offset: 0, limit: initialLimit });
@@ -96,10 +98,12 @@ export function useItems<T = void>({ initialLimit = 20, items, actions, onReques
   useMemo(() => {
     if (onRequest != null) return;
     makeRequest(lastPaginationRequestRef.current, false); // synchronous request and asynchronous prepare request
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the initial request is made once, on mount
   }, []);
 
   useLayoutEffect(() => {
     if (onRequest != null) makeRequest(lastPaginationRequestRef.current, false); // asynchronous request
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the initial request is made once, on mount
   }, []);
 
   return {

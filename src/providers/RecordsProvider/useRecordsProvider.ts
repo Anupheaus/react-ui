@@ -38,12 +38,14 @@ function useIdWithRecordsProvider<T extends Record = Record>(typeId: string, id:
   };
 }
 
-class UseRecordsProvider<T extends Record> { public getEmpty() { return useEmptyRecordsProvider<T>(''); } public getWithId() { return useIdWithRecordsProvider<T>('', ''); } }
-
-export function useRecordsProvider<T extends Record = Record>(typeId: string): ReturnType<UseRecordsProvider<T>['getEmpty']>;
-export function useRecordsProvider<T extends Record = Record>(typeId: string, id: string): ReturnType<UseRecordsProvider<T>['getWithId']>;
+export function useRecordsProvider<T extends Record = Record>(typeId: string): ReturnType<typeof useEmptyRecordsProvider<T>>;
+export function useRecordsProvider<T extends Record = Record>(typeId: string, id: string): ReturnType<typeof useIdWithRecordsProvider<T>>;
 export function useRecordsProvider<T extends Record = Record>(...args: unknown[]) {
   const typeId = args[0] as string | undefined;
   if (is.empty(typeId)) throw new Error('The typeId for the records provider is required.');
-  return args.length === 1 ? useEmptyRecordsProvider<T>(typeId) : useIdWithRecordsProvider<T>(typeId, args[1] as string | undefined);
+  // Both are always called so the hook order never depends on the arity; the unused one stays inert
+  // (its change handler only re-renders for an observed records list or a matching id, neither of which happens).
+  const emptyProvider = useEmptyRecordsProvider<T>(typeId);
+  const idProvider = useIdWithRecordsProvider<T>(typeId, args[1] as string | undefined);
+  return args.length === 1 ? emptyProvider : idProvider;
 }

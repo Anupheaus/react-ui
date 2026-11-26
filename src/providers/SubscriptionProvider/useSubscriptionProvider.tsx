@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import type { Subscription } from './createSubscription';
-import { subscriptionContexts, subscriptionInternal, type SubscriptionContext } from './subscriptionInternals';
+import { getSubscriptionContext, subscriptionInternal, type SubscriptionContext } from './subscriptionInternals';
 import { createComponent } from '../../components/Component';
 import { useBound, useMap } from '../../hooks';
 import type { PromiseMaybe } from '@anupheaus/common';
@@ -30,13 +30,13 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
   });
 
   const Provider = useMemo(() => {
-    const Context = subscriptionContexts.get(subscription);
+    const Context = getSubscriptionContext(subscription);
     if (Context == null) throw new Error('Context not found for the subscription provided.');
-    return createComponent('SubscriptionProvider', ({
+    return createComponent('SubscriptionProvider', function SubscriptionProvider({
       children,
       onSubscribed,
       onUnsubscribed,
-    }: Props<SubscribePayload, InvokePayload>) => {
+    }: Props<SubscribePayload, InvokePayload>) {
 
       const unsubscribe = useBound<SubscriptionContext<SubscribePayload, InvokePayload>['unsubscribe']>((id, debug) => {
         subscriptionCallbacks.delete(id);
@@ -84,7 +84,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
         isValid: true,
         subscribe,
         unsubscribe,
-      }), []);
+      }), [subscribe, unsubscribe]);
 
       return (
         <Context.Provider value={context}>
@@ -92,6 +92,7 @@ export function useSubscriptionProvider<SubscribePayload, InvokePayload>(subscri
         </Context.Provider>
       );
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one Provider component per subscription; the maps it closes over are stable for this hook's lifetime
   }, [subscription]);
 
   return {

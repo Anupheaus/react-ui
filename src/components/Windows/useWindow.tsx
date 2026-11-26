@@ -14,12 +14,13 @@ interface Props<Name extends string, Args extends unknown[], CloseResponseType =
   managerId?: string;
 }
 
-function getProps<Name extends string, Args extends unknown[]>(args: unknown[]): { window: ReactUIWindowOnly<Name, Args>, id?: string, managerId?: string; } {
-  if (args.length === 0) throw new Error('No arguments have been provided to the useWindow hook.');
+/** Reads the window definition arguments; `undefined` for the no-argument (current window) form. */
+function getProps<Name extends string, Args extends unknown[]>(args: unknown[]): Props<Name, Args> | undefined {
+  if (args.length === 0) return undefined;
   let id: string | undefined;
   if (args.length > 1) id = args[1] as string;
   if (is.reactComponent(args[0])) return { window: args[0] as unknown as ReactUIWindowOnly<Name, Args>, id, managerId: undefined };
-  return args[0] as any;
+  return args[0] as Props<Name, Args>;
 }
 
 export function useWindow(): UseWindowCurrentWindowUtils;
@@ -29,22 +30,15 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(
   window: ReactUIWindowOnly<Name, Args, CloseResponseType>): UseWindowApiCommandsWithId<Name, Args, CloseResponseType>;
 export function useWindow<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(...args: unknown[]) {
-  if (args.length === 0) {
-    const { setTitle, close } = useContext(WindowRenderContext);
-    if (setTitle == null || close == null) {
-      throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
-    }
-    return { setTitle, close } as UseWindowCurrentWindowUtils;
-  }
+  // Every hook runs on every render whichever overload is used, so the hook order never depends on the arguments.
+  const { setTitle, close } = useContext(WindowRenderContext);
   const hookId = useId();
-  const { id: providedId, window, managerId: providedManagerId } = getProps<Name, Args>(args);
-  if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
-    throw new Error(`Window "${window.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
-  }
+  const props = getProps<Name, Args>(args);
+  const providedId = props?.id;
   const id = providedId ?? hookId;
   const lastOpenedWindowIdRef = useRef<string>(id);
   const contextManagerId = useContext(WindowsManagerContext);
-  const effectiveManagerId = providedManagerId ?? contextManagerId;
+  const effectiveManagerId = props?.managerId ?? contextManagerId;
   const device = useDevice();
   const contextDialogsManagerId = useContext(DialogsManagerContext);
 
@@ -52,12 +46,16 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
     ? WindowsManager.getManagerForType('dialogs', contextDialogsManagerId)
     : WindowsManager.getManagerForType('windows', effectiveManagerId);
 
+  // The window commands below are only handed out when a window definition was given.
+  const getWindow = () => props!.window;
+
   const executeSimpleMethod = useBound(async (funcName: keyof WindowsManager, targetId?: string) => {
     const manager = getManager();
     return (manager[funcName] as AnyFunction)(targetId ?? lastOpenedWindowIdRef.current ?? id);
   });
 
   const openWindow = useBound(async (...openArgs: unknown[]) => {
+    const window = getWindow();
     const manager = getManager();
     const managerId = manager.id;
     let explicitId: string;
@@ -101,6 +99,18 @@ export function useWindow<Name extends string, Args extends unknown[], CloseResp
   const focusWindow = useBound(async (targetId?: string) => executeSimpleMethod('focus', targetId));
   const restoreWindow = useBound(async (targetId?: string) => executeSimpleMethod('restore', targetId));
   const maximizeWindow = useBound(async (targetId?: string) => executeSimpleMethod('maximize', targetId));
+
+  if (props == null) {
+    if (setTitle == null || close == null) {
+      throw new Error('useWindow() with no arguments must be called from within window content. Ensure the component is rendered inside a window created with createWindow.');
+    }
+    return { setTitle, close } as UseWindowCurrentWindowUtils;
+  }
+
+  const { window } = props;
+  if ((window as { dialogOnly?: boolean; }).dialogOnly === true) {
+    throw new Error(`Window "${window.name}" is dialog-only and cannot be used with useWindow. Use useDialog instead.`);
+  }
 
   return {
     [`open${window.name}`]: openWindow,

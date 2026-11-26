@@ -112,8 +112,10 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
       css: css as { [K in keyof TStyles]: string; },
       theme: themeInUse,
       device,
-      alterTheme: (delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme => {
+      // A hook by contract (callers invoke it during render), hence the use-prefixed function name behind the public alterTheme key.
+      alterTheme: function useAlterTheme(delegate: (theme: BaseTheme) => DeepPartial<BaseTheme>): BaseTheme {
         const newTheme = delegate(themeInUse);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the content hash of the alterations, not their (new every render) object identity
         return useMemo(() => Object.merge({}, themeInUse, newTheme), [themeInUse, Object.hash(newTheme)]);
       },
       join(...classNames: (string | boolean | undefined)[]): string | undefined {
@@ -130,6 +132,7 @@ export const createStyles: CreateStylesType<BaseTheme> = <TStyles extends Styles
         const styles = delegate();
         if (Object.keys(styles).length <= 0) return;
         return styles;
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- the caller supplies the dependency list for its delegate
       }, dependencies) as CSSProperties,
       tools,
     };

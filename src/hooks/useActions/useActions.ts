@@ -18,7 +18,8 @@ function useActionsFunc<T extends {}>(): UseActionsApi<T> {
   const hasUnmountedRef = useRef(false);
   const resolveRef = useRef<() => void>(() => void 0);
 
-  const setActions = useBound((actions: T) => {
+  // setActions is handed to a child as its `actions` prop and called during that child's render, so it is a hook itself.
+  const setActions = useBound(function useSetActions(actions: T) {
     if (!hasUnmountedRef.current) {
       actionsRef.current = actions;
       resolveRef.current();
@@ -79,4 +80,5 @@ type UseActionsFunc = typeof useActionsFunc & { createDefaultHandler<T extends {
 
 export const useActions = useActionsFunc as UseActionsFunc;
 
-useActions.createDefaultHandler = () => useRef(() => void 0).current;
+// A hook despite its name (kept for the public API): call it unconditionally during render.
+useActions.createDefaultHandler = function useDefaultHandler() { return useRef(() => void 0).current; };

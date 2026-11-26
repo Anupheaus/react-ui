@@ -32,10 +32,11 @@ export function useUIState({ isLoading = false, isReadOnly: isProvidedReadOnly, 
       }
     });
 
-    const ManagedUIState = useMemo(() => createComponent('ManagedUIState', (props: ComponentProps<typeof UIState>) => {
+    const ManagedUIState = useMemo(() => createComponent('ManagedUIState', function ManagedUIState(props: ComponentProps<typeof UIState>) {
       const { getAndObserve } = useDistributedState(managedUIState);
       const managedIsLoading = getAndObserve();
       return (<UIState {...props} isLoading={props.isLoading === true || managedIsLoading === true} />);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- the component is created once; the distributed state handle it reads is stable
     }), []);
 
     return {

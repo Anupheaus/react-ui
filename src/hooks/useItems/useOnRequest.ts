@@ -3,13 +3,13 @@ import type { UseDataRequest, UseDataResponse } from '../../extensions';
 import type { ReactListItem } from '../../models';
 import { useRef } from 'react';
 
-function useOrdinalToSort<T>(item: ReactListItem<T>) {
+function getOrdinalToSort<T>(item: ReactListItem<T>) {
   if ('ordinal' in item) return item.ordinal;
   if ('index' in item) return item.index;
   if ('text' in item) return item.text;
 }
 
-export function makeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
+export function useOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, refresh: () => void) {
   const items = providedItems ?? Array.empty();
   const lastRequestHashRef = useRef<string>('');
   const lastResponseRef = useRef<UseDataResponse<ReactListItem<T>>>();
@@ -31,7 +31,7 @@ export function makeOnRequest<T>(providedItems: ReactListItem<T>[] | undefined, 
     lastRequestHashRef.current = requestHash;
     lastResponseRef.current = {
       requestId,
-      items: items.orderBy(useOrdinalToSort).slice(offset, offset + limit),
+      items: items.orderBy(getOrdinalToSort).slice(offset, offset + limit),
       total: items.length,
     };
     response(lastResponseRef.current);

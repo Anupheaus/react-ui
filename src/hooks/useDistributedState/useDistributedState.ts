@@ -15,7 +15,10 @@ export function useDistributedState<T>(state: () => T, dependencies?: unknown[])
 export function useDistributedState<T>(state: DistributedState<T>): DistributedStateApi<T>;
 export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dependencies: unknown[] = []): DistributedStateApi<T> {
   const createState = is.function(arg) ? arg : undefined;
-  const state = (createState ? useRef<any>({ state: createState(), callbacks: useCallbacks() }) : arg) as MutableRefObject<InternalState<T>>;
+  // Both hooks run every render (even when a shared state is passed in) so the hook order never depends on the argument's shape.
+  const callbacks = useCallbacks();
+  const ownStateRef = useRef<InternalState<T>>({ state: createState?.() as T, callbacks });
+  const state = (createState ? ownStateRef : arg) as MutableRefObject<InternalState<T>>;
   const update = useForceUpdate();
   const firstRenderRef = useRef(true);
   const { invoke, register } = state.current.callbacks;
@@ -36,6 +39,7 @@ export function useDistributedState<T>(arg: DistributedState<T> | (() => T), dep
     if (!createState) return;
     if (firstRenderRef.current) { firstRenderRef.current = false; return; }
     set(createState?.());
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-creates the state only when the caller-supplied dependencies change
   }, dependencies);
 
   return {

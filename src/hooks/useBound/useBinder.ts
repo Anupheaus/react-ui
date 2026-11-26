@@ -6,7 +6,8 @@ interface BinderCache {
 }
 
 export function useBinder() {
-  return <T extends any[], R>(delegate: (...args: T) => R): (...args: T) => R => {
+  // The returned binder calls useRef, so it is a hook: call it unconditionally, in the same order, every render.
+  return function useBoundDelegate<T extends unknown[], R>(delegate: (...args: T) => R): (...args: T) => R {
     const cache = useRef<BinderCache>({ cachedFunc: undefined, func: delegate });
 
     // get or create cached function

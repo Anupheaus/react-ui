@@ -5,6 +5,7 @@ import { useBound } from '../useBound';
 import { useForceUpdate } from '../useForceUpdate';
 import { useSet } from '../useSet';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- constraint must accept any parameter list; unknown[] rejects typed callbacks and never[] blocks invoking them
 type CallbackFunction = (...args: any[]) => PromiseMaybe<void>;
 
 export interface CallbackState {
@@ -19,10 +20,11 @@ export interface RegisterOutOfRenderPhaseProps {
 
 type AddCallbackState<T extends AnyFunction> = (this: CallbackState, ...args: Parameters<T>) => void;
 
-function internalUseCallbacks<T extends CallbackFunction = () => void>() {
+function useInternalCallbacks<T extends CallbackFunction = () => void>() {
   const callbacks = useSet<T>();
 
-  const register = (delegate: AddCallbackState<T>) => {
+  // register and registerOutOfRenderPhaseOnly call hooks, so consumers must call them unconditionally during render.
+  const register = function useRegister(delegate: AddCallbackState<T>) {
     const waitOnRenderPhaseCompleteRef = useRef(useMemo(() => Promise.createDeferred(), []));
     if (waitOnRenderPhaseCompleteRef.current.state !== PromiseState.Pending) waitOnRenderPhaseCompleteRef.current = Promise.createDeferred();
     const boundDelegate = useBound((...args: Parameters<T>) => delegate.call({
@@ -35,10 +37,10 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
     });
     useEffect(() => () => {
       callbacks.delete(boundDelegate);
-    }, []);
+    }, [boundDelegate]);
   };
 
-  const registerOutOfRenderPhaseOnly = (delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) => {
+  const registerOutOfRenderPhaseOnly = function useRegisterOutOfRenderPhaseOnly(delegate: AddCallbackState<T>, { timeout = 5000, updateAfterTimeout = 5 }: RegisterOutOfRenderPhaseProps = {}) {
     const update = useForceUpdate();
     register(async function (...args: Parameters<T>) {
       const updateTimer = setTimeout(() => update(), updateAfterTimeout);
@@ -65,8 +67,6 @@ function internalUseCallbacks<T extends CallbackFunction = () => void>() {
   return { invoke, register, registerOutOfRenderPhaseOnly };
 }
 
-class UseCallbacksReturnType<T extends CallbackFunction> { public result() { return internalUseCallbacks<T>(); } }
+export type UseCallbacks<T extends CallbackFunction> = ReturnType<typeof useInternalCallbacks<T>>;
 
-export type UseCallbacks<T extends CallbackFunction> = ReturnType<UseCallbacksReturnType<T>['result']>;
-
-export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return internalUseCallbacks<T>(); }
+export function useCallbacks<T extends CallbackFunction = () => void>(): UseCallbacks<T> { return useInternalCallbacks<T>(); }

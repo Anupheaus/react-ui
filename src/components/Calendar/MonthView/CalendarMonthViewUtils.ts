@@ -4,29 +4,34 @@ import type { CalendarEntryRecord } from '../CalendarModels';
 import { CalendarUtils } from '../CalendarUtils';
 import type { CalendarMonthEntryRecord } from './CalendarMonthViewModels';
 
-function createMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date) /*: CalendarMonthEntryRecord[]*/ {
-  return useMemo(() => {
-    const relevantEntries = entries
-      .filter(({ startDate, endDate }) => startDate <= lastDate && (endDate === undefined ? startDate >= firstDate : endDate >= firstDate))
-      .orderBy(({ startDate }) => startDate.getTime())
-      .map((entry): CalendarMonthEntryRecord => ({ entry, renderedOnRow: 0 }));
-    for (let dayIndex = 0; dayIndex < CalendarUtils.daysInBetween(firstDate, lastDate); dayIndex++) {
-      const currentDate = DateTime.fromJSDate(firstDate).plus({ days: dayIndex }).toJSDate();
-      const validEntriesForToday = relevantEntries.filter(({ entry: { startDate, endDate } }) => CalendarUtils.isBetween(currentDate, startDate, endDate === undefined ? startDate : endDate));
-      const usedRows = validEntriesForToday.map(({ renderedOnRow }) => renderedOnRow === 0 ? undefined : renderedOnRow).removeNull();
-      validEntriesForToday.forEach(monthEntry => {
-        if (monthEntry.renderedOnRow !== 0) return;
-        for (let row = 1; row <= validEntriesForToday.length + 1; row++) {
-          if (usedRows.includes(row)) continue;
-          monthEntry.renderedOnRow = row;
-          // Taken now, so the day's next entry goes on the row below rather than on top of this one.
-          usedRows.push(row);
-          break;
-        }
-      });
-    }
-    return relevantEntries;
-  }, [entries]);
+function computeMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date): CalendarMonthEntryRecord[] {
+  const relevantEntries = entries
+    .filter(({ startDate, endDate }) => startDate <= lastDate && (endDate === undefined ? startDate >= firstDate : endDate >= firstDate))
+    .orderBy(({ startDate }) => startDate.getTime())
+    .map((entry): CalendarMonthEntryRecord => ({ entry, renderedOnRow: 0 }));
+  for (let dayIndex = 0; dayIndex < CalendarUtils.daysInBetween(firstDate, lastDate); dayIndex++) {
+    const currentDate = DateTime.fromJSDate(firstDate).plus({ days: dayIndex }).toJSDate();
+    const validEntriesForToday = relevantEntries.filter(({ entry: { startDate, endDate } }) => CalendarUtils.isBetween(currentDate, startDate, endDate === undefined ? startDate : endDate));
+    const usedRows = validEntriesForToday.map(({ renderedOnRow }) => renderedOnRow === 0 ? undefined : renderedOnRow).removeNull();
+    validEntriesForToday.forEach(monthEntry => {
+      if (monthEntry.renderedOnRow !== 0) return;
+      for (let row = 1; row <= validEntriesForToday.length + 1; row++) {
+        if (usedRows.includes(row)) continue;
+        monthEntry.renderedOnRow = row;
+        // Taken now, so the day's next entry goes on the row below rather than on top of this one.
+        usedRows.push(row);
+        break;
+      }
+    });
+  }
+  return relevantEntries;
+}
+
+function useMonthEntries(entries: readonly CalendarEntryRecord[], firstDate: Date, lastDate: Date): CalendarMonthEntryRecord[] {
+  // The dates are rebuilt on every render, so key the memo on their times: a new viewing month must re-place the entries.
+  const firstTime = firstDate.getTime();
+  const lastTime = lastDate.getTime();
+  return useMemo(() => computeMonthEntries(entries, new Date(firstTime), new Date(lastTime)), [entries, firstTime, lastTime]);
 }
 
 function findFirstDateFor(date: Date): [Date, Date] {
@@ -69,7 +74,7 @@ function shouldShowEntryLabel(
 }
 
 export const CalendarMonthViewUtils = {
-  createMonthEntries,
+  useMonthEntries,
   findFirstDateFor,
   getEntriesForDate,
   shouldShowEntryLabel,

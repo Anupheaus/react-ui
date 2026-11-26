@@ -22,7 +22,7 @@ The traditional month-grid view for the `Calendar` component. Renders a 7-column
 - `CalendarMonthViewModels.ts` — internal types for the month view (grouped entry records per cell).
 - `CalendarMonthViewUtils.ts` — calendar math helpers:
   - `findFirstDateFor(viewingDate)` — returns `[firstDate, endDate]` where `firstDate` is the Monday of the week containing the 1st of the month
-  - `createMonthEntries(entries, firstDate, endDate)` — groups entries by day index within the grid
+  - `useMonthEntries(entries, firstDate, endDate)` — hook; groups entries by day index within the grid, memoised on the entries and the grid's first/last dates
   - `getEntriesForDate(monthEntries, cellDate, dayIndex)` — retrieves entries for a specific cell
   - `shouldShowEntryLabel(entry, cellDate, dayIndex, viewingDate)` — whether to show the icon and title on a chip anchor (the start day, or a Monday continuation when the event began in a previous month)
 

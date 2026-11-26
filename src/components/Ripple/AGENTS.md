@@ -42,7 +42,7 @@ function MyButton({ children, onClick }) {
 
 ## Architecture
 
-`useRipple` creates two pieces of distributed state — `rippleState` (active flag, x/y coordinates) and `rippleConfig` (element reference, `ignoreMouseCoords` flag) — and returns a `rippleTarget` ref callback produced by `createRippleEventHandler`. That handler attaches `mousedown`, `focus`/`focusin`, and `blur`/`focusout` listeners to the target element. The `Ripple` component reads both states and applies CSS keyframe animations (`scale(0) → scale(1.2)` on activation, `scale(1.2) → opacity 0` on deactivation). The ripple size is computed as 2.5× the larger dimension of the container element.
+`useRipple` creates two pieces of distributed state — `rippleState` (active flag, x/y coordinates) and `rippleConfig` (element reference, `ignoreMouseCoords` flag) — and returns a `rippleTarget` ref callback produced by `useRippleEventHandler`. That handler attaches `mousedown`, `focus`/`focusin`, and `blur`/`focusout` listeners to the target element. The `Ripple` component reads both states and applies CSS keyframe animations (`scale(0) → scale(1.2)` on activation, `scale(1.2) → opacity 0` on deactivation). The ripple size is computed as 2.5× the larger dimension of the container element.
 
 ---
 

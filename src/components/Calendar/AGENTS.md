@@ -212,7 +212,7 @@ Grid lines and view shells (month grid border, week schedule frame, day/week hou
 
 ## Related
 
-- [MonthView/AGENTS.md](./MonthView/AGENTS.md) — month grid view: 35-cell layout, `findFirstDateFor`, `createMonthEntries`, and the Monday-start/5-week-only caveats
+- [MonthView/AGENTS.md](./MonthView/AGENTS.md) — month grid view: 35-cell layout, `findFirstDateFor`, `useMonthEntries`, and the Monday-start/5-week-only caveats
 - [WeekView/AGENTS.md](./WeekView/AGENTS.md) — week schedule view: configurable weekday columns and shared hour grid
 - [DayView/AGENTS.md](./DayView/AGENTS.md) — day schedule view: hour grid, `getOffset`/`getHeight` pixel helpers, auto-expanding `startHour`/`endHour` range, and initial `scrollTo` behaviour
 
