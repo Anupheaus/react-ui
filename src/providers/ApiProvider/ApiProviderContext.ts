@@ -8,5 +8,5 @@ export interface ApiProviderContextProps extends Api {
 
 export const ApiProviderContext = createContext<ApiProviderContextProps>({
   isValid: false,
-  ...({} as any),
+  ...({} as Omit<ApiProviderContextProps, 'isValid'>),
 });

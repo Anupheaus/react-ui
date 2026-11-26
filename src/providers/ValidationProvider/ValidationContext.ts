@@ -16,5 +16,6 @@ export const ValidationContext = createContext<ValidationContextProps>({
   id: '',
   errors: new Records(),
   invalidSections: new Collection(),
-  highlightErrorsCallbacks: null as any,
+  // The default (isReal: false) context is never asked for callbacks; consumers check isReal first.
+  highlightErrorsCallbacks: null as unknown as UseCallbacks<(shouldHighlight: boolean) => void>,
 });

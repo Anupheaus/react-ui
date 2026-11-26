@@ -3,7 +3,7 @@ import { defaultCompareProps } from './defaultCompareProps';
 
 function makeCompare({ name = 'TestComponent', whitelistFunctions = [] as PropertyKey[], topLevelProps = {} as unknown, debug = false } = {}) {
   const fn = defaultCompareProps({ debug, name, topLevelProps, whitelistFunctions });
-  return (prev: unknown, next: unknown, propName: PropertyKey = 'props'): boolean => (fn as any)(prev, next, propName);
+  return (prev: unknown, next: unknown, propName: PropertyKey = 'props'): boolean => fn(prev, next, propName);
 }
 
 describe('defaultCompareProps', () => {

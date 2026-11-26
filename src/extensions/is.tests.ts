@@ -44,11 +44,11 @@ describe('is.fixedCSSDimension', () => {
   const invalidDimensions = ['50%', '100vh', '1vw', '', '10', '10pt', undefined];
 
   test.each(validDimensions)('returns true for valid dimension: %p', value => {
-    expect(is.fixedCSSDimension(value as any)).toBe(true);
+    expect(is.fixedCSSDimension(value)).toBe(true);
   });
 
   test.each(invalidDimensions)('returns false for invalid dimension: %p', value => {
-    expect(is.fixedCSSDimension(value as any)).toBe(false);
+    expect(is.fixedCSSDimension(value)).toBe(false);
   });
 });
 

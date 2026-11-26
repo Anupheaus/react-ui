@@ -7,6 +7,7 @@ declare module '@anupheaus/common' {
   export interface Is {
     reactElement(value: unknown): value is ReactElement<unknown>;
     reactComponent(value: unknown): value is Component;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- public default: callers narrow with is.reactRef(x) and then use x.current untyped; unknown would break them
     reactRef<T = any>(value: unknown): value is RefObject<T>;
     theme<TTheme extends LegacyTheme>(value: TTheme | unknown): value is TTheme;
     theme(value: unknown): value is LegacyTheme;
@@ -14,7 +15,7 @@ declare module '@anupheaus/common' {
   }
 }
 
-function isObjectRef<T = any>(value: unknown): value is RefObject<T> {
+function isObjectRef<T = unknown>(value: unknown): value is RefObject<T> {
   return is.plainObject(value) && 'current' in value;
 }
 

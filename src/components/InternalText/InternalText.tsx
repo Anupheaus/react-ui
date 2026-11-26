@@ -1,4 +1,4 @@
-import type { ChangeEvent, FocusEvent, KeyboardEvent, MouseEvent, ReactNode, Ref } from 'react';
+import type { ChangeEvent, ChangeEventHandler, FocusEvent, FocusEventHandler, KeyboardEvent, KeyboardEventHandler, MouseEvent, MouseEventHandler, ReactNode, Ref } from 'react';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createComponent } from '../Component';
 import { useBound, useDOMRef } from '../../hooks';
@@ -68,7 +68,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
   const { isReadOnly } = useUIState();
   const { validate } = useValidation({ id: `${tagName}-${props.label}` });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const ref = useDOMRef([innerRef, textareaRef as any]);
+  const ref = useDOMRef([innerRef, textareaRef]);
   const isMultiline = (multiline ?? 0) > 1;
   const [rowsHeight, setRowsHeight] = useState<number | undefined>(undefined);
   const passwordManagerAttributes = useMemo(() => type === 'email' || type === 'password' ? {} : {
@@ -123,7 +123,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
     onKeyUp?.(event);
   });
 
-  const handleOnChange = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value as any));
+  const handleOnChange = useBound((event: ChangeEvent<HTMLInputElement>) => onChange?.(event.target.value as T));
 
   const style = useInlineStyle(() => ({
     width: fieldWidth,
@@ -137,14 +137,14 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       <textarea
         ref={ref}
         className={join(css.textArea, css[`textTransform_${transform}`], isReadOnly && css.isReadOnly, inputClassName)}
-        value={(value ?? '') as any}
+        value={(value ?? '') as string}
         maxLength={maxLength}
-        onChange={handleOnChange as any}
-        onFocusCapture={handleOnFocus as any}
-        onBlurCapture={handleOnBlur as any}
-        onClick={onClick as any}
-        onKeyDown={handleKeyDown as any}
-        onKeyUp={handleKeyUp as any}
+        onChange={handleOnChange as unknown as ChangeEventHandler<HTMLTextAreaElement>}
+        onFocusCapture={handleOnFocus as unknown as FocusEventHandler<HTMLTextAreaElement>}
+        onBlurCapture={handleOnBlur as unknown as FocusEventHandler<HTMLTextAreaElement>}
+        onClick={onClick as unknown as MouseEventHandler<HTMLTextAreaElement>}
+        onKeyDown={handleKeyDown as unknown as KeyboardEventHandler<HTMLTextAreaElement>}
+        onKeyUp={handleKeyUp as unknown as KeyboardEventHandler<HTMLTextAreaElement>}
         autoFocus={initialFocus}
         rows={multiline}
         disabled={isReadOnly}
@@ -156,7 +156,7 @@ export const InternalText = createComponent('InternalText', function <T = unknow
       ref={ref}
       type={type}
       className={join(css.input, css[`textTransform_${transform}`], isReadOnly && css.isReadOnly, inputClassName)}
-      value={(value ?? '') as any}
+      value={(value ?? '') as string}
       maxLength={maxLength}
       onChange={handleOnChange}
       onFocusCapture={handleOnFocus}

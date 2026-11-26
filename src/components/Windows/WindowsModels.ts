@@ -23,6 +23,7 @@ export namespace InitialWindowState {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- public default: callers that do not name Args read untyped window args
 export interface WindowState<Args extends unknown[] = any> extends InitialWindowState {
   id: string;
   definitionId: string;
@@ -53,6 +54,7 @@ export interface WindowDefinitionUtils<CloseResponseType = string | undefined> {
   Header: typeof WindowHeader;
   Content: typeof WindowContent;
   Actions: typeof ActionsToolbar;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Window or a substitute (Dialog) with different props; a component type is contravariant in its props, so only any accepts both
   Window: typeof Window | ComponentType<any>;
   Action: typeof WindowAction;
   OkButton: typeof WindowOkAction;
@@ -60,16 +62,19 @@ export interface WindowDefinitionUtils<CloseResponseType = string | undefined> {
   close(response?: CloseResponseType): Promise<void>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- public default: an untyped definition accepts any open arguments
 export type WindowDefinition<Args extends unknown[] = any, CloseResponseType = string | undefined> =
   (utils: WindowDefinitionUtils<CloseResponseType>) => (...args: Args) => JSX.Element | null;
 
 /** Definition with props-through-component: (utils) => (props) => (args) => JSX */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- public default: an untyped definition accepts any open arguments
 export type WindowDefinitionWithProps<Props extends {} = {}, Args extends unknown[] = any, CloseResponseType = string | undefined> =
   (utils: WindowDefinitionUtils<CloseResponseType>) => (props: Props) => (...args: Args) => JSX.Element | null;
 
 export interface WindowDefinitionProps {
   doNotPersist?: boolean;
   /** When provided (e.g. for dialogs), used instead of Window for rendering. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Window or Dialog, whose props differ; a component type is contravariant in its props, so only any accepts both
   windowComponent?: ComponentType<any>;
   /** Internal: passed by useWindow/useDialog. */
   definitionId?: string;

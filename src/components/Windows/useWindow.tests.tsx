@@ -36,7 +36,7 @@ describe('useWindow device routing', () => {
   it('opens into the windows manager on web', async () => {
     createDefaultManagers();
     const { result } = renderHook(() => useWindow(RoutingTestWindow));
-    await act(async () => { await (result.current as any).openRoutingTestWindow('rt-web'); });
+    await act(async () => { await result.current.openRoutingTestWindow('rt-web'); });
     expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-web')).toBe(true);
     expect(WindowsManager.get(DIALOGS_DEFAULT_ID).has('rt-web')).toBe(false);
   });
@@ -45,7 +45,7 @@ describe('useWindow device routing', () => {
     createDefaultManagers();
     currentDevice = 'mobile';
     const { result } = renderHook(() => useWindow(RoutingTestWindow));
-    await act(async () => { await (result.current as any).openRoutingTestWindow('rt-mobile'); });
+    await act(async () => { await result.current.openRoutingTestWindow('rt-mobile'); });
     expect(WindowsManager.get(DIALOGS_DEFAULT_ID).has('rt-mobile')).toBe(true);
     expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-mobile')).toBe(false);
   });
@@ -54,7 +54,7 @@ describe('useWindow device routing', () => {
     createDefaultManagers();
     currentDevice = 'tablet';
     const { result } = renderHook(() => useWindow(RoutingTestWindow));
-    await act(async () => { await (result.current as any).openRoutingTestWindow('rt-tablet'); });
+    await act(async () => { await result.current.openRoutingTestWindow('rt-tablet'); });
     expect(WindowsManager.get(WINDOWS_DEFAULT_ID).has('rt-tablet')).toBe(true);
     expect(WindowsManager.get(DIALOGS_DEFAULT_ID).has('rt-tablet')).toBe(false);
   });
@@ -63,7 +63,7 @@ describe('useWindow device routing', () => {
     WindowsManager.getOrCreate(WINDOWS_DEFAULT_ID, 'uw-test-windows', 'windows');
     currentDevice = 'mobile';
     const { result } = renderHook(() => useWindow(RoutingTestWindow));
-    await expect((result.current as any).openRoutingTestWindow('rt-none'))
+    await expect(result.current.openRoutingTestWindow('rt-none'))
       .rejects.toThrow(/No default dialogs manager found/);
   });
 });

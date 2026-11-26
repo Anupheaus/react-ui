@@ -1,6 +1,11 @@
+import type { Ref } from 'react';
 import { createElement, createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import { createComponent } from './createComponent';
+
+interface RefTestProps { ref?: Ref<HTMLElement>; }
+interface ValueTestProps { value?: number; }
+interface ChangeTestProps { onChange?(): void; 'data-whitelist-functions'?: string[]; }
 
 describe('createComponent', () => {
 
@@ -25,25 +30,25 @@ describe('createComponent', () => {
 
     it('forwards a ref object to the render function as a prop', () => {
       let receivedRef: unknown;
-      const TestComp = createComponent('TestComp', (props: any) => {
+      const TestComp = createComponent('TestComp', (props: RefTestProps) => {
         receivedRef = props.ref;
         return <div />;
       });
 
       const ref = createRef<HTMLElement>();
-      render(createElement(TestComp as any, { ref }));
+      render(createElement(TestComp, { ref }));
       expect(receivedRef).toBe(ref);
     });
 
     it('forwards a callback ref to the render function as a prop', () => {
       let receivedRef: unknown;
-      const TestComp = createComponent('TestComp', (props: any) => {
+      const TestComp = createComponent('TestComp', (props: RefTestProps) => {
         receivedRef = props.ref;
         return <div />;
       });
 
       const callbackRef = vi.fn();
-      render(createElement(TestComp as any, { ref: callbackRef }));
+      render(createElement(TestComp, { ref: callbackRef }));
       expect(receivedRef).toBe(callbackRef);
     });
   });
@@ -98,8 +103,8 @@ describe('createComponent', () => {
 
   describe('memoisation', () => {
     it('does not re-render when memoised and props have not changed', () => {
-      const renderFn = vi.fn((_props: Record<string, unknown>) => <div />);
-      const TestComp = createComponent('TestComp', renderFn as any);
+      const renderFn = vi.fn((_props: ValueTestProps) => <div />);
+      const TestComp = createComponent('TestComp', renderFn);
 
       const { rerender } = render(<TestComp />);
       rerender(<TestComp />);
@@ -108,18 +113,18 @@ describe('createComponent', () => {
     });
 
     it('re-renders when memoised and a primitive prop changes', () => {
-      const renderFn = vi.fn((_props: Record<string, unknown>) => <div />);
-      const TestComp = createComponent('TestComp', renderFn as any);
+      const renderFn = vi.fn((_props: ValueTestProps) => <div />);
+      const TestComp = createComponent('TestComp', renderFn);
 
-      const { rerender } = render(createElement(TestComp as any, { value: 1 }));
-      rerender(createElement(TestComp as any, { value: 2 }));
+      const { rerender } = render(createElement(TestComp, { value: 1 }));
+      rerender(createElement(TestComp, { value: 2 }));
 
       expect(renderFn).toHaveBeenCalledTimes(2);
     });
 
     it('always re-renders when disableMemoisation is true', () => {
-      const renderFn = vi.fn((_props: Record<string, unknown>) => <div />);
-      const TestComp = createComponent('TestComp', renderFn as any, { disableMemoisation: true });
+      const renderFn = vi.fn((_props: ValueTestProps) => <div />);
+      const TestComp = createComponent('TestComp', renderFn, { disableMemoisation: true });
 
       const { rerender } = render(<TestComp />);
       rerender(<TestComp />);
@@ -158,11 +163,11 @@ describe('createComponent', () => {
   describe('onCompareProps', () => {
     it('uses onCompareProps instead of default comparison when provided', () => {
       const onCompareProps = vi.fn(() => true);
-      const renderFn = vi.fn((_props: Record<string, unknown>) => <div />);
-      const TestComp = createComponent('TestComp', renderFn as any, { onCompareProps });
+      const renderFn = vi.fn((_props: ValueTestProps) => <div />);
+      const TestComp = createComponent('TestComp', renderFn, { onCompareProps });
 
-      const { rerender } = render(createElement(TestComp as any, { value: 1 }));
-      rerender(createElement(TestComp as any, { value: 2 }));
+      const { rerender } = render(createElement(TestComp, { value: 1 }));
+      rerender(createElement(TestComp, { value: 2 }));
 
       expect(onCompareProps).toHaveBeenCalled();
       expect(renderFn).toHaveBeenCalledTimes(1); // returned true → no re-render
@@ -199,34 +204,34 @@ describe('createComponent', () => {
     });
 
     it('suppresses function-change warnings for props listed in config whitelistFunctions', () => {
-      const TestComp = createComponent('TestComp', (_props: any) => <div />, {
+      const TestComp = createComponent('TestComp', (_props: ChangeTestProps) => <div />, {
         whitelistFunctions: ['onChange'],
       });
 
-      const { rerender } = render(createElement(TestComp as any, { onChange: () => { } }));
-      rerender(createElement(TestComp as any, { onChange: () => { } }));
+      const { rerender } = render(createElement(TestComp, { onChange: () => { } }));
+      rerender(createElement(TestComp, { onChange: () => { } }));
 
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('suppresses function-change warnings for props listed in data-whitelist-functions', () => {
-      const TestComp = createComponent('TestComp', (_props: any) => <div />);
+      const TestComp = createComponent('TestComp', (_props: ChangeTestProps) => <div />);
 
       const { rerender } = render(
-        createElement(TestComp as any, { onChange: () => { }, 'data-whitelist-functions': ['onChange'] })
+        createElement(TestComp, { onChange: () => { }, 'data-whitelist-functions': ['onChange'] })
       );
       rerender(
-        createElement(TestComp as any, { onChange: () => { }, 'data-whitelist-functions': ['onChange'] })
+        createElement(TestComp, { onChange: () => { }, 'data-whitelist-functions': ['onChange'] })
       );
 
       expect(warnSpy).not.toHaveBeenCalled();
     });
 
     it('warns for an unstable function prop not in the whitelist', () => {
-      const TestComp = createComponent('TestComp', (_props: any) => <div />);
+      const TestComp = createComponent('TestComp', (_props: ChangeTestProps) => <div />);
 
-      const { rerender } = render(createElement(TestComp as any, { onChange: () => { } }));
-      rerender(createElement(TestComp as any, { onChange: () => { } }));
+      const { rerender } = render(createElement(TestComp, { onChange: () => { } }));
+      rerender(createElement(TestComp, { onChange: () => { } }));
 
       expect(warnSpy).toHaveBeenCalledWith(
         expect.stringContaining('"onChange"'),

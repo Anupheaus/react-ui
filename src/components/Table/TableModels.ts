@@ -33,7 +33,7 @@ export interface TableColumn<T extends Record = Record> extends TableColumnCommo
   renderValue?(props: TableRenderValueProps<T>): ReactNode;
 }
 
-type ChangeItemsToRecords<Func extends (response: UseDataResponse<any>) => void> = Func extends (response: UseDataResponse<ReactListItem<infer T>>) => void
+type ChangeItemsToRecords<Func extends (response: UseDataResponse<never>) => void> = Func extends (response: UseDataResponse<ReactListItem<infer T>>) => void
   ? (response: Omit<UseDataResponse<T>, 'items'> & { records: T[]; }) => void : never;
 
 export type TableOnRequest<T extends Record = Record> = (request: Parameters<ListOnRequest<T>>[0], response: ChangeItemsToRecords<Parameters<ListOnRequest<T>>[1]>) => Promise<void>;

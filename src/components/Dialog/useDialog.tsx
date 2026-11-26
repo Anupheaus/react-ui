@@ -17,7 +17,7 @@ function getProps<Name extends string, Args extends unknown[]>(args: unknown[]):
   let id: string | undefined;
   if (args.length > 1) id = args[1] as string;
   if (is.reactComponent(args[0])) return { window: args[0] as unknown as ReactUIWindow<Name, Args>, id, managerId: undefined };
-  return args[0] as any;
+  return args[0] as Props<Name, Args>;
 }
 
 export function useDialog<Name extends string, Args extends unknown[], CloseResponseType = string | undefined>(props: Props<Name, Args, CloseResponseType>): UseDialogApi<Name, Args, CloseResponseType>;

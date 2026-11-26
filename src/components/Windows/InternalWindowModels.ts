@@ -6,6 +6,7 @@ export interface WindowDefinitionState {
   windowTypeName?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- mirrors WindowState's public default for untyped window args
 export interface ActiveWindowState<Args extends unknown[] = any> extends WindowState<Args> {
   index: number;
   isFocused: boolean;

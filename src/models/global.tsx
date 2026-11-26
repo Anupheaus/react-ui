@@ -13,6 +13,7 @@ export interface ListItemEvent<T = void> extends SyntheticEvent {
 
 export interface ListItemClickEvent<T = void> extends Omit<ListItemEvent<T>, 'nativeEvent'>, MouseEvent { }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- public defaults: consumers rely on an untyped ReactListItem accepting any data/sub-item type (unknown would break every untyped usage)
 export type ReactListItem<DataType = any, SubItemType extends ReactListItem = ReactListItem<any, any>> = ListItem & {
   label?: ReactNode;
   iconName?: IconName;

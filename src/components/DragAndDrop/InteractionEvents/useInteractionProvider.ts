@@ -1,3 +1,4 @@
+import type { AnyObject } from '@anupheaus/common';
 import { useContext } from 'react';
 import { InteractionContext } from './InteractionContext';
 import type { EventName} from './useInteractionEvents';
@@ -5,7 +6,7 @@ import { useInteractionEvents } from './useInteractionEvents';
 
 interface Props {
   captureEvents?: EventName[];
-  data?: any;
+  data?: AnyObject;
 }
 
 function createHandler(eventName: EventName, { captureEvents = [] }: Props, dispatcher: (event: Event) => void) {

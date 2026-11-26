@@ -30,7 +30,7 @@ export const UIStates: Story = createStorybookComponentStates({ ...config, inclu
 UIStates.name = 'UI States';
 UIStates.play = waitForStoryReady;
 
-export const useFieldsStory: Story = {
+export const UseFieldsStory: Story = {
   name: 'useFields',
   args: {},
   render: () => {

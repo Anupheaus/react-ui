@@ -6,7 +6,7 @@ describe('useDOMRef', () => {
     const connected = vi.fn();
     function TestComponent() {
       const setTarget = useDOMRef({ connected });
-      return <div ref={setTarget as any} />;
+      return <div ref={setTarget} />;
     }
     render(<TestComponent />);
     expect(connected).toHaveBeenCalledTimes(1);
@@ -17,7 +17,7 @@ describe('useDOMRef', () => {
     const disconnected = vi.fn();
     function TestComponent({ show }: { show: boolean }) {
       const setTarget = useDOMRef({ disconnected });
-      return show ? <div ref={setTarget as any} /> : null;
+      return show ? <div ref={setTarget} /> : null;
     }
     const { rerender } = render(<TestComponent show />);
     rerender(<TestComponent show={false} />);

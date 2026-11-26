@@ -137,7 +137,7 @@ const useStyles = createStyles(({ configurator: { header, item, subItem }, shado
 interface Props {
   columnIndex: number;
   item: ConfiguratorItem | ConfiguratorSubItem;
-  slice?: ConfiguratorSlice<any>;
+  slice?: ConfiguratorSlice;
   isHeader?: boolean;
   isFooter?: boolean;
   isOddItem: boolean;
@@ -147,7 +147,7 @@ interface Props {
   paletteColour?: string;
   addTooltip?: ReactNode;
   onAdd?(): void;
-  onExpandItem?(item: ConfiguratorItem<any, any>): void;
+  onExpandItem?(item: ConfiguratorItem | ConfiguratorSubItem): void;
   onSelect?(): void;
 }
 

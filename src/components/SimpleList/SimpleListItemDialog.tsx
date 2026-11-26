@@ -7,12 +7,12 @@ import { createDialog, useDialog } from '../Dialog';
 import { useFields } from '../Field';
 import { Text } from '../Text';
 
-const SimpleListItemDialog = createDialog('SimpleListItemDialog', ({ Dialog, Content, Actions, close }: DialogDefinitionUtils<ReactListItem<any> | null | undefined>) => (
-  initialItem?: ReactListItem<any>,
+const SimpleListItemDialog = createDialog('SimpleListItemDialog', ({ Dialog, Content, Actions, close }: DialogDefinitionUtils<ReactListItem | null | undefined>) => (
+  initialItem?: ReactListItem,
   allowDelete = false,
   textFieldLabel: ReactNode = 'Text',
 ) => {
-  const [item, setItem] = useState(() => initialItem ?? { id: Math.uniqueId(), text: '' } as ReactListItem<any>);
+  const [item, setItem] = useState(() => initialItem ?? { id: Math.uniqueId(), text: '' } as ReactListItem);
   const { Field } = useFields(item, setItem);
 
   const isNew = initialItem == null;

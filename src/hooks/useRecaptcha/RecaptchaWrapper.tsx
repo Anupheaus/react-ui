@@ -1,11 +1,13 @@
-import type { MemoExoticComponent } from 'react';
+import type { ComponentType } from 'react';
+import type { ReCaptchaWrapperProps } from './Recaptcha';
 import { ReCaptcha } from './Recaptcha';
+import type { WindowWithRecaptchaOptions } from './RecaptchaModels';
 import makeAsyncScriptLoader from 'react-async-script';
 
 const callbackName = 'onloadcallback';
 const globalName = 'grecaptcha';
 
-const getOptions = () => (window as any)?.recaptchaOptions ?? {};
+const getOptions = () => (window as WindowWithRecaptchaOptions | undefined)?.recaptchaOptions ?? {};
 
 function getURL() {
   const dynamicOptions = getOptions();
@@ -13,7 +15,8 @@ function getURL() {
   return `https://${hostname}/recaptcha/enterprise.js?onload=${callbackName}&render=explicit`;
 }
 
-export const ReCaptchaWrapper: MemoExoticComponent<typeof ReCaptcha> = makeAsyncScriptLoader(getURL(), {
+// The loader injects `grecaptcha` once the script has loaded, so callers only pass ReCaptchaWrapperProps.
+export const ReCaptchaWrapper = makeAsyncScriptLoader(getURL(), {
   callbackName,
   globalName,
-})(ReCaptcha) as any;
+})(ReCaptcha) as unknown as ComponentType<ReCaptchaWrapperProps>;

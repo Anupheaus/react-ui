@@ -1,8 +1,13 @@
 import '../../extensions/is';
+import type { AnyObject } from '@anupheaus/common';
 import { is, to } from '@anupheaus/common';
+import type { ReactElement } from 'react';
 import { isDynamicFunction, markDynamicFunction } from './dynamicFunctions';
 
 const primitiveTypes = new Set(['number', 'string', 'boolean']);
+
+// A plain boolean on purpose: is.proxy's type guard (value is ProxyOf<unknown>, i.e. {}) would narrow an unknown value to never.
+const isProxy = (value: unknown): boolean => is.proxy(value);
 
 interface ComparePropsConfig {
   debug: boolean;
@@ -11,15 +16,18 @@ interface ComparePropsConfig {
   whitelistFunctions: PropertyKey[];
 }
 
-export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunctions }: ComparePropsConfig) {
+/** Returns true when the two values are equivalent for re-render purposes. */
+type CompareProps = (prevProps: unknown, newProps: unknown, propertyName: PropertyKey) => boolean;
+
+export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunctions }: ComparePropsConfig): CompareProps {
   const whitelistSet = new Set(whitelistFunctions);
-  const doCompare = (prevProps: any, newProps: any, propertyName: PropertyKey, suppressFunctionWarning = false): boolean => {
+  const doCompare = (prevProps: unknown, newProps: unknown, propertyName: PropertyKey, suppressFunctionWarning = false): boolean => {
     if (prevProps === newProps) return true;
     if (prevProps == null || newProps == null) return false;
     const prevType = typeof prevProps;
     if (prevType !== typeof newProps) return false;
     if (primitiveTypes.has(prevType)) return false;
-    if (is.proxy(prevProps) || is.proxy(newProps)) {
+    if (isProxy(prevProps) || isProxy(newProps)) {
       const actualPrevProps = is.proxy(prevProps) ? to.proxyApi(prevProps)?.value : prevProps;
       const actualNewProps = is.proxy(newProps) ? to.proxyApi(newProps)?.value : newProps;
       return doCompare(actualPrevProps, actualNewProps, propertyName, suppressFunctionWarning);
@@ -43,24 +51,28 @@ export function defaultCompareProps({ debug, name, topLevelProps, whitelistFunct
     if (is.date(prevProps)) return is.date(newProps) ? prevProps.getTime() === newProps.getTime() : false;
     if (is.array(prevProps)) {
       if (!is.array(newProps) || prevProps.length !== newProps.length) return false;
-      return prevProps.every((value: any, index: number) => doCompare(value, newProps[index], index, suppressFunctionWarning));
+      return prevProps.every((value: unknown, index: number) => doCompare(value, newProps[index], index, suppressFunctionWarning));
     }
     if (is.reactElement(prevProps)) {
-      if (prevProps.type !== newProps.type) return false;
-      if (prevProps.key !== newProps.key) return false;
+      // Same typeof as prevProps (checked above); compared field by field like the element it is expected to be.
+      const newElement = newProps as ReactElement;
+      if (prevProps.type !== newElement.type) return false;
+      if (prevProps.key !== newElement.key) return false;
       // functions inside a child element's props belong to that child, not this component
-      return doCompare(prevProps.props, newProps.props, propertyName, true);
+      return doCompare(prevProps.props, newElement.props, propertyName, true);
     }
     if (is.plainObject(prevProps)) {
+      // Same typeof as prevProps (checked above), so an object.
+      const newObject = newProps as AnyObject;
       const prevKeys = Object.keys(prevProps);
-      if (prevKeys.length !== Object.keys(newProps).length) return false;
-      return prevKeys.every(key => doCompare(prevProps[key], newProps[key], key, suppressFunctionWarning));
+      if (prevKeys.length !== Object.keys(newObject).length) return false;
+      return prevKeys.every(key => doCompare((prevProps as AnyObject)[key], newObject[key], key, suppressFunctionWarning));
     }
     return false;
   };
 
   if (debug) {
-    return (prevProps: any, newProps: any) => {
+    return (prevProps: unknown, newProps: unknown) => {
       const result = doCompare(prevProps, newProps, 'props');
        
       console.log(`${name} - debug`, { prevProps, newProps, result });

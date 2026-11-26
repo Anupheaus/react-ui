@@ -16,10 +16,10 @@ interface UseDOMConfig {
 
 export function useDOMRef(): [RefObject<HTMLElement>, HTMLTargetDelegate];
 export function useDOMRef(forceRefresh: boolean): [RefObject<HTMLElement>, HTMLTargetDelegate];
-export function useDOMRef(refs: (Ref<any> | undefined)[]): HTMLTargetDelegate;
-export function useDOMRef(refs: (Ref<any> | undefined)[], config: UseDOMConfig): HTMLTargetDelegate;
+export function useDOMRef(refs: (Ref<unknown> | undefined)[]): HTMLTargetDelegate;
+export function useDOMRef(refs: (Ref<unknown> | undefined)[], config: UseDOMConfig): HTMLTargetDelegate;
 export function useDOMRef(config: UseDOMConfig): HTMLTargetDelegate;
-export function useDOMRef(arg?: UseDOMConfig | (Ref<any> | undefined)[] | boolean, config?: UseDOMConfig): unknown {
+export function useDOMRef(arg?: UseDOMConfig | (Ref<unknown> | undefined)[] | boolean, config?: UseDOMConfig): unknown {
   const elementRef = useRef<HTMLElement | undefined>(undefined);
   const forceUpdate = useForceUpdate();
   config = config != null ? config : is.plainObject<UseDOMConfig>(arg) ? arg : undefined;

@@ -19,8 +19,8 @@ const states = {
 
 interface GenerateStatesProps {
   props: AnyObject;
-  context: AnyObject;
-  render(props: AnyObject, context: any): ReactNode;
+  context: StoryContext;
+  render(props: AnyObject, context: StoryContext): ReactNode;
   nameSuffix?: string;
   width?: string | number;
   height?: string | number;

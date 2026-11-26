@@ -2,7 +2,7 @@ import { createStyles } from '../../theme';
 
 if (typeof CSS !== 'undefined' && 'registerProperty' in CSS) {
   try {
-    (CSS as any).registerProperty({ name: '--scrollbar-thumb-color', syntax: '<color>', inherits: true, initialValue: 'transparent' });
+    CSS.registerProperty({ name: '--scrollbar-thumb-color', syntax: '<color>', inherits: true, initialValue: 'transparent' });
   } catch { /* already registered */ }
 }
 

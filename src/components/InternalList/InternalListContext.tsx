@@ -10,7 +10,7 @@ interface InternalListContextProps<T = void> {
   onActiveChange(event: ListItemEvent<T>, isActive: boolean): void;
 }
 
-const InternalListItemContext = createContext<InternalListContextProps<any>>({
+const InternalListItemContext = createContext<InternalListContextProps<unknown>>({
   onSelectChange: () => void 0,
   onActiveChange: () => void 0,
 });

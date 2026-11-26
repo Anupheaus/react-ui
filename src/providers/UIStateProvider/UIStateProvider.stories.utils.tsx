@@ -8,7 +8,7 @@ export function generateUIStateStories<T extends {}>(Component: ComponentType<T>
   return {
     'UI States': {
       wrapInStorybookComponent: false,
-      component: (props: any) => (<>
+      component: (props: T) => (<>
 
         <StorybookComponent title="Loading">
           <UIState isLoading>

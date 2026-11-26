@@ -42,7 +42,7 @@ export function useRecaptcha() {
   const getValue = useBound(() => state.current.getValue());
   const getWidgetId = useBound(() => state.current.getWidgetId());
 
-  const ReCaptcha = useMemo(() => createComponent('ReCaptcha', (props: ReCaptchaProps) => <ReCaptchaWrapper {...props as any} state={state} />), []);
+  const ReCaptcha = useMemo(() => createComponent('ReCaptcha', (props: ReCaptchaProps) => <ReCaptchaWrapper {...props} state={state} />), []);
 
   return {
     execute,

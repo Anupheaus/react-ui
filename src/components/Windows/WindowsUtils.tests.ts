@@ -1,5 +1,6 @@
 import '@anupheaus/common';
 import { isSimpleArgs, createWindowIdFromArgs, windowsUtils } from './WindowsUtils';
+import type { WindowState } from './WindowsModels';
 
 describe('isSimpleArgs', () => {
   it('returns true for an empty array', () => {
@@ -39,17 +40,17 @@ describe('createWindowIdFromArgs', () => {
 
 describe('windowsUtils.reorderWindows', () => {
   it('reorders states to match previousOrder', () => {
-    const states = [
-      { id: 'a', title: 'A' },
-      { id: 'b', title: 'B' },
-    ] as any[];
+    const states: WindowState[] = [
+      { id: 'a', definitionId: 'a', args: [] },
+      { id: 'b', definitionId: 'b', args: [] },
+    ];
     const [reordered] = windowsUtils.reorderWindows(states, ['b', 'a']);
     expect(reordered[0].id).toBe('b');
     expect(reordered[1].id).toBe('a');
   });
 
   it('appends states not in previousOrder at the end', () => {
-    const states = [{ id: 'a', title: 'A' }, { id: 'c', title: 'C' }] as any[];
+    const states: WindowState[] = [{ id: 'a', definitionId: 'a', args: [] }, { id: 'c', definitionId: 'c', args: [] }];
     const [reordered] = windowsUtils.reorderWindows(states, ['a']);
     expect(reordered[0].id).toBe('a');
     expect(reordered[1].id).toBe('c');

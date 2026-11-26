@@ -17,6 +17,7 @@ export function createStory<TMetaOrCmpOrArgs = Args>(config: StoryConfig<TMetaOr
       ...config.args,
       showComponentBorders: true,
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- StoryObj<T> is a conditional union (meta/component/args), so render's parameters cannot be named for a generic T
     render: (props: any, context: any) => (
       <StorybookComponent showComponentBorders={props.showComponentBorders} width={config.width} height={config.height}>
         {config.render?.(props, context) ?? null}

@@ -75,7 +75,7 @@ describe('prepareItems', () => {
   describe('mixed filled and empty slots', () => {
     it('fills only the empty slots and leaves the filled slot intact', () => {
       const existing: Item = { id: '1', name: 'Alice' };
-      const items: (DeferredPromise<Item> | Item)[] = [existing, undefined as any, undefined as any];
+      const items: (DeferredPromise<Item> | Item)[] = [existing, undefined as unknown as Item, undefined as unknown as Item];
 
       prepareItems<Item>(items, { offset: 0, limit: 3 });
 
@@ -85,7 +85,7 @@ describe('prepareItems', () => {
     });
 
     it('fills each empty slot with a distinct DeferredPromise instance', () => {
-      const items: (DeferredPromise<Item> | Item)[] = [undefined as any, undefined as any];
+      const items: (DeferredPromise<Item> | Item)[] = [undefined as unknown as Item, undefined as unknown as Item];
 
       prepareItems<Item>(items, { offset: 0, limit: 2 });
 

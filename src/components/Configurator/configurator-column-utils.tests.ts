@@ -1,4 +1,5 @@
 import { convertFirstCellIntoConfiguratorItem, isFirstItem } from './configurator-column-utils';
+import type { ConfiguratorItem } from './configurator-models';
 
 describe('convertFirstCellIntoConfiguratorItem', () => {
   it('returns a ConfiguratorItem with id "first-cell"', () => {
@@ -7,7 +8,7 @@ describe('convertFirstCellIntoConfiguratorItem', () => {
   });
 
   it('uses firstCell.label as text when label is a string', () => {
-    const item = convertFirstCellIntoConfiguratorItem({ label: 'My Label' } as any, () => null);
+    const item = convertFirstCellIntoConfiguratorItem({ label: 'My Label' }, () => null);
     expect(item.text).toBe('My Label');
   });
 
@@ -30,7 +31,7 @@ describe('isFirstItem', () => {
   });
 
   it('returns false for regular items', () => {
-    const regularItem = { id: 'other', text: 'Other', data: {}, subItems: [] } as any;
+    const regularItem = { id: 'other', text: 'Other', data: {}, subItems: [] } as unknown as ConfiguratorItem;
     expect(isFirstItem(regularItem)).toBe(false);
   });
 });

@@ -62,6 +62,6 @@ export function createWizardStep(
     return <WizardStep id={id} label={label} onStep={onStepCallback} hideNext={hideNext} hideBack={hideBack} nextLabel={nextLabel}>{content}</WizardStep>;
   });
 
-  (component as any).__isWizardStep = true;
+  (component as unknown as { __isWizardStep: boolean; }).__isWizardStep = true;
   return component;
 }

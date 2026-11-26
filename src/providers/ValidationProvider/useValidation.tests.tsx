@@ -1,6 +1,8 @@
 import { act, render } from '@testing-library/react';
 import { useValidation } from './useValidation';
 
+type ValidateResult = ReturnType<ReturnType<typeof useValidation>['validate']>;
+
 // Test component that calls useValidation and exposes results via validate
 function ValidationTestComponent({
   value,
@@ -9,7 +11,7 @@ function ValidationTestComponent({
 }: {
   value: unknown;
   isRequired: boolean;
-  onResult: (result: { error: unknown; enableErrors: () => void }) => void;
+  onResult: (result: ValidateResult) => void;
 }) {
   const { validate, isValid } = useValidation();
   const result = validate(({ validateRequired }) => validateRequired(value, isRequired));
@@ -19,7 +21,7 @@ function ValidationTestComponent({
 
 describe('useValidation — validateRequired', () => {
   it('returns no error when value is non-empty and isRequired is true', () => {
-    let result: any;
+    let result = undefined as ValidateResult | undefined;
     render(
       <ValidationTestComponent
         value="hello"
@@ -27,11 +29,11 @@ describe('useValidation — validateRequired', () => {
         onResult={r => { result = r; }}
       />
     );
-    expect(result.error).toBeNull();
+    expect(result?.error).toBeNull();
   });
 
   it('returns the default message when value is undefined and isRequired is true', () => {
-    let result: any;
+    let result = undefined as ValidateResult | undefined;
     const { rerender } = render(
       <ValidationTestComponent
         value={undefined}
@@ -40,7 +42,7 @@ describe('useValidation — validateRequired', () => {
       />
     );
     // Errors only show after enableErrors is called
-    act(() => { result.enableErrors(); });
+    act(() => { result?.enableErrors(); });
     rerender(
       <ValidationTestComponent
         value={undefined}
@@ -48,11 +50,11 @@ describe('useValidation — validateRequired', () => {
         onResult={r => { result = r; }}
       />
     );
-    expect(result.error).toBe('This field is required');
+    expect(result?.error).toBe('This field is required');
   });
 
   it('returns no error when isRequired is false regardless of value', () => {
-    let result: any;
+    let result = undefined as ValidateResult | undefined;
     render(
       <ValidationTestComponent
         value={undefined}
@@ -60,7 +62,7 @@ describe('useValidation — validateRequired', () => {
         onResult={r => { result = r; }}
       />
     );
-    expect(result.error).toBeNull();
+    expect(result?.error).toBeNull();
   });
 });
 
@@ -103,17 +105,17 @@ describe('useValidation — string id shorthand', () => {
   });
 
   it('string id behaves the same as object id for validation', () => {
-    let resultString: any;
-    let resultObject: any;
+    let resultString = undefined as ValidateResult | undefined;
+    let resultObject = undefined as ValidateResult | undefined;
 
-    function StringIdForm({ onResult }: { onResult: (r: any) => void }) {
+    function StringIdForm({ onResult }: { onResult: (r: ValidateResult) => void }) {
       const { validate } = useValidation('form-a');
       const result = validate(({ validateRequired }) => validateRequired(undefined, true));
       onResult(result);
       return null;
     }
 
-    function ObjectIdForm({ onResult }: { onResult: (r: any) => void }) {
+    function ObjectIdForm({ onResult }: { onResult: (r: ValidateResult) => void }) {
       const { validate } = useValidation({ id: 'form-a' });
       const result = validate(({ validateRequired }) => validateRequired(undefined, true));
       onResult(result);
@@ -124,7 +126,7 @@ describe('useValidation — string id shorthand', () => {
     render(<ObjectIdForm onResult={r => { resultObject = r; }} />);
 
     // Both should start with no displayed error (not yet highlighted)
-    expect(resultString.error).toBeNull();
-    expect(resultObject.error).toBeNull();
+    expect(resultString?.error).toBeNull();
+    expect(resultObject?.error).toBeNull();
   });
 });

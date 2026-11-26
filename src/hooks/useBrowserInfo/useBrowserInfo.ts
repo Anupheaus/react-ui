@@ -1,7 +1,12 @@
 import { useMemo } from 'react';
 
+/** Old IE/Edge exposed the touch-point count under a vendor-prefixed name. */
+interface LegacyNavigator extends Navigator {
+  msMaxTouchPoints?: number;
+}
+
 export function useBrowserInfo() {
-  const isTouchScreen = useMemo(() => window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 || (navigator as any).msMaxTouchPoints > 0, []);
+  const isTouchScreen = useMemo(() => window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 || ((navigator as LegacyNavigator).msMaxTouchPoints ?? 0) > 0, []);
 
   const details = useMemo(() => {
     const nAgt = navigator.userAgent;

@@ -23,7 +23,7 @@ function LoggerWrapper({ children }: { children: ReactNode }) {
 // ---------------------------------------------------------------------------
 
 interface SubscriberProps<InvokePayload> {
-  subscription: ReturnType<typeof createSubscription<any, InvokePayload>>;
+  subscription: ReturnType<typeof createSubscription<unknown, InvokePayload>>;
   onReceive: (payload: InvokePayload) => void;
   subscribeKey?: string;
 }
@@ -35,14 +35,14 @@ function SubscriberComponent<InvokePayload>({
 }: SubscriberProps<InvokePayload>) {
   const { subscribe } = useSubscription(subscription, onReceive);
   useEffect(() => {
-    subscribe(undefined as any);
+    subscribe(undefined);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subscribeKey]);
   return null;
 }
 
 interface ProviderWrapperProps<InvokePayload> {
-  subscription: ReturnType<typeof createSubscription<any, InvokePayload>>;
+  subscription: ReturnType<typeof createSubscription<unknown, InvokePayload>>;
   children: ReactNode;
   invokeRef: { current: ((payload: InvokePayload, groupId?: string) => Promise<void>) | null };
 }
@@ -66,18 +66,18 @@ function ProviderWrapper<InvokePayload>({
 describe('createSubscription', () => {
   it('returns an object with the subscriptionInternal symbol property', () => {
     const sub = createSubscription();
-    expect((sub as any)[subscriptionInternal]).toBeDefined();
+    expect(sub[subscriptionInternal]).toBeDefined();
   });
 
   it('stores the provided config on the subscriptionInternal property', () => {
     const config = { onSubscribingCallbackAction: 'callWithLastPayload' as const };
     const sub = createSubscription(config);
-    expect((sub as any)[subscriptionInternal].config).toBe(config);
+    expect(sub[subscriptionInternal].config).toBe(config);
   });
 
   it('defaults to an empty config when none is provided', () => {
     const sub = createSubscription();
-    expect((sub as any)[subscriptionInternal].config).toEqual({});
+    expect(sub[subscriptionInternal].config).toEqual({});
   });
 
   it('two separate calls return different subscription objects', () => {
@@ -199,7 +199,7 @@ describe('useSubscriptionProvider + useSubscription', () => {
     function SubscriberWithOnCallback() {
       const { subscribe, onCallback } = useSubscription<undefined, number>(mySub);
       useEffect(() => {
-        subscribe(undefined as any);
+        subscribe(undefined);
         capturedOnCallback = onCallback;
       // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);

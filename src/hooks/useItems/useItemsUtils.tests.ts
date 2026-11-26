@@ -1,9 +1,15 @@
 import { ensureSelectedItemsPersist, updateWithResponse, updateStateWithSkeletons, clearResponse } from './useItemsUtils';
 import type { ReactListItem } from '../../models';
+import type { State } from './useItems';
 
 type Item = { name: string };
 
-function makeState(items: ReactListItem<Item>[] = [], extra = {}): any {
+/** Skeleton items carry a private marker that ReactListItem does not declare. */
+interface SkeletonMarker {
+  _tempItem?: boolean;
+}
+
+function makeState(items: ReactListItem<Item>[] = [], extra: Partial<State<Item>> = {}): State<Item> {
   return { items, total: items.length, isLoading: false, offset: 0, limit: 20, ...extra };
 }
 
@@ -54,7 +60,7 @@ describe('updateStateWithSkeletons', () => {
     const state = makeState([]);
     const next = updateStateWithSkeletons(state, { offset: 0, limit: 3 });
     expect(next.items).toHaveLength(3);
-    expect((next.items[0] as any)._tempItem).toBe(true);
+    expect((next.items[0] as unknown as SkeletonMarker)._tempItem).toBe(true);
     expect(next.isLoading).toBe(true);
   });
 
@@ -63,7 +69,7 @@ describe('updateStateWithSkeletons', () => {
     const state = makeState(existing);
     const next = updateStateWithSkeletons(state, { offset: 0, limit: 2 });
     expect(next.items[0].id).toBe('x');
-    expect((next.items[1] as any)._tempItem).toBe(true);
+    expect((next.items[1] as unknown as SkeletonMarker)._tempItem).toBe(true);
   });
 });
 

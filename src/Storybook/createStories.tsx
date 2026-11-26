@@ -42,6 +42,13 @@ interface Props {
   isTestBorderVisible?: boolean;
 }
 
+/** The storybook fields attached to each generated story component. */
+interface ExternalStoryExtras {
+  name: string;
+  parameters?: AnyObject;
+  play?(context: { canvasElement: HTMLElement; }): Promise<void>;
+}
+
 function isStoryConfig(value: unknown): value is StoryConfig {
   return typeof value === 'object' && value !== null && 'component' in value;
 }
@@ -117,7 +124,7 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
 
     if (typeof value === 'function') {
       InternalComponent = value as FunctionComponent;
-      (value as any).name = storyName;
+      (value as unknown as { name: string; }).name = storyName;
     } else if (isStoryConfig(value)) {
       InternalComponent = value.component as FunctionComponent;
       // notes = value.notes;
@@ -177,19 +184,20 @@ function walkThroughTheStories<T extends {} = {}>(path: PropertyKey[], stories: 
       });
 
       /* TH: External Component is output using the no React wrapper (memo or forwardRef) as it seems to have an issue with it when I do. */
-      const ExternalComponent = (props: any) => (
+      const ExternalComponent = (props: Props) => (
         <Component {...props} />
       );
-      (ExternalComponent as any).parameters = {
+      const externalStory = ExternalComponent as unknown as ExternalStoryExtras;
+      externalStory.parameters = {
         chromatic: {
           delay: delaySnapshot,
           diffThreshold: diffThreshold ?? 0.08,
         },
       };
-      (ExternalComponent as any).name = path.concat(key).join(' ');
+      externalStory.name = path.concat(key).join(' ');
       module.exports[storyId] = ExternalComponent;
       if (test != null) {
-        (ExternalComponent as any).play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {
+        externalStory.play = async ({ canvasElement }: { canvasElement: HTMLElement; }) => {
           await test?.({ ...within(canvasElement), ...userEvent, ...addAdditionalHelpers(canvasElement, hookExecutor) });
         };
       }

@@ -1,11 +1,11 @@
 import { useContext, useRef } from 'react';
 import type { Subscription } from './createSubscription';
-import { subscriptionContexts, type SubscriptionContext } from './subscriptionInternals';
+import { getSubscriptionContext, type SubscriptionContext } from './subscriptionInternals';
 import { useBound, useId, useOnUnmount } from '../../hooks';
 import { useLogger } from '../LoggerProvider';
 
 export function useSubscription<SubscribePayload, InvokePayload>(subscription: Subscription<SubscribePayload, InvokePayload>, callback?: (payload: InvokePayload) => void) {
-  const context = subscriptionContexts.get(subscription);
+  const context = getSubscriptionContext(subscription);
   if (!context) throw new Error('SubscriptionProvider not found');
   const { isValid, subscribe: internalSubscribe, unsubscribe: internalUnsubscribe } = useContext<SubscriptionContext<SubscribePayload, InvokePayload>>(context);
   const subscriberId = useId();

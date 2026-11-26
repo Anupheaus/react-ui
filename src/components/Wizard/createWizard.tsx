@@ -7,7 +7,7 @@ import type { WizardDefinition } from './WizardModels';
 import { WizardContentComponent } from './WizardRenderer';
 import { createInlineWizard } from './createInlineWizard';
 
-function getArgsLength(fn: (...args: any[]) => any): number {
+function getArgsLength(fn: (...args: never[]) => unknown): number {
   try {
     const str = fn.toString();
     const arrow = str.lastIndexOf(') =>');

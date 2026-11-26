@@ -98,5 +98,6 @@ export interface WizardDefinitionUtils<CloseResponseType = string | undefined> e
   close(response?: CloseResponseType): Promise<void>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- public default: a bare WizardDefinition must accept definitions with any argument list (unknown[] would reject typed args under strictFunctionTypes)
 export type WizardDefinition<Args extends unknown[] = any, CloseResponseType = string | undefined> =
   (utils: WizardDefinitionUtils<CloseResponseType>) => (...args: Args) => JSX.Element | null;

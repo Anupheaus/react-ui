@@ -22,4 +22,4 @@ export const WizardStep = createComponent('WizardStep', ({ id: providedId, label
 });
 
 // Marker used by Wizard to identify step children vs non-step children (e.g. Actions)
-(WizardStep as any).__isWizardStep = true;
+(WizardStep as unknown as { __isWizardStep: boolean; }).__isWizardStep = true;

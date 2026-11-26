@@ -197,7 +197,7 @@ export const Field = createComponent('Field', ({
   const { isLoading, isReadOnly } = useUIState();
   const [isLeftToolbarVisible, showLeftToolbar, hideLeftToolbar] = useBooleanState(useFloatingStartAdornments !== true);
   const [isRightToolbarVisible, showRightToolbar, hideRightToolbar] = useBooleanState(useFloatingEndAdornments !== true);
-  const timeoutRef = useRef<any>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const hasUnmounted = useOnUnmount();
 
   const wrappedShowToolbars = useBound(() => {

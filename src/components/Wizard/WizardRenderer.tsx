@@ -6,7 +6,7 @@ import { WindowAction } from '../Windows/Window/WindowAction';
 import { WindowOkAction } from '../Windows/Window/WindowOkAction';
 import { WindowHeader } from '../Windows/Window/WindowHeader';
 import { WindowRenderContext } from '../Windows/WindowsContexts';
-import type { WizardDefinition, WizardNavigationUtils } from './WizardModels';
+import type { WizardDefinition, WizardDefinitionUtils, WizardNavigationUtils } from './WizardModels';
 import { Wizard } from './Wizard/Wizard';
 import { WizardStep } from './Wizard/WizardStep';
 import { WizardActions } from './Wizard/WizardActions';
@@ -39,12 +39,12 @@ export const WizardContentComponent = createComponent('WizardContentComponent', 
       <Wizard {...props} navigationRef={navigationRef} />
     )), []); // intentional: navigationRef is stable
 
-  const utils = useMemo(() => ({
+  const utils = useMemo((): WizardDefinitionUtils<CloseResponseType> => ({
     id: windowId,
     Wizard: BoundWizard,
     Header: WindowHeader,
-    Step: WizardStep as any,
-    Actions: WizardActions as any,
+    Step: WizardStep,
+    Actions: WizardActions,
     Action: WindowAction,
     OkButton: WindowOkAction,
     close,
@@ -54,7 +54,7 @@ export const WizardContentComponent = createComponent('WizardContentComponent', 
     setBackIsEnabled: (v: boolean) => navigationRef.current.setBackIsEnabled(v),
   }), [windowId, BoundWizard, close]); // intentional: navigationRef methods are stable
 
-  const firstCall = wizardDefinition(utils as any);
+  const firstCall = wizardDefinition(utils);
   const content: JSX.Element | null = typeof firstCall === 'function'
     ? (firstCall as (...a: unknown[]) => JSX.Element | null)(...(args as unknown[]))
     : firstCall;

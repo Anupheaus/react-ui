@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import type { SubscriptionConfig } from './subscriptionInternals';
-import { subscriptionContexts, type SubscriptionContext, subscriptionInternal } from './subscriptionInternals';
+import { setSubscriptionContext, type SubscriptionContext, subscriptionInternal } from './subscriptionInternals';
 
 export interface Subscription<SubscribePayload, InvokePayload> {
   // This is a placeholder for the actual type of the context value
@@ -22,7 +22,7 @@ export function createSubscription<SubscribePayload, InvokePayload>(config: Subs
 
   const result = { [subscriptionInternal]: { config } } as Subscription<SubscribePayload, InvokePayload>;
 
-  subscriptionContexts.set(result, Context);
+  setSubscriptionContext(result, Context);
 
   return result;
 }

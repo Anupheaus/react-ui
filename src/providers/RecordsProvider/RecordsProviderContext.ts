@@ -16,7 +16,7 @@ export function createRecordsProviderContextEntry<T extends Record = Record>(): 
     records: new Map(),
     onChanged: () => void 0,
     upsert: () => void 0,
-    get: () => void 0 as any,
+    get: (() => void 0) as unknown as RecordsProviderContextEntry<T>['get'],
   };
 }
 

@@ -9,11 +9,11 @@ const whitelistFunctions = ['renderCell'];
 
 interface Props {
   item: ConfiguratorSubItem;
-  slices: ConfiguratorSlice<any>[];
+  slices: ConfiguratorSlice[];
   isOdd?: boolean;
   paletteColours?: (string | undefined)[];
   visibleShadows?: OnShadowVisibleChangeEvent;
-  onExpandItem?(item: ConfiguratorItem<any, any>): void;
+  onExpandItem?(item: ConfiguratorItem): void;
 }
 
 export const ConfiguratorSubItemRow = createComponent('ConfiguratorSubItemRow', ({

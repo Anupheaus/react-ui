@@ -7,5 +7,5 @@ export interface ValidationRecord extends Record {
 }
 
 export interface ValidationTools {
-  validateRequired(value: any, isRequired: boolean, message?: ReactNode): ReactNode | void;
+  validateRequired(value: unknown, isRequired: boolean, message?: ReactNode): ReactNode | void;
 }

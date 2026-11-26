@@ -41,7 +41,7 @@ function bind<T extends Function>(delegate: T, cache: Cache<T>): T {
   return cachedFunc; // always return the cached function
 }
 
-function stringifyArgs(args: any[], delegate: AnyFunction): string {
+function stringifyArgs(args: unknown[], delegate: AnyFunction): string {
   try {
     return `delegated-bound-${Object.stringify(args)}`;
   } catch (error) {
