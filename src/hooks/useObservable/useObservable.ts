@@ -5,6 +5,7 @@ import { useCallbacks } from '../useCallbacks';
 export function useObservable<T>(target: T | (() => T), dependencies: unknown[] = []) {
   const updatedDependencies = (!is.function(target) && !dependencies.includes(target)) ? dependencies.concat(target) : dependencies;
   const lastUpdatedDependencies = useRef(updatedDependencies);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initial value only; later target changes are applied via the dependency comparison below
   const targetRef = useRef(useMemo(() => is.function(target) ? target() : target, []));
   const { registerOutOfRenderPhaseOnly, invoke } = useCallbacks<((value: T) => void)>();
 

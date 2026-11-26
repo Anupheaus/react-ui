@@ -37,6 +37,7 @@ export const ConfiguratorColumnWidthsProvider = createComponent('ConfiguratorCol
 
     useLayoutEffect(() => {
       if (columnWidthsRef.current[index] != null) boundDelegate(columnWidthsRef.current[index]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- re-run when this column's recorded width changes; boundDelegate is stable and index is fixed per caller
     }, [columnWidthsRef.current[index]]);
   });
 

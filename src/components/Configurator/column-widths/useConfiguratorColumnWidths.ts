@@ -16,7 +16,7 @@ export function useConfiguratorColumnWidths({ columnIndex, isHeader = false }: P
   useLayoutEffect(() => {
     if (!isHeader || width == null) return;
     setColumnWidth(columnIndex, width);
-  }, [width, isHeader, columnIndex]);
+  }, [width, isHeader, columnIndex, setColumnWidth]);
 
   onColumnWidthChange(columnIndex, newWidth => {
     const element = elementRef.current;

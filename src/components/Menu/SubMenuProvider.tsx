@@ -37,7 +37,7 @@ export const SubMenuProvider = createComponent('SubMenuProvider', ({
     element,
     isSubMenu: element != null,
     onHasSubMenu: handleOnSubMenu,
-  }), [element, isVisible]);
+  }), [element, isVisible, handleOnSubMenu]);
 
   return (
     <Context.Provider value={context}>

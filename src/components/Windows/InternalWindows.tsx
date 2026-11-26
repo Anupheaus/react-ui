@@ -7,7 +7,7 @@ import { WindowsManager } from './WindowsManager';
 import { WindowsContentRenderer } from './WindowsContentRenderer';
 import { DialogsManagerContext, WindowsManagerContext } from './WindowsContexts';
 import { isSimpleArgs } from './WindowsUtils';
-import { useId, useOnChange, useStorage, useUpdatableState } from '../../hooks';
+import { useBound, useId, useOnChange, useStorage, useUpdatableState } from '../../hooks';
 
 export type ManagerType = 'windows' | 'dialogs';
 
@@ -54,9 +54,11 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   useLayoutEffect(() => {
     WindowsManager.claim(managerId, instanceId, managerType);
     return () => WindowsManager.release(managerId, instanceId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- instanceId is fixed per mount and managerType is fixed per Windows host; only a new managerId should re-claim
   }, [managerId]);
 
-  const updateSavedStates = (newStates: StateType[]) => {
+  // Bound so the manager subscription below always saves through the latest onChange and persistence settings.
+  const updateSavedStates = useBound((newStates: StateType[]) => {
     const savableStates = newStates.mapWithoutNull(state => {
       const { isPersistable = true, args } = state;
       if (!isPersistable || !isSimpleArgs(args)) return undefined;
@@ -65,14 +67,14 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
     });
     if (persistenceEnabled) setLocalStorage(savableStates);
     onChange?.(newStates);
-  };
+  });
 
   useLayoutEffect(() => manager.subscribeToStateChanges((newActiveStates, reason) => {
     const newStates = newActiveStates.map(({ index: _index, isFocused: _isFocused, ...rest }) => rest as StateType);
     if (reason === 'add' || reason === 'remove' || reason === 'reorder') setStates(newStates);
     lastOnChangeRef.current = newStates;
     updateSavedStates(newStates);
-  }), [manager]);
+  }), [manager, setStates, updateSavedStates]);
 
   useOnChange(() => {
     updateSavedStates(states);
@@ -81,6 +83,7 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
   /** Only on startup */
   useLayoutEffect(() => {
     manager.add(states);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- seeds the manager with the initial states once; later changes arrive via the effect below
   }, []);
 
   /** Saved States Changes */
@@ -88,6 +91,7 @@ export const InternalWindows = createComponent('InternalWindows', <StateType ext
     const newStates = providedStates ?? (persistenceEnabled ? localStorage : undefined);
     if (newStates == null || lastOnChangeRef.current === newStates) return;
     manager.add(newStates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on a content hash of the saved states so an equal array with a new identity does not re-add them
   }, [Object.hash(providedStates ?? (persistenceEnabled ? localStorage : []) ?? [])]);
 
   const ManagerContext = managerType === 'windows' ? WindowsManagerContext : DialogsManagerContext;

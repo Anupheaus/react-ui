@@ -102,13 +102,15 @@ export const Ripple = createComponent('Ripple', ({
 
   useLayoutEffect(() => {
     modify(existing => ({ ...existing, rippleElement: element.current }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately keyed on the DOM node so the config follows the rendered element; modify is stable
   }, [element.current]);
 
   useLayoutEffect(() => {
     modify(existing => ({ ...existing, ignoreMouseCoords }));
-  }, [ignoreMouseCoords]);
+  }, [ignoreMouseCoords, modify]);
 
   const rippleStyle = useMemo<CSSProperties>(() => getRippleStyle(element.current, x, y, useCoords),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately keyed on the element's current size rather than the stable ref object
     [element.current?.clientHeight, element.current?.clientWidth, useCoords, x, y]);
 
   return (

@@ -10,7 +10,7 @@ export function useDrawer() {
 
   const Drawer = useMemo(() => createComponent('Drawer', (props: DrawerProps) => (
     <DrawerComponent {...props} state={state} />
-  )), []);
+  )), [state]);
 
   return {
     openDrawer: useBound(() => changeOpenState(true)),

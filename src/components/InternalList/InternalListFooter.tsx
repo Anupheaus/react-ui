@@ -133,7 +133,7 @@ export const InternalListFooter = createComponent('InternalListFooter', ({
         </Badge>
       </Flex>
     );
-  }, [filter, onFilter, activeFilterCount, filterTooltip, handleFilter]);
+  }, [filter, onFilter, activeFilterCount, filterTooltip, handleFilter, css.filter, css.filterButtonText, css.filterButtonWithBadge]);
 
   return (
     <Flex tagName="internal-list-footer" className={join(css.footer, footerClassName)} valign="center" wide>

@@ -12,6 +12,7 @@ export function useApi() {
     registerStatusCodeHandler(id, statusCode, callback);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- unregister this caller's handler once, on unmount
   useEffect(() => () => registerStatusCodeHandler(id, 0, undefined), []);
 
   return {

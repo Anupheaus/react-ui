@@ -19,11 +19,11 @@ export const GridSpec = createComponent('GridSpec', ({
 
   useLayoutEffect(() => {
     setSpec(id, width, columns);
-  }, [width, columns]);
+  }, [id, width, columns, setSpec]);
 
   useEffect(() => () => {
     deleteSpec(id);
-  }, []);
+  }, [id, deleteSpec]);
 
   return null;
 });

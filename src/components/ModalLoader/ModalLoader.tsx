@@ -116,6 +116,7 @@ export const ModalLoader = createComponent('ModalLoader', ({
         setStatuses(prev => ({ ...prev, [id]: { ...prev[id]!, status: 'success' } }));
       }, hidingDelay);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- context is deliberately created once so consumers never re-render; isUnmounted only reads a ref and hidingDelay is fixed per mount
   }), []);
 
   const handleAnimationEnd = useBound((event: AnimationEvent) => {
@@ -135,6 +136,7 @@ export const ModalLoader = createComponent('ModalLoader', ({
         ))}
       </Flex>
     </Flex>
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- join is recreated every render; class names and the bound handler are stable
   ), [statuses, isFinished, isVisible]);
 
   useEffect(() => {

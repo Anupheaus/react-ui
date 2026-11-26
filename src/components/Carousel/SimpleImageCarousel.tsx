@@ -42,10 +42,12 @@ export const SimpleImageCarousel = createComponent('SimpleImageCarousel', ({
 
   const content = useMemo(() => imageURLs.map((url, index) => (
     <img src={url} key={index} className={join(css.image, index === currentIndex && css.isVisible)} style={style} />
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `join` is recreated every render; class names only change with the theme
   )), [imageURLs, style, currentIndex]);
 
   useLayoutEffect(() => {
     onTransition?.(currentIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- notify only when the index changes, not when the parent passes a new onTransition
   }, [currentIndex]);
 
   useEffect(() => {

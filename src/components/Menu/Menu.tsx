@@ -102,12 +102,12 @@ export const Menu = createComponent('Menu', (props: MenuProps) => {
 
   useLayoutEffect(() => {
     onHasSubMenu(element != null);
-  }, [element]);
+  }, [element, onHasSubMenu]);
 
   useLayoutEffect(() => {
     if (isPopupMode && propsIsOpen != null) {
       if (propsIsOpen) {
-        clearTimeout(cancelTimeoutRef.current as any);
+        clearTimeout(cancelTimeoutRef.current);
         setControlledIsOpen(true);
       } else {
         cancelTimeoutRef.current = setTimeout(() => {
@@ -116,6 +116,7 @@ export const Menu = createComponent('Menu', (props: MenuProps) => {
         }, 200);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isUnmounted is a new function each render but only reads a ref, so the stale closure is harmless
   }, [isPopupMode, propsIsOpen]);
 
   const style = useInlineStyle(() => ({
@@ -142,16 +143,16 @@ export const Menu = createComponent('Menu', (props: MenuProps) => {
     onMouseOver: handleIsOver,
     onMouseLeave: handleIsNotOver,
     onMouseOut: handleIsNotOver,
-  }), []);
+  }), [handleIsOver, handleIsNotOver]);
 
   const slotProps = useMemo<PopoverProps['slotProps']>(() => ({
     root: { className: css.slotProps },
-  }), []);
+  }), [css.slotProps]);
 
   const context = useMemo<PopupMenuContextProps>(() => ({
     isValid: true,
     close,
-  }), []);
+  }), [close]);
 
   const menuContent = (
     <Flex tagName="menu" isVertical gap={gap} className={join(css.menu, className)} disableGrow style={style}>

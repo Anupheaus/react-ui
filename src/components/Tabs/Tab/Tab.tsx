@@ -59,11 +59,12 @@ export const TabComponent = createComponent('Tab', ({
       disableScroller,
       contentProps,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- contentProps is a fresh rest object every render (listing it would re-upsert every render); children changes on most renders anyway
   }, [children, label, icon, className, disableScroller]);
 
   useEffect(() => () => {
     removeTab(id);
-  }, []);
+  }, [id, removeTab]);
 
   return null;
 });

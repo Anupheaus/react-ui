@@ -5,6 +5,7 @@ import { useForceUpdate } from '../useForceUpdate';
 import { useBound } from '../useBound';
 
 export function useUpdatableState<T>(delegate: (prevState?: T) => T, dependencies: unknown[]): [T, Dispatch<SetStateAction<T>>] {
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- lazy initial state: computed once; later updates are driven by the dependency comparison below
   const stateRef = useRef(useMemo(() => delegate(), []));
   const lastDependenciesRef = useRef(dependencies);
   const update = useForceUpdate();

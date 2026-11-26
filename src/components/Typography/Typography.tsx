@@ -95,7 +95,7 @@ const TypographyComponent = createComponent('Typography', ({
     opacity: opacity ?? typeStyle?.opacity,
     whiteSpace: disableWrap ? 'nowrap' : 'normal',
     ...providedStyle,
-  }), [typeStyle, align, valign, size, opacity, weight, name, spacing, shadow, color, providedStyle]);
+  }), [typeStyle, align, valign, size, opacity, weight, name, spacing, shadow, color, disableWrap, providedStyle]);
 
   const hasNoContent = isEmptyContent(children);
 
@@ -124,7 +124,7 @@ const TypographyComponent = createComponent('Typography', ({
   );
 });
 
-class AugmentedTypographyComponent<T extends TypographyTypes> { public getAugmentedTypographicType(): (props: Props<T & typeof LocalTypographicDefinitions>) => JSX.Element { return null as any; } }
+class AugmentedTypographyComponent<T extends TypographyTypes> { public getAugmentedTypographicType(): (props: Props<T & typeof LocalTypographicDefinitions>) => JSX.Element { return null as unknown as (props: Props<T & typeof LocalTypographicDefinitions>) => JSX.Element; } }
 const Typography = TypographyComponent as typeof TypographyComponent & {
   augmentWith<T extends TypographyTypes>(typographicDefinitions: T): ReturnType<AugmentedTypographyComponent<T>['getAugmentedTypographicType']>;
 };

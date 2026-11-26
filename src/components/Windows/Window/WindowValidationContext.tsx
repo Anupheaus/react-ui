@@ -25,7 +25,7 @@ export const WindowValidationProvider = createComponent('WindowValidationProvide
 
   const context = useMemo<WindowValidationContextProps>(() => ({
     checkIsValid,
-  }), []);
+  }), [checkIsValid]);
 
   return (
     <WindowValidationContext.Provider value={context}>

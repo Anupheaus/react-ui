@@ -63,14 +63,16 @@ export const WizardStepContent = createComponent('WizardStepContent', ({ stepId,
 
   const { ValidateSection, isValid, highlightValidationErrors } = useValidation();
 
-  useLayoutEffect(() => registerStepValidator(stepId, isValid, highlightValidationErrors), [stepId]); // intentional: stable bound fns excluded
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- register once per step id; the validator functions are looked up through the registry, not re-registered on identity change
+  useLayoutEffect(() => registerStepValidator(stepId, isValid, highlightValidationErrors), [stepId]);
 
   useLayoutEffect(() => {
     if (get() === stepId) {
       lastIsActiveRef.current = true;
       onStepRef.current?.(true);
     }
-  }, []); // intentional: stable bound fns excluded
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: report the initially active step once; later changes arrive via onChange below
+  }, []);
 
   onChange(newId => batchUpdate(() => {
     const newIndex = stepsRef.current.findIndex(s => s.id === newId);

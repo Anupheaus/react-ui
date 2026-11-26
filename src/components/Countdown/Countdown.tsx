@@ -40,9 +40,10 @@ export const Countdown = createComponent('Countdown', ({
         setContent(duration.toFormat(format));
       }
     };
-    setInterval(updateContent, showSeconds ? aSecond : aMinute);
+    const intervalId = setInterval(updateContent, showSeconds ? aSecond : aMinute);
     updateContent();
-  }, [to]);
+    return () => clearInterval(intervalId);
+  }, [to, showDays, showSeconds, asReadable]);
 
   return (
     <Flex tagName="countdown" className={className}>

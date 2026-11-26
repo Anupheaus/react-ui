@@ -50,6 +50,7 @@ export const Badge = createComponent('Badge', ({
 
   const classes = useMemo<ComponentProps<typeof MuiBadge>['classes']>(() => ({
     badge: join(css.badge, isLoading && 'is-loading', className),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `join` is recreated every render; class names only change with the theme
   }), [className, isLoading]);
 
   const slotProps = useMemo<ComponentProps<typeof MuiBadge>['slotProps']>(() => ({

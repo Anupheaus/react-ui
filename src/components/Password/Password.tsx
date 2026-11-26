@@ -26,7 +26,7 @@ export const Password = createComponent('Password', ({
       <Icon name={isPasswordVisible ? 'password-hide' : 'password-show'} size="small" />
     </Button>,
     ...(providedButtons ?? [])
-  ], [providedButtons, isPasswordVisible]);
+  ], [providedButtons, isPasswordVisible, handleShowPasswordClick]);
 
   return (
     <InternalText

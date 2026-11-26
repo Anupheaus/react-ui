@@ -42,11 +42,11 @@ export const FaderProvider = createComponent('FaderProvider', ({
         return [...v, data];
       });
     },
-  }), [duration]);
+  }), [duration, fadeInDuration, fadeData, setFadingOutData]);
 
   const onCompleted = useBound((id: string) => { setFadingOutData(v => v.removeById(id)); });
 
-  const fadingOutChildren = useMemo(() => fadingOutData.map(data => (<FadingOut key={data.id} {...data} duration={fadeOutDuration ?? duration ?? 1000} onCompleted={onCompleted} />)), [fadingOutData, duration]);
+  const fadingOutChildren = useMemo(() => fadingOutData.map(data => (<FadingOut key={data.id} {...data} duration={fadeOutDuration ?? duration ?? 1000} onCompleted={onCompleted} />)), [fadingOutData, duration, fadeOutDuration, onCompleted]);
 
   return (
     <FaderContext.Provider value={context}>

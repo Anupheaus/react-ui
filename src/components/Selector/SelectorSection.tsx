@@ -82,7 +82,7 @@ export const SelectorSection = createComponent('SelectorSection', ({
 
   const subItems = useMemo(() => item.subItems.orderBy('ordinal').map(subItem => (
     <SelectorSectionItem key={subItem.id} item={subItem} isSelected={selectedIds.includes(subItem.id)} width={width} fullWidthItems={fullWidthItems} onUpdateWidth={updateWidth} onSelect={handleOnSelect} />
-  )), [item.subItems, width, selectedIds, fullWidthItems]);
+  )), [item.subItems, width, selectedIds, fullWidthItems, updateWidth, handleOnSelect]);
 
   useLayoutEffect(() => {
     if (maxWidth === 0) return;

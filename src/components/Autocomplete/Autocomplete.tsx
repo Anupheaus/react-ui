@@ -121,7 +121,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
   const menuItems = useMemo(() => {
     if ((!is.array(values) && !isLoadingValuesForDropDown) || PopupOverride != null) return [];
     return isLoadingValuesForDropDown ? fakeValues : values;
-  }, [values, isLoadingValuesForDropDown]);
+  }, [values, isLoadingValuesForDropDown, PopupOverride]);
 
   const renderedItems = useMemo(() => {
     if (menuItems.length === 0) return null;
@@ -130,7 +130,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
         <Menu items={menuItems} onClick={handleItemClick} />
       </PopupMenuContext.Provider>
     );
-  }, [menuItems, handleItemClick]);
+  }, [menuItems, handleItemClick, setIsClosed]);
 
   const loadValues = useBound(() => batchUpdates(async () => {
     const requestId = lastActionIdRef.current;
@@ -153,7 +153,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
     <Button key="dropdown-open" onSelect={loadValues} iconOnly={false}>
       <Icon name="dropdown" />
     </Button>
-  )], []);
+  )], [loadValues]);
 
   const anchorOrigin = useMemo<PopoverOrigin>(() => ({
     horizontal: 'right',
@@ -170,7 +170,7 @@ export const Autocomplete = createComponent('Autocomplete', ({
     style: {
       minWidth: width,
     },
-  }), [width]);
+  }), [css.popover, width]);
 
   const handleKeyDown = useBound((event: KeyboardEvent<HTMLInputElement>) => batchUpdates(() => {
     lastActionIdRef.current = Math.uniqueId();

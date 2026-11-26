@@ -82,6 +82,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
       if (fitted[key] !== placement[key]) stateChanges[key] = fitted[key];
     });
     if (Object.keys(stateChanges).length > 0) setState(stateChanges);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a change in the host's size should move the window; its own moves and resizes must not
   }, [hostSize]);
 
   const minWidthNum = toPx(minWidth, DEFAULT_WINDOW_MIN_WIDTH);
@@ -103,32 +104,34 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
   useEffect(() => {
     if (preparationClassName === undefined) return;
     if (initialDimensionsHaveBeenSet || isUnmounted()) return;
+    // Working copies of the placement, filled in below as each missing value is worked out.
+    let [placedX, placedY, placedWidth, placedHeight] = [x, y, width, height];
     const stateChanges: Partial<WindowState> = {};
-    if (width == null && actualWidth != null && actualWidth > 0) { stateChanges.width = actualWidth; width = actualWidth; }
-    if (height == null && actualHeight != null && actualHeight > 0) { stateChanges.height = actualHeight; height = actualHeight; }
-    if (x == null && actualWidth != null && actualWidth > 0) {
+    if (placedWidth == null && actualWidth != null && actualWidth > 0) { stateChanges.width = actualWidth; placedWidth = actualWidth; }
+    if (placedHeight == null && actualHeight != null && actualHeight > 0) { stateChanges.height = actualHeight; placedHeight = actualHeight; }
+    if (placedX == null && actualWidth != null && actualWidth > 0) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
           const maxWidth = parent.clientWidth;
           stateChanges.x = Math.round((maxWidth - actualWidth) / 2);
-          x = stateChanges.x;
+          placedX = stateChanges.x;
         }
       } else {
-        x = 0;
+        placedX = 0;
         stateChanges.x = 0;
       }
     }
-    if (y == null && actualHeight != null && actualHeight > 0) {
+    if (placedY == null && actualHeight != null && actualHeight > 0) {
       if (initialPosition === 'center') {
         if (windowElementRef.current != null) {
           const parent = windowElementRef.current.parentElement!;
           const maxHeight = parent.clientHeight;
           stateChanges.y = Math.round((maxHeight - actualHeight) / 2);
-          y = stateChanges.y;
+          placedY = stateChanges.y;
         }
       } else {
-        y = 0;
+        placedY = 0;
         stateChanges.y = 0;
       }
     }
@@ -138,18 +141,18 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
     // A CSS size ('75%') is kept inside by the size it is drawn at, so in a laid-out host placing it waits until that
     // has been measured (an unlaid-out host, e.g. jsdom, places nothing anyway).
     const isHostLaidOut = host != null && host.width > 0 && host.height > 0;
-    const isDrawnSizeNeeded = isHostLaidOut && (typeof width === 'string' || typeof height === 'string');
+    const isDrawnSizeNeeded = isHostLaidOut && (typeof placedWidth === 'string' || typeof placedHeight === 'string');
     const isDrawnSizeKnown = (actualWidth ?? 0) > 0 && (actualHeight ?? 0) > 0;
     if (host != null) {
-      const placement: WindowPlacement = { x, y, width, height, drawn: { width: actualWidth, height: actualHeight } };
+      const placement: WindowPlacement = { x: placedX, y: placedY, width: placedWidth, height: placedHeight, drawn: { width: actualWidth, height: actualHeight } };
       const fitted = keepWindowInsideHost(placement, host);
       PLACEMENT_KEYS.forEach(key => {
         if (fitted[key] !== placement[key]) stateChanges[key] = fitted[key];
       });
-      ({ x, y, width, height } = fitted);
+      ({ x: placedX, y: placedY, width: placedWidth, height: placedHeight } = fitted);
     }
     batchUpdates(() => {
-      if (width != null && height != null && x != null && y != null && (!isDrawnSizeNeeded || isDrawnSizeKnown)) setInitialDimensionsHaveBeenSet(true);
+      if (placedWidth != null && placedHeight != null && placedX != null && placedY != null && (!isDrawnSizeNeeded || isDrawnSizeKnown)) setInitialDimensionsHaveBeenSet(true);
       if (Object.keys(stateChanges).length > 0) setState(stateChanges);
     });
   }); // do after every render
@@ -168,6 +171,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setState is a new wrapper each render and batchUpdates only wraps calls; listing them would re-run this every render
   }, [initialDimensionsHaveBeenSet, preparationClassName, actualWidth, actualHeight, width, height, isMaximized]);
 
   useEffect(() => {
@@ -180,6 +184,7 @@ export function useWindowDimensions({ state: { x, y, width, height, isMaximized 
         setPreparationClassName(undefined);
       }, 100);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- isUnmounted is a new function each render that only reads a ref
   }, [initialDimensionsHaveBeenSet, preparationClassName]);
 
   return { style, preparationClassName, allowIsMaximized: isMaximized || (wantingToBeMaximized === true && preparationClassName == null) };

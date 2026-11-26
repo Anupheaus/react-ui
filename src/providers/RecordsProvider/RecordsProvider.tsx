@@ -48,6 +48,7 @@ export const RecordsProvider = createComponent('RecordsProvider', function <T ex
       },
       mapUnmatchedRightTo: providedRecord => providedRecord,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- rebuild only when the record sources change; inherit and the merge callbacks are read at that time
   }, [inheritedRecords, providedRecords]);
 
   onInheritedChanged((record, reason) => {
@@ -93,18 +94,19 @@ export const RecordsProvider = createComponent('RecordsProvider', function <T ex
     invokeChanged(record, 'MODIFIED');
   });
 
-  const get = useBound<RecordsProviderContextEntry<T>['get']>((...args: unknown[]): any => {
+  // Cast because get() with no id hands back the records map itself, which the declared overloads do not describe.
+  const get = useBound(((...args: unknown[]): Map<string, T> | T | undefined => {
     if (args.length === 0) return records;
     if (!is.string(args[0])) return;
     return records.get(args[0]);
-  });
+  }) as unknown as RecordsProviderContextEntry<T>['get']);
 
   const contextEntry = useMemo<RecordsProviderContextEntry<T>>(() => ({
     records,
     onChanged,
     upsert,
     get,
-  }), [records]);
+  }), [records, onChanged, upsert, get]);
 
   recordsMap.set(typeId, contextEntry);
 

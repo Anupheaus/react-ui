@@ -32,7 +32,7 @@ export const Email = createComponent('Email', ({
 
   const sendEmailButton = useMemo(() => disableSendEmailButton ? null : (
     <Button size="small" iconOnly onClick={sendEmail}><Icon name="email" size="small" /></Button>
-  ), [disableSendEmailButton]);
+  ), [disableSendEmailButton, sendEmail]);
 
   const handleOnBlur = useBound((event: FocusEvent<HTMLInputElement>) => {
     enableErrors();

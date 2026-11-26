@@ -37,6 +37,7 @@ export const ReadOnlyValue = createComponent('ReadOnlyValue', (props: Props) => 
       }
       default: return value?.toString();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- props is keyed by content hash so a new-but-equal props object does not recompute; formatCurrency is a stable bound function
   }, [value, Object.hash(props)]);
 
   return (

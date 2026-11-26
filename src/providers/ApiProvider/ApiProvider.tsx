@@ -92,10 +92,12 @@ export const ApiProvider = createComponent('ApiProvider', ({
     getHeaders,
     setAuthToken: saveAuthToken,
     registerStatusCodeHandler,
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- context is built once; every member is a useBound/storage setter that stays stable
   }), []);
 
   useLayoutEffect(() => {
     saveAuthToken(authToken);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-persist only when the token value changes
   }, [authToken]);
 
   return (

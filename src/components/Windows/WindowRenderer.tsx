@@ -16,6 +16,7 @@ import { createPortal } from 'react-dom';
 interface Props<Args extends unknown[], CloseResponseType = string | undefined> extends WindowDefinitionState {
   definition: WindowDefinition<Args, CloseResponseType>;
   /** When provided (e.g. for dialogs), used instead of Window in utils. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Window or Dialog, whose props differ; a component type is contravariant in its props, so only any accepts both
   windowComponent?: ComponentType<any>;
 }
 
@@ -39,7 +40,7 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
     Action: WindowAction,
     OkButton: WindowOkAction,
     close,
-  }), [windowId, WindowOrDialog]);
+  }), [windowId, WindowOrDialog, close]);
 
   const setTitleStable = useBound((newTitle: ReactNode) => setTitle(newTitle));
   const closeWithUnknown = useBound((response?: unknown) => close(response as CloseResponseType));
@@ -72,6 +73,7 @@ export const WindowRenderer = createComponent('WindowRenderer', <Args extends un
     return () => {
       stopFindingElement = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- looks up the Windows host once on mount; a rendered window never moves to another manager
   }, []);
 
   if (element == null) return null;

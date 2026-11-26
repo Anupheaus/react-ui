@@ -39,7 +39,7 @@ export const PIN = createComponent('PIN', ({
   onSubmit,
   ...props
 }: Props) => {
-  const value = useMemo(() => padValue(rawValue ?? '', length), [rawValue]);
+  const value = useMemo(() => padValue(rawValue ?? '', length), [rawValue, length]);
   const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
 
   const handleChangeDigit = useDelegatedBound((index: number) => (replacement: string | undefined) => {
@@ -67,7 +67,11 @@ export const PIN = createComponent('PIN', ({
       onChange={handleChangeDigit(index)}
       initialFocus={initialFocus && index === 0}
     />
-  )), [length, value]);
+    // The delegated-bound factories are new each render (so are not listed) and only refresh their inner delegate when
+    // called here, so onChange/onSubmit are listed to keep the digit handlers from calling a stale callback.
+    // initialFocus only matters on mount (autoFocus).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see above
+  )), [length, value, isCensored, onChange, onSubmit]);
 
   return (
     <Field {...props} tagName="pin" noContainer>

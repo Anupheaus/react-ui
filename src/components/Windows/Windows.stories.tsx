@@ -146,7 +146,7 @@ export const Default: Story = {
 
     useLayoutEffect(() => {
       openWindowType1('hurry');
-    }, []);
+    }, [openWindowType1]);
 
     return (
       <StorybookComponent width={1200} height={600} title="Default" showComponentBorders>
@@ -168,7 +168,7 @@ export const WithoutChildren: Story = {
       openWindowType1('global-registration');
       openWindowType2('instance-1');
       openWindowType2('instance-2');
-    }, []);
+    }, [openWindowType1, openWindowType2]);
 
     return (
       <StorybookComponent width={1200} height={600} title="Without Children - Global Registration" showComponentBorders>
@@ -203,7 +203,7 @@ export const CustomHeader: Story = {
 
     useLayoutEffect(() => {
       openCustomHeaderWindow('custom-header', 'Custom header');
-    }, []);
+    }, [openCustomHeaderWindow]);
 
     return (
       <StorybookComponent width={1200} height={600} title="Custom Header" showComponentBorders>

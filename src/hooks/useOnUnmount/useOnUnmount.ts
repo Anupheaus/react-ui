@@ -8,6 +8,7 @@ export function useOnUnmount(delegate?: () => void): () => boolean {
   useEffect(() => () => {
     hasUnmountedRef.current = true;
     if (typeof (delegate) === 'function') { delegate(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cleanup must run only on unmount; it runs the delegate captured at mount
   }, []);
 
   return () => hasUnmountedRef.current;

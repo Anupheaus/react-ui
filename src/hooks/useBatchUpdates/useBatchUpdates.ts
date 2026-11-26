@@ -45,6 +45,6 @@ export function useBatchUpdates(): BatchUpdate {
       if (batch == null) return;
       batch.callbacks.delete(callbackId);
     });
-  }, []);
+  }, [recordedCallbacks]);
   return batchUpdate;
 }

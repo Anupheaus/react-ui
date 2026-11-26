@@ -36,7 +36,7 @@ export const PhoneNumber = createComponent('PhoneNumber', ({
 
   const makeCallButton = useMemo(() => disableMakeCallButton ? null : (
     <Button size="small" iconOnly onClick={makeCall}><Icon name="phone" size="small" /></Button>
-  ), [disableMakeCallButton]);
+  ), [disableMakeCallButton, makeCall]);
 
   const handleOnBlur = useBound((event: FocusEvent<HTMLInputElement>) => {
     enableErrors();

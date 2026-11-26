@@ -9,5 +9,6 @@ export function useOnChange(delegate: () => void, dependencies: unknown[]): void
       return;
     }
     delegate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires only when the caller-supplied dependencies change
   }, dependencies);
 }

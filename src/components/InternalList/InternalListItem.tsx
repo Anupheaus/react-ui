@@ -175,7 +175,8 @@ export const InternalListItem = createComponent('InternalListItem', function <T 
         )}
       </Flex>
     );
-  }, [item.actions, isDeletable, doNotWrap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deleteTooltip is usually an inline ReactNode from the list's context; including it would rebuild the actions every render
+  }, [item.actions, isDeletable, doNotWrap, remove]);
 
   const handleSelect = useBound(() => {
     if (!isSelectable || isLoading) return;

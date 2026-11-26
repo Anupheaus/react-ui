@@ -15,7 +15,7 @@ export function useOnDOMChange({ isEnabled = true, onChange }: UseDOMChangeProps
     if (!isEnabled || isUnmounted() || elementRef.current == null) return;
     onChange?.(mutations, elementRef.current);
   });
-  const observerRef = useRef<MutationObserver>(useMemo(() => new MutationObserver(handleMutations), []));
+  const observerRef = useRef<MutationObserver>(useMemo(() => new MutationObserver(handleMutations), [handleMutations]));
   const isUnmounted = useOnUnmount(() => observerRef.current.disconnect());
 
   const target = useBound((element: HTMLElement | null) => {

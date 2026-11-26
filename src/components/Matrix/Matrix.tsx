@@ -118,7 +118,7 @@ export const Matrix = createComponent('Matrix', function <T = unknown>({
       onInsertBefore={onInsertXCategoryBefore}
       onInsertAfter={onInsertXCategoryAfter}
     />
-  )), [xCategories]);
+  )), [xCategories, CategoryRenderer, onInsertXCategoryBefore, onInsertXCategoryAfter]);
 
   const renderedCells = useMemo(() => {
     return yCategories.map((yCategory, index) => {
@@ -147,7 +147,7 @@ export const Matrix = createComponent('Matrix', function <T = unknown>({
         </Fragment>
       );
     });
-  }, [xCategories, yCategories, cells, isSingleDimension]);
+  }, [xCategories, yCategories, cells, isSingleDimension, CategoryRenderer, CellRenderer, onChangeCell, onInsertYCategoryBefore, onInsertYCategoryAfter]);
 
   const style = useInlineStyle(() => ({
     gridTemplateColumns: `${yCategoriesLabel != null ? '20px' : ''} repeat(${xCategories.length + (isSingleDimension ? 0 : 1)}, 1fr)`,

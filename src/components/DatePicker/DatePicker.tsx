@@ -172,13 +172,13 @@ export const DatePicker = createComponent('DateTime', ({
     desktopPaper: { classes: { root: css.muiDatePickerDialog } },
     calendarHeader: { classes: { root: css.muiDatePickerDialogHeader } },
     day: { classes: { root: css.MuiDatePickerDialogDay, selected: css.muiDatePickerDialogSelectedDay } },
-  }), []);
+  }), [css.muiDatePickerButton, css.muiInputAdornment, css.muiDatePickerDialog, css.muiDatePickerDialogHeader, css.MuiDatePickerDialogDay, css.muiDatePickerDialogSelectedDay]);
 
   const timeSlotProps = useMemo<ComponentProps<typeof MuiTimePicker>['slotProps']>(() => ({
     openPickerButton: { classes: { root: css.muiDatePickerButton } },
     inputAdornment: { classes: { root: css.muiInputAdornment } },
     desktopPaper: { classes: { root: css.muiDatePickerDialog } },
-  }), []);
+  }), [css.muiDatePickerButton, css.muiInputAdornment, css.muiDatePickerDialog]);
 
   const { startAdornments: fieldStartAdornments, endAdornments: fieldEndAdornments } = useMemo(
     () => buildDatePickerAdornments({

@@ -62,7 +62,8 @@ export const ToggleButtonGroup = createComponent('ToggleButtonGroup', ({
     return (
       <ToggleButton key={item.id} item={newItem} />
     );
-  }), [items, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- selectedIds is re-derived from value every render, so value is the real dependency
+  }), [items, value, clicked]);
 
   return (
     <Field {...props} tagName="toggle-button-group" disableRipple isOptional={isOptional} error={error} requiredMessage={requiredMessage}>

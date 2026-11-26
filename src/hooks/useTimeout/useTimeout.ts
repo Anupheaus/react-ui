@@ -19,6 +19,7 @@ export function useTimeout(delegate: () => void, timeout: number, { dependencies
   useMemo(() => {
     cancelTimeout();
     timeoutRef.current = setTimeout(delegate, timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-arms only when the caller-supplied dependencies change
   }, dependencies);
 
   useOnUnmount(() => {

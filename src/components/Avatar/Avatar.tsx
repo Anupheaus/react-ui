@@ -3,7 +3,6 @@ import { useBooleanState } from '../../hooks';
 import { createStyles } from '../../theme';
 import { createComponent } from '../Component';
 import { Flex } from '../Flex';
-import type { AnyObject } from '@anupheaus/common';
 import { is } from '@anupheaus/common';
 import { useMemo } from 'react';
 import { Tag } from '../Tag';
@@ -92,7 +91,7 @@ export const Avatar = createComponent('Avatar', ({
     const initialsFromDisplayName = displayName ? displayName.split(' ').map(part => part[0]).join('') : undefined;
     if (is.not.empty(initialsFromDisplayName)) return initialsFromDisplayName;
     return undefined;
-  }, [(props as AnyObject).displayName, (props as AnyObject).initials]);
+  }, [displayName, providedInitials]);
 
   const size = useMemo(() => {
     switch (props.size) {

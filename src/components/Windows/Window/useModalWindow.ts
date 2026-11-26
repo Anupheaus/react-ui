@@ -70,7 +70,7 @@ export function useModalWindow({ windowElementRef, windowId, isModal }: Props): 
       const { current: opener } = openerRef;
       if (opener != null && opener.isConnected) opener.focus({ preventScroll: true });
     };
-  }, [isModal]);
+  }, [isModal, windowElementRef]);
 
   const keepFocusInside = useBound((event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== 'Tab') return;

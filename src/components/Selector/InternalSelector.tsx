@@ -53,7 +53,7 @@ export const InternalSelector = createComponent('InternalSelector', ({
         <SelectorSection key={item.id} item={item} hideHeader={items.length === 1} selectedIds={selectedIds} fullWidthItems={fullWidthItems} onSelect={onSelected} />
       );
     });
-  }, [items, isLoading, ids]);
+  }, [items, isLoading, ids, fullWidthItems, onSelected]);
 
   return (
     <Scroller>

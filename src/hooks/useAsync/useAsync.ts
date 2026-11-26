@@ -113,7 +113,8 @@ export function useAsync<DelegateType extends AsyncDelegate>(delegate: DelegateT
 
   useMemo(() => {
     if (manuallyTriggered || trigger.length !== 0) return;
-    trigger(...[] as any);
+    trigger(...([] as unknown as Parameters<DelegateType>));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- auto-triggers only when the caller-supplied dependencies change
   }, dependencies);
 
   doNotCallUpdateRef.current = false;

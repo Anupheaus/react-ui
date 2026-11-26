@@ -85,7 +85,7 @@ export const TableHeaderCell = createComponent('TableHeaderCell', ({
   useEffect(() => {
     if (actualWidth == null || isTableActionsColumn || isManualWidth) return;
     setColumnWidth(actualWidth);
-  }, [actualWidth, isTableActionsColumn, isManualWidth]);
+  }, [actualWidth, isTableActionsColumn, isManualWidth, setColumnWidth]);
 
   const applyResizeWidth = useBound(({ originalWidth, diffX }: UseDragEvent) => {
     const newWidth = Math.max(MIN_TABLE_COLUMN_WIDTH, originalWidth + diffX);

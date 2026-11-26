@@ -15,9 +15,9 @@ export function useWindowState(manager: WindowsManager, id: string, width: numbe
     };
   }, [manager, id]);
 
-  useLayoutEffect(() => manager.subscribeToStateChanges(id, newState => setState(existingState => ({ ...existingState, ...newState }))), [manager, id]);
+  useLayoutEffect(() => manager.subscribeToStateChanges(id, newState => setState(existingState => ({ ...existingState, ...newState }))), [manager, id, setState]);
 
-  useLayoutEffect(() => manager.updateStateWithoutNotifications(state), [state]);
+  useLayoutEffect(() => manager.updateStateWithoutNotifications(state), [manager, state]);
 
   const updateState = (newState: Partial<WindowState>) => setState(currentState => {
     const nextState = { ...currentState, ...newState };

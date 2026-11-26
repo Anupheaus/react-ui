@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, Ref } from 'react';
+import type { CSSProperties, MutableRefObject, ReactNode, Ref } from 'react';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { UseActions } from '../../hooks';
@@ -267,7 +267,7 @@ export const Scroller = createComponent('Scroller', ({
   });
 
   const saveScrollerContainerElement = useBound((element: HTMLDivElement | null) => {
-    if (ref != null) { if (is.function(ref)) ref(element); else (ref as any).current = element; }
+    if (ref != null) { if (is.function(ref)) ref(element); else (ref as MutableRefObject<HTMLDivElement | null>).current = element; }
     scrollerContainerElementRef.current = element;
     unsubscribeRef.current?.();
     if (shadowVisibilityFrameRef.current != null) {
@@ -346,6 +346,7 @@ export const Scroller = createComponent('Scroller', ({
 
   useEffect(() => {
     scrollToFunc(scrollTo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately re-applies scrollTo once the container element is attached; scrollToFunc is stable
   }, [scrollTo, scrollerContainerElementRef.current]);
 
   useLayoutEffect(() => {

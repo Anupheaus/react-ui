@@ -69,6 +69,39 @@ describe('useObserver', () => {
     removeElement(element);
   });
 
+  it('calls onChange for mutations once isEnabled changes from false to true', async () => {
+    const onChange = vi.fn();
+    const element = makeElement();
+
+    const { result, rerender } = renderHook(({ isEnabled }) => useObserver({ isEnabled, onChange }), { initialProps: { isEnabled: false } });
+    act(() => { result.current.target(element); });
+    rerender({ isEnabled: true });
+    onChange.mockClear();
+
+    await act(async () => { element.appendChild(document.createElement('span')); });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    expect(onChange.mock.calls[0][0]).toBe(element);
+    removeElement(element);
+  });
+
+  it('calls the latest onChange rather than the one from the first render', async () => {
+    const firstOnChange = vi.fn();
+    const latestOnChange = vi.fn();
+    const element = makeElement();
+
+    const { result, rerender } = renderHook(({ onChange }) => useObserver({ onChange }), { initialProps: { onChange: firstOnChange } });
+    act(() => { result.current.target(element); });
+    rerender({ onChange: latestOnChange });
+    firstOnChange.mockClear();
+
+    await act(async () => { element.appendChild(document.createElement('span')); });
+
+    expect(firstOnChange).not.toHaveBeenCalled();
+    expect(latestOnChange).toHaveBeenCalledTimes(1);
+    removeElement(element);
+  });
+
   it('does not call onChange when target is cleared with null', async () => {
     const onChange = vi.fn();
     const element = makeElement();

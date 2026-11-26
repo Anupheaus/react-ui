@@ -111,7 +111,7 @@ export const Number = createComponent('Number', ({
       case 'percent': return formatPercentage((value ?? 0) / 100, is.boolean(allowDecimals) ? (allowDecimals === true ? 2 : 0) : is.number(allowDecimals) ? allowDecimals : 0);
       default: return value;
     }
-  }, [value, type]);
+  }, [value, type, allowDecimals, isOptional, formatCurrency, formatPercentage]);
 
   const startAdornments = useMemo(() => {
     const ownStartAdornments = (() => {
@@ -130,7 +130,7 @@ export const Number = createComponent('Number', ({
     })();
     if (ownStartAdornments == null && providedStartAdornments == null) return null;
     return <>{ownStartAdornments}{providedStartAdornments ?? null}</>;
-  }, [type, providedStartAdornments, isReadOnly]);
+  }, [type, providedStartAdornments, isReadOnly, decrease]);
 
   const endAdornments = useMemo(() => {
     if (isReadOnly) return null;
@@ -149,7 +149,7 @@ export const Number = createComponent('Number', ({
     })();
     if (ownEndAdornments == null && providedEndAdornments == null) return null;
     return <>{ownEndAdornments}{providedEndAdornments ?? null}</>;
-  }, [providedEndAdornments, type, isReadOnly]);
+  }, [providedEndAdornments, type, isReadOnly, increase]);
 
   const error = useMemo(() => {
     if (providedError) return providedError;

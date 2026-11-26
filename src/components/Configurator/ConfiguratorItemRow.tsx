@@ -107,7 +107,7 @@ const useStyles = createStyles(({ shadows: { scroll: shadow } }, { applyTransiti
 
 interface Props {
   item: ConfiguratorItem;
-  slices: ConfiguratorSlice<any>[];
+  slices: ConfiguratorSlice[];
   isHeader?: boolean;
   isFooter?: boolean;
   isOdd?: boolean;
@@ -115,9 +115,9 @@ interface Props {
   addSubItemTooltip?: ReactNode;
   addSliceTooltip?: ReactNode;
   visibleShadows?: OnShadowVisibleChangeEvent;
-  onExpandItem?(item: ConfiguratorItem<any, any>): void;
+  onExpandItem?(item: ConfiguratorItem): void;
   onAddItem?(): void;
-  onAddSubItem?(item: ConfiguratorItem<any, any>): void;
+  onAddSubItem?(item: ConfiguratorItem): void;
   onAddSlice?(): void;
 }
 
@@ -151,7 +151,7 @@ export const ConfiguratorItemRow = createComponent('ConfiguratorItemRow', ({
     <ConfiguratorCell key={slice.id} columnIndex={index + 1} item={item} slice={slice} isHeader={isHeader} isFooter={isFooter}
       isOddItem={isOdd} isOddSlice={index % 2 === 0} paletteColour={slicePaletteColours[index]}
     />
-  )), [slices, item, isHeader, isFooter, isOdd, onExpandItem, slicePaletteColours]);
+  )), [slices, item, isHeader, isFooter, isOdd, slicePaletteColours]);
 
   const subItemRows = useMemo(() => item.subItems.map((subItem, index) => (
     <ConfiguratorSubItemRow key={subItem.id} item={subItem} slices={slices} isOdd={index % 2 === 0} paletteColours={slicePaletteColours} visibleShadows={visibleShadows} />

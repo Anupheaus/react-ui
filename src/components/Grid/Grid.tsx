@@ -53,7 +53,7 @@ export const Grid = createComponent('Grid', ({
       specs.delete(id);
       refresh();
     },
-  }), []);
+  }), [specs, refresh]);
 
   const actualColumns = containerWidth == null ? columns : (specs.toValuesArray().orderBy(({ width }) => width).find(({ width }) => width >= containerWidth)?.columns ?? columns);
 

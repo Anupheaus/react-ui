@@ -90,6 +90,7 @@ export function useColumns<RecordType extends Record>({
     // about them, regardless of which component compares them or in what traversal order.
     finalColumns.forEach(({ renderValue }) => { if (renderValue != null) markDynamicFunction(renderValue); });
     return finalColumns;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only css.tableActionsCell is read from css, and the css object itself may be a new reference each render
   }, [providedColumns, css.tableActionsCell, removeLabel, unitName, onEdit, onRemove, editIcon, canRemove]);
 
   return {

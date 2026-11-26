@@ -29,7 +29,7 @@ export const ErrorBoundary = memo<PropsWithChildren<Props>>(({
   const recordErrorsContext = useMemo<RecordErrorsContextProps>(() => ({
     isValid: true,
     recordError,
-  }), []);
+  }), [recordError]);
 
   if (hasErrorRef.current) return null;
 

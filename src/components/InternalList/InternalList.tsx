@@ -306,7 +306,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
     const resizeObserver = new ResizeObserver(measure);
     resizeObserver.observe(contentElement);
     return () => resizeObserver.disconnect();
-  }, [containerElement, items.length, renderedItems]);
+  }, [containerElement, items.length, renderedItems, requestItems]);
 
   // Re-window whenever the total changes too: items that arrive after the first request (a live query filling in)
   // would otherwise stay outside the window sized for the first, smaller total.
@@ -345,6 +345,7 @@ export const InternalList = createComponent('InternalList', function <T = void>(
       if (hasUnmounted()) return;
       setAllowedToRenderItems(true);
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only: delay the first render of the items once
   }, []);
 
   useOnChange(() => {

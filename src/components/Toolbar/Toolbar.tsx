@@ -87,7 +87,7 @@ export const Toolbar = createComponent('Toolbar', ({
   const classes = useMemo<PopoverClasses>(() => ({
     paper: css.popoverPaper,
     root: '',
-  }), []);
+  }), [css.popoverPaper]);
 
   const anchorOrigin = useMemo<PopoverOrigin | undefined>(() => isFloating === 'left' ? { vertical: 'center', horizontal: 'left' }
     : (isFloating === 'right' || isFloating === true) ? { vertical: 'center', horizontal: 'right' } : undefined, [isFloating]);

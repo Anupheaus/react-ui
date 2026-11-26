@@ -306,6 +306,7 @@ export const Window = createComponent('Window', ({
 
   useLayoutEffect(() => {
     if (isMaximized != savedIsMaximized && allowIsMaximized) setState({ isMaximized });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setState is a new wrapper each render; listing it would re-run this every render
   }, [isMaximized, allowIsMaximized, savedIsMaximized]);
 
   return (

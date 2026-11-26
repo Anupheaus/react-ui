@@ -142,11 +142,11 @@ export const TabsComponent = createComponent('Tabs', ({
     isValid: true,
     upsertTab,
     removeTab,
-  }), []);
+  }), [upsertTab, removeTab]);
 
   const renderedTabButtons = useMemo(() => tabs.map(({ id, label, icon, testId }, index) => (
     <TabButton key={id} tabIndex={index} state={state} label={label} icon={icon} testId={testId} orientation={orientation} variant={variant} />
-  )), [tabs, orientation, variant]);
+  )), [tabs, orientation, variant, state]);
 
   const renderedTabs = useMemo(() => tabs.map(({ id, className: tabContentClassName, children: tabContent, noPadding, disableScroller, contentProps }, index) => (
     <TabContent
@@ -159,7 +159,7 @@ export const TabsComponent = createComponent('Tabs', ({
       contentProps={contentProps}
       orientation={orientation}
     >{tabContent}</TabContent>
-  )), [tabs, orientation]);
+  )), [tabs, orientation, state]);
 
   // Navigation + horizontal renders as a bottom nav bar (strip after the content).
   const isBottomNav = variant === 'navigation' && orientation !== 'vertical';

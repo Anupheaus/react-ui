@@ -18,8 +18,8 @@ export function useTabs() {
     }
   });
 
-  const Tabs = useMemo(() => createComponent('Tabs', (props: TabsProps) => (<TabsComponent {...props} state={state} />)), []);
-  const Tab = useMemo(() => createComponent('Tab', (props: TabProps) => (<TabComponent {...props} state={state} />)), []);
+  const Tabs = useMemo(() => createComponent('Tabs', (props: TabsProps) => (<TabsComponent {...props} state={state} />)), [state]);
+  const Tab = useMemo(() => createComponent('Tab', (props: TabProps) => (<TabComponent {...props} state={state} />)), [state]);
 
   return {
     Tabs,

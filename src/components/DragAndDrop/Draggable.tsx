@@ -80,6 +80,7 @@ export const Draggable = createComponent('Draggable', ({
 
   const style = useMemo<CSSProperties>(() => ({
     ...dimensionsRef.current,
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the ref is filled in onDragStart; isDragging is the signal to re-read it
   }), [dimensionsRef.current, isDragging]);
 
   const saveContent = useBound((element: HTMLDivElement | null) => {

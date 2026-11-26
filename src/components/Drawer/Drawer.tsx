@@ -78,6 +78,7 @@ export const Drawer = createComponent('Drawer', ({
 
   const drawerClasses = useMemo<MuiDrawerProps['classes']>(() => ({
     paper: join(css.drawer, position === 'bottom' ? css.drawerBottom : css.drawerRight, className),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `join` is recreated every render; class names only change with the theme
   }), [className, position]);
 
   const close = useBound((_event?: {}, standardReason: DrawerCloseReasons = 'drawerClosed') => {

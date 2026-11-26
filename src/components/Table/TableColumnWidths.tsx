@@ -41,6 +41,7 @@ export const TableColumnWidthProvider = createComponent('TableColumnWidthProvide
       manualIndices.add(index);
       invoke(index);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot (guarded by a ref); the maps are ref-held and invoke is a stable callbacks handle
   }, [initialWidths]);
 
   const setColumnWidth = useBound((index: number, width: number, options?: SetColumnWidthOptions) => {
@@ -71,7 +72,7 @@ export const TableColumnWidthProvider = createComponent('TableColumnWidthProvide
     setColumnWidth,
     onColumnWidthChange,
     isManualWidth,
-  }), []);
+  }), [setColumnWidth, onColumnWidthChange, isManualWidth]);
 
   return (
     <Context.Provider value={context}>

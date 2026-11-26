@@ -47,11 +47,13 @@ export const Fader = createComponent('Fader', ({
     observer.observe(elementRef.current, { childList: true, subtree: true });
 
     return () => { observer.disconnect(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-observe when the element changes; id and updateFadeData are stable for this instance
   }, [elementRef.current]);
 
   useLayoutEffect(() => () => {
     ignoreMutationsRef.current = true;
     fadeOut(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- unmount-only cleanup; id and fadeOut are stable for this instance
   }, []);
 
   const saveElement = useBound((element: HTMLDivElement | null) => {

@@ -13,6 +13,7 @@ interface SyncState<S> {
 export function useSyncState<S>(): SyncState<S | undefined>;
 export function useSyncState<S>(initialState: () => S): SyncState<S>;
 export function useSyncState<S>(initialState?: () => S): SyncState<S | undefined> {
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- lazy initial state: computed once on mount
   const stateRef = useRef<S | undefined>(useMemo(() => initialState?.(), []));
   const refresh = useForceUpdate();
 

@@ -38,7 +38,8 @@ export const TooltipRenderer = createComponent('TooltipRenderer', ({
     popper: join(css.muiPopper, className),
     tooltip: css.muiTooltip,
     arrow: css.arrow,
-  }), []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- join is recreated every render; the class-name inputs it combines are listed
+  }), [className, css.muiPopper, css.muiTooltip, css.arrow]);
 
   if (isEmpty && !persist) return <>{children}</>;
 

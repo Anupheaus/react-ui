@@ -21,6 +21,7 @@ export function useInterval(delegate: () => void, interval: number, { dependenci
   useMemo(() => {
     cancelInterval();
     intervalRef.current = setInterval(delegate, interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-arms only when the caller-supplied dependencies change
   }, dependencies);
 
   useOnUnmount(() => {

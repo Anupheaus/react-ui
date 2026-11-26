@@ -88,7 +88,7 @@ export function useDrag({ isEnabled = true, onDragStart, onDragEnd, onDragging }
 
   const draggableProps = useMemo<Partial<DOMAttributes<HTMLElement>>>(() => ({
     onMouseDown,
-  }), []);
+  }), [onMouseDown]);
 
   useOnChange(() => {
     if (isEnabled) return;

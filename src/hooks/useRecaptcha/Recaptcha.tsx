@@ -1,6 +1,6 @@
 import type { MutableRefObject } from 'react';
 import { useMemo, memo, useRef, useCallback, useEffect } from 'react';
-import type { ReCaptchaState } from './RecaptchaModels';
+import type { GReCaptcha, ReCaptchaState } from './RecaptchaModels';
 
 export interface ReCaptchaProps {
   className?: string;
@@ -18,9 +18,13 @@ export interface ReCaptchaProps {
   onExpired?(): void;
 }
 
-interface Props extends ReCaptchaProps {
-  grecaptcha: any;
+/** The props the script-loading wrapper accepts; it supplies `grecaptcha` itself. */
+export interface ReCaptchaWrapperProps extends ReCaptchaProps {
   state: MutableRefObject<ReCaptchaState>;
+}
+
+interface Props extends ReCaptchaWrapperProps {
+  grecaptcha: GReCaptcha;
 }
 
 export const ReCaptcha = memo(({
@@ -59,7 +63,7 @@ export const ReCaptcha = memo(({
       return grecaptcha.enterprise.getResponse(widgetId.current);
     };
     state.current.getWidgetId = () => widgetId.current;
-  }, [grecaptcha]);
+  }, [grecaptcha, state]);
 
   handleChange.current = (token: string) => {
     onChange?.(token);
@@ -102,7 +106,7 @@ export const ReCaptcha = memo(({
 
   useEffect(() => {
     if (state.current.requiresExecution) state.current.execute();
-  }, []);
+  }, [state]);
 
   if (!grecaptcha) return null;
 

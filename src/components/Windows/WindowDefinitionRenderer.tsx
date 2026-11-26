@@ -11,6 +11,7 @@ interface Props<Args extends unknown[], CloseResponseType = string | undefined> 
   definition: WindowDefinition<Args, CloseResponseType>;
   definitionId?: string;
   managerId?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Window or Dialog, whose props differ; a component type is contravariant in its props, so only any accepts both
   windowComponent?: ComponentType<any>;
 }
 
@@ -30,6 +31,7 @@ export const WindowDefinitionRenderer = createComponent('WindowDefinitionRendere
     windowsDefinitionsManager.register({ managerId, definitionId, doNotPersist },
       states => setWindows(states.map(state => (<WindowRenderer<Args, CloseResponseType> key={state.windowId} {...props}{...state} definition={definition} windowComponent={windowComponent} />))));
     return () => windowsDefinitionsManager.unregister(definitionId, managerId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- registers once per definition; props is a new rest object every render, so listing it would re-register (and drop the open windows) on each render
   }, [definitionId, managerId, doNotPersist, definition]);
 
   return (<>

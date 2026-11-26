@@ -249,6 +249,7 @@ export const Markdown = createComponent('Markdown', ({
       setShadowAtTop(false);
       setShadowAtBottom(false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the observer is rebuilt only when read-only mode changes, not for each new onScrolledToBottom
   }, [isReadOnly]);
 
   return (

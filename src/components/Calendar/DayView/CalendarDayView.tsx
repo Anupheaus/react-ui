@@ -69,6 +69,7 @@ export const CalendarDayView = createComponent('CalendarDayView', ({
     if (calendarDayViewElementRef.current == null) return 0;
     const height = calendarDayViewElementRef.current.getBoundingClientRect().height;
     return Math.max(0, Math.round(calendarDayUtils.getOffset(viewingDate, hourHeight, startHour) - (height / 2)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the ref read re-measures once the element mounts; startHour is left out so new entries do not re-scroll the view
   }, [viewingDate, hourHeight, calendarDayViewElementRef.current]);
 
   return (

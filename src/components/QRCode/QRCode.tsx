@@ -58,7 +58,8 @@ export const QRCode = createComponent('QRCode', ({
   }), [logoSize]);
 
   useEffect(() => {
-    if (qrMountRef.current == null) return;
+    const mountElement = qrMountRef.current;
+    if (mountElement == null) return;
     qrRef.current = new QRCodeStyling({
       width: size,
       height: size,
@@ -77,12 +78,13 @@ export const QRCode = createComponent('QRCode', ({
         color: qrTheme.backgroundColor ?? '#ffffff',
       },
     });
-    qrRef.current.append(qrMountRef.current);
+    qrRef.current.append(mountElement);
     return () => {
-      if (qrMountRef.current != null) qrMountRef.current.innerHTML = '';
+      mountElement.innerHTML = '';
       qrRef.current = null;
     };
-  }, []); // intentional: only run on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- create the QR instance once on mount; the effect below pushes later changes via update()
+  }, []);
 
   useEffect(() => {
     qrRef.current?.update({

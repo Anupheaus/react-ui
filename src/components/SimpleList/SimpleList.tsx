@@ -35,13 +35,16 @@ export const SimpleList = createComponent('SimpleList', function <T = void>({
     onChange?.([...items, item as ReactListItem<T>]);
   });
 
+  // Bound so the memoised list props stay stable yet always call the latest onChange (it used to keep the first one).
+  const handleItemsChange = useBound(async (newValue: ReactListItem<T>[]) => {
+    if (onChange == null) return;
+    const [newItems] = await Promise.whenAllSettled(newValue.map(async item => await item));
+    onChange(newItems);
+  });
+
   const internalListProps = useMemo<Partial<ComponentProps<typeof InternalList<T>>>>(() => ({
-    onItemsChange: async (newValue: ReactListItem<T>[]) => {
-      if (onChange == null) return;
-      const [newItems] = await Promise.whenAllSettled(newValue.map(async item => await item));
-      onChange(newItems);
-    },
-  }), []);
+    onItemsChange: handleItemsChange,
+  }), [handleItemsChange]);
 
   return (
     <>

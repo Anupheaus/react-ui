@@ -37,7 +37,7 @@ const useStyles = createStyles(({ wizard, windows: { content } }) => ({
   },
 }));
 
-const isStep = (child: React.ReactElement) => !!(child.type as any).__isWizardStep;
+const isStep = (child: React.ReactElement) => !!(child.type as unknown as { __isWizardStep?: boolean; }).__isWizardStep;
 
 export const Wizard = createComponent('Wizard', ({
   className,
@@ -77,12 +77,13 @@ export const Wizard = createComponent('Wizard', ({
   // Sync controlled mode when step prop changes
   useLayoutEffect(() => {
     if (providedStep != null && onStepChange != null) set(providedStep);
-  }, [providedStep]); // intentional: stable refs/bound fns excluded
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only a new step prop should re-sync; onStepChange is just the controlled-mode flag and is often a new function each render
+  }, [providedStep, set]);
 
   // When steps first register, set initial active step if none is set
   useLayoutEffect(() => {
     if (steps.length > 0 && !get()) set(steps[0]!.id);
-  }, [steps]); // intentional: stable refs/bound fns excluded
+  }, [steps, get, set]);
 
   const moveNext = useBound(() => {
     const currentId = get();
@@ -131,7 +132,7 @@ export const Wizard = createComponent('Wizard', ({
     return filtered;
   }));
 
-  const registrationContext = useMemo(() => ({ isValid: true, upsertStep, removeStep }), []); // intentional: stable refs/bound fns excluded
+  const registrationContext = useMemo(() => ({ isValid: true, upsertStep, removeStep }), [upsertStep, removeStep]);
 
   type StepValidator = { isValid: () => boolean; highlight: () => void };
   const stepValidatorsRef = useRef(new Map<string, StepValidator>());
@@ -155,7 +156,7 @@ export const Wizard = createComponent('Wizard', ({
     setBackIsEnabled: handleSetBackIsEnabled,
     registerStepValidator,
     checkStepIsValid,
-  }), [state, steps]); // intentional: stable refs/bound fns excluded
+  }), [state, steps, moveNext, moveBack, navigateTo, handleSetNextIsEnabled, handleSetBackIsEnabled, registerStepValidator, checkStepIsValid]);
 
   const wizardEnabledContext = useMemo(() => ({
     isNextEnabled,

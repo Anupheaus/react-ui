@@ -9,15 +9,16 @@ interface Props {
 export function useObserver({ isEnabled = true, onChange }: Props = {}) {
   const lastElementRef = useRef<HTMLElement | null>(null);
 
-  const observer = useMemo(() => {
-    return new MutationObserver(mutations => {
-      const element = lastElementRef.current;
-      if (!isEnabled || !element) return;
-      onChange?.(element, mutations);
-    });
-  }, []);
+  // Bound so the single observer always sees the latest isEnabled/onChange, not the ones from the first render.
+  const handleMutations = useBound((mutations: MutationRecord[]) => {
+    const element = lastElementRef.current;
+    if (!isEnabled || !element) return;
+    onChange?.(element, mutations);
+  });
 
-  const enableObserver = () => {
+  const observer = useMemo(() => new MutationObserver(handleMutations), [handleMutations]);
+
+  const enableObserver = useBound(() => {
     const element = lastElementRef.current;
     if (element == null) return;
     observer.observe(element, {
@@ -26,11 +27,11 @@ export function useObserver({ isEnabled = true, onChange }: Props = {}) {
       attributes: true,
     });
     onChange?.(element, []);
-  };
+  });
 
   useMemo(() => {
     if (!isEnabled) observer.disconnect(); else enableObserver();
-  }, [isEnabled]);
+  }, [isEnabled, observer, enableObserver]);
 
   const target = useBound((element: HTMLElement | null) => {
     lastElementRef.current = element;

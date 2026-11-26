@@ -29,7 +29,7 @@ export const LocaleProvider = createComponent('LocaleProvider', ({
   const context = useMemo<LocaleContextProps>(() => ({
     settings,
     onChange: handleChange,
-  }), [settings]);
+  }), [settings, handleChange]);
 
   return (
     <LocaleContext.Provider value={context}>
