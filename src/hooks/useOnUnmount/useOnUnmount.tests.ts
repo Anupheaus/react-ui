@@ -10,6 +10,16 @@ describe('useOnUnmount', () => {
     expect(delegate).toHaveBeenCalledTimes(1);
   });
 
+  it('calls the delegate from the latest render, not the one it mounted with', () => {
+    const first = vi.fn();
+    const latest = vi.fn();
+    const { rerender, unmount } = renderHook(({ delegate }) => useOnUnmount(delegate), { initialProps: { delegate: first } });
+    rerender({ delegate: latest });
+    unmount();
+    expect(first).not.toHaveBeenCalled();
+    expect(latest).toHaveBeenCalledTimes(1);
+  });
+
   it('works with no delegate provided', () => {
     const { unmount } = renderHook(() => useOnUnmount());
     expect(() => unmount()).not.toThrow();

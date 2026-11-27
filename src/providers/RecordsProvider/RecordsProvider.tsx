@@ -94,12 +94,14 @@ export const RecordsProvider = createComponent('RecordsProvider', function <T ex
     invokeChanged(record, 'MODIFIED');
   });
 
-  // Cast because get() with no id hands back the records map itself, which the declared overloads do not describe.
-  const get = useBound(((...args: unknown[]): Map<string, T> | T | undefined => {
-    if (args.length === 0) return records;
-    if (!is.string(args[0])) return;
-    return records.get(args[0]);
-  }) as unknown as RecordsProviderContextEntry<T>['get']);
+  // get(id) is that record; get() is every record, as an array (the map itself is `records`).
+  function getRecords(id: string): T | undefined;
+  function getRecords(): T[];
+  function getRecords(id?: string): T | T[] | undefined {
+    if (id == null) return Array.from(records.values());
+    return records.get(id);
+  }
+  const get = useBound<RecordsProviderContextEntry<T>['get']>(getRecords);
 
   const contextEntry = useMemo<RecordsProviderContextEntry<T>>(() => ({
     records,

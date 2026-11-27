@@ -13,7 +13,7 @@ function useOnUnmount(delegate: () => void): () => boolean
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| `delegate` | `() => void` | No | Cleanup function to call on unmount |
+| `delegate` | `() => void` | No | Cleanup function to call on unmount; the one passed on the latest render is the one called |
 
 ## Returns
 
